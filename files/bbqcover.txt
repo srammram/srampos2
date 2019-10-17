@@ -1,0 +1,2 @@
+ALTER TABLE `srampos_bbq` ADD `confirmed_by` INT NOT NULL AFTER `created_on`;
+ALTER TABLE `srampos_settings` ADD `notification_time_interval` INT NOT NULL AFTER `fb_page_id`;

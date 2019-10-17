@@ -1,0 +1,159 @@
+html {
+    height: 100%;
+    overflow-y: visible; 
+}
+body {
+    height: 100%;
+    width: 100%;
+    background-repeat: no-repeat;
+    background-size: cover;
+    font-family: 'Lato', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	background: url(../../images/login_bg.jpg) no-repeat 100% 100%;
+	background-color: transparent;
+	background-size:cover;
+}
+body:before, body:after {
+    width: 100%;
+    position: static;
+    content: normal;
+}
+.page-back {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 350px;
+    height: 550px;
+    margin-left: -175px;
+    margin-top: -275px;
+    min-height: auto;
+    padding: 0px;
+}
+.bblue{background: none !important;}
+h3 {
+    margin: 0;
+}
+.page-back {
+    padding: 50px 0;
+    overflow: hidden;
+    background-size: cover;
+    position: relative;
+}
+.login-page .login-form-div {
+    width: 100%;
+    max-width: 360px;
+    margin: 0 auto;
+}
+.login-page .login-content,
+.login-page .reg-content {
+    padding-bottom: 20px;
+}
+.login-page .div-title {
+    margin: 20px 0;
+	text-align: center;
+}
+.login-page .div-title h3{color: #333333;font-size: 16px;font-weight: 600;}
+.login-page .input-group .input-group-addon {
+    border-radius: 0;
+}
+.login-page .custom-checkbox {
+    float: left;
+}
+.login-page .checkbox {
+    display: inline-block;
+    margin-bottom: 0;
+    margin-top: 6px;
+    padding-left: 1px;
+}
+.login-page .checkbox-text {
+    line-height: 22px;
+}
+.login-page .checkbox label {
+    cursor: pointer;
+    font-weight: 400;
+    margin-bottom: 0;
+    padding-left: 0px;
+    margin-top: 0;
+}
+.login-page .input-group .input-group-addon i, .login-page input[type="checkbox"] {
+    width: 30px;
+}
+.login-page .input-group .input-group-addon i {
+   color: #fff;
+	font-size: 18px;
+}
+
+.login-page .registration-form-action {
+    background-color: white;
+    padding: 20px;
+}
+.login-page .registration-form-div {
+    max-width: 620px;
+    margin: 0 auto;
+    width: 100%;
+    background: #FFF;
+}
+
+.login-page .registration-left-div {
+    padding-left: 0;
+    padding-right: 0px;
+}
+.login-page .registration-right-div {
+    padding-left: 0;
+    padding-right: 0;
+}
+.login-page .reg-content {
+    padding-bottom: 20px;
+}
+.login-page .input-group{    
+	border: 1px solid #333;
+    border-radius: 50px;
+    padding: 3px 12px 3px 3px;}
+.login-page .btn-success{opacity: 1;background-color: #333333;border-color: #333333;color: #fff;font-size: 18px;font-weight: bold;border-radius: 50px!important;width: 70%;margin-top: 20px;}
+.login-page .btn-success:hover{background-color:transparent;border-color: #333333;color: #333333;transition: all 0.3s ease;}
+.login-page .form-control {border-left-color: transparent!important;height: 45px;    border: none;    border-radius: 50px !important;border-color: transparent!important;background-color: transparent!important;box-shadow: none;}
+.login-page .form-control:focus{box-shadow: none;}
+.login-page .form-control::placeholder{color: #333;}
+.login-page .input-group .input-group-addon{    border-top-left-radius: 50px!important;
+    border-bottom-left-radius: 50px !important;
+    background-color: #848484;
+    border-color: transparent;
+    border-top-right-radius: 50px;
+    border-bottom-right-radius: 50px;
+    padding: 6px 12px;
+    box-shadow: none;}
+.login-page .login-form-links {
+    padding: 20px;
+    margin-top: 5px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+    background-color: white;
+}
+.div-captcha-left {
+    padding-right: 0;
+}
+.div-captcha-right {
+    padding-left: 0;
+}
+
+.login-form-div .alert-danger{border-radius: 50px;padding: 10px 15px;}
+.login-form-div .alert-danger .close{margin: 0px;}
+.login-form-div .alert-danger p{margin: 0px;}
+@media (max-width: 767px) {
+    .login-page .registration-left-div {
+        padding-right: 0px;
+    }
+    .login-page .registration-right-div {
+        padding-left: 0px;
+    }
+    .div-captcha-left {
+        width: 50%;
+        float: left;
+    }
+    .div-captcha-left img {
+        width: 100%;
+        height: 34px;
+    }
+    .div-captcha-right {
+        width: 50%;
+        float: left;
+    }
+}
