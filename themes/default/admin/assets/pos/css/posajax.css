@@ -390,35 +390,61 @@ box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(172,140,101,.6);}
 #ajaxrecipe .btn-prni img{max-height: 100px!important;margin-bottom: 5px;}
 #ajaxrecipe .btn-prni span{height: 15px;line-height: 15px;font-family: 'source_sans_proregular';font-size: 13px;display: inline-block;width: auto;min-width: auto;}
 #ajaxrecipe .btn-prni span:nth-of-type(2){font-weight: bold; font-size:16px; }
-#ajaxrecipe .btn-prni .rippon{
-	position: relative;width: 100%;height: 100%;
+
+#ajaxrecipe .btn-prni .rippon {
+    position: absolute;
+    right: 0;
+    top: 0%;
+    z-index: 1;
+    overflow: hidden;
+    width: 65px;
+    height: 65px;
+    text-align: right;
+    opacity: 1;
 }
 #ajaxrecipe .btn-prni .rippon .offer_list{
-	position: absolute;
-    top: -83%;
-    right: -5px;
-    padding: 1px;
-	background: #ff3300;
+	font-size: 12px;
     color: #fff;
-    border-right: 5px solid #ff3300;
+    text-transform: uppercase;
+    text-align: center;
+    font-weight: bold;
+    line-height: 15px;
+    transform: rotate(45deg);
+    width: 88px;
+    display: block;
+    background: #79A70A;
+    background: linear-gradient(#ff3300 0%, #f5690a 100%);
+    box-shadow: 0 3px 10px -5px rgba(0, 0, 0, 1);
+    position: absolute;
+    top: 15px;
+    right: -21px;
 }
 #ajaxrecipe .btn-prni .rippon .offer_list::before{
 	content: '';
     position: absolute;
-    left: -9px;
-    border-left: 10px solid transparent;
-	border-top: 27px solid #ff3300;
-	top: 0px;
+    left: 0px;
+    top: 100%;
+    z-index: -1;
+    border-left: 3px solid #f5690a;
+    border-right: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+    border-top: 3px solid #f5690a;
 }
 #ajaxrecipe .btn-prni .rippon .offer_list::after{
-	content: '';
+	    content: '';
     position: absolute;
-    left: -9px;
-    border-left: 10px solid transparent;
-	border-bottom: 27px solid #ff3300;
-	bottom: 0px;
+    right: 0%;
+    top: 100%;
+    z-index: -1;
+    border-right: 3px solid #f5690a;
+    border-left: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+    border-top: 3px solid #f5690a;
 }
-#ajaxrecipe .btn-prni .rippon .offer_list span{font-size: 10px;}
+#ajaxrecipe .btn-prni .rippon .offer_list span{font-size: 10px!important;height: auto;font-weight: normal;}
+#ajaxrecipe .btn-prni{z-index: 9;}
+ #ajaxrecipe .btn-prni .rippon .offer_list:hover{opacity: 0;transition: all 0.5s ease-out;}
+
 #subcategory-list {
     border-bottom: 1px solid #939393;
     margin: 10px 0px 10px;

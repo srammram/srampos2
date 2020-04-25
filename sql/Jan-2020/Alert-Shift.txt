@@ -1,0 +1,3 @@
+ALTER TABLE `srampos_shifts_settlement` ADD `cash_open` DECIMAL(10,2) NOT NULL AFTER `default_currency`;
+
+ALTER TABLE `srampos_shifts_settlement` ADD `card_open` DECIMAL(10,2) NOT NULL AFTER `cash_difference`;

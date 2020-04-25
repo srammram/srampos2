@@ -342,3 +342,6 @@ $lang['add_printer']                    = "Add Printer";
 $lang['change_logo']                    = "Change Logo";
 $lang['tax_inclusive']                  = "Tax Inclusive";
 $lang['copy_bill']                      = "Copy Bill";
+$lang['bil_generator_msg1']             = "Bill generation is completed, Payment pending";
+$lang['au_pr_name_tip'] 				= "";
+$lang['consol']							= "Consolidate";

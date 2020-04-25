@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_settings` ADD `discount_request_customer_app` TINYINT NOT NULL AFTER `order_request_stewardapp`;

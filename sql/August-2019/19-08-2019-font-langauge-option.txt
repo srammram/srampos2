@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_pos_settings` ADD `font_family` TINYINT NOT NULL AFTER `pos_header`;

@@ -1,0 +1,3 @@
+ALTER TABLE `srampos_orders` CHANGE `date` `date` DATE NOT NULL COMMENT 'transaction date';
+
+ALTER TABLE `srampos_pro_purchase_orders` CHANGE `bill_disc` `bill_disc` VARCHAR(25) NOT NULL; 

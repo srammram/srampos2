@@ -1,1 +1,1 @@
-var socket_port=6401;var socket_host="http://localhost";var socket_enable="0";
+var socket_port=6401;var socket_host="http://192.168.1.119";var socket_enable="0";

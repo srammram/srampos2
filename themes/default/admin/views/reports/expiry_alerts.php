@@ -135,13 +135,13 @@ if ($this->input->post('warehouse_id')) {
                         <div class="col-sm-3">
                             <div class="form-group">
                                 <?= lang("start_date", "start_date"); ?>
-                                <?php echo form_input('start_date', ($this->session->userdata('start_date')), 'class="form-control " autocomplete="off"  id="start_date"'); ?>
+                                <?php echo form_input('start_date', ($this->input->post('start_date')), 'class="form-control " autocomplete="off"  id="start_date"'); ?>
                             </div>
                         </div>
                         <div class="col-sm-3">
                             <div class="form-group">
                                 <?= lang("end_date", "end_date"); ?>
-                                <?php echo form_input('end_date', ($this->session->userdata('end_date')), 'class="form-control "  autocomplete="off" id="end_date"'); ?>
+                                <?php echo form_input('end_date', ($this->input->post('end_date')), 'class="form-control "  autocomplete="off" id="end_date"'); ?>
                             </div>
                         </div>                        
                     
@@ -189,11 +189,11 @@ $(document).ready(function(){
     $("#form").slideDown();
         $('#end_date').datepicker({
         dateFormat: "yy-mm-dd" ,
-        minDate:  0,      
+        // minDate:  0,      
     });
     $("#start_date").datepicker({
         dateFormat: "yy-mm-dd" ,  
-        minDate:  0,      
+        // minDate:  0,      
         onSelect: function(date){            
             var date1 = $('#start_date').datepicker('getDate');           
             var date = new Date( Date.parse( date1 ) ); 

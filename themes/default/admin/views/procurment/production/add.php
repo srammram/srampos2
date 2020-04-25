@@ -151,11 +151,9 @@
                 <div class="row">
                     <div class="col-lg-12" style="background:#b1d7fd; padding:15px 15px;">
                     	<?php echo form_submit('add_production', $this->lang->line("save"), 'id="add_production" class="btn col-lg-1 btn-sm btn-primary pull-right" '); ?>
-                        <button type="button" class="btn col-lg-1 btn-sm btn-danger pull-right" id="reset" style="margin-right:15px;height:30px!important;font-size: 12px!important"><?= lang('reset'); ?></button>                       
-                        
+                        <button type="button" class="btn col-lg-1 btn-sm btn-danger pull-right" id="reset" style="margin-right:15px;height:30px!important;font-size: 12px!important"><?= lang('reset'); ?></button>
                         <input type="hidden" name="warehouse" id="reqwarehouse" value="<?php echo $Settings->default_warehouse ?>"> 
-                        <input type="hidden" name="biller" id="reqbiller" value="<?php echo $Settings->default_biller ?>"> 
-                        
+                        <input type="hidden" name="biller" id="reqbiller" value="<?php echo $Settings->default_biller ?>">
                         <table class="table custom_tables" style="table-layout: inherit;">
                         	<tbody>
                             	<tr>
@@ -165,7 +163,6 @@
                                     <td>
                                         <input  name="date" id="reqdate" readonly class="form-control" value="<?php echo date('Y-m-d') ?>">
                                     </td>
-                                	
                                     <td width="150px">
                                     	<?= lang("reference", "reference") ?>
                                     </td>
@@ -176,30 +173,20 @@
 										?>
                                     	<input  name="reference_no" id="reqref" readonly class="form-control" value="<?php echo $n2 ?>">
                                     </td>
-                                    
-                                    
-                                    
-                                    
                                 </tr>
                                 <tr>
-                                    
-                                    
-                                	<td>
-                                    	<?= lang("status", "reqstatus") ?>
-                                    </td>
+                                	<td><?= lang("status", "reqstatus") ?></td>
                                     <td>
-                                    	<?php 
-										$st['process'] = lang('process');
+                                    	<?php  $st['process'] = lang('process');
 										if($this->siteprocurment->hasApprovedPermission()){
 											$st['approved'] = lang('approved');	
 										}
 										echo form_dropdown('status', $st, '', 'class="form-control input-tip" id="reqstatus"'); ?>
-                                    </td>                                    
-                                
-                                    <td>
+                                    </td>      
+                                    <td style="display: none;">
                                     	<?= lang("document", "document") ?>
                                     </td>
-                                    <td>
+                                    <td style="display: none;">
                                     	<input id="document" type="file" data-browse-label="" name="document" data-show-upload="false"
                                        data-show-preview="false" class="form-control file">
                                     </td>
@@ -207,9 +194,6 @@
                             </tbody>
                         </table>
                      </div>  
-
-                      
-                       
 					<div class="clearfix"></div>
                          <div class="col-md-12" id="sticker">
                             <div class="well well-sm">
@@ -230,7 +214,6 @@
                             </div>
                         </div>
                         
-                        
                         <div class="col-md-12">
                             <div class="control-group table-group">
                                 <label class="table-label"><?= lang("items"); ?></label>
@@ -245,7 +228,8 @@
                                             <th class="col-md-2"><?= lang("Category"); ?></th>
                                             <th class="col-md-2"><?= lang("Subcategory"); ?></th>
                                             <th class="col-md-2"><?= lang("Brand"); ?></th>
-                                            <th class="col-md-2"><?= lang("qantity"); ?></th>
+											<th class="col-md-2"><?= lang("quantity"); ?></th>
+										    <th class="col-md-2"><?= lang("UOM"); ?></th>
                                            <th class="col-md-1" style="text-align: center;"><i
                                                     class="fa fa-trash-o"
                                                     style="opacity:0.5; filter:alpha(opacity=50);"></i></th>
@@ -331,7 +315,7 @@
                             <div id="poptions-div"></div>
                         </div>
                     </div>
-                    <?php if ($Settings->product_discount && ($Owner || $Admin || $this->session->userdata('allow_discount'))) { ?>
+                <?php if ($Settings->product_discount && ($Owner || $Admin || $this->session->userdata('allow_discount'))) { ?>
                         <div class="form-group">
                             <label for="pdiscount" class="col-sm-4 control-label"><?= lang('product_discount') ?></label>
                             <div class="col-sm-8">
@@ -452,7 +436,6 @@
 if(!empty($ref_requestnumber)){
 ?>
 $(document).ready(function(e) {    
-
     if(localStorage.getItem('qu_requestnumber') == null){
         localStorage.setItem('qu_requestnumber', '<?= $ref_requestnumber ?>');
         $("#qu_requestnumber").val(localStorage.getItem('qu_requestnumber'));
@@ -471,11 +454,7 @@ $(document).ready(function(e) {
     });}
 
 });      
-
-
-    
    $selecte_stores = localStorage.getItem("store_id_check");
-   
    if ($selecte_stores==null || $selecte_stores=="[]") {
     localStorage.removeItem('reqitems');
    }
@@ -487,9 +466,6 @@ localStorage.removeItem("store_id_check");
         }).get();      
       console.log(checkedVals);   
        localStorage.setItem("store_id_check", JSON.stringify(checkedVals));
-
-       // localStorage.setItem('store_id_check', checkedVals);
-
     if (localStorage.getItem('reqitems')) {
         localStorage.removeItem('reqitems');
     }
@@ -535,8 +511,6 @@ localStorage.removeItem("store_id_check");
     if (localStorage.getItem('qu_payment_term')) {
         localStorage.removeItem('qu_payment_term');
     }
-    
-    
     $.ajax({
         type: 'get',
         url: '<?= admin_url('procurment/request/store_list'); ?>',
@@ -559,9 +533,6 @@ localStorage.removeItem("store_id_check");
         }       
     });      
 });
-
-
-
 $('.store_id').on('ifUnchecked', function (event) {    
     var checkedVals = $('.store_id:checkbox:checked').map(function() {             
             return this.value;

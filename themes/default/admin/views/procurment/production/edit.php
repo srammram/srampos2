@@ -150,16 +150,12 @@
                 $attrib = array('data-toggle' => 'validator1', 'role' => 'form', 'id' => 'add-production');
                 echo admin_form_open_multipart("procurment/production/edit/".$production->id, $attrib)
                 ?>
-
-
                 <div class="row">
                     <div class="col-lg-12" style="background:#b1d7fd; padding:15px 15px;">
                     	<?php echo form_submit('add_production', $this->lang->line("save"), 'id="add_production" class="btn col-lg-1 btn-sm btn-primary pull-right" '); ?>
-                        <button type="button" class="btn col-lg-1 btn-sm btn-danger pull-right" id="reset" style="margin-right:15px;height:30px!important;font-size: 12px!important"><?= lang('reset'); ?></button>                       
-                        
+                        <button type="button" class="btn col-lg-1 btn-sm btn-danger pull-right" id="reset" style="margin-right:15px;height:30px!important;font-size: 12px!important"><?= lang('reset'); ?></button>
                         <input type="hidden" name="warehouse" id="reqwarehouse" value="<?php echo $Settings->default_warehouse ?>"> 
                         <input type="hidden" name="biller" id="reqbiller" value="<?php echo $Settings->default_biller ?>"> 
-                        
                         <table class="table custom_tables" style="table-layout: inherit;">
                         	<tbody>
                             	<tr>
@@ -177,14 +173,8 @@
                                     	
                                     	<input  name="reference_no" id="reqref" readonly class="form-control" value="<?=$production->reference_no?>">
                                     </td>
-                                    
-                                    
-                                    
-                                    
                                 </tr>
                                 <tr>
-                                    
-                                    
                                     <td>
                                     	<?= lang("status", "reqstatus") ?>
                                     </td>
@@ -197,10 +187,10 @@
 										echo form_dropdown('status', $st, $production->status, 'class="form-control input-tip" id="reqstatus"'); ?>
                                     </td>                                    
                                 
-                                    <td>
+                                    <td style="display: none;">
                                     	<?= lang("document", "document") ?>
                                     </td>
-                                    <td>
+                                    <td style="display: none;">
                                     	<input id="document" type="file" data-browse-label="" name="document" data-show-upload="false"
                                        data-show-preview="false" class="form-control file">
                                     </td>
@@ -332,7 +322,7 @@
                             <div id="poptions-div"></div>
                         </div>
                     </div>
-                    <?php if ($Settings->product_discount && ($Owner || $Admin || $this->session->userdata('allow_discount'))) { ?>
+                 <?php if ($Settings->product_discount && ($Owner || $Admin || $this->session->userdata('allow_discount'))) { ?>
                         <div class="form-group">
                             <label for="pdiscount" class="col-sm-4 control-label"><?= lang('product_discount') ?></label>
                             <div class="col-sm-8">

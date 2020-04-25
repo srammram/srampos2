@@ -1,0 +1,2 @@
+ALTER TABLE `srampos_bils` ADD `delete_action` TINYINT NOT NULL COMMENT '0-no,1-yes' AFTER `action`;
+ALTER TABLE `srampos_archive_bils` ADD `delete_action` TINYINT NOT NULL COMMENT '0-no,1-yes' AFTER `action`

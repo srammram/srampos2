@@ -1,0 +1,2 @@
+UPDATE `srampos_warehouses` SET `type` = '1' WHERE `srampos_warehouses`.`id` = 1;
+INSERT INTO `srampos_user_store_access` (`id`, `user_id`, `store_id`) VALUES (NULL, '1', '1');

@@ -1,7 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Reports extends MY_Controller
-{
+class Reports extends MY_Controller{
 
     function __construct()
     {
@@ -149,17 +148,17 @@ if($this->session->userdata('group_id') == 1){
         } else {
             $this->datatables
 
-              ->select("'sno',recipe.image, recipe.code as product_code, recipe.name as product_name,  sum(st.stock_in-st.stock_out) as quantity_balance, warehouses.name,st.expiry_date as expiry")
+              ->select("'sno',recipe.image, recipe.code as product_code, recipe.name as product_name,  sum(st.stock_in-st.stock_out) as quantity_balance, warehouses.name,st.expiry as expiry")
                 ->from('recipe')
                 ->join('pro_stock_master st', 'recipe.id=st.product_id', 'left')
                 ->join('warehouses', 'warehouses.id=st.store_id', 'left')                
-                ->where('expiry_date !=', NULL)->where('expiry_date !=', '0000-00-00');
+                ->where('st.expiry !=', NULL)->where('st.expiry !=', '0000-00-00');
                 if ($start_date && $end_date) {
-                     $this->datatables->where('expiry_date BETWEEN "' . $start_date . '" and "' . $end_date . '"');
+                     $this->datatables->where('st.expiry BETWEEN "' . $start_date . '" and "' . $end_date . '"');
                 }else if($start_date){
-                     $this->datatables->where('expiry_date', $date);
+                     $this->datatables->where('st.expiry', $date);
                 }else{
-                    $this->datatables->where('expiry_date <', $date);
+                    $this->datatables->where('st.expiry <', $date);
                     // ->where('expiry <', $date);
                 }
                 
@@ -896,7 +895,8 @@ if($this->session->userdata('group_id') == 1){
         $category_id = $this->input->post('category_id');
         $subcategory_id = $this->input->post('subcategory_id');
 		$recipe_id = $this->input->post('recipe_id');
-		
+		 $discount_status = $this->input->post('dis_status');
+		 
         $limit = $this->input->post('pagelimit');    
         $offsetSegment = 4;
         $offset = $this->uri->segment($offsetSegment,0);
@@ -906,9 +906,19 @@ if($this->session->userdata('group_id') == 1){
 
         $data= '';
         if ($start != '' && $end != '') {
-            $data = $this->reports_model->getItemSaleReports($start,$end,$warehouse_id,$varient_id,$limit,$offset,$this->report_view_access,$this->report_show,$category_id,$subcategory_id,$recipe_id);
+            $data = $this->reports_model->getItemSaleReports($start,$end,$warehouse_id,$varient_id,$limit,$offset,$this->report_view_access,$this->report_show,$category_id,$subcategory_id,$recipe_id,$discount_status);
             $round_tot = $this->reports_model->getRoundamount($start,$end,$warehouse_id);
-            
+			
+			//archival data add in report start
+			if($this->Settings->archival_report){
+				$data1 = $this->reports_model->getItemSaleReports_archival($start,$end,$warehouse_id,$varient_id,$limit,$offset,$this->report_view_access,$this->report_show,$category_id,$subcategory_id,$recipe_id);
+				$round_tot = $this->reports_model->getRoundamount_archival($start,$end,$warehouse_id);
+				foreach($data1['data'] as $row){
+				$data['data'][]=$row;
+				$data['total'] +=1;
+			}
+			}
+            ///archival data add in report end
              if (!empty($data['data'])) {                 
                  $itemreports = $data['data'];
              }
@@ -930,9 +940,7 @@ if($this->session->userdata('group_id') == 1){
         $this->sma->send_json(array('itemreports' => $itemreports,'round' => $round,'pagination'=>$pagination));
    } 
 
-  function pos_settlement()
-    {       
-        
+  function pos_settlement(){       
         $this->sma->checkPermissions();
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         $this->data['users'] = $this->reports_model->getStaff();            
@@ -953,14 +961,18 @@ if($this->session->userdata('group_id') == 1){
         $offsetSegment = 4;
         $offset = $this->uri->segment($offsetSegment,0);
         $defalut_currency = $this->input->post('defalut_currency');
-
         $this->session->set_userdata('start_date', $this->input->post('start_date'));
         $this->session->set_userdata('end_date', $this->input->post('end_date'));
-
         $data= '';
         if ($end_date != '' && $end_date != '') {
             $data = $this->reports_model->getPosSettlementReport($start_date,$end_date,$warehouse_id,$defalut_currency,$limit,$offset,$this->report_view_access,$this->report_show);
-            
+			if($this->Settings->archival_report){
+				$data1 = $this->reports_model->getPosSettlementReport_archival($start_date,$end_date,$warehouse_id,$defalut_currency,$limit,$offset,$this->report_view_access,$this->report_show);
+				foreach($data1['data'] as $row){
+				$data['data'][]=$row;
+				$data['total'] +=1;
+			}
+			}
             if (!empty($data['data'])){
                  
                  $settlements = $data['data'];
@@ -1002,7 +1014,6 @@ if($this->session->userdata('group_id') == 1){
         $kot = $this->input->post('kot');
         $warehouse_id = $this->input->post('warehouse_id');
 		$varient_id = $this->input->post('varient_id');
-		
         $limit = $this->input->post('pagelimit');        
         $offsetSegment = 4;
         $offset = $this->uri->segment($offsetSegment,0);
@@ -1598,8 +1609,7 @@ public function get_DiscountSummary($start = NULL, $end = NULL, $dis_type = NULL
         $this->sma->send_json(array('monthly_reports' => $MonthlyReports,'pagination'=>$pagination));
         /*$this->sma->send_json(array('monthly_reports' => $month));*/
    } 
- function bill_details()
-    {
+ function bill_details(){
         $this->sma->checkPermissions();
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         $this->data['users'] = $this->reports_model->getStaff();        
@@ -1658,9 +1668,29 @@ public function get_bill_no($start = NULL, $end = NULL, $warehouse_id=NULL){
         if ($start != '' && $end != '') {
             if($this->Settings->qsr == 1){
             $data = $this->reports_model->getQSRBillDetailsReport($start,$end,$bill_no,$warehouse_id,$varient_id,$limit,$offset,$this->report_view_access,$this->report_show);
+			 //archival_data report part start
+			  if($this->Settings->archival_report){
+				$data1 = $this->reports_model->getQSRBillDetailsReport_archival($start,$end,$bill_no,$warehouse_id,$varient_id,$limit,$offset,$this->report_view_access,$this->report_show);
+				foreach($data1['data'] as $row){
+				$data['data'][]=$row;
+				$data['total'] +=1;
+			}
+			}
+			//archival_data report part end
             }else{
               $data = $this->reports_model->getBillDetailsReport($start,$end,$bill_no,$warehouse_id,$varient_id,$limit,$offset,$this->report_view_access,$this->report_show);  
+			  //archival_data report part start
+			  if($this->Settings->archival_report){
+				$data1 = $this->reports_model->getBillDetailsReport_archival($start,$end,$bill_no,$warehouse_id,$varient_id,$limit,$offset,$this->report_view_access,$this->report_show);
+				foreach($data1['data'] as $row){
+				$data['data'][]=$row;
+				$data['total'] +=1;
+			}
+			}
+			//archival_data report part end
             }
+			
+			
 
             if (!empty($data['data'])){
                  $bill = $data['data'];
@@ -5062,13 +5092,9 @@ print_r($this->datatables->generate());die;  */
     }
 
 
-    function getLoyaltySummary($customer = null)
-    {
+    function getLoyaltySummary($customer = null){
         $customer = $this->input->get('customer') ? $this->input->get('customer') : NULL;
-        
-        // $this->sma->checkPermissions('loyalty_points', TRUE);    
         $this->load->library('datatables');
-        //{$this->db->dbprefix('loyalty_points_details')}
            $this->datatables
                 ->select("'sno',(CASE
                             WHEN (({$this->db->dbprefix('loyalty_points_details')}.accumulation_points !=0.00 AND {$this->db->dbprefix('loyalty_points_details')}.redemption_points =0.00)) THEN 'Accumulation'
@@ -5080,66 +5106,165 @@ print_r($this->datatables->generate());die;  */
                 ->where("B.customer_id",$customer)
                 ->group_by("B.id, loyalty_points_details.identify")
                 ->order_by('B.id ASC');
-            
-            // $total = $this->db->get();
-
-        echo $this->datatables->generate();
+                 echo $this->datatables->generate();
     }
-     function item_stock()
-    {
-        
+     function item_stock(){
+        $this->data['categories'] = $this->site->getAllrecipeCategories_for_report();        
+        $this->data['sub_categories'] = $this->site->getAllrecipe_subCategories_for_report();
+        $this->data['sale_items'] = $this->site->getAllRecipes();
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
+		$this->data['details_url']  = admin_url('reports/get_itemstocks');
         $this->data['warehouses'] = $this->site->getAllWarehouses();
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('reports'), 'page' => lang('reports')), array('link' => '#', 'page' => lang('stock_report')));
         $meta = array('page_title' => lang('stock_report'), 'bc' => $bc);
         $this->page_construct('reports/stock_report', $meta, $this->data);
     }   
-    function item_stock_details($warehouse_id = NULL)
-    {
-        // $this->sma->checkPermissions('loyalty_points', TRUE);        
-
-        /*if (!$this->Owner && !$warehouse_id) {
-            $user = $this->site->getUser();
-            $warehouse_id = $user->warehouse_id;
-        }*/
-
+    function item_stock_details($warehouse_id = NULL){
         $warehouse_id = $this->input->get('warehouse_id') ? $this->input->get('warehouse_id') : NULL;
-        $type = $this->input->get('type') ? $this->input->get('type') : NULL;
-
+        $type = $this->input->get('type') ? $this->input->get('type') : NULL; 
+        $recipe_id = $this->input->get('recipe_id') ? $this->input->get('recipe_id') : NULL;
+        $category_id = $this->input->get('category_id') ? $this->input->get('category_id') : NULL;
+        $subcategory_id = $this->input->get('subcategory_id') ? $this->input->get('subcategory_id') : NULL;
         $this->load->library('datatables');
-	    
         $this->datatables
-  
-                ->select("'sno',IF(r.name  IS NULL OR r.name  = '', '-', r.name ) AS item_name,r.type,IF(rc.name  IS NULL OR rc.name  = '', '-', rc.name ) AS category_name,IF(rsc.name  IS NULL OR rsc.name  = '', '-', rsc.name ) AS subcategory_name,IF(b.name  IS NULL OR b.name  = '', '-', b.name ) AS brand_name,IF(batch  IS NULL OR batch  = '', '-',batch ) AS batch,stock_in,stock_out,(stock_in-stock_out) as current_stock,cost_price,selling_price,IF(expiry_date  IS NULL OR expiry_date  = '', '-', expiry_date ) AS expiry_date", FALSE)
+                ->select("'sno',IF(r.name  IS NULL OR r.name  = '', '-', r.name ) AS item_name,r.type,IF(rc.name  IS NULL OR rc.name  = '', '-', rc.name ) AS category_name,IF(rsc.name  IS NULL OR rsc.name  = '', '-', rsc.name ) AS subcategory_name,IF(b.name  IS NULL OR b.name  = '', '-', b.name ) AS brand_name,IF(batch  IS NULL OR batch  = '', '-',batch ) AS batch,stock_in,stock_out,(stock_in-stock_out) as current_stock,u.name as unit_name,cost_price,selling_price,IF(expiry  IS NULL OR expiry  = '', '-', expiry ) AS expiry_date", FALSE)
                 ->from('pro_stock_master')
 	         	// ->join('warehouses','warehouses.id=pro_stock_master.store_id')
                 ->join('recipe as r','r.id=pro_stock_master.product_id')
-                ->join('recipe_categories as rc','pro_stock_master.category_id=rc.id','left')
-                ->join('recipe_categories as rsc','pro_stock_master.subcategory_id=rsc.id','left')
-                ->join('brands as b','pro_stock_master.brand_id=b.id','left')                
+                ->join('recipe_categories as rc','pro_stock_master.category_id=rc.id')
+                ->join('recipe_categories as rsc','pro_stock_master.subcategory_id=rsc.id')
+                ->join('brands as b','pro_stock_master.brand_id=b.id') 
+                ->join('units u','u.id=r.unit','left')               
                 ->group_by("pro_stock_master.id");
-                // var_dump($type);
+                //var_dump($type);die;
                 if($warehouse_id){
                  $this->datatables->where($this->db->dbprefix('pro_stock_master') . ".store_id", $warehouse_id);
                 }
-                if($type){
+                if($type || $type !=0){
                  $this->datatables->where("r.type", $type);
                 }
-                
-        echo $this->datatables->generate();
+                if($category_id){
+                 $this->datatables->where("pro_stock_master.category_id", $category_id);
+                }
+                if($subcategory_id){
+                 $this->datatables->where("pro_stock_master.subcategory_id", $subcategory_id);
+                }
+                if($recipe_id){
+                 $this->datatables->where("r.id", $recipe_id);
+                }
+            echo $this->datatables->generate();
     }  
-
-       function modal_view()
-    {        
+	    public function get_itemstocks(){
+        $store_id = $this->input->post('warehouse_id');
+        $limit = $this->input->post('pagelimit');        
+        $offsetSegment = 4;
+        $offset = $this->uri->segment($offsetSegment,0);
+		$recipe_id = $this->input->post('recipe_id');
+		$category_id = $this->input->post('category_id');
+		$subcategory_id = $this->input->post('subcategory_id');	
+		$type = $this->input->post('type');
+		$this->session->set_userdata('type',$type);
+        $this->session->set_userdata('subcategory_id',$subcategory_id);
+	    $this->session->set_userdata('category_id',$category_id);
+        $this->session->set_userdata('recipe_id',$recipe_id);
+	    $this->session->set_userdata('store_id',$store_id);	
+        $data= '';
+        $data = $this->reports_model->get_item_stock($store_id,$recipe_id,$type,$category_id,$subcategory_id,$limit,$offset);   if (!empty($data['data'])){
+                 $report = $data['data'];
+             }
+             else{
+                $report = 'empty';
+             }
+        $total = $data['total'];
+        $pagination = $this->pagination('reports/get_itemstocks',$limit,$offsetSegment,$total);
+        $this->sma->send_json(array('reports' => $report,'pagination'=>$pagination));
+   }
+ function getCurrentStock_excel(){
+	$this->load->library('excel');
+	$this->excel->setActiveSheetIndex(0);
+	$this->excel->getActiveSheet()->getStyle('A1'.':T1')->getFont()->setBold(true);
+	$this->excel->getActiveSheet()->setTitle(lang('current_stock_report'));
+	$this->excel->getActiveSheet()->SetCellValue('A1', lang('s.no'));
+	$this->excel->getActiveSheet()->SetCellValue('B1', lang('Product_Name'));
+	$this->excel->getActiveSheet()->SetCellValue('C1', lang('Type'));
+	$this->excel->getActiveSheet()->SetCellValue('D1', lang('Group'));
+	$this->excel->getActiveSheet()->SetCellValue('E1', lang('Subcategory'));
+	$this->excel->getActiveSheet()->SetCellValue('F1', lang('Brand'));
+	$this->excel->getActiveSheet()->SetCellValue('G1', lang('Batch'));
+	$this->excel->getActiveSheet()->SetCellValue('H1', lang('Stock_In'));
+	$this->excel->getActiveSheet()->SetCellValue('I1', lang('Stock_Out'));
+	$this->excel->getActiveSheet()->SetCellValue('J1', lang('Current_Stock'));
+	$this->excel->getActiveSheet()->SetCellValue('K1', lang('Uom'));
+	$this->excel->getActiveSheet()->SetCellValue('L1', lang('Cost_Price'));
+	$this->excel->getActiveSheet()->SetCellValue('M1', lang('Selling_Price'));
+	$this->excel->getActiveSheet()->SetCellValue('N1', lang('Expiry'));
+	$type                   = $this->session->userdata('type');
+    $subcategory_id         = $this->session->userdata('subcategory_id');
+	$category_id            = $this->session->userdata('category_id');
+	$recipe_id              = $this->session->userdata('recipe_id');
+    $store_id               = $this->session->userdata('store_id');
+	$data                   = $this->reports_model->get_item_stock($store_id,$recipe_id,$type,$category_id,$subcategory_id,$limit=false,$offset=false);
+	$g_total_stock                    = 0;
+	$g_total_stock_out                = 0;
+	$g_total_stock_current            = 0;
+	$index = 2;$rowIndex              = 1;
+	foreach($data['data'] as $k => $d){
+	    $total_stock                  = 0;
+	    $total_stock_out              = 0;
+	    $total_stock_current          = 0;
+	    foreach($d->stock as $kk => $row){
+		$vendor = ($row->vendor!=null)?$row->vendor:'';
+		$s_v_c_p = $row->stock_in * $row->cost_price;
+		$s_v_l_c = $row->stock_in * $row->selling_price;
+		$total_stock += $row->stock_in;
+		$total_stock_out +=$row->stock_out;
+		$total_stock_current +=$row->current_stock;
+		$g_total_stock += $row->stock_in;
+		$g_total_stock_out += $row->stock_in;
+		$g_total_stock_current += $row->current_stock;
+		$this->excel->getActiveSheet()->SetCellValue('A'.$index, $rowIndex);
+		$this->excel->getActiveSheet()->SetCellValue('B'.$index, $row->item_name);
+		$this->excel->getActiveSheet()->SetCellValue('C'.$index, $row->type);
+		$this->excel->getActiveSheet()->SetCellValue('D'.$index, $row->category_name);
+		$this->excel->getActiveSheet()->SetCellValue('E'.$index, $row->subcategory_name);
+		$this->excel->getActiveSheet()->SetCellValue('F'.$index, $row->brand_name);
+		$this->excel->getActiveSheet()->SetCellValue('G'.$index, $row->batch);
+		$this->excel->getActiveSheet()->SetCellValue('H'.$index, $row->stock_in);
+		$this->excel->getActiveSheet()->SetCellValue('I'.$index, $row->stock_out);
+		$this->excel->getActiveSheet()->SetCellValue('J'.$index, $row->current_stock);
+		$this->excel->getActiveSheet()->SetCellValue('K'.$index, $row->unit_name);
+		$this->excel->getActiveSheet()->SetCellValue('L'.$index, $row->cost_price);
+		$this->excel->getActiveSheet()->SetCellValue('M'.$index, $row->selling_price);
+		$this->excel->getActiveSheet()->SetCellValue('N'.$index, $row->expiry_date);
+		$rowIndex++;
+		$index++;
+	    }
+	    $this->excel->getActiveSheet()->SetCellValue('A'.$index, 'Total');
+	    $this->excel->getActiveSheet()->SetCellValue('H'.$index, $total_stock);
+	    $this->excel->getActiveSheet()->SetCellValue('I'.$index, $total_stock_out);
+	    $this->excel->getActiveSheet()->SetCellValue('J'.$index, $total_stock_current);
+	    $this->excel->getActiveSheet()->getStyle('A'.$index.':T'.$index)->getFont()->setBold(true);
+	    $index++;
+	}
+	$lastRow = $index;
+	$this->excel->getActiveSheet()->SetCellValue('A'.$lastRow, 'Grand Total');
+	$this->excel->getActiveSheet()->SetCellValue('H'.$lastRow, $g_total_stock);
+	$this->excel->getActiveSheet()->SetCellValue('I'.$lastRow, $g_total_stock_out);
+	$this->excel->getActiveSheet()->SetCellValue('J'.$lastRow, $g_total_stock_current);
+	$this->excel->getActiveSheet()->getStyle('A'.$lastRow.':T'.$lastRow)->getFont()->setBold(true);
+	$filename = ' Stock Report';
+	$this->load->helper('excel');
+	create_excel($this->excel, $filename);
+	
+    }
+    function modal_view(){        
         /*$this->sma->checkPermissions('index', TRUE);*/
         $this->data['modal_js'] = $this->site->modal_js();        
         $this->load->view($this->theme.'reports/modal_view', $this->data);
     }   
-    public function report_view_access()
-    {
+    public function report_view_access(){
         $pass_code = $this->input->post('pass_code');
          $data = $this->reports_model->check_reportview_access($pass_code); 
-
          if($data != 0)  {
                  $this->session->set_userdata('report_view_access', $data);
                  $this->sma->send_json($data);     
@@ -5149,8 +5274,7 @@ print_r($this->datatables->generate());die;  */
     }
     
     
-    function store_request_reports()
-    {
+    function store_request_reports(){
         $this->sma->checkPermissions();
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         $this->data['users'] = $this->reports_model->getStaff();        
@@ -5163,41 +5287,30 @@ print_r($this->datatables->generate());die;  */
     }
 
    public function get_store_request_rports(){
-
-        // $this->sma->checkPermissions('bbq',TRUE);        
         $start = $this->input->post('start_date');
         $end = $this->input->post('end_date');
         $warehouse_id = $this->input->post('warehouse_id');
         $limit = $this->input->post('pagelimit');    
         $offsetSegment = 4;
         $offset = $this->uri->segment($offsetSegment,0);
-
         $this->session->set_userdata('start_date', $this->input->post('start_date'));
         $this->session->set_userdata('end_date', $this->input->post('end_date'));
-
         $data= '';
         if ($start != '' && $end != '') {
-            
             $data = $this->reports_model->getStoreRequest_Report($start,$end,$warehouse_id,$limit,$offset);
-
-                      
              if (!empty($data['data'])) {                 
                  $report_details = $data['data'];
-             }
-             else{                
+             }else{                
                 $report_details = 'empty';
              }
-            
-        }
-        else{
+        }else{
             $report_details = 'error';
         }
         $total = $data['total'];
         $pagination = $this->pagination('reports/get_store_request_rports',$limit,$offsetSegment,$total);
         $this->sma->send_json(array('report' => $report_details,'pagination'=>$pagination));
    }
-   function quotes_request_reports()
-    {
+   function quotes_request_reports(){
         $this->sma->checkPermissions();
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         $this->data['users'] = $this->reports_model->getStaff();        
@@ -5205,36 +5318,27 @@ print_r($this->datatables->generate());die;  */
         $this->data['billers'] = $this->site->getAllCompanies('biller');
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('reports'), 'page' => lang('reports')), array('link' => '#', 'page' => lang('quotes_request')));
         $meta = array('page_title' => lang('quotes_request'), 'bc' => $bc);
-        
         $this->page_construct('reports/pro_quotes_request_reports', $meta, $this->data);
     }
 
    public function get_quotes_request_reports(){
-
-        // $this->sma->checkPermissions('bbq',TRUE);        
         $start = $this->input->post('start_date');
         $end = $this->input->post('end_date');
         $warehouse_id = $this->input->post('warehouse_id');
         $limit = $this->input->post('pagelimit');    
         $offsetSegment = 4;
         $offset = $this->uri->segment($offsetSegment,0);
-
         $this->session->set_userdata('start_date', $this->input->post('start_date'));
         $this->session->set_userdata('end_date', $this->input->post('end_date'));
-
         $data= '';
         if ($start != '' && $end != '') {
-            
             $data = $this->reports_model->getQuotesRequest_Report($start,$end,$warehouse_id,$limit,$offset);
-
-                      
              if (!empty($data['data'])) {                 
                  $report_details = $data['data'];
              }
              else{                
                 $report_details = 'empty';
              }
-            
         }
         else{
             $report_details = 'error';
@@ -5243,8 +5347,7 @@ print_r($this->datatables->generate());die;  */
         $pagination = $this->pagination('reports/get_quotes_request_reports',$limit,$offsetSegment,$total);
         $this->sma->send_json(array('report' => $report_details,'pagination'=>$pagination));
    }
-    function quotation_reports()
-    {
+    function quotation_reports(){
         $this->sma->checkPermissions();
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         $this->data['users'] = $this->reports_model->getStaff();        
@@ -5602,22 +5705,21 @@ print_r($this->datatables->generate());die;  */
         $end = $this->input->post('end');
         $bill_no = $this->input->post('bill_no');
         $warehouse_id = $this->input->post('warehouse_id');
-	$table_whitelisted = $this->input->post('table_whitelisted');
-	$s_tw = $table_whitelisted;
-	$table_whitelisted = ($table_whitelisted=="print")?0:(($table_whitelisted=='dontprint')?1:'all');
-	$target_amt = $this->input->post('target_amt');
+	    $table_whitelisted = $this->input->post('table_whitelisted');
+	    $s_tw = $table_whitelisted;
+	    $table_whitelisted = ($table_whitelisted=="print")?0:(($table_whitelisted=='dontprint')?1:'all');
+	    $target_amt = $this->input->post('target_amt');
         $limit = ($this->input->post('pagelimit')=='all')?0:$this->input->post('pagelimit'); 
         $offsetSegment = 4;
         $offset = $this->uri->segment($offsetSegment,0);
-	$this->session->set_userdata('list_limit',$this->input->post('pagelimit'));
-	$this->session->set_userdata('table_whitelisted',$s_tw);
-	$this->session->set_userdata('target_amt',$target_amt);
+	    $this->session->set_userdata('list_limit',$this->input->post('pagelimit'));
+	    $this->session->set_userdata('table_whitelisted',$s_tw);
+	    $this->session->set_userdata('target_amt',$target_amt);
         $this->session->set_userdata('start_date', $this->input->post('start'));
         $this->session->set_userdata('end_date', $this->input->post('end'));
 
         $data= '';
         if ($start != '' && $end != '') {
-            
             $data = $this->reports_model->getBillReports($start,$end,$bill_no,$target_amt,$warehouse_id,$table_whitelisted,$limit,$offset);  
             $p_total = $data['print_total'];
 	    $dp_total = $data['dontprint_total'];
@@ -5629,7 +5731,6 @@ print_r($this->datatables->generate());die;  */
              }
         }
         else{
-	   
             $bill = 'error';
         }
         $total = $data['total'];
@@ -6136,4 +6237,108 @@ GROUP BY B.id, PD.identify*/
     $this->data['mapped_rids'] = $this->reports_model->getRecipe_Mapping_for_modify_bills();
     $this->page_construct('reports/recipe_mapping_for_modify_bills', $meta, $this->data);    
     }
+	
+	
+	
+	
+	
+	
+	function nc_kot()
+    {       
+        
+        $this->sma->checkPermissions();
+        $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
+        $this->data['users'] = $this->reports_model->getStaff();            
+        $this->data['warehouses'] = $this->site->getAllWarehouses();
+        $this->data['billers'] = $this->site->getAllCompanies('biller');
+        $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('reports'), 'page' => lang('reports')), array('link' => '#', 'page' => lang('nc_kot_report')));
+        $meta = array('page_title' => lang('nc_kot_report'), 'bc' => $bc);
+        $this->settings = $this->reports_model->getSettings();
+        $this->data['default_currency'] = $this->settings->default_currency;
+        $this->page_construct('reports/nc_kot', $meta, $this->data);
+    }
+      public function get_ncKotreports($start_date = NULL, $end_date = NULL, $warehouse_id = NULL, $varient_id = NULL, $defalut_currency = NULL){
+        
+        $start_date = $this->input->post('start_date');
+        $end_date = $this->input->post('end_date');
+        $warehouse_id = $this->input->post('warehouse_id');
+        $limit = $this->input->post('pagelimit');        
+        $offsetSegment = 4;
+        $offset = $this->uri->segment($offsetSegment,0);
+        $defalut_currency = $this->input->post('defalut_currency');
+
+        $this->session->set_userdata('start_date', $this->input->post('start_date'));
+        $this->session->set_userdata('end_date', $this->input->post('end_date'));
+
+        $data= '';
+        if ($end_date != '' && $end_date != '') {
+            $data = $this->reports_model->getnc_kotReport($start_date,$end_date,$warehouse_id,$defalut_currency,$limit,$offset,$this->report_view_access,$this->report_show);
+			
+			if($this->Settings->archival_report){
+				$data1 = $this->reports_model->getnc_kot_archival($start_date,$end_date,$warehouse_id,$defalut_currency,$limit,$offset,$this->report_view_access,$this->report_show);
+				foreach($data1['data'] as $row){
+				$data['data'][]=$row;
+				$data['total'] +=1;
+			}
+			}
+            
+            if (!empty($data['data'])){
+                 
+                 $settlements = $data['data'];
+             }
+             else{
+                
+                $settlements = 'empty';
+             }
+        }
+        else{
+            $settlements = 'error';
+        }
+        $total = $data['total'];
+        $pagination = $this->pagination('reports/get_settlementreports',$limit,$offsetSegment,$total);
+        $this->sma->send_json(array('settlements' => $settlements,'pagination'=>$pagination));
+   }
+   
+    function resettlement(){       
+        $this->sma->checkPermissions();
+        $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
+        $this->data['users'] = $this->reports_model->getStaff();            
+        $this->data['warehouses'] = $this->site->getAllWarehouses();
+        $this->data['billers'] = $this->site->getAllCompanies('biller');
+        $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('reports'), 'page' => lang('reports')), array('link' => '#', 'page' => lang('resettlement')));
+        $meta = array('page_title' => lang('resettlement'), 'bc' => $bc);
+        $this->settings = $this->reports_model->getSettings();
+        $this->data['default_currency'] = $this->settings->default_currency;
+        $this->page_construct('reports/resettlement', $meta, $this->data);
+    }
+      public function get_resettlementreports($start_date = NULL, $end_date = NULL, $warehouse_id = NULL, $varient_id = NULL, $defalut_currency = NULL){
+        $this->sma->checkPermissions('pos_settlement',TRUE);
+        $start_date = $this->input->post('start_date');
+        $end_date = $this->input->post('end_date');
+        $warehouse_id = $this->input->post('warehouse_id');
+        $limit = $this->input->post('pagelimit');        
+        $offsetSegment = 4;
+        $offset = $this->uri->segment($offsetSegment,0);
+        
+        $this->session->set_userdata('start_date', $this->input->post('start_date'));
+        $this->session->set_userdata('end_date', $this->input->post('end_date'));
+        $data= '';
+        if ($end_date != '' && $end_date != '') {
+            $data = $this->reports_model->getresettlementreports($start_date,$end_date,$warehouse_id,$limit,$offset,$this->report_view_access,$this->report_show);
+            if (!empty($data['data'])){
+                 
+                 $settlements = $data['data'];
+             }
+             else{
+                
+                $settlements = 'empty';
+             }
+        }
+        else{
+            $settlements = 'error';
+        }
+        $total = $data['total'];
+        $pagination = $this->pagination('reports/get_resettlementreports',$limit,$offsetSegment,$total);
+        $this->sma->send_json(array('settlements' => $settlements,'pagination'=>$pagination));
+   } 
 }

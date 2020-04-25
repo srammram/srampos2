@@ -2279,7 +2279,9 @@ public function getRoundamount($start,$end)
 
 		return FALSE;
 	}
-    function re_payment($sale_id,$bill_id,$payment,$multi_currency){
+    function re_payment($sale_id,$bill_id,$data,$payment,$multi_currency){
+		$this->db->where("id",$bill_id);
+		$this->db->update("bils",$data);
 	$this->db->where(array('sale_id'=>$sale_id,'bill_id'=>$bill_id));
 	$this->db->delete('payments');
 	

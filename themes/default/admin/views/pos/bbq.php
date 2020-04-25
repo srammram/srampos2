@@ -1446,6 +1446,10 @@ var lang = {
 
         /*$(document).on('click', '.recipe', function (e) {*/
             $(document).on('click', '.recipe:not(".has-varients")', function (e) {
+			if($(this).hasClass("non_transaction")){
+			 bootbox.alert('ITEM IS NOT AVAILABLE');
+			 return false;
+			}
             $('#modal-loading').show();
             code = $(this).val(),
 			
@@ -1471,7 +1475,10 @@ var lang = {
             });
         });
     $(document).on('click', '.recipe-varient', function (e) {
-            
+          if($(this).hasClass("non_transaction")){
+			 bootbox.alert('ITEM IS NOT AVAILABLE');
+			 return false;
+			}
             code = $(this).val(),
         $('#myVaraintModal').modal('hide');$('#modal-loading').show();
                 wh = $('#poswarehouse').val(),

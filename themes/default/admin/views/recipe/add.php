@@ -225,7 +225,6 @@ if (!empty($variants)) {
                     url: "<?= admin_url('recipe/getRecipeCategories') ?>/" + v,
                     dataType: "json",
                     success: function (scdata) {
-			console.log(scdata)
                         if (scdata != null) {
                             scdata.push({id: '', text: '<?= lang('select_category') ?>'});
                             $("#category").select2("destroy").empty().attr("placeholder", "<?= lang('select_category') ?>").select2({
@@ -339,9 +338,10 @@ if (!empty($variants)) {
 				<?= form_input('khmer_name', set_value('khmer_name'), 'class="form-control" id="local_lang_name" '); ?>
 			    </div>
 			     <div class="form-group">
-				    <label><input type="checkbox" name="special_item" value="1"  class="special_item"> <?= lang('special_item') ?></label>
+				    <label class="special_item_label"><input type="checkbox" name="special_item" value="1"  class="special_item"> <?= lang('special_item') ?></label>
 				    <label><input type="checkbox" name="item_customizable" value="1"  class="item_customizable"> <?= lang('item_customizable') ?></label>
 				</div>
+				
 			    <div class="form-group">
 				<?= lang("item_type", "type") ?>
 				<?php
@@ -439,8 +439,8 @@ if (!empty($variants)) {
 			    <div class="form-group">
 				<?= lang("status", "type") ?>
 				<?php
-				$st = array('1' => lang('Active'),'0' => lang('Inactive'));
-				echo form_dropdown('is_status', $st, (isset($_POST['is_status']) ? $_POST['is_status'] : ($product->active ? $product->active : 0)), 'class="form-control" id="is_status" required="required"');
+				$st = array('1' => lang('Active'),'0' => lang('Inactive'),'2' => lang('non transaction '));
+				echo form_dropdown('is_status', $st, '', 'class="form-control" id="is_status" required="required"');
 				?>
 			    </div>
 			    <div class="form-group variant-container">
@@ -535,7 +535,7 @@ if (!empty($variants)) {
 			    </div>
 			    <div id="img-details"></div>-->
 			    <?php if($this->Settings->recipe_time_management) : ?>
-				<div class="form-group">
+				<div class="form-group preparation_time_block">
 				    <?= lang("preparation_time", "preparation_time") ?>
 				    <?= form_input('preparation_time', (isset($_POST['preparation_time']) ? $_POST['preparation_time'] : (($this->Settings->recipe_time_management && $this->Settings->default_preparation_time!=0)? $this->Settings->default_preparation_time : '')), 'class="form-control tip numberonly" maxlength="3" id="preparation_time"') ?>
 				</div>
@@ -667,7 +667,7 @@ if (!empty($variants)) {
 					?>
 				    <input type="hidden" id="subcategory-hidden">
 				    </div>
-    <div class="input-group-addon no-print addnew-recipe-subcategory" style="padding: 2px 5px;">
+					<div class="input-group-addon no-print addnew-recipe-subcategory" style="padding: 2px 5px;">
 					    <a href="<?= admin_url('system_settings/add_recipecategory?sub=1&type=add_sale'); ?>" id="add-supplier1" class="external" data-toggle="modal" data-target="#myModal">
 						<i class="fa fa-2x fa-plus-square" id="addIcon1"></i>
 					    </a>
@@ -857,10 +857,16 @@ if (!empty($variants)) {
 				<?= form_dropdown('default_sale_unit', $uopts, ($_POST['default_sale_unit'] ? $_POST['default_sale_unit'] : ''), 'class="form-control" id="default_sale_unit" style="width:100%;"'); ?>
 			    </div>
 			</div>
-			<div class="col-md-6 purchase_unit_container" style="display: none;">
+			<div class="col-md-6 purchase_unit_container" >
 			    <div class="form-group ">
 				<?= lang('purchase_unit', 'purchase_unit'); ?>
 				<?= form_dropdown('default_purchase_unit', $uopts, ($_POST['default_sale_unit'] ? $_POST['default_sale_unit'] : ''), 'class="form-control" id="default_purchase_unit" style="width:100%;"'); ?>
+			    </div>
+			</div>
+			<div class="col-md-6 stock_unit" >
+			    <div class="form-group ">
+				<?= lang('stock_unit', 'stock_unit'); ?>
+				<?= form_dropdown('stock_unit', $uopts, ($_POST['stock_unit'] ? $_POST['stock_unit'] : ''), 'class="form-control" id="stock_unit" style="width:100%;"'); ?>
 			    </div>
 			</div>
 			<div class="col-md-6">
@@ -874,12 +880,12 @@ if (!empty($variants)) {
 		<fieldset class="scheduler-border">
 		    <legend class="scheduler-border"><?=lang('stock_details')?></legend>
 		    <div class="col-md-12">
-			<div class="col-md-6">
+			<!--<div class="col-md-6">
 			    <div class="form-group">
 				<?= lang("stock_quantity", "stock_quantity") ?>
 				<?= form_input('stock_quantity', (isset($_POST['stock_quantity']) ? $_POST['stock_quantity'] : ($recipe ? $recipe->stock_quantity : '')), 'class="form-control tip numberonly" maxlength="3" id="stock_quantity"') ?>
 			    </div>
-			</div>
+			</div>-->
 			<div class="col-md-6">
 			    <div class="form-group all">
 				<?= lang("maximum_quantity", "maximum_quantity") ?>
@@ -994,17 +1000,23 @@ if (!empty($variants)) {
             }
         });
         $('#type').change(function () {
-            var t = $(this).val();
+        var t = $(this).val();
 	    var sale_type = $('#sale_type').val();
 	    if (t == 'standard' || t == 'combo' || t == 'production' || t == 'quick_service') {
 		$('.sale_types').show();
 		$('.variant-container').show();
-		
 	    }else{
 		$('.sale_types').hide();
 		$('.variant-container').hide();
-		
 	    }
+		if (t == 'raw' ) {
+            $('.preparation_time_block').css({ "display": "none"});
+			$('.special_item_label').css({ "display": "none" });
+        } else {
+            $('.preparation_time_block').css({ "display": "block"});
+			$('.special_item_label').css({ "display": "block" });
+        }
+
 	    //kitchen type
 	     if (t == 'standard' || t == 'combo' || t == 'addon' || t == 'production' || t == 'quick_service') {
 		$('.kitchen-type-container').show();
@@ -1018,12 +1030,14 @@ if (!empty($variants)) {
 		$('.recipe-image-container').hide();
 	    }
 	    //purchase unit - sale unit
-	    if (t == 'standard' || t == 'combo' || t == 'addon' || t == 'production' || t == 'quick_service') {
+	    if (t == 'combo' || t == 'addon' || t == 'production' || t == 'quick_service') {
 		$('.purchase_unit_container').hide();
 		$('.sales_unit_container').show();
+		$('.stock_unit').show();
 	    }else {
 		$('.purchase_unit_container').show();
 		$('.sales_unit_container').hide();
+		$('.stock_unit').show();
 	    }
 	    
 	    if (t == 'standard' || t == 'combo' || t == 'production' || t == 'addon' || t == 'service' || t == 'quick_service') {
@@ -1035,18 +1049,12 @@ if (!empty($variants)) {
 	    }
             if (t == 'addon' || t == 'production' || t == 'quick_service') {
                 $('.standard').slideDown();
-		
-		$('.raw_div').show();
-		
+				$('.raw_div').show();
             } else if(t == 'semi_finished'){
-		
-		$('.standard').slideDown();
-		$('.raw_div').show();
+		     $('.standard').slideDown();
+		     $('.raw_div').show();
 	    }else {
                 $('.standard').slideUp();
-                //$('#track_quantity').iCheck('check');
-                //$('#unit').attr('disabled', false);
-               // $('#cost').attr('disabled', false);
             }
             if (t !== 'digital') {
                 $('.digital').slideUp();
@@ -1077,14 +1085,8 @@ if (!empty($variants)) {
         var t = $('#type').val();
          if (t == 'addon' || t == 'production' || t == 'quick_service') {
                 $('.standard').slideDown();
-               // $('#unit').attr('disabled', true);
-               // $('#cost').attr('disabled', true);
-                //$('#track_quantity').iCheck('uncheck');
             } else {
                 $('.standard').slideUp();
-                //$('#track_quantity').iCheck('check');
-                //$('#unit').attr('disabled', false);
-               // $('#cost').attr('disabled', false);
             }
         if (t !== 'digital') {
             $('.digital').slideUp();
@@ -1182,13 +1184,9 @@ if (!empty($variants)) {
             $.each(items, function () {
                 var row_no = this.id;
                 var newTr = $('<tr id="row_' + row_no + '" class="item_' + this.id + '" data-item-id="' + row_no + '"></tr>');
-				
                 tr_html = '<td><input name="combo_item_id[]" type="hidden" value="' + this.id + '"><input name="combo_item_name[]" type="hidden" value="' + this.name + '"><input name="combo_item_code[]" type="hidden" value="' + this.code + '"><span id="name_' + row_no + '">' + this.name + '</span></td>';
-				
 				 tr_html += '<td><input class="form-control text-center rquantity" name="combo_item_quantity[]" type="number" value="'+ this.qty +'"></td>';
-               
 			    tr_html += '<td><input class="form-control text-center rprice" name="combo_item_price[]" type="text"  value="' + formatDecimal(this.price) + '" data-id="' + row_no + '" data-item="' + this.id + '" id="combo_item_price_' + row_no + '" onClick="this.select();"></td>';
-				
                 tr_html += '<td class="text-center"><i class="fa fa-times tip del" id="' + row_no + '" title="Remove" style="cursor:pointer;"></i></td>';
                 newTr.html(tr_html);
                 newTr.appendTo("#prTable");
@@ -1200,21 +1198,16 @@ if (!empty($variants)) {
         }
 
         function calculate_price() {
-			
             var rows = $('#prTable').children('tbody').children('tr');
             var pp = 0;
             $.each(rows, function () {
-				
-				
                 pp += formatDecimal(parseFloat($(this).find('.rprice').val())*parseFloat($(this).find('.rquantity').val()));
             });
-			
             $('#cost').val(pp);
             return true;
         }
 
         $(document).on('change', '.rquantity, .rprice', function () {
-			
             calculate_price();
         });
 
@@ -1224,16 +1217,12 @@ if (!empty($variants)) {
             $(this).closest('#row_' + id).remove();
             calculate_price();
         });
-	$('.raw_div').hide();
-	$(document).on('change', '#sale_type', function () {			
+		$('.raw_div').hide();
+		$(document).on('change', '#sale_type', function () {			
             var id = $(this).val();
-	    var type = $('#type').val();
-	    console.log(id)
-	    		
+			var type = $('#type').val();
         });
-		
         var su = 2;
-		
         $('#addRecipe_product').click(function () {
 			var d = $('#sale_type').val();
 			if(d == 1){
@@ -1249,20 +1238,13 @@ if (!empty($variants)) {
 				$('.bbq_div').show();
 				$('.p_div').hide();
 			}
-			
             if (su <= 25) {
-               
                 var html = '<div style="clear:both;height:5px;"></div><div class="row product_box"><div class="col-xs-12"><div class="form-group"><input type="hidden" name="recipe_product[]", class="form-control rrecipe_product" id="recipe_product_' + su + '" placeholder="<?= lang("select") . ' ' . lang("product") ?>" style="width:100%;display: block !important;" /></div></div><div class="col-xs-3 alakat_div">Sukki</div><div class="col-xs-3 alakat_div"><div class="form-group"><input type="text" name="recipe_min_quantity[]"  id="recipe_min_quantity_' + su + '" class="form-control tip numberonly" maxlength="3"   placeholder="<?= lang('min_qty') ?>" /></div></div><div class="col-xs-3 alakat_div"><div class="form-group"><input type="text" name="recipe_max_quantity[]"  id="recipe_max_quantity_' + su + '" class="form-control tip numberonly" maxlength="3"  placeholder="<?= lang('max_qty') ?>" /></div></div><div class="col-xs-3 alakat_div"><div class="form-group"><input type="text" name="recipe_units[]"  id="recipe_units_' + su + '" class="form-control tip" readonly   placeholder="<?= lang('units') ?>" /><input type="hidden" name="recipe_units_id[]"  id="recipe_units_id_' + su + '" class="form-control tip"   placeholder="<?= lang('units') ?>" /></div></div><div class="col-xs-3 bbq_div">BBQ</div><div class="col-xs-3 bbq_div"><div class="form-group"><input type="text" name="bbq_min_quantity[]"  id="bbq_min_quantity_' + su + '" class="form-control tip numberonly" maxlength="3"   placeholder="<?= lang('min_qty') ?>" /></div></div><div class="col-xs-3 bbq_div"><div class="form-group"><input type="text" name="bbq_max_quantity[]"  id="bbq_max_quantity_' + su + '" class="form-control tip numberonly" maxlength="3"  placeholder="<?= lang('max_qty') ?>" /></div></div><div class="col-xs-3 bbq_div"><div class="form-group"><input type="text" name="bbq_units[]"  id="bbq_units_' + su + '" class="form-control tip" readonly   placeholder="<?= lang('units') ?>" /><input type="hidden" name="bbq_units_id[]"  id="bbq_units_id_' + su + '" class="form-control tip"   placeholder="<?= lang('units') ?>" /></div><button type="button" class="btn btn-primary btn-xs deleteRecipe_product"><i class="fa fa-trash-o"></i></button></div>';
-				
 				 html +='</div>';
-				 
                 $('#ex-recipe_product').append(html);
                 var sup = $('#recipe_product_' + su);
                 recipe_products(sup);
                 su++;
-				
-				
-				
             } else {
                 bootbox.alert('<?= lang('max_reached') ?>');
                 return false;
@@ -1272,23 +1254,15 @@ if (!empty($variants)) {
 		$("body").on('click','.deleteRecipe_product', function(){
 			$(this).closest('.product_box').remove();
 		});
-		
 		 var ra = 2;
-		
         $('#addRecipe_addon').click(function () {
             if (ra <= 25) {
-               
                 var html = '<div style="clear:both;height:5px;"></div><div class="row addon_box"><div class="col-xs-12"><div class="form-group"><input type="hidden" name="recipe_addon[]", class="form-control rrecipe_addon" id="recipe_addon_' + ra + '" placeholder="<?= lang("select") . ' ' . lang("addon") ?>" style="width:100%;display: block !important;" /></div></div><div class="col-xs-12"><button type="button" class="btn btn-primary btn-xs deleteRecipe_addon"><i class="fa fa-trash-o"></i></button></div>';
-				
 				 html +='</div>';
-				 
                 $('#ex-recipe_addon').append(html);
 				var sup = $('#recipe_addon_' + ra);
                 recipe_addon(sup);
                 ra++;
-				
-				
-				
             } else {
                 bootbox.alert('<?= lang('max_reached') ?>');
                 return false;
@@ -1308,17 +1282,13 @@ if (!empty($variants)) {
 			data : 'term='+id,
 			dataType : "json",
 			success : function(data) {
-				
 				$('#recipe_units_'+name).val(data.results[0].name);
 				$('#recipe_units_id_'+name).val(data.results[0].id);
-				
 				$('#bbq_units_'+name).val(data.results[0].name);
 				$('#bbq_units_id_'+name).val(data.results[0].id);
 			}
 		});
-		   
 		});
-
         var _URL = window.URL || window.webkitURL;
         $("input#images").on('change.bs.fileinput', function () {
             var ele = document.getElementById($(this).attr('id'));
@@ -1357,15 +1327,11 @@ if (!empty($variants)) {
             attrs = attrs_val.split(',');
             for (var i in attrs) {
                 if (attrs[i] !== '') {
-                    
                         $('#attrTable').show().append('<tr class="attr"><td><input type="hidden" name="attr_name[]" value="' + attrs[i] + '"><span>' + attrs[i] + '</span></td><td class="quantity text-center"><input type="text" name="attr_quantity[]" value="0"><span></span></td><td class="price text-right"><input type="text" name="attr_price[]" value="0"></span></td><td class="text-center"><i class="fa fa-times delAttr"></i></td></tr>');
                     
                 }
             }
         });
-//$('#attributesInput').on('select2-blur', function(){
-//    $('#addAttributes').click();
-//});
         $(document).on('click', '.delAttr', function () {
             $(this).closest("tr").remove();
         });
@@ -1382,7 +1348,6 @@ if (!empty($variants)) {
             $('#aprice').val(row.children().eq(3).find('span').text());
             $('#aModal').appendTo('body').modal('show');
         });
-
         $('#aModal').on('shown.bs.modal', function () {
             $('#aquantity').focus();
             $(this).keypress(function( e ) {
@@ -1391,18 +1356,7 @@ if (!empty($variants)) {
                 }
             });
         });
-        /*$(document).on('click', '#updateAttr', function () {
-            var wh = $('#awarehouse').val(), wh_name;
-            $.each(warehouses, function () {
-                if (this.id == wh) {
-                    wh_name = this.name;
-                }
-            });
-            row.children().eq(1).html('<input type="hidden" name="attr_warehouse[]" value="' + wh + '"><input type="hidden" name="attr_wh_name[]" value="' + wh_name + '"><span>' + wh_name + '</span>');
-            row.children().eq(2).html('<input type="hidden" name="attr_quantity[]" value="' + ($('#aquantity').val() ? $('#aquantity').val() : 0) + '"><span>' + decimalFormat($('#aquantity').val()) + '</span>');
-            row.children().eq(3).html('<input type="hidden" name="attr_price[]" value="' + $('#aprice').val() + '"><span>' + currencyFormat($('#aprice').val()) + '</span>');
-            $('#aModal').modal('hide');
-        });*/
+     
     });
 
     <?php if ($recipe) { ?>
@@ -1410,14 +1364,8 @@ if (!empty($variants)) {
         var t = "<?=$recipe->type?>";
         if (t !== 'standard') {
             $('.standard').slideUp();
-           // $('#cost').attr('required', 'required');
-           // $('#track_quantity').iCheck('uncheck');
-            //$('form[data-toggle="validator"]').bootstrapValidator('addField', 'cost');
         } else {
             $('.standard').slideDown();
-           // $('#track_quantity').iCheck('check');
-           // $('#cost').removeAttr('required');
-           // $('form[data-toggle="validator"]').bootstrapValidator('removeField', 'cost');
         }
         if (t !== 'digital') {
             $('.digital').slideUp();
@@ -1430,12 +1378,9 @@ if (!empty($variants)) {
         }
         if (t !== 'combo') {
             $('.combo').slideUp();
-            //$('#add_item').removeAttr('required');
-            //$('form[data-toggle="validator"]').bootstrapValidator('removeField', 'add_item');
         } else {
             $('.combo').slideDown();
-            //$('#add_item').attr('required', 'required');
-            //$('form[data-toggle="validator"]').bootstrapValidator('addField', 'add_item');
+            
         }
         $("#code").parent('.form-group').addClass("has-error");
         $("#code").focus();
@@ -1481,12 +1426,15 @@ if (!empty($variants)) {
                     success: function (data) {
                         $('#default_sale_unit').select2("destroy").empty().select2({minimumResultsForSearch: 7});
                         $('#default_purchase_unit').select2("destroy").empty().select2({minimumResultsForSearch: 7});
+						  $('#stock_unit').select2("destroy").empty().select2({minimumResultsForSearch: 7});
                         $.each(data, function () {
                             $("<option />", {value: this.id, text: this.name+' ('+this.code+')'}).appendTo($('#default_sale_unit'));
                             $("<option />", {value: this.id, text: this.name+' ('+this.code+')'}).appendTo($('#default_purchase_unit'));
+						    $("<option />", {value: this.id, text: this.name+' ('+this.code+')'}).appendTo($('#stock_unit'));
                         });
                         $('#default_sale_unit').select2('val', v);
                         $('#default_purchase_unit').select2('val', v);
+						$('#stock_unit').select2('val', v);
                     },
                     error: function () {
                         bootbox.alert('<?= lang('ajax_error') ?>');
@@ -1495,22 +1443,23 @@ if (!empty($variants)) {
             } else {
                 $('#default_sale_unit').select2("destroy").empty();
                 $('#default_purchase_unit').select2("destroy").empty();
+				$('#stock_unit').select2("destroy").empty();
                 $("<option />", {value: '', text: '<?= lang('select_unit_first') ?>'}).appendTo($('#default_sale_unit'));
                 $("<option />", {value: '', text: '<?= lang('select_unit_first') ?>'}).appendTo($('#default_purchase_unit'));
+				$("<option />", {value: '', text: '<?= lang('select_unit_first') ?>'}).appendTo($('#stock_unit'));
                 $('#default_sale_unit').select2({minimumResultsForSearch: 7}).select2('val', '');
                 $('#default_purchase_unit').select2({minimumResultsForSearch: 7}).select2('val', '');
+				$('#stock_unit').select2({minimumResultsForSearch: 7}).select2('val', '');
             }
         });
     });
 </script>
 <script>
 $(document).on('change', '#cost, #tax_rate, #tax_method', function () {
-	
         var unit_price = parseFloat($('#cost').val());
 		var pr_tax = $('#tax_rate').children(":selected").attr("data-id");
 		var item_tax_method = $('#tax_method').val();
         var pr_tax_val = 0, pr_tax_rate = 0;
-
 		if (item_tax_method == 0) {
 			pr_tax_val = formatDecimal(((unit_price) * parseFloat(pr_tax)) / (100 + parseFloat(pr_tax)), 4);
 			pr_tax_rate = formatDecimal('10.00') + '%';
@@ -1519,7 +1468,6 @@ $(document).on('change', '#cost, #tax_rate, #tax_method', function () {
 			pr_tax_val = formatDecimal((((unit_price) * parseFloat(pr_tax)) / 100), 4);
 			pr_tax_rate = formatDecimal('10.00') + '%';
 		}
-
         $('#price').val(unit_price);
         $('#tax_amount').val(pr_tax_val);
     });
@@ -1527,12 +1475,9 @@ $(document).on('change', '#cost, #tax_rate, #tax_method', function () {
 
 
 <script type="text/javascript">
-
 	$("#recipe_form").validate({
 		ignore: [],
-        
 	});
-	
 </script>
 
 <script>
@@ -1540,7 +1485,7 @@ $(document).on('change', '#cost, #tax_rate, #tax_method', function () {
     $(document).ready(function(){
     $('.search-varients').autocomplete({
         html: true,
-    source: function(request, response) {       
+		source: function(request, response) {       
         $('ul.ui-autocomplete').html('');
                 $.ajax({
                 url: '<?= admin_url('recipe/search_varients')?>',
@@ -1548,7 +1493,6 @@ $(document).on('change', '#cost, #tax_rate, #tax_method', function () {
                 dataType: 'json',
                 data: 'term=' +request.term,
                 success: function(data) {
-         console.log(data)
                     $result = [];
                     $.each(data, function(n, v) {
                         var str = [];

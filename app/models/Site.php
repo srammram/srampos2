@@ -1,13 +1,10 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Site extends CI_Model
-{
-
+class Site extends CI_Model{
     public function __construct() {
         parent::__construct();
 	$this->load->library('ion_auth');
     }
-
     public function get_total_qty_alerts() {
         /*$this->db->where('quantity < alert_quantity', NULL, FALSE)->where('track_quantity', 1);
         return $this->db->count_all_results('products');*/
@@ -252,9 +249,7 @@ class Site extends CI_Model
 		return FALSE;
 	}
 	public function orderBBQTablecheck($val){
-		
 		$current_date = date('Y-m-d');
-		
 		$main = "SELECT KO.waiter_id
 					FROM " . $this->db->dbprefix('restaurant_table_orders') . " AS RTO
 					JOIN " . $this->db->dbprefix('kitchen_orders') . " KO ON KO.sale_id = RTO.order_id
@@ -262,14 +257,9 @@ class Site extends CI_Model
 					WHERE RTO.table_id='".$val."' AND O.payment_status is null GROUP BY RTO.table_id";
 //DATE(O.date) ='".$current_date."'  AND 
 		$q = $this->db->query($main);
-		
 		if ($q->num_rows() > 0) {
-
 			foreach (($q->result()) as $row) {
-              
-			 
 				if($this->session->userdata('user_id') == $row->waiter_id){
-
 					$splits = "SELECT O.split_id
 					FROM " . $this->db->dbprefix('orders') . " AS O
 					JOIN " . $this->db->dbprefix('restaurant_table_orders') . " T ON T.order_id = O.id
@@ -436,7 +426,7 @@ class Site extends CI_Model
 	}
 	
 	
-	public function create_notification($notification_array = array()){
+	public function create_notification_bk($notification_array = array()){
 	    $this->load->library('socketemitter');
 		
 		if(!empty($notification_array)){	
@@ -507,7 +497,20 @@ class Site extends CI_Model
 		}
 		return false;
 	}
-	
+	public function create_notification($notification_array = array()){
+		
+		$ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, site_url('archival_data/create_notifications'));
+        curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+        $notification_array = json_encode($notification_array);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $notification_array);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_VERBOSE, true);
+        $result = curl_exec($ch);
+        curl_close($ch);
+	}
 	public function notification_clear($notification_id){
 		
 		if(!empty($notification_id)){	
@@ -696,27 +699,51 @@ class Site extends CI_Model
 	}
 	
 	public function checkBuyget($recipe_id){
-		
 		$current_date = date('Y-m-d');
 		$current_time = date('H:i:s');
-		
+		$current_day=date("l");
 		$check_get_x = 'buy_x_get_x';
 		$check_get_y = 'buy_x_get_y';
-		
-		$buy_query_x = "SELECT buy_get.id, buy_get.buy_method, buy_get.buy_quantity, buy_get.get_quantity, buy_get_items.get_item, recipe.name AS free_recipe FROM ".$this->db->dbprefix('buy_get')." AS buy_get
+		$buy_query_x = "SELECT buy_get.id, buy_get.buy_method, buy_get.buy_quantity, buy_get.get_quantity, buy_get_items.get_item, recipe.name AS free_recipe,buy_variant_id , get_variant_id,rv.name variant_Name  FROM ".$this->db->dbprefix('buy_get')." AS buy_get
 		JOIN  ".$this->db->dbprefix('buy_get_items')." AS buy_get_items ON buy_get_items.buy_get_id = buy_get.id 
 		JOIN ".$this->db->dbprefix('recipe')." AS recipe ON recipe.id = buy_get_items.get_item
-		WHERE buy_get.buy_method = '".$check_get_x."' AND buy_get_items.buy_item = ".$recipe_id."  AND '".$current_date."' BETWEEN buy_get.start_date AND buy_get.end_date AND '".$current_time."' BETWEEN buy_get.start_time AND buy_get.end_time ORDER BY buy_get.id DESC LIMIT 1";
+		left join ".$this->db->dbprefix('recipe_variants')." AS rv ON rv.id = buy_get_items.get_variant_id
+		WHERE buy_get.buy_method = '".$check_get_x."' AND buy_get_items.buy_item = ".$recipe_id."  AND '".$current_date."' BETWEEN buy_get.start_date AND buy_get.end_date AND '".$current_time."' BETWEEN buy_get.start_time AND buy_get.end_time and  FIND_IN_SET('".$current_day."' ,week_days) ORDER BY buy_get.id DESC LIMIT 1";
+
 		
-		$buy_query_y = "SELECT buy_get.id, buy_get.buy_method, buy_get.buy_quantity, buy_get.get_quantity, buy_get_items.get_item, recipe.name AS free_recipe FROM ".$this->db->dbprefix('buy_get')." AS buy_get
+		$buy_query_y = "SELECT buy_get.id, buy_get.buy_method, buy_get.buy_quantity, buy_get.get_quantity, buy_get_items.get_item, recipe.name AS free_recipe,buy_variant_id , get_variant_id,rv.name variant_Name  FROM ".$this->db->dbprefix('buy_get')." AS buy_get
 		JOIN  ".$this->db->dbprefix('buy_get_items')." AS buy_get_items ON buy_get_items.buy_get_id = buy_get.id 
 		JOIN ".$this->db->dbprefix('recipe')." AS recipe ON recipe.id = buy_get_items.get_item
-		WHERE buy_get.buy_method = '".$check_get_y."' AND buy_get_items.buy_item = ".$recipe_id."  AND '".$current_date."' BETWEEN buy_get.start_date AND buy_get.end_date AND '".$current_time."' BETWEEN buy_get.start_time AND buy_get.end_time ORDER BY buy_get.id DESC LIMIT 1";
-		
-			
+		left join ".$this->db->dbprefix('recipe_variants')." AS rv ON rv.id = buy_get_items.get_variant_id
+		WHERE buy_get.buy_method = '".$check_get_y."' AND buy_get_items.buy_item = ".$recipe_id."  AND '".$current_date."' BETWEEN buy_get.start_date AND buy_get.end_date AND '".$current_time."' BETWEEN buy_get.start_time AND buy_get.end_time and  FIND_IN_SET('".$current_day."' ,week_days) ORDER BY buy_get.id DESC LIMIT 1";
 		$x = $this->db->query($buy_query_x);
 		$y = $this->db->query($buy_query_y);
+		if ($x->num_rows() > 0) {
+			return $x->row();
+		}elseif($y->num_rows() > 0){
+			return $y->row();
+		}
+		 return FALSE;
+	}
+	public function checkBuyget_variant($recipe_id,$variant_id){
+		$current_date = date('Y-m-d');
+		$current_time = date('H:i:s');
+		$check_get_x = 'buy_x_get_x';
+		$check_get_y = 'buy_x_get_y';
+		$buy_query_x = "SELECT buy_get.id, buy_get.buy_method, buy_get.buy_quantity, buy_get.get_quantity, buy_get_items.get_item, recipe.name AS free_recipe,buy_variant_id , get_variant_id,rv.name variant_Name  FROM ".$this->db->dbprefix('buy_get')." AS buy_get
+		JOIN  ".$this->db->dbprefix('buy_get_items')." AS buy_get_items ON buy_get_items.buy_get_id = buy_get.id 
+		JOIN ".$this->db->dbprefix('recipe')." AS recipe ON recipe.id = buy_get_items.get_item
+		left join ".$this->db->dbprefix('recipe_variants')." AS rv ON rv.id = buy_get_items.get_variant_id
+		WHERE buy_get.buy_method = '".$check_get_x."' AND buy_get_items.buy_item = ".$recipe_id."And  buy_get_items.buy_variant_id = ".$variant_id."  AND '".$current_date."' BETWEEN buy_get.start_date AND buy_get.end_date AND '".$current_time."' BETWEEN buy_get.start_time AND buy_get.end_time ORDER BY buy_get.id DESC LIMIT 1";
 		
+		$buy_query_y = "SELECT buy_get.id, buy_get.buy_method, buy_get.buy_quantity, buy_get.get_quantity, buy_get_items.get_item, recipe.name AS free_recipe,buy_variant_id , get_variant_id,rv.name variant_Name  FROM ".$this->db->dbprefix('buy_get')." AS buy_get
+		JOIN  ".$this->db->dbprefix('buy_get_items')." AS buy_get_items ON buy_get_items.buy_get_id = buy_get.id 
+		JOIN ".$this->db->dbprefix('recipe')." AS recipe ON recipe.id = buy_get_items.get_item
+		left join ".$this->db->dbprefix('recipe_variants')." AS rv ON rv.id = buy_get_items.get_variant_id
+		WHERE buy_get.buy_method = '".$check_get_y."' AND buy_get_items.buy_item = ".$recipe_id." and  buy_get_items.buy_variant_id = ".$variant_id."  AND '".$current_date."' BETWEEN buy_get.start_date AND buy_get.end_date AND '".$current_time."' BETWEEN buy_get.start_time AND buy_get.end_time ORDER BY buy_get.id DESC LIMIT 1";
+		$x = $this->db->query($buy_query_x);
+		
+		$y = $this->db->query($buy_query_y);
 		if ($x->num_rows() > 0) {
 			return $x->row();
 		}elseif($y->num_rows() > 0){
@@ -1405,6 +1432,8 @@ public function getaddonitemid($id){
 		$this->db->where('order_items.id', $order_item_id);
         $q = $this->db->get('addon_sale_items');         
         // print_r($this->db->last_query());die;
+		//Print_r($order_item_id); die;
+		
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -1475,6 +1504,20 @@ public function getaddonitemid($id){
 		$this->db->join('recipe', 'recipe.id = addon_bill_items.sale_item_id');		
 		$this->db->where('bil_items.id', $bill_item_id);
         $q = $this->db->get('addon_bill_items');          
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return FALSE;
+    }	
+	public function getAddonByRecipeidAndBillitemid_archival($recipe_id, $bill_item_id) {	
+		$this->db->select('addon_bill_items_archival.*, recipe.name AS addon_name,');
+		$this->db->join('bil_items_archival', 'bil_items_archival.id = addon_bill_items_archival.bill_item_id');
+		$this->db->join('recipe', 'recipe.id = addon_bill_items_archival.sale_item_id');		
+		$this->db->where('bil_items_archival.id', $bill_item_id);
+        $q = $this->db->get('addon_bill_items_archival');          
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -1629,7 +1672,8 @@ public function getAllDefalutKitchen() {
     }
 
     public function getThisStore(){
-	$q = $this->db->get_where('warehouses',array('this_store'=>1));
+	$q = $this->db->get_where('warehouses',array('id'=>1));
+	
 	if($q->num_rows()>0){
 	    return $q->row();
 	}
@@ -1637,9 +1681,7 @@ public function getAllDefalutKitchen() {
     }
 
     public function getAllStores() {
-        // $q = $this->db->get_where('warehouses',array('type'=>1));
-        $q = $this->db->get_where('warehouses',array('this_store'=>1));
-        // $q = $this->db->get('warehouses');
+        $q = $this->db->get_where('warehouses',array('type'=>1));
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -1702,6 +1744,16 @@ public function getAllDefalutKitchen() {
         }
         return FALSE;
     }
+	 public function getAreasByIDWithArea($id) {
+		$this->db->select("restaurant_tables.*,restaurant_areas.name as floor");
+		$this->db->join("restaurant_areas","restaurant_areas.id=area_id","left");
+		$this->db->where("restaurant_tables.id",$id);
+		$q=$this->db->get("restaurant_tables");
+        if ($q->num_rows() > 0) {
+            return $q->row();
+        }
+        return FALSE;
+    }
 	
 	public function getAllKitchens() {
         $q = $this->db->get('restaurant_kitchens');
@@ -1734,7 +1786,6 @@ public function getAllDefalutKitchen() {
     }
 	
 	public function getAllTables() {
-
         /*$q = $this->db->get('restaurant_tables');*/
         $this->db->select('*');		
 		$this->db->order_by('name', 'asc');
@@ -1782,7 +1833,7 @@ public function getAllDefalutKitchen() {
 			$this->db->where('status',1)
 			->where('(parent_id="null" or parent_id=0)')->order_by('name');
 		}
-        $q = $this->db->get("recipe_categories");
+        $q = $this->db->get("recipe_categories");        
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -1810,7 +1861,47 @@ public function getAllDefalutKitchen() {
         }
         return FALSE;
     }
+/*For Item Stock Report Purpose*/
+	public function getAllrecipeCategories_for_report() {
 
+		if($this->pos_settings->categories_list_by ==0) {
+			//$this->db->where('type',0);
+			$this->db->where('status',1);
+			$this->db->where('(parent_id="null" or parent_id=0)')->order_by('id');
+		}else{
+			//$this->db->where('type',0);
+			$this->db->where('status',1);
+			$this->db->where('(parent_id="null" or parent_id=0)')->order_by('name');
+		}
+        $q = $this->db->get("recipe_categories");        
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return FALSE;
+    }
+
+    	public function getAllrecipe_subCategories_for_report() {
+
+		if($this->pos_settings->categories_list_by ==0) {
+			//$this->db->where('type',0)
+			$this->db->where('parent_id !=0')->order_by('id');
+		}else{
+			//$this->db->where('type',0)
+			$this->db->where('parent_id !=0')->order_by('name');
+		}
+        $q = $this->db->get("recipe_categories");
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return FALSE;
+    }
+/*For Item Stock Report Purpose*/
     public function getAllrecipeMappedCategories() {
 		$this->db->select('recipe_categories.*');
 		if($this->pos_settings->categories_list_by ==0) {
@@ -1857,8 +1948,7 @@ public function getAllDefalutKitchen() {
         }else{
         	$this->db->order_by('recipe_categories.name');
         }
-        $q = $this->db->get("recipe_categories");   
-        // print_r($this->db->last_query());die;  
+        $q = $this->db->get("recipe_categories"); 
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -2201,7 +2291,7 @@ function getAllrecipeMappedSubCategories(){
     }
 	public function getUserByID($id)
     {
-        $q = $this->db->get_where('users', array('id' => $id, 'active' => 1), 1);        
+        $q = $this->db->get_where('users', array('id' => $id, 'active' => 1), 1); 
         if ($q->num_rows() > 0) {        	
             return $q->row();
         }
@@ -3072,6 +3162,16 @@ function getAllrecipeMappedSubCategories(){
 
     public function getUnitByID($id) {
         $q = $this->db->get_where("units", array('id' => $id), 1);
+        if ($q->num_rows() > 0) {
+            return $q->row();
+        }
+        return FALSE;
+    }
+	 public function getUnitByname($name) {
+		$this->db->select("*");
+		$this->db->or_where("code",$name);
+		$this->db->or_where("name",$name);
+		$q=$this->db->get("units");
         if ($q->num_rows() > 0) {
             return $q->row();
         }
@@ -4371,7 +4471,7 @@ public function getOrderStatus($split_id){
 	}else if($case != "daily" && $start && $end){
 	    $this->db->where(array('DATE(date)>='=>$start,'DATE(date)<'=>$end));
 	}
-	$where = '';
+	      $where = '';
           if($case == "daily" && $start && $end){
             $where = " AND DATE(date) >= '".$start."' AND DATE(date) >= '".$end."'"; 
           }else if($case == "yearly" && $start && $end){
@@ -4724,27 +4824,42 @@ public function getOrderStatus($split_id){
         }
         return FALSE;
     }
+	 public function getAvilAbleTables_dineIn(){
+
+    	$current_date = date('Y-m-d');
+		$current_date = $this->getTransactionDate();
+    	$myQuery = "SELECT T.id,T.name
+        FROM " . $this->db->dbprefix('restaurant_tables') . " T
+        
+            WHERE T.id NOT IN (SELECT table_id from srampos_orders WHERE payment_status IS NULL AND order_cancel_status = 0 AND DATE(date) ='".$current_date."') and T.sale_type='alacarte'
+             GROUP BY T.id";//
+            
+        $q = $this->db->query($myQuery);
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return FALSE;
+    }
     public function getsplitsformerge($current_split){
-    	
     	$gp = $this->site->checkPermissions();    	
     	$current_date = date('Y-m-d');
     	$current_date = $this->getTransactionDate();
     	$user_id = $this->session->userdata('user_id');
     	 $where ='';
-        if($gp[0]['pos-view_allusers_orders'] == 0)
-        {
+        if($gp[0]['pos-view_allusers_orders'] == 0){
             $where = "AND O.created_by =".$user_id."";
         }
-
-    	$myQuery = "SELECT O.split_id,CONCAT(T.name, '(', C.name,')') AS name
+    	$myQuery = "SELECT C.name,CONCAT(T.name, '[', O.split_id,']') AS name,split_id
         FROM " . $this->db->dbprefix('orders') . " O 
         JOIN " . $this->db->dbprefix('restaurant_tables') . " T ON T.id = O.table_id
         JOIN " . $this->db->dbprefix('companies') . " C ON C.id = O.customer_id
-            WHERE  O.split_id !='".$current_split."' AND DATE(O.date) ='".$current_date."'  AND O.payment_status IS NULL AND O.order_cancel_status = 0  AND
-            O.split_id NOT IN (SELECT S.sales_split_id from " . $this->db->dbprefix('sales') . "   AS S WHERE DATE(S.date) ='".$current_date."')".$where." AND O.order_type !=4
-            GROUP BY O.split_id"; 
-
-        $q = $this->db->query($myQuery);
+        WHERE  O.split_id !='".$current_split."' AND DATE(O.date) ='".$current_date."'  AND O.payment_status IS NULL AND O.order_cancel_status = 0  AND
+        O.split_id NOT IN (SELECT S.sales_split_id from " . $this->db->dbprefix('sales') . "   AS S WHERE DATE(S.date) ='".$current_date."')".$where." AND O.order_type !=4
+        GROUP BY O.split_id"; 
+       $q = $this->db->query($myQuery);
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -6416,22 +6531,15 @@ public function getOrderStatus($split_id){
 		$this->db->order_by('id');
 		$q = $this->db->get(); 
 		
-		
-
-		//	echo $q->num_rows();  echo '<pre>'; print_R($q->result()); exit;
-	
 		if($q->num_rows()>0){
 		 	$stock_out_qty = $stock_out;
 			$cnt = count($q->result());
 			$order_item = array();
 			foreach($q->result() as $k => $row){
-				
 				$piece = $this->db->get_where('recipe', array('id' =>$product_id))->row('piece');
-				
 				if($stock_out_qty>0){
 					if($k+1==$cnt || $row->stock_in!=0){
 					 	$available_qty = $row->stock_in;
-						
 						if($available_qty<$stock_out_qty){
 							$update_qty = $available_qty;
 							if($k+1==$cnt){
@@ -6446,10 +6554,8 @@ public function getOrderStatus($split_id){
 							}
 						}else{
 							$update_qty = $stock_out_qty;
-							
 							$stock_out_qty = 0;
 						}
-						
 						$stock_piece = $update_qty * $piece;
 					//	$update_qty * 5 
 						
@@ -6457,8 +6563,6 @@ public function getOrderStatus($split_id){
 						//if ($qu->num_rows() > 0) {
 						$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$update_qty.', stock_in_piece = stock_in_piece - '.$stock_piece.', stock_out = stock_out + '.$update_qty.', stock_out_piece = stock_out_piece + '.$stock_piece.' where id='.$row->id;
 						$this->db->query($query);
-							 
-						
 						/* }else{
 							$query ='insert into srampos_pro_stock_master(store_id, product_id, cm_id, category_id, subcategory_id, brand_id, stock_in, stock_out)values('.$store_id.','.$product_id.', 0, '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', stock_in + '.$update_qty.', stock_in + '.$update_qty.')';
 							 $this->db->query($query);
@@ -6479,9 +6583,6 @@ public function getOrderStatus($split_id){
 			
 			return $order_item;
 		}
-		
-		
-	
     }
 
     function product_stockOut($product_id,$stockout,$cate){
@@ -6633,7 +6734,6 @@ public function getOrderStatus($split_id){
 	$q = $this->db->get();
 	$storeids = array();
 	if($q->num_rows()>0){
-	   
 	    foreach($q->result() as $k => $row){
 		array_push($storeids,$row->store_id);
 	    }
@@ -6641,7 +6741,6 @@ public function getOrderStatus($split_id){
 	return $storeids;
     }
     function getUserAssignedStores($userid){
-	
 	$this->db->select('w.*');
 	$this->db->from('user_store_access ua');
 	$this->db->join('warehouses w','w.id=ua.store_id');
@@ -6671,7 +6770,6 @@ public function getOrderStatus($split_id){
     function set_cur_transaction_date(){
 	$data['currentdate'] = date('Y-m-d H:i:s');
 	$data['transaction_date'] =   date('Y-m-d');
-	
 	$q = $this->db->get_where('transaction_date',array('date(currentdate)'=>date('Y-m-d')));
 	if($q->num_rows()==0){
 	    $this->db->insert('transaction_date',$data);
@@ -6694,16 +6792,18 @@ public function getOrderStatus($split_id){
 	}
     }
     function addStockMaster($data){
-		$this->db->insert('pro_stock_master',$data);
-		$return_id = $this->db->insert_id();
-		/* echo $this->db->last_query();
-		die; */
+		$q=$this->db->get_where("pro_stock_master",array("unique_id"=>$data["unique_id"]));
+		if($q->num_rows()>0){
+			$this->db->where("unique_id",$data["unique_id"]);
+			$this->db->update("pro_stock_master",$data);
+		}else{
+			$this->db->insert('pro_stock_master',$data);
+		    $return_id = $this->db->insert_id();
+		}
     }
     
    public function Check_item_Discount_customer($itemid,$dis_id){
-
    	  	$recipedata = $this->getrecipeByID($itemid);
-
 		$today = date('Y-m-d');
 		$curtime  = date('H:i').':00';
 		$subcategory_id =$recipedata->subcategory_id; 
@@ -6809,26 +6909,22 @@ public function getOrderStatus($split_id){
         return 0;
     }
     function getPurchaseCategories(){
-        $this->db->where('type',1)
+    $this->db->where('type',1)
 	->where('(parent_id="null" or parent_id=0)')
 	->order_by('id');
         $q = $this->db->get("recipe_categories");
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $k => $row) {
-		$data[$k] = $row;
+		        $data[$k] = $row;
                 $data[$k]->sub_category = $this->getrecipeSubCategories($row->id);
-		//foreach($data[$k]->sub_category as $kk => $row1){
-		//     $data[$k]->sub_category[$kk]->recipes = $this->getrecipeBySubCategories($row1->id);
-		//}
             }
-	    //print_R($data);exit;
             return $data;
         }
         return FALSE;
     }
     function getCategory_mapping($pid){
 	$this->db->where('product_id', $pid);
-        $q = $this->db->get("category_mapping");
+    $q = $this->db->get("category_mapping");
 	$category_ids = array();
 	$subcategory_ids = array();
 	$brand_ids = array();
@@ -6851,7 +6947,7 @@ public function getOrderStatus($split_id){
     }
     function getSaleCategory_mapping($pid){
 	$this->db->where('product_id', $pid);
-        $q = $this->db->get("category_mapping");
+    $q = $this->db->get("category_mapping");
 	if($q->num_rows()>0){
 	    return $q->row();
 	}
@@ -6877,7 +6973,6 @@ public function getOrderStatus($split_id){
 		foreach($b->result() as $k => $bill){
 		    array_push($billids,$bill->id);
 		}
-	  
 		if(!empty($billids)){
 		    $this->db->select('*,SUM(amount) as amount,SUM(amount) as pos_paid');
 		    $this->db->where_in('bill_id',$billids);
@@ -6907,7 +7002,6 @@ public function getOrderStatus($split_id){
 	}
 	return false;
     }
-
     public function getrecipeItem_Name($id){
          $this->db->select('id, name')
          ->where('id',$id);
@@ -6941,18 +7035,14 @@ public function getOrderStatus($split_id){
             return $data;
         }
     }
-    public function getTableNumber($bill_id)
-    {
+    public function getTableNumber($bill_id){
         $table_name = "SELECT T.name AS table_name,TY.name AS order_type
-
                     FROM ".$this->db->dbprefix('bils')." AS P
                     JOIN ". $this->db->dbprefix('sales') ." AS S ON S.id = P.sales_id
                     JOIN ". $this->db->dbprefix('orders') ." AS O ON O.split_id = S.sales_split_id
                     JOIN ". $this->db->dbprefix('sales_type') ." AS TY ON TY.id = O.order_type
-                           
                     LEFT JOIN ". $this->db->dbprefix('restaurant_tables') ." AS T ON T.id = O.table_id
                     WHERE P.id='".$bill_id."' ";
-            
         $q = $this->db->query($table_name);
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -7021,8 +7111,6 @@ public function getOrderStatus($split_id){
 	    }
 	}
 	return $bill_data;
-	
-	
     }
     function latest_bill($bill_number){
 	$data['bill_number'] = $bill_number;
@@ -7032,6 +7120,23 @@ public function getOrderStatus($split_id){
 	     $this->db->insert('latest_bill',$data); 
 	}else{
 	    $this->db->update('latest_bill', array('bill_number' => $bill_number,'date' => date('Y-m-d H:i:s')));
+	}
+	
+    }
+	function latest_bill_new($bill_number,$type){
+		if($type ==0){
+	       $data['bill_number'] = $bill_number;
+		}else{
+		   $data['dont_print_billnumber'] = $bill_number;
+		}
+	$data['date'] = date('Y-m-d H:i:s');
+	$q = $this->db->get('latest_bill');
+	$row=$q->row();
+	if ($q->num_rows() == 0) {		
+	     $this->db->insert('latest_bill',$data); 
+	}else{
+		$this->db->where("id",$row->id);
+	    $this->db->update('latest_bill',$data);
 	}
 	
     }
@@ -7059,8 +7164,7 @@ public function getOrderStatus($split_id){
     $this->db->where('id',$bill_id);
     $this->db->update('bils');
   }
-  function getCustomerDiscount_billID($billid)
-    {
+  function getCustomerDiscount_billID($billid){
 		$this->db
 		->select('P.id bil_id,P.tax_type,P.tax_id,P.total,P.customer_discount_id,P.customer_discount_status,P.total_discount,P.total_tax,P.grand_total,D.*')
 		->from('bils P')
@@ -7074,9 +7178,9 @@ public function getOrderStatus($split_id){
 		    return FALSE;
     }
      public function update_bill_withcustomer_discount($billid,$dis_id,$dis_val){		
-	$update_bil['customer_discount_status'] = 'applied';
-	$update_bil['customer_discount_id'] = $dis_id;
-	$update_bil['discount_val'] = $dis_val;	
+    	$update_bil['customer_discount_status'] = 'applied';
+	    $update_bil['customer_discount_id'] = $dis_id;
+	    $update_bil['discount_val'] = $dis_val;	
 	    $myQuery = "SELECT BI.id,BI.recipe_id,sum(BI.subtotal-BI.item_discount-BI.off_discount) AS amount,BI.tax_type,R.category_id,R.subcategory_id,B.tax_id
         FROM " . $this->db->dbprefix('bil_items') . " BI
         JOIN " . $this->db->dbprefix('recipe') . " R ON R.id = BI.recipe_id
@@ -7096,13 +7200,11 @@ public function getOrderStatus($split_id){
 		    $this->db->where('id', $row['id']);
 		    $this->db->update('bil_items', $updateItem);	
 		}
-// print_r($updateItem);die;
 		$BillQuery = "SELECT B.tax_id,BI.bil_id,SUM(BI.item_discount+BI.off_discount+BI.input_discount) AS total_discount,SUM(BI.subtotal) AS subtotal,BI.tax_type
         FROM " . $this->db->dbprefix('bil_items') . " BI
-	JOIN " . $this->db->dbprefix('bils') . " B ON B.id = BI.bil_id
+    	JOIN " . $this->db->dbprefix('bils') . " B ON B.id = BI.bil_id
             WHERE BI.bil_id =".$billid." GROUP BY BI.bil_id";
         $b = $this->db->query($BillQuery);
-
 		if ($b->num_rows() > 0) {
 			foreach (($b->result()) as $row) {
 				$totalAmt_afterDiscount = $row->subtotal - $row->total_discount;
@@ -7144,8 +7246,6 @@ public function getOrderStatus($split_id){
 		}else if($discount['discount_type']=="amount"){
 		    if($dis_val<$finalAmt){ return $dis_val;}else{return $finalAmt;}
 		}
-		
-		
 	    }
 	}else if($this->Settings->customer_discount=="manual"){//manual
 	    $discount_value = $discountid;
@@ -7178,20 +7278,15 @@ public function getOrderStatus($split_id){
 		$return['discount_val'] = $row->discount_val;
 		$return['discount_type'] = $row->discount_type;
 		if(isset($recipe_id_days[$itemid]) && $row->type=="included") {
-		    
 		    $today = strtolower(date('D'));
 		    $days = unserialize($recipe_id_days[$itemid]['days']);
-		   
 		    if(isset($days[$today])){
-			
 			return $return;
 		    }		    
 		    return false;
 		}else if(!isset($recipe_id_days[$itemid]) && $row->type=="excluded"){
-		    
 		    return $return;
 		}else if(isset($recipe_id_days[$itemid]) && $row->type=="excluded"){
-		   
 		    return false;
 		}		
 		else{
@@ -7211,15 +7306,13 @@ public function getOrderStatus($split_id){
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, site_url('auto_modifybills/modify'));
 	curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
-	
 	curl_setopt($ch, CURLOPT_POST, 1);
 	curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode($bill_data));
 	curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 	curl_setopt($ch, CURLOPT_VERBOSE, true);
 	$result = curl_exec($ch);
-	
-        curl_close($ch);
+    curl_close($ch);
    }
 
    function get_tax_splits($tax_id){
@@ -7235,38 +7328,39 @@ public function getOrderStatus($split_id){
    }
 
     function updateTableStatus($table_id,$status,$user_id = NULL){
-    	$this->db->update('restaurant_tables', array('current_order_status' => $status,'current_order_user' =>$user_id), array('id' => $table_id));
+    if($status !=0){
+	     $time=date('Y-m-d H:i:s');
+        }else{
+	    $time='0000-00-00 00:00:00';
+        }
+    	$this->db->update('restaurant_tables', array('current_order_status' => $status,'current_order_user' =>$user_id,'last_order_placed_time'=>$time), array('id' => $table_id));
         return true;
     }
         function update_TableStatus_after_payment($table_id,$status,$salesid = NULL,$split_id){
-
     	$current_date = $this->site->getTransactionDate();
     	$this->db->select('id');		
 		$this->db->where('payment_status', NULL);	
 		$this->db->where('date', $current_date);	
 		$this->db->where('table_id', $table_id);	
-		// $this->db->where('bils.sales_id', $salesid);		
         $q = $this->db->get('orders');
-/*        echo "<pre>";
-        print_r($this->db->last_query());
-*/
-
 		$this->db->select('id');		
 		$this->db->where('sales.payment_status', NULL);	
 		$this->db->where('sales.sales_split_id', $split_id);		
         $s = $this->db->get('sales'); 
-
         $this->db->select('id');		
 		$this->db->where('bils.payment_status', NULL);	
 		$this->db->where('bils.sales_id', $salesid);		
         $b = $this->db->get('bils'); 
-// print_r($this->db->last_query());die;
-        // if ($q->num_rows() <= 0) {
+		if($status !=0){
+		$time=date('Y-m-d H:i:s');
+			}else{
+	    $time='0000-00-00 00:00:00';
+			}
         if ($q->num_rows() <= 0 && $b->num_rows() <= 0 && $s->num_rows() <= 0 ) {
-    	$this->db->update('restaurant_tables', array('current_order_status' => $status,'current_order_user' => $status), array('id' => $table_id));
+    	$this->db->update('restaurant_tables', array('current_order_status' => $status,'current_order_user' => $status,'last_order_placed_time'=>$time), array('id' => $table_id));
         	return true;
     	}else if($s->num_rows() <= 0){
-
+        return false;
     	}else{
     		$this->db->update('restaurant_tables', array('current_order_status' => 2,'current_order_user' => $status), array('id' => $table_id));
     	} return false;
@@ -7274,7 +7368,6 @@ public function getOrderStatus($split_id){
 
 
     function update_TableStatus_after_payment_old($table_id,$status,$salesid = NULL){
-
     	$this->db->select('id');		
 		$this->db->where('bils.payment_status', NULL);	
 		$this->db->where('bils.sales_id', $salesid);		
@@ -7295,9 +7388,10 @@ public function getOrderStatus($split_id){
 	public function GetALlOrdersTableList($table_id = NULL){
 		$current_date = date('Y-m-d');
 		$current_date = $this->site->getTransactionDate();
-		$this->db->select("restaurant_tables.id, restaurant_tables.name, restaurant_tables.max_seats, restaurant_tables.warehouse_id, orders.waiter_id, 'split_order' ", FALSE)		
+		$this->db->select("restaurant_tables.id, restaurant_tables.name, restaurant_tables.max_seats, restaurant_tables.warehouse_id, orders.waiter_id, 'split_order',users.first_name  ,  users.   last_name ", FALSE)		
 		->join('orders', 'orders.table_id = restaurant_tables.id  AND orders.order_cancel_status = 0')
-		->join("restaurant_areas", "restaurant_areas.id = restaurant_tables.area_id");
+		->join("restaurant_areas", "restaurant_areas.id = restaurant_tables.area_id")
+		->join('users', 'users.id = orders.created_by ');
 		if(!empty($table_id)){
 		$this->db->where('restaurant_tables.id', $table_id);
 		}		
@@ -7309,9 +7403,37 @@ public function getOrderStatus($split_id){
 		$this->db->where('orders.payment_status', NULL);
 		$this->db->where('restaurant_tables.warehouse_id', $this->session->userdata('warehouse_id'));
 		$this->db->group_by("restaurant_tables.id");		
-		$t = $this->db->get('restaurant_tables');				
+		$t = $this->db->get('restaurant_tables');	
 		if ($t->num_rows() > 0) {
-
+	        foreach ($t->result() as $row) {
+	        	$data[] = $row;
+	        }
+	        return $data;
+	    }
+	    return FALSE;
+	}
+	
+	public function AllOrdersTableList_($table_id = NULL,$steward_id = NULL){
+		$current_date = date('Y-m-d');
+		$current_date = $this->site->getTransactionDate();
+		$this->db->select("restaurant_tables.id, restaurant_tables.name, restaurant_tables.max_seats, restaurant_tables.warehouse_id, orders.waiter_id, 'split_order',users.first_name  ,  users.   last_name ", FALSE)		
+		->join('orders', 'orders.table_id = restaurant_tables.id  AND orders.order_cancel_status = 0')
+		->join("restaurant_areas", "restaurant_areas.id = restaurant_tables.area_id")
+		->join('users', 'users.id = orders.created_by ');
+		if(!empty($table_id)){
+		$this->db->where('restaurant_tables.id', $table_id);
+		}		
+		
+		if(!empty($steward_id)){
+		$this->db->where('orders.waiter_id',$steward_id);
+		}	
+		$this->db->where('DATE(date)', $current_date);
+		$this->db->where("orders.order_type", 1);
+		$this->db->where('orders.payment_status', NULL);
+		$this->db->where('restaurant_tables.warehouse_id', $this->session->userdata('warehouse_id'));
+		$this->db->group_by("restaurant_tables.id");		
+		$t = $this->db->get('restaurant_tables');	
+		if ($t->num_rows() > 0) {
 	        foreach ($t->result() as $row) {
 	        	$data[] = $row;
 	        }
@@ -7322,7 +7444,7 @@ public function getOrderStatus($split_id){
 	public function GetALlSplitsFromOrders($table_id){
 		$current_date = date('Y-m-d');
 		$current_date = $this->site->getTransactionDate();		
-		$this->db->select("orders.id,restaurant_table_sessions.split_id, companies.name,orders.customer_id, restaurant_table_sessions.table_id, restaurant_table_sessions.session_started, 'order' ", FALSE)
+		$this->db->select("orders.id,restaurant_table_sessions.split_id, companies.name,orders.customer_id, restaurant_table_sessions.table_id, restaurant_table_sessions.session_started,orders.biller, 'order' ", FALSE)
 		->join('orders', 'orders.split_id = restaurant_table_sessions.split_id AND orders.order_cancel_status = 0')
 		->join("companies", "companies.id = orders.customer_id",'left');
 		$this->db->where('orders.table_id', $table_id);
@@ -7330,7 +7452,8 @@ public function getOrderStatus($split_id){
 		$this->db->where('orders.payment_status', NULL);
 		$this->db->where('DATE(date)', $current_date);
 		$this->db->group_by('restaurant_table_sessions.split_id');
-		$t = $this->db->get('restaurant_table_sessions');			
+		$t = $this->db->get('restaurant_table_sessions');	
+		
 		if ($t->num_rows() > 0) {
 	        foreach ($t->result() as $row) {
 	        	$data[] = $row;
@@ -7375,15 +7498,11 @@ public function getOrderStatus($split_id){
 	    return FALSE;
 	}
 
-/*sivan 22-07-2019*/
 
- function updateStockMaster_new($product_id,$stock_out,$cate,$order_item_id){
- 	
-        // $store_id = $this->data['pos_store'];  
+
+ function updateStockMaster_new($product_id,$variant_id,$stock_out,$cate,$order_item_id=null){
         $stock_out = $stock_out;       	
-        $rawstock =$this->getrawstock($product_id,$cate['category_id'],$cate['subcategory_id'],$cate['brand_id']); 
-        /*echo "<pre>";       
-        print_r($rawstock);die;*/
+        $rawstock =$this->getrawstock($product_id,$variant_id,$cate['category_id'],$cate['subcategory_id'],$cate['brand_id']); 
         $stock_overflow =0;
         if(!empty($rawstock)){
         	$order_item = array();
@@ -7392,36 +7511,25 @@ public function getOrderStatus($split_id){
                     $tobedetect = $stock_out; 
                 }else{
                     $tobedetect =$stock_overflow; 
-                } 
-                // echo $row->stock_in;echo "<br>";
-                 //echo $tobedetect;echo "<br>";
+                }
                  $stock = $row->stock_in - $row->stock_out;
-                 /* echo 'stock'.$stock;echo "<br>";
-                  echo 'tobedetect-'.$tobedetect;   echo "<br>";
-                  echo 'stock_overflow-'.$stock_overflow;   echo "<br>";*/
-                if ($stock > $tobedetect)
-                {  
-                // echo "string1"; echo "<br>";    
+                if ($stock > $tobedetect){  
                     $stock_overflow = $stock-$tobedetect;  
-
                     $stock_qty_taken = $tobedetect-$stock;   
-                    // echo $stock_overflow.'ddd'; echo "<br>";                   
                     if($stock_overflow >= 0){
-                    	// echo "sivan";
                        $query = 'update srampos_pro_stock_master set  stock_out = stock_out + '.$tobedetect.' where id='.$row->id;
                         $this->db->query($query); 
+
+                        $stock_id = $row->id;
+	                    $date =date('Y-m-d h:m:s');
+
+	                    $ledger_query ='insert into srampos_pro_stock_ledger(stock_id,store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, transaction_identify,transaction_type,transaction_qty,date)values('.$stock_id.','.$store_id.','.$product_id.','.$variant_id.', '.$cate['cm_id'].', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', "Sales","O",'.$tobedetect.',"'.$date.'")';                       
+	                    $this->db->query($ledger_query); 
                          $order_item['stock']['s_id'] = $row->id;
 					     $order_item['stock']['qty'] = $tobedetect;
                         
-                    }/*else{
-                        echo "b";echo "<br>";
-                        $query = 'update srampos_pro_stock_master set  stock_out = stock_out + '.$overflowstock.' where product_id='.$product_id.' and stock_status != "closed" ORDER BY id asc';
-                        $this->db->query($query);   
-                    }*/         
-                      // print_r($this->db->last_query());die;   
-                      // echo "string_stock_overflow".$stock_qty_taken;     
+                    }  
                       if($stock_qty_taken <= 0){
-                      	// echo "sivan123";
                     	break;
                     }
 
@@ -7434,50 +7542,34 @@ public function getOrderStatus($split_id){
                     if($out <= 0){
                         $cloased=', stock_status =  "closed"';
                     }
-                    /*echo 'stock_overflow-a-'.$stock_overflow;   echo "<br>";
-                    echo 'out'.$out;echo "<br>";
-                    echo $cloased.'sss'.$row->id;echo "<br>";*/
-                   /* echo $tobedetect;echo "<br>";
-                    echo $row->stock_in;echo "<br>";
-                    
-                    
-                    */
-                       // echo $stock_overflow;echo "<br>";   
-                   // echo "string";     echo "<br>";
+                   
                     $query = 'update srampos_pro_stock_master set  stock_out = stock_out + '.$stock.'  '.$cloased.'  where id='.$row->id;
                     $this->db->query($query); 
+                    $stock_id = $row->id;
+                    $date =date('Y-m-d h:m:s');
+
+                    $ledger_query ='insert into srampos_pro_stock_ledger(stock_id,store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, transaction_identify,transaction_type,transaction_qty,date)values('.$stock_id.','.$store_id.','.$product_id.','.$variant_id.', '.$cate['cm_id'].', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', "Sales","O",'.$stock.',"'.$date.'")';                       
+                    $this->db->query($ledger_query); 
+
                     $order_item['stock']['s_id'] = $row->id;
 					$order_item['stock']['qty'] = $tobedetect;
-                    // print_r($this->db->last_query());die;  
-                    //
                     if($stock_overflow <= 0){
                     	break;
                     }
                     // 
                 }
             }
+			if(!empty($order_item_id)){
             $order_item_data['stock_out_data'] =  serialize($order_item);	
 			$this->db->where('id',$order_item_id);
 			$this->db->update('order_items',$order_item_data);
-
+			}
             // return $order_item;
         }        
-      	/*$piece = $this->db->get_where('recipe', array('id' =>$product_id))->row('piece');
-		$store_id = $this->data['pos_store'];
-		$q = $this->db->get_where('srampos_pro_stock_master', array('product_id' => $product_id));
-		if ($q->num_rows() > 0) {
-			$id = $q->row('id');							
-			$query = 'update srampos_pro_stock_master set  stock_out = stock_out + '.$stock_out.', stock_out_piece = stock_out_piece + '.$stock_out * $piece.' where id='.$id;
-			$this->db->query($query);	
-			}else{						
-			$query ='insert into srampos_pro_stock_master(store_id, product_id, cm_id, category_id, subcategory_id, brand_id, stock_out)values('.$store_id.','.$product_id.', 0, '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', stock_out + '.$stock_out.')';
-			$this->db->query($query);
-		}  	
-		
-			return $order_item;*/
+      	
     }
 
-public function getrawstock($product_id,$category_id,$subcategory_id,$brand_id){
+public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id,$brand_id){
 
        $this->db->select('pro_stock_master.*');
         $this->db->from('pro_stock_master');
@@ -7490,12 +7582,13 @@ public function getrawstock($product_id,$category_id,$subcategory_id,$brand_id){
         if($brand_id !=''){
             $this->db->where('brand_id',$brand_id);
         }
+        //$this->db->where('variant_id',$variant_id);        
         $this->db->where('product_id',$product_id);
         $this->db->where_not_in('stock_status','closed');
         $this->db->group_by('id');
         $this->db->order_by('id', 'asc');
-        $q = $this->db->get(); 
-        // print_r($this->db->last_query());die;
+        $q = $this->db->get(); /* 
+         print_r($this->db->last_query());die; */
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -7570,78 +7663,53 @@ public function getrawstock($product_id,$category_id,$subcategory_id,$brand_id){
 	}
 	return $items;
     }
-
+public function checkTableActiveStatus($table_id){
+		$current_date = date('Y-m-d');
+		$current_date = $this->getTransactionDate();
+		$items['a'] = $this->db->select('COUNT(id) AS count_null', false)
+		->from('orders')
+		->where('orders.table_id', $table_id)
+		//->where('DATE(date)', $current_date)
+		->get()->result();
+		$items['b'] = $this->db->select('COUNT(id) AS count_not_null', false)
+		->from('orders')
+		->where('orders.table_id', $table_id)
+		//->where('DATE(date)', $current_date)
+		->where('orders.payment_status', 'Paid')
+		->get()->result();
+		$items = array_merge($items['a'], $items['b']);
+		if($items[0]->count_null == $items[1]->count_not_null){
+			return 1;
+		}
+        return 0;
+	}
+	function checkTableCancelStatus($table_id){
+		$q=$this->db->select('id', false)
+		->from('orders')
+		->where('orders.table_id', $table_id)
+		->where('orders.payment_status', 'Cancelled')
+		->get();
+		//echo $this->db->last_query();
+		 if ($q->num_rows() > 0) {
+			 return 1;
+		 }else{
+			 return 0;
+		 }
+	}
+	function checkactiveTablestatus($table_id){
+		$q=$this->db->select('id', false)
+		->from('restaurant_tables`')
+		->where_not_in('current_order_status',0)
+		->where('id', $table_id)
+		->get();
+	//	echo $this->db->last_query();
+		 if ($q->num_rows() > 0) {
+			 return 1;
+		 }else{
+			 return 0;
+		 }
+	}
 /*sivan 22-07-2019*/
-
-
-/*Sales Syn 14-10-2019*/
-    function getAllCenterTables(){
-	$tables = array();
-	if($this->centerdb_connected){
-	    $tables = $this->centerdb->list_tables();
-	}
-	return $tables;
-    }
-    function getSyncEnabledTables(){
-        $q = $this->db->get_where('sync_settings',array('enable_sync'=>1));
-        if($q->num_rows()>0){
-            $table_names = array();
-            foreach($q->result() as $k => $row){
-                array_push($table_names,$row->type);
-            }
-            return $table_names;
-        }
-    }
-
-   function start_sync($sync_now=false){
-		$sync_time = $this->site->get_syncTime();
-		if($sync_time){
-		    $end_time = $sync_time->end_time;
-		    $now = date('Y-m-d H:i:s');
-		    $seconds = strtotime($now) - strtotime($end_time);
-		}
-
-		if($this->centerdb_connected &&($sync_now || !$sync_time || ($seconds>60 && $sync_time->status=="completed"))){	
-		    $ch=curl_init();
-		    curl_setopt($ch,CURLOPT_URL,site_url('sync/start_sync'));
-		    curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,2);
-		    curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
-		    $buffer = curl_exec($ch);
-		    curl_close($ch);
-		}
-    }
-function get_syncTime(){
-      $q = $this->db->get_where('last_sync',array('id'=>1));
-      if($q->num_rows()>0){
-	return $q->row();
-      }
-      return false;
-    }
-    function insert_lastsync($data){
-	$this->db->insert('last_sync',$data);
-    }
-     function update_sync_startTime(){
-	$time['start_time'] = date('Y-m-d H:i:s');
-	$time['status'] = 'ongoing';
-	if($this->get_syncTime()){
-	    $this->db->where(array('id'=>1));
-	    $this->db->update('last_sync',$time);
-	}else{
-	    $this->insert_lastsync($time);
-	}
-     
-    }
-    function update_sync_endTime(){
-	$time['end_time'] = date('Y-m-d H:i:s');
-	$time['status'] = 'completed';
-	if($this->get_syncTime()){
-	    $this->db->where(array('id'=>1));
-	    $this->db->update('last_sync',$time);
-	}else{
-	    $this->insert_lastsync($time);
-	}
-    }
-/*Sales Suyn*/
 	/*Order List separated from group function*/
 
 //    function addpermissioncolum($data){//echo '<pre>';print_r($data);
@@ -7652,4 +7720,780 @@ function get_syncTime(){
 //	    
 //	}
 //    }
+function update_TableStatus_after_payment_for_consolidate($table_id,$status,$salesid = NULL,$split_id){
+    	$current_date = $this->site->getTransactionDate();
+    	$this->db->select('id,created_on');		
+		$this->db->where('payment_status', NULL);	
+		$this->db->where('date', $current_date);	
+		$this->db->where('table_id', $table_id);	
+		$this->db->order_by("created_on","ASC");
+		$this->db->limit(1);
+		// $this->db->where('bils.sales_id', $salesid);		
+        $q = $this->db->get('orders');
+			$orders=$q->row();
+/*        echo "<pre>";
+        print_r($this->db->last_query());
+*/
+
+		$this->db->select('id');		
+		$this->db->where('sales.payment_status', NULL);	
+		//$this->db->where('sales.sales_split_id', $split_id);	
+		$this->db->where('sales.sales_table_id', $table_id);		
+        $s = $this->db->get('sales'); 
+		// print_r($this->db->last_query());die;
+        $this->db->select('id');		
+		$this->db->where('bils.payment_status', NULL);	
+		$this->db->where('bils.sales_id', $salesid);		
+        $b = $this->db->get('bils'); 
+
+        // if ($q->num_rows() <= 0) {
+	    $last_order_time=!empty($orders->created_on)? $orders->created_on:NULL;
+        if ($s->num_rows() > 0 ) {
+    	$this->db->update('restaurant_tables', array('current_order_status' => 4,'current_order_user' => $status), array('id' => $table_id));
+        	return true;
+    	}elseif($b->num_rows()>0){
+			$this->db->update('restaurant_tables', array('current_order_status' => 4), array('id' => $table_id));
+		}elseif($q->num_rows() > 0 ){
+			$this->db->update('restaurant_tables', array('current_order_status' => 1,'last_order_placed_time'=>$last_order_time), array('id' => $table_id));
+		}else{
+    		$this->db->update('restaurant_tables', array('current_order_status' => 0), array('id' => $table_id));
+    	} return false;
+    } 
+     function updatepayment_TableStatus_consolidate($table_id,$status){
+    	$this->db->update('restaurant_tables', array('current_order_status' => $status,'current_order_user' => $status), array('id' => $table_id));
+        return true;
+    }   
+
+ public function getTablearea($table_id){
+		$this->db->select('*')->where('id', $table_id);
+		$q = $this->db->get('restaurant_tables');
+        if ($q->num_rows() > 0) {
+            return $q->row('area_id');
+        }
+		return TRUE;
+	}
+	function get_archival_tables(){
+		$this->db->select("*");
+		$this->db->where("active",1);
+		$q=$this->db->get("archival_tables");
+		if($q->num_rows()>0){
+			foreach($q->result() as $row){
+				$data[]=$row;
+			}
+			return $data;
+		}
+		return false;
+	}
+		function get_achival(){
+      $q = $this->db->get_where('last_archival_process',array('id'=>1));
+      if($q->num_rows()>0){
+		return $q->row();
+      }
+      return false;
+    }
+	 function start_achival_time(){
+	$data['starttime'] = date('Y-m-d H:i:s');
+	$data['status'] = 'Processing';
+	if(!empty($this->get_achival())){
+	    $this->db->where(array('id'=>1));
+	    $this->db->update('last_archival_process',$data);
+	}else{
+	   $this->db->insert('last_archival_process',$data);
+	}
+    }
+    function end_achival_time(){
+	$data['endtime'] = date('Y-m-d H:i:s');
+	$data['status'] = 'completed';
+	if(!empty($this->get_achival())){
+	    $this->db->where(array('id'=>1));
+	    $this->db->update('last_archival_process',$data);
+	}else{
+		$this->db->insert('last_archival_process',$data);
+	}
+    }
+	function  get_new_archival_data($fromtable,$totable){
+		$where='id not in (SELECT '.$totable.'.id FROM '.$totable.')';
+		$this->db->select("*");
+		$this->db->where($where);
+		$q=$this->db->get($fromtable);
+		if($q->num_rows()>0){
+			foreach($q->result() as $row){
+				$data[]=$row;
+			}
+			return $data;
+		}
+		return false;
+	
+	}
+	function  insert_archival_data($data,$totable){
+		if($this->db->insert_batch($totable, $data)){
+		return true;
+		}else{
+			return false;
+		}
+	}
+	function check_archival_table($tablename){
+		$tablename=$this->db->dbprefix($tablename);
+		$this->db->select("*");
+		$this->db->where("archival_from_table",$tablename);
+		$this->db->where("active",1);
+		$q=$this->db->get("archival_tables");
+		if($q->num_rows()>0){
+			return true;
+		}
+		return false;
+		
+	}
+	function select_record($tablename,$where){
+		$this->db->where($where);
+		$q=$this->db->get($tablename);
+		if($q->num_rows()>0){
+			foreach($q->result() as $row){
+				$data[]=$row->id;
+			}
+			return $data; 
+		}
+		return false;
+	}
+	function record_delete($tablename,$fields,$id){
+		$this->db->where_in($fields,$id);
+		$this->db->delete($tablename);
+		if($this->db->affected_rows()>0){
+			return $this->db->affected_rows();
+		}else{
+			return false;
+		}
+	}
+	public function getRecipeDetails($recipe_id) {
+	   $this->db->select('*');
+    	$this->db->where('id', $recipe_id);
+        $q = $this->db->get('recipe');
+        if ($q->num_rows() > 0) {
+           return $q->row();
+        }
+        return FALSE;
+    }
+	public function Get_SplitsFromOrders($table_id,$split_id){
+		$current_date = date('Y-m-d');
+		$current_date = $this->site->getTransactionDate();		
+		$this->db->select("orders.id,restaurant_table_sessions.split_id, companies.name,orders.customer_id, restaurant_table_sessions.table_id, restaurant_table_sessions.session_started, 'order' ", FALSE)
+		->join('orders', 'orders.split_id = restaurant_table_sessions.split_id AND orders.order_cancel_status = 0')
+		->join("companies", "companies.id = orders.customer_id",'left');
+		$this->db->where('orders.table_id', $table_id);
+		$this->db->where("orders.order_type", 1);
+		$this->db->where('orders.payment_status', NULL);
+		$this->db->where('DATE(date)', $current_date);
+		$this->db->group_by('restaurant_table_sessions.split_id');
+		$t = $this->db->get('restaurant_table_sessions');			
+		if ($t->num_rows() > 0) {
+	        foreach ($t->result() as $row) {
+	        	$data[] = $row;
+	        }
+	        return $data;
+	    }
+	    return FALSE;
+	}
+	
+	function getCounter($ip){
+		$this->db->select('id, till_name');
+		$this->db->where('system_ip', $ip);
+		$q = $this->db->get('tills');
+		if ($q->num_rows() > 0) {	        
+	        return $q->row();
+	    }
+	    return FALSE;
+	}
+	
+	function exitShift($till_id){
+		$this->db->select('*');
+		$this->db->from('shifts');
+		$this->db->where('till_id',$till_id);
+		$this->db->where('settled',0);
+		$this->db->where('continued_shift',0);
+		$this->db->order_by('id','desc');
+		$q = $this->db->get();
+		if($q->num_rows()>0){
+			return $q->row();
+		}
+		return FALSE;	
+	}
+	
+	function dontcontinueShift($till_id){
+		$this->db->select('*');
+		$this->db->from('shifts');
+		$this->db->where('till_id',$till_id);
+		$this->db->where('settled',0);
+		$this->db->where('continued_shift',2);
+		$this->db->order_by('id','desc');
+		$q = $this->db->get();
+		if($q->num_rows()>0){
+			return $q->row();
+		}
+		return FALSE;	
+	}
+	
+	function continueShift($till_id){
+		$this->db->select('*');
+		$this->db->from('shifts');
+		$this->db->where('till_id',$till_id);
+		$this->db->where('settled',0);
+		$this->db->where('continued_shift',1);
+		$this->db->order_by('id','desc');
+		$q = $this->db->get();
+		if($q->num_rows()>0){
+			return $q->row();
+		}
+		return FALSE;	
+	}
+	
+	function getpendingshift($warehouse_id, $till_id,$user_id){
+	 	$this->db->select('s.*, c.first_name as created_name, u.first_name as assigned_name, t.till_name as till_name');
+	    $this->db->from('shifts s');
+		$this->db->join('tills t', 't.id = s.till_id');
+		$this->db->join('users c', 'c.id = s.created_by', 'left');
+		$this->db->join('users u', 'u.id = s.user_id', 'left');
+	    $this->db->where('s.till_id',$till_id);
+	    //if($user_id){
+			//$this->db->where('user_id',$user_id);
+		//}
+	    $this->db->where('s.settled',0);
+	    $this->db->where('s.warehouse_id',$warehouse_id);
+	    $this->db->order_by('s.id','desc');
+	    $q = $this->db->get();
+		//print_r($this->db->last_query());
+	    if($q->num_rows()>0){
+			$end_time =  $q->row('shift_end_time');
+			if($end_time=='0000-00-00 00:00:00'){
+				$data = $q->row();
+				$res = $this->getShiftBills($data->id, $till_id, $warehouse_id);
+				
+				if(!empty($res)){
+					$data->no_of_bills = $res['no_of_bills'];
+					$data->no_of_items = $res['no_of_items'];
+					$data->bill_total = $res['bill_total'];
+				}else{
+					$data->no_of_bills = 0;
+					$data->no_of_items = 0;
+					$data->bill_total = 0;
+				}
+				
+				
+				$data->shift_name = $this->getShiftName($data->shiftmaster_id);
+				return $data;
+			}
+	    }
+    }
+	
+	function getShiftBills($shift_id, $till_id, $warehouse_id){
+		$res = array();
+		$s = $this->db->select('s.id, s.grand_total')->from('sales s')->where('s.shift_id', $shift_id)->where('s.till_id', $till_id)->get();
+		if ($s->num_rows() > 0) {
+			foreach (($s->result()) as $sow) {
+				$sale_amount[] = $sow->grand_total;
+			}
+		}
+		$res['bill_total'] = array_sum($sale_amount);
+		
+		$b = $this->db->select('s.id, b.id as bill_id, bi.id as bill_item_id')->from('sales s')->join('bils b', 'b.sales_id = s.id', 'left')->join('bil_items bi', 'bi.bil_id = b.id', 'left')->where('s.shift_id', $shift_id)->where('s.till_id', $till_id)->get();
+		if ($s->num_rows() > 0) {
+			foreach (($b->result()) as $bow) {
+				$bill_id[] = $bow->bill_id;
+				$bill_item_id[] = $bow->bill_item_id;
+			}
+		}
+		
+		$res['no_of_bills'] = count(array_unique($bill_id));
+		$res['no_of_items'] = count($bill_item_id);
+		if(!empty($res)){
+			return $res;	
+		}
+		
+		return false;	
+	}
+	
+	function getShiftName($shift_id){
+		$this->db->where('id',$shift_id);
+		$q = $this->db->get('shiftmaster');
+		return $q->row('name');
+    }
+	
+	
+	function getShiftmaster(){
+		$now = date('H:i:s');
+		$now_date = strtotime(date('Y-m-d H:i:s'));
+		$hr = date('H');
+		$this->db->where('status', 1);
+		$q = $this->db->get('shiftmaster');
+		
+		if($q->num_rows()>0){
+			foreach($q->result() as $k => $row){
+			
+				if(strtotime($row->from_time)<strtotime($row->to_time)){
+					if(strtotime($row->from_time)<=strtotime($now) && strtotime($now)<=strtotime($row->to_time)){
+						return $row;
+					}
+				}else{
+				  
+					$from_hr = date('H',strtotime($row->from_time));
+					if($from_hr>$hr){
+						$from_datetime = strtotime(date('Y-m-d ',strtotime($date .' -1 day')).$row->from_time);
+						$to_datetime = strtotime(date('Y-m-d ').$row->to_time);
+						if($now_date>=$from_datetime && $now_date<=$to_datetime ){
+							return $row;
+						}
+					}else if($from_hr<=$hr){
+						$from_datetime = strtotime(date('Y-m-d ').$row->from_time);
+						$to_datetime = strtotime(date('Y-m-d ',strtotime($date .' +1 day')).$row->to_time);
+						if($now_date>=$from_datetime && $now_date<=$to_datetime ){
+							return $row;
+						}
+					}
+				}
+			}
+		}
+	    return FALSE;
+	}
+	
+	/*function getShiftmaster(){
+		$now = date('H:i:s');
+		$now_date = strtotime(date('Y-m-d H:i:s'));
+		$hr = date('H');
+		$this->db->select('*');
+		$this->db->where('status', 1);
+		$this->db->where("TIME(from_time) >=", $now);
+		$this->db->or_where("TIME(to_time) <=", $now);
+	
+		$q = $this->db->get('shiftmaster', 1);
+		if($q->num_rows()>0){
+			
+	    	return $q->row();	
+	    }
+		return FALSE;	
+	}*/
+	
+	
+	function getTils(){
+		//$this->db->where('status',1);
+		$q = $this->db->get('tills');
+		return $q->result();
+    }
+	
+	function getShiftUsers(){
+		$this->db->where('active',1);
+		$q = $this->db->get('users');
+		return $q->result();
+    }
+	function get_till($till_id){
+		$this->db->select("*");
+		$this->db->where("id",$till_id);
+		$q=$this->db->get("tills");
+		if($q->num_rows()>0){
+			return $q->row();
+		}
+		return false;
+	}
+	public function getUser_details($id = NULL) {
+        if (!$id) {
+            $id = $this->session->userdata('user_id');
+        }
+        
+		$this->db->select("users.*,warehouses.name warehouses");
+		$this->db->join("warehouses","warehouses.id=users.warehouse_id","left");
+		$this->db->where("users.id",$id);
+		$q=$this->db->get("users");
+        if ($q->num_rows() > 0) {
+            return $q->row();
+        }
+        return FALSE;
+    }
+	
+	function lastCounter($till_id){
+		$this->db->select('s.CUR_USD, s.CUR_KHR, date_format(s.shift_start_time,"%d/%m/%Y") as shift_start, ss.cash_USD_received, ss.cash_KHR_received');
+		$this->db->from('shifts s');
+		$this->db->join('shifts_settlement ss', 'ss.shift_id = s.id', 'left');
+		$this->db->where('s.till_id', $till_id);
+		$this->db->where('s.settled', 1);
+		$this->db->order_by('s.id', 'desc');
+		$q = $this->db->get();
+		if($q->num_rows()>0){
+			return $q->row();
+		}
+		return false;
+	}
+	function avl_order($tableid){
+		$this->db->select("split_id,COUNT(srampos_order_items.id)count,customer_id");
+		$this->db->join("order_items","order_items.sale_id=orders.id");
+		$this->db->where("table_id",$tableid);
+		$this->db->where('payment_status', NULL);	
+		$this->db->group_by('orders.split_id');	
+		$q=$this->db->get("orders");
+		if($q->num_rows()>1){
+			return $q->result();
+		}else{
+			return $q->row();
+		}
+		return false;
+	}
+	/* function avl_bill($tableid){
+		$this->db->select("split_id");
+		$this->db->where("table_id",$tableid);
+		$this->db->where('payment_status', 'Bill GENERATED');	
+		$q=$this->db->get("orders");
+		if($q->num_rows()>1){
+			return $q->result();
+		}else{
+			return $q->row();
+		}
+		return false;
+	} */
+	function avl_bill($tableid){
+		$this->db->select("sales_split_id");
+		$this->db->join("bils","bils.sales_id=sales.id","left");
+		$this->db->where("sales_table_id",$tableid);
+		$this->db->where('bils.payment_status', NULL);	
+		$q=$this->db->get("sales");
+		if($q->num_rows()>1){
+			return $q->result();
+		}else{
+			return $q->row();
+		}
+		return false;
+	}
+	
+	function get_order_details($split_id){
+	$this->db->select("split_id,reference_no,customer,name");
+	$this->db->join("restaurant_tables","restaurant_tables.id=orders.table_id","left");
+	$this->db->where("split_id",$split_id);
+	$q=$this->db->get("orders");
+	if($q->num_rows()>0){
+		return  $q->row();
+	}
+	return false;
+	}
+	function get_sales_details($split_id){
+	$this->db->select("sales_split_id,reference_no,customer,name");
+	$this->db->join("restaurant_tables","restaurant_tables.id=sales.sales_table_id","left");
+	$this->db->where("sales_split_id",$split_id);
+	$q=$this->db->get("sales");
+	if($q->num_rows()>0){
+		return  $q->row();
+	}
+	return false;
+	}
+		public function getAllTakeawayorder(){
+		$current_date = date('Y-m-d');
+		$current_date = $this->site->getTransactionDate();
+		$this->db->select("orders.split_id, orders.customer_id,orders.customer,orders.created_on,  'order'");
+		$this->db->where("orders.order_type", 2);
+		$this->db->where("orders.payment_status", NULL);
+		$this->db->where('orders.order_cancel_status', 0);
+		$this->db->where('DATE(date)', $current_date);
+		$this->db->where('orders.warehouse_id', $this->session->userdata('warehouse_id'));
+		$this->db->group_by('orders.split_id');
+		$t = $this->db->get("orders");
+		if ($t->num_rows() > 0) {
+			foreach($t->result() as $row){
+				$this->db->select("id ");
+				$checkbils = $this->db->get_where('sales', array('sales_split_id' => $row->split_id));
+				if ($checkbils->num_rows() == 0) {
+					 $this->db->select("orders.id, orders.customer_id,orders.customer,orders.created_on, kitchen_orders.id AS kitchen, kitchen_orders.status,orders.order_type, orders.seats_id, orders.order_status, orders.reference_no, orders.date, orders.split_id, orders.table_id, 'items' AS item")
+					 
+					->join('kitchen_orders', 'kitchen_orders.sale_id = orders.id', 'left')
+					->where('orders.split_id', $row->split_id)
+					->where('DATE(date)', $current_date);
+					
+					$o = $this->db->get('orders');
+					$split[$row->id][] = $row;
+					if ($o->num_rows() > 0) {
+						
+						foreach($o->result() as $oow){
+							
+							$this->db->select("order_items.*, recipe.image, recipe.khmer_name")
+							->join('recipe', 'recipe.id = order_items.recipe_id');
+							$i = $this->db->get_where('order_items', array('sale_id' => $oow->id));
+							
+							if($i->num_rows() > 0){
+								
+								foreach($i->result() as $item){
+									$item_list[$oow->id][] = $item;
+								}
+								
+							}
+							
+							$oow->item = $item_list[$oow->id];
+							
+							$order[$row->split_id][] = $oow;
+						}
+					}
+					
+				}
+					$row->order = $order[$row->split_id];					
+					
+				
+				$data[] = $row;
+			}
+			
+			return $data;	
+		}
+		return FALSE;
+	}
+		public function getAllDoordeliveryorder(){
+		$current_date = date('Y-m-d');
+		$current_date = $this->site->getTransactionDate();
+		$this->db->select("orders.split_id , orders.customer_id, orders.customer,orders.created_on,  'order'");
+		$this->db->where("orders.order_type", 3);
+		$this->db->where("orders.payment_status", NULL);
+		$this->db->where('orders.order_cancel_status', 0);
+		$this->db->where('DATE(date)', $current_date);
+		$this->db->where('orders.warehouse_id', $this->session->userdata('warehouse_id'));
+		$this->db->group_by('orders.split_id');
+		$t = $this->db->get("orders");
+		if ($t->num_rows() > 0) {
+			foreach($t->result() as $row){
+				$this->db->select("id ");
+				$checkbils = $this->db->get_where('sales', array('sales_split_id' => $row->split_id));
+				if ($checkbils->num_rows() == 0) {
+						
+					 $this->db->select("orders.id, orders.customer_id,,orders.created_on,orders.customer, kitchen_orders.id AS kitchen, kitchen_orders.status,orders.order_type, orders.seats_id, orders.order_status, orders.reference_no, orders.date, orders.split_id, orders.table_id, 'items' AS item")
+					->join('kitchen_orders', 'kitchen_orders.sale_id = orders.id', 'left');
+					
+					$o = $this->db->get_where('orders', array('orders.split_id' => $row->split_id));
+				
+					$split[$row->id][] = $row;
+					if ($o->num_rows() > 0) {
+						foreach($o->result() as $oow){
+							$this->db->select("order_items.*, recipe.image, recipe.khmer_name")
+							->join('recipe', 'recipe.id = order_items.recipe_id');
+							$i = $this->db->get_where('order_items', array('sale_id' => $oow->id));
+							if($i->num_rows() > 0){
+								foreach($i->result() as $item){
+									$item_list[$oow->id][] = $item;
+								}
+							}
+							$oow->item = $item_list[$oow->id];
+							$order[$row->split_id][] = $oow;
+						}
+					}
+				}
+					$row->order = $order[$row->split_id];					
+				$data[] = $row;
+			}
+			return $data;	
+		}
+		return FALSE;
+	}
+	     function update_TableStatus_after_cancel_split($split_id,$status =NULL){
+
+    	$current_date = $this->site->getTransactionDate();
+		$table=$this->db->get_where("orders",array("split_id"=>$split_id))->row();
+		$table_id=$table->table_id;
+    	$this->db->select('id,created_on');		
+		$this->db->where('payment_status', NULL);	
+		$this->db->where('date', $current_date);	
+		$this->db->where('table_id', $table->table_id);	
+		$this->db->order_by("id", "asc");
+		$this->db->limit("1");
+        $q = $this->db->get('orders');
+		
+		$this->db->select('id');		
+		$this->db->where('sales.payment_status', NULL);	
+		$this->db->where('sales.sales_split_id', $split_id);		
+        $s = $this->db->get('sales'); 
+
+        $this->db->select('id');		
+		$this->db->where('bils.payment_status', NULL);	
+		$this->db->where('bils.sales_id', $salesid);		
+        $b = $this->db->get('bils'); 
+// print_r($this->db->last_query());die;
+        // if ($q->num_rows() <= 0) {
+			$order_row=$q->row();
+   if(!empty($order_row)){
+	   $time=$order_row->created_on;
+   }else{
+	    $time='0000-00-00 00:00:00';
+   }
+        if ($q->num_rows() <= 0 && $b->num_rows() <= 0 && $s->num_rows() <= 0 ) {
+    	$this->db->update('restaurant_tables', array('current_order_status' => $status,'current_order_user' => $status,'last_order_placed_time'=>$time), array('id' => $table_id));
+        	return true;
+    	}else if($s->num_rows() <= 0){
+			$this->db->update('restaurant_tables', array('current_order_status' =>$status,'current_order_user' => $status), array('id' => $table_id));
+        return false;
+    	}else{
+    		$this->db->update('restaurant_tables', array('current_order_status' => 2,'current_order_user' => $status), array('id' => $table_id));
+    	} return false;
+    } 
+	
+	function  get_lastbill($type){
+		if($type ==0){
+			$this->db->select("bill_number as bill_number");
+			$this->db->limit(1);
+			$this->db->order_by('id',"DESC");
+			$q=$this->db->get("latest_bill");
+			return $q->row();
+		}else{
+		    $this->db->select("dont_print_billnumber as bill_number");
+			$this->db->limit(1);
+			$this->db->order_by('id',"DESC");
+			$q=$this->db->get("latest_bill");
+			return $q->row();
+		}
+		return false;
+	}
+	 function checkbill_exist($table_whitelisted){
+		$this->db->select("*");
+		$this->db->where("bill_number !=","");
+		$this->db->where("table_whitelisted",$table_whitelisted);
+		$this->db->where("payment_status","Completed"); 
+		$q=$this->db->get("bils");
+		if($q->num_rows()>0){
+			return $q->result();
+		}
+		return false;
+	} 
+   function get_recipeCodeById($recipe_id){
+	   $this->db->select("code");
+	   $this->db->where("id",$recipe_id);
+	   $q=$this->db->get("recipe");
+	   if($q->num_rows()>0){
+		   return $q->row('code');
+	   }
+	   return false;
+   }
+   function checkbill_count($reference_no){
+		$this->db->select("sales_type_id , sales_split_id  ,        sales_table_id");
+		$this->db->join("bils","bils.sales_id=sales.id","left");
+		$this->db->where("bils.reference_no",$reference_no);
+		$this->db->where("bils.payment_status",NULL); 
+		$q=$this->db->get("sales");
+		if($q->num_rows()>0){
+			return $q->result();
+		}
+		return false;
+	} 
+	function filter_number($str){
+		preg_match_all('!\d+!', $str, $matches);
+		return $matches[0][0];
+		
+	}
+	function getWallets(){
+		$this->db->select("*");
+		$this->db->where("active",1);
+		$q=$this->db->get("wallet_master");
+		if($q->num_rows()>0){
+			foreach($q->result() as $row){
+			$data[] =$row;
+		}
+		return $data;
+		}
+		return false;
+	}
+	function getWalletsById($id){
+		$this->db->select("*");
+		$this->db->where("id",$id);
+		$q=$this->db->get("wallet_master");
+		if($q->num_rows()>0){
+			return $q->row();
+		}
+		return false;
+	}
+	function get_comboItems($recipeid){
+		$this->db->select("*");
+		$this->db->where("recipe_id",$recipeid);
+		$q=$this->db->get("recipe_combo_items");
+		if($q->num_rows()>0){
+			foreach($q->result() as $row){
+				$data[]=$row;
+			}
+		}
+		return $data;
+	}
+  function	get_ncKotMasters(){
+		$this->db->select("*");
+		$this->db->where("active",1);
+		$q=$this->db->get("nc_kot_type_master");
+		if($q->num_rows()>0){
+			foreach($q->result() as $row){
+				$data[]=$row;
+			}
+			return $data;
+		}
+		return false;
+	}
+	 function	get_ncKotMastersByid($id){
+		$this->db->select("*");
+		$this->db->where("active",1);
+		$this->db->where("id",$id);
+		$q=$this->db->get("nc_kot_type_master");
+		if($q->num_rows()>0){
+			return $q->row();
+		}
+		return false;
+	}
+	function getUsers(){
+		$this->db->select("id,first_name as name");
+		$this->db->where('active',1);
+		$q = $this->db->get('users');
+		if($q->num_rows()>0){
+		    foreach($q->result() as $row){
+				$data[]=$row;
+			}
+			return $data;
+		}
+		return false;
+    }
+	function baseToUnitQty($qty,$operator,$operation_value) {
+    switch($operator) {
+        case '*':
+            return ($qty/$operation_value);
+            break;
+        case '/':
+            return ($qty*$operation_value);
+            break;
+        case '+':
+            return ($qty-$operation_value);
+            break;
+        case '-':
+            return ($qty+$operation_value);
+            break;
+        default:
+            return $qty;
+    }
+}
+function unitToBaseQty($qty,$operator,$operation_value) {
+    switch($operator) {
+        case '*':
+            return ($qty*$operation_value);
+            break;
+        case '/':
+            return ($qty/$operation_value);
+            break;
+        case '+':
+            return ($qty+$operation_value);
+            break;
+        case '-':
+            return ($qty-$operation_value);
+            break;
+        default:
+            return $qty;
+    }
+}
+
+function basePriceToUnitPrice($price,$operator,$operation_value){
+		switch($operator) {
+        case '*':
+            return ($price*$operation_value);
+            break;
+        case '/':
+            return ($price/$operation_value);
+            break;
+        case '+':
+            return ($price+$operation_value);
+            break;
+        case '-':
+            return ($price-$operation_value);
+            break;
+        default:
+            return $price;
+	  }
+	}
 }

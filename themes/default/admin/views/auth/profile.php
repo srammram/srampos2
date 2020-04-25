@@ -35,7 +35,6 @@
                     <div class="box-content">
                         <div class="row">
                             <div class="col-lg-12">
-
                                 <?php $attrib = array('class' => 'form-horizontal', 'data-toggle' => 'validator', 'role' => 'form');
                                 echo admin_form_open('auth/edit_user/' . $user->id, $attrib);
                                 ?>
@@ -48,10 +47,8 @@
                                                     <?php echo form_input('first_name', $user->first_name, 'class="form-control" id="first_name" required="required"'); ?>
                                                 </div>
                                             </div>
-
                                             <div class="form-group">
                                                 <?php echo lang('last_name', 'last_name'); ?>
-
                                                 <div class="controls">
                                                     <?php echo form_input('last_name', $user->last_name, 'class="form-control" '); ?>
                                                 </div>
@@ -67,7 +64,6 @@
                                                 echo form_hidden('company', $user->company);
                                             } ?>
                                             <div class="form-group">
-
                                                 <?php echo lang('phone', 'phone'); ?>
                                                 <div class="controls">
                                                     <input type="tel" name="phone" class="form-control" id="phone"
@@ -136,6 +132,13 @@
                                                             <div class="panel-heading"><?= lang('user_options') ?></div>
                                                             <div class="panel-body" style="padding: 5px;">
                                                                 <div class="col-md-12">
+																		<div class="form-group">
+                                                                  <?= lang("area", "area"); ?>
+                                                                           <?php
+                                                                          foreach ($areas as $area) {  ?>
+                                                                           <div class="col-md-12"><label><input type="checkbox" name="area_id[]" value="<?=$area->id?>"<?php if(in_array($area->id, explode(',',$user->area_id))) { echo 'checked="checked"';} ?>><?=$area->name?></label></div>
+                                                                            <?php     }  ?>
+																			</div>
                                                                     <div class="col-md-12">
                                                                         <div class="form-group">
                                                                             <?= lang('status', 'status'); ?>

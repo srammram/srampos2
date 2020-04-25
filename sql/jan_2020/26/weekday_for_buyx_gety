@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_buy_get` ADD `week_days` VARCHAR(500) NOT NULL AFTER `variant_id`;

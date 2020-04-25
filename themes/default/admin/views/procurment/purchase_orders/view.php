@@ -58,14 +58,21 @@
                     <td colspan=2 ><?=lang('supplier')?>: </td>
                     <td colspan=2 class="td-value"><?php
 
-						$sl[""] = "";
-						foreach ($suppliers as $supplier) {
-							$sl[$supplier->id] = $supplier->name;
+						// $sl[""] = "";
+                        $supplier = '';
+						foreach ($suppliers as $supplier) {                            
+                            if($orders->supplier_id == $supplier->id ){
+                               $supplier = $supplier->name; 
+                               break;
+                            }
+                            
+							// $sl[$supplier->id] = $supplier->name;
 						}
-						echo form_dropdown('supplier', $sl, (isset($orders->supplier_id) ? $orders->supplier_id : 0), 'id="po_supplier" data-placeholder="' . $this->lang->line("select") . ' ' . $this->lang->line("supplier") . '"  class="form-control input-tip select" disabled style="width:100%; border:none; background-color:transparent; box-shadow:none; font-weight:bold; color: #333; padding-right:200px;"');
+                        echo $supplier;
+						// echo form_dropdown('supplier', $sl, (isset($orders->supplier_id) ? $orders->supplier_id : 0), 'id="po_supplier" data-placeholder="' . $this->lang->line("select") . ' ' . $this->lang->line("supplier") . '"  class="form-control input-tip select" disabled style="width:100%; border:none; background-color:transparent; box-shadow:none; font-weight:bold; color: #333; padding-right:200px;"');
 						?></td>
                     
-                    <td colspan=2 ><?=lang('supplier_address')?> : </td>
+                    <td colspan=2 ><?=lang('supplier_address')?> : </td>                    
                     <td colspan=2 class="td-value"><?=$orders->supplier_address?></td>
                     
                     <td colspan=2 ><?=lang('status')?> : </td>
@@ -112,6 +119,7 @@
                                             <th><?= lang('code'); ?></th>
                                             <th ><?= lang("description"); ?></th>
                                             <th ><?= lang("qty"); ?></th>
+                                            <th ><?= lang("uom"); ?></th>
                                             <th ><?= lang("cost_price"); ?></th>
                                             <th ><?= lang("gross"); ?></th>
                                             <th ><?= lang("item_dis"); ?></th>
@@ -134,6 +142,7 @@
                             <td><?=$row['row']->product_code?></td>
                             <td><?=$row['row']->product_name?></td>
                             <td><?=$row['row']->quantity?></td>
+                            <td><?=$row['row']->unit_name?></td>
                             <td><?=$row['row']->cost?></td>
                             <td><?=$row['row']->gross?></td>
                             <td><?=$row['row']->item_disc?></td>
@@ -186,7 +195,7 @@
                         <tr>                            
                             <td></td>
                             <td></td>
-                            <td colspan=5 class="pull-right"><?=lang('freight')?></td>
+                            <td colspan=5 class="pull-right"><?=lang('shipping_charge')?></td>
                             <td class="td-value"><?=$orders->shipping?></td>
                         </tr>
                         <tr>                            
@@ -198,7 +207,7 @@
                         <tr>                            
                             <td></td>
                             <td></td>
-                            <td colspan=5 class="pull-right"><?=lang('new_amt')?></td>
+                            <td colspan=5 class="pull-right"><?=lang('net_amt')?></td>
                             <td class="td-value"><?=$orders->grand_total?></td>
                         </tr>
                     </table>

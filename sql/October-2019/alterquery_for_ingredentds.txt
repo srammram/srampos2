@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_ingrediend_head` CHANGE `recipe_id` `recipe_id` INT(4) NOT NULL;

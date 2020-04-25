@@ -1,12 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
-
-class Qsr extends MY_Controller
-{
-
-    public function __construct()
-    {
+class Qsr extends MY_Controller{
+    public function __construct(){
         parent::__construct();
-
         if (!$this->loggedIn) {
             $this->session->set_userdata('requested_page', $this->uri->uri_string());
             $this->sma->md('login');
@@ -15,7 +10,6 @@ class Qsr extends MY_Controller
             $this->session->set_flashdata('warning', lang('access_denied'));
             redirect($_SERVER["HTTP_REFERER"]);
         }
-
         $this->load->admin_model('qsr_model');
         $this->load->admin_model('settings_model');
         $this->load->helper('text');
@@ -28,11 +22,7 @@ class Qsr extends MY_Controller
         $this->lang->admin_load('pos', $this->Settings->user_language);
         $this->load->library('form_validation');
     }
-
-    public function sales($warehouse_id = NULL)
-    {
-        //$this->sma->checkPermissions('index');
-
+    public function sales($warehouse_id = NULL){
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         if ($this->Owner) {
             $this->data['warehouses'] = $this->site->getAllWarehouses();
@@ -44,16 +34,12 @@ class Qsr extends MY_Controller
             $this->data['warehouse_id'] = $this->session->userdata('warehouse_id');
             $this->data['warehouse'] = $this->session->userdata('warehouse_id') ? $this->site->getWarehouseByID($this->session->userdata('warehouse_id')) : NULL;
         }
-
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('pos'), 'page' => lang('pos')), array('link' => '#', 'page' => lang('pos_sales')));
         $meta = array('page_title' => lang('pos_sales'), 'bc' => $bc);
         $this->page_construct('pos/sales', $meta, $this->data);
     }
 
-    public function getSales($warehouse_id = NULL)
-    {
-       // $this->sma->checkPermissions('index');
-
+    public function getSales($warehouse_id = NULL){
         if ((!$this->Owner || !$this->Admin) && !$warehouse_id) {
             $user = $this->site->getUser();
             $warehouse_id = $user->warehouse_id;
@@ -119,44 +105,36 @@ class Qsr extends MY_Controller
 
     /* ---------------------------------------------------------------------------------------------------- */
 
-    public function index($sid = NULL)
-    {
+    public function index($sid = NULL){
+		/* 
+		
+print_r($_POST);
+die; */
         //$this->sma->checkPermissions();
 		$default_currency_data = $this->site->getCurrencyByID($this->Settings->default_currency);
 		$this->data['biller'] = $this->site->getCompanyByID($this->pos_settings->default_biller);
         $this->data['customer_discount'] = $this->site->GetAllcostomerDiscounts();
 		$default_currency_rate = $default_currency_data->rate;
 		$default_currency_symbol = $default_currency_data->symbol;
-
         $user_group = $this->qsr_model->getUserByID($this->session->userdata('user_id'));
-// var_dump($user_group);
+		$this->data['created_by']=$user_group->username;
         $gp = $this->settings_model->getGroupPermissions($user_group->group_id);
-
-				
         if (!$this->pos_settings->default_biller || !$this->pos_settings->default_customer || !$this->pos_settings->default_category) {
             $this->session->set_flashdata('warning', lang('please_update_settings'));
             admin_redirect('qsr/settings');
         }
-		
 		$this->data['warehouse'] = $this->session->userdata('warehouse_id') ? $this->site->getWarehouseByID($this->session->userdata('warehouse_id')) : NULL;
-
 		$this->data['tax_rates'] = $this->site->getAllTaxRates();
 		$currency = $this->site->getAllCurrencies();
-		
         $this->data['sid'] = $this->input->get('suspend_id') ? $this->input->get('suspend_id') : $sid;
-		
         $did = $this->input->post('delete_id') ? $this->input->post('delete_id') : NULL;
         $suspend = $this->input->post('suspend') ? TRUE : FALSE;
-
         $count = $this->input->post('count') ? $this->input->post('count') : NULL;
-
         $duplicate_sale = $this->input->get('duplicate') ? $this->input->get('duplicate') : NULL;
-		
         //validate form input
         $this->form_validation->set_rules('customer', $this->lang->line("customer"), 'trim|required');
         $this->form_validation->set_rules('warehouse', $this->lang->line("warehouse"), 'required');
         $this->form_validation->set_rules('biller', $this->lang->line("biller"), 'required');
-
         if ($this->form_validation->run() == TRUE) {
           /*  echo "<pre>";
 print_r($this->input->post());die;*/
@@ -266,15 +244,13 @@ print_r($this->input->post());die;*/
                $offer_dis = $this->site->calculate_Discount($this->input->post('discount_on_total'), ($item_net_price * $item_unit_quantity-$item_discount),$this->input->post('sub_total') -$this->input->post('item_discount'));
                // echo $offer_dis;die;
             }         
-    if($this->input->post('order_discount_input'))
-    {   
+    if($this->input->post('order_discount_input')){   
             // $subtotal =$postData['split'][$i]['subtotal'][$key];
             $tot_dis1 = 00;//$this->input->post('[split]['.$i.'][tot_dis1]');
             $item_dis = 0;//$postData['split'][$i]['item_dis'][$key];
             
         if($this->Settings->customer_discount=="customer"){
             $recipe_id =  $item_id;
-            
             $finalAmt = $price_total - $item_discount -$offer_dis; 
             $customer_discount_status = 'applied';
             $discountid = $this->input->post('order_discount_input');
@@ -283,7 +259,6 @@ print_r($this->input->post());die;*/
             $subcategory_id =$recipeDetails->subcategory_id;
             $input_dis = $this->pos_model->recipe_customer_discount_calculation($recipe_id,$group_id,$subcategory_id,$finalAmt,$discountid);
         }else if($this->Settings->customer_discount=="manual"){
-            
          $input_dis = $this->site->calculate_Discount($this->input->post('order_discount_input'), (($item_net_price * $item_unit_quantity-$item_discount)-$offer_dis),(($this->input->post('sub_total')-$item_discount)-$offer_dis));
          /*echo "<pre>";
          print_r($input_dis);*/
@@ -297,11 +272,8 @@ print_r($this->input->post());die;*/
         // echo "string";die;
        $input_dis = 0;
     }
-
     $getTax = $this->site->getTaxRateByID($this->pos_settings->default_tax);
-
     if($this->pos_settings->tax_type != 0){              
-
          $itemtax = $this->site->calculateOrderTax($getTax->id, ($item_net_price * $item_unit_quantity-($offer_dis ? $offer_dis:0) -($input_dis ? $input_dis:0)-($item_discount)));
     }else{
         $itemtax = $this->site->calculateOrderTax($getTax->id, ($item_net_price * $item_unit_quantity-($offer_dis ? $offer_dis:0) -($input_dis ? $input_dis:0)-($item_discount)));
@@ -483,11 +455,8 @@ var_dump($suspend);die;*/
                 $total_pay =  $total - $balance;
 				$paid = $total - $dueamount;
                 $p = isset($_POST['paid_by']) ? sizeof($_POST['paid_by']) : 0; 
-				
 				$default_currency_data = $this->site->getCurrencyByID($this->Settings->default_currency);
-								
 				for ($r = 0; $r < $p; $r++) {
-
                     if($_POST['amount_KHR'][$r] == '' && $_POST['amount_'.$default_currency_data->code.''][$r] == '')
                     {
                            unset($link);
@@ -500,7 +469,6 @@ var_dump($suspend);die;*/
     							$amount_exchange = $_POST['amount_'.$currency_row->code][$r];
     						}
 					   }
-
         				if(!empty($amount) || !empty($amount_exchange)){
             				$payment[] = array(
             					'date'         => date('Y-m-d H:i:s'),					
@@ -576,23 +544,16 @@ var_dump($suspend);die;*/
 
                 $total_pay =  $total - $balance;                
                 $paid = $total - $dueamount;
-                
                 $p = isset($_POST['paid_by']) ? sizeof($_POST['paid_by']) : 0; 
-                
                 $default_currency_data = $this->site->getCurrencyByID($this->Settings->default_currency);
-                                
                 for ($r = 0; $r < $p; $r++) {
-                    if($_POST['amount_KHR'][$r] == '' && $_POST['amount_'.$default_currency_data->code.''][$r] == '')
-                        {
+                    if($_POST['amount_KHR'][$r] == '' && $_POST['amount_'.$default_currency_data->code.''][$r] == ''){
                             unset($link);
                         }else{
-                            foreach($currency as $currency_row){                        
-                                                        
+                            foreach($currency as $currency_row){          
                                 if($currency_row->rate == $default_currency_data->rate){
-                                
                                     $p = isset($_POST['amount_'.$currency_row->code][$r]) ? sizeof($_POST['amount_'.$currency_row->code]) : 0;
                                     $amount = $_POST['amount_'.$currency_row->code][$r];
-                                    
                                 }else{
                                     $amount_exchange = $_POST['amount_'.$currency_row->code][$r];                            
                                 }
@@ -620,9 +581,7 @@ var_dump($suspend);die;*/
                                     'type'         => 'received',
                                 );
                             }
-                
                             foreach($currency as $currency_row){
-                                    
                                 if($default_currency_data->code == $currency_row->code){
                                     if(!empty($_POST['amount_'.$currency_row->code][$r])){
                                         $multi_currency[] = array(
@@ -692,17 +651,13 @@ var_dump($suspend);die;*/
                 $discountid = $this->input->post('order_discount_input');
                 //echo '<pre>';print_R($recipes);exit;
                 if ($sale = $this->qsr_model->addInsertbil($data, $recipes, $payment, $update_bill, $sales_bill, $multi_currency, $did,$order_data, $bill_recipes,$total,$customer_id,$loyalty_used_points,$taxation,$discountid)) {
-		    
                     if($this->pos_settings->qsr_kot_print==1){
-                    
                         if($this->pos_settings->kot_print_option == 1){	
                                     $this->remotePrintingKOT_single($sale['kitchen_data']);
                         }else{
                                 $this->remotePrintingKOT($sale['kitchen_data']);
                         }
-                        if($this->pos_settings->consolidated_kot_print != 0){	
-                                
-    
+                        if($this->pos_settings->consolidated_kot_print != 0){
                                 $kotconsoildprint = $sale['consolid_kitchen_data'];
                                 $this->kot_consolidated_curl($kotconsoildprint);
                         }
@@ -832,7 +787,9 @@ var_dump($suspend);die;*/
                                 'row' => $row, 'combo_items' => $combo_items, 'tax_rate' => $tax_rate, 'units' => $units, 'options' => $options, 'addons' => $addons);
                         $c++;
                     }
+/* print_r($pr);
 
+die; */
                     $this->data['items'] = json_encode($pr);
 
             } else {
@@ -881,6 +838,7 @@ var_dump($suspend);die;*/
                     $this->data['inv'] = $inv;
                     $this->data['print'] = $inv->id;
                     $this->data['created_by'] = $this->site->getUser($inv->created_by);
+					
                 }
             }
 /*echo "<pre>";
@@ -2595,7 +2553,6 @@ public function reprint_view($billid = NULL, $modal = NULL)
             $this->sma->view_rights($inv->created_by, true);
         }        
         $this->data['rows'] = $this->qsr_model->getAllInvoiceItems($billid);
-        
         $biller_id = $inv->biller_id;
         $bill_id = $inv->sales_id;
         
@@ -2781,6 +2738,7 @@ public function reprint_view($billid = NULL, $modal = NULL)
         $date = $_POST['date'];
         $payment = array();
         $multi_currency = array();
+		$data=array('paid'=>$_POST['total'],'balance'=>$_POST['balance_amount']);
         $p = isset($_POST['paid_by']) ? sizeof($_POST['paid_by']) : 0;
         $default_currency_data = $this->site->getCurrencyByID($this->Settings->default_currency);
 								
@@ -2846,7 +2804,7 @@ public function reprint_view($billid = NULL, $modal = NULL)
 			      //   }
 	           }
                  
-                   $this->qsr_model->re_payment($saleid,$billid,$payment,$multi_currency);
+                   $this->qsr_model->re_payment($saleid,$billid,$data,$payment,$multi_currency);
                    admin_redirect('qsr/resettle_bill?date='.$date);
     }
     public function remotePrintingKOT_single($kitchen_data=array()){
@@ -2855,8 +2813,8 @@ public function reprint_view($billid = NULL, $modal = NULL)
         curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
         $kitchendata = json_encode( array('k_data'=>$kitchen_data) );
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt( $ch, CURLOPT_POSTFIELDS, $kitchendata );
-        curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $kitchendata );
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_VERBOSE, true);
         $result = curl_exec($ch);
@@ -2870,8 +2828,8 @@ public function reprint_view($billid = NULL, $modal = NULL)
         curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
         $kitchendata = json_encode( array('k_data'=>$kitchen_data) );
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt( $ch, CURLOPT_POSTFIELDS, $kitchendata );
-        curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $kitchendata );
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_VERBOSE, true);
         $result = curl_exec($ch);
@@ -2883,8 +2841,8 @@ public function reprint_view($billid = NULL, $modal = NULL)
         curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
         $kitchendata = json_encode($kotconsoildprint);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt( $ch, CURLOPT_POSTFIELDS, $kitchendata );
-        curl_setopt( $ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $kitchendata );
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_VERBOSE, true);
         $result = curl_exec($ch);

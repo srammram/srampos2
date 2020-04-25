@@ -40,11 +40,9 @@
             });
 			
         $(".numberonly").keypress(function (event){
-            
             if ((event.which != 46 || $(this).val().indexOf('.') != -1) && (event.which < 48 || event.which > 57)) {
                 event.preventDefault();
             }
-          
         });
             
         </script>
@@ -86,7 +84,6 @@
 <div id="wrapper">
    
 	<?php
-
 	 if($this->Settings->user_language == 'english' ) { 
          $this->load->view($this->theme . 'pos/pos_header');   
          }else{// for kimmo 
@@ -1413,12 +1410,14 @@ var lang = {
             });
 
             $('#poscustomer').on('select2-close', function () {
+			
                 $('.select2-input').removeClass('kb-text-click');                
                 $('#test').click();
                 $('select, .select').select2('destroy');
                 $('select, .select').select2({minimumResultsForSearch: 7});
             });
             $(document).bind('click', '#test', function () {
+				
                 var kb = $('#test').keyboard().getkeyboard();                
                 kb.close();
             });
@@ -1599,6 +1598,10 @@ var lang = {
 
         /*$(document).on('click', '.recipe', function (e) {*/
         $(document).on('click', '.recipe:not(".has-varients")', function (e) {
+			if($(this).hasClass("non_transaction")){
+			 bootbox.alert('ITEM IS NOT AVAILABLE');
+			 return false;
+			}
             $('#modal-loading').show();
             code = $(this).val(),
 			
@@ -1624,7 +1627,11 @@ var lang = {
             });
         });
 
-    $(document).on('click', '.recipe-varient', function (e) {        
+    $(document).on('click', '.recipe-varient', function (e) {   
+		if($(this).hasClass("non_transaction")){
+			 bootbox.alert('ITEM IS NOT AVAILABLE');
+			 return false;
+			}
         var code = $(this).attr('code');        
         $('#myVaraintModal').modal('hide');        
         $('#modal-loading').hide();        

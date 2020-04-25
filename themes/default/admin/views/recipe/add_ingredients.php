@@ -1,6 +1,4 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
-
-
 <?php
 	$attrib = array( 'role' => 'form', 'id' => 'production_form');
 	echo admin_form_open("recipe/ingredients_mapping", $attrib);
@@ -35,20 +33,15 @@
 							</td>
 							<td width="350px">
 								<?php
-					
-								//$opts = array('standard' => lang('standard'), 'combo' => lang('combo'), 'trade' => lang('trade'), 'production' => lang('production'), 'addon' => lang('addon'));
-								$opts = array('0' => lang('select'), 'production' => lang('production'),'quick_service' => lang('quick_service'), 'semi_finished' => lang('semi_finished'), 'addon' => lang('addon'));
+								//$opts = array('standard' => lang('standard'), 'combo' => lang('combo'), 'trade' => lang('trade'), standard'production' => lang('production'), 'addon' => lang('addon'));
+								$opts = array('0' => lang('select'),'standard' => lang('standard'), 'production' => lang('production'),'quick_service' => lang('quick_service'), 'semi_finished' => lang('semi_finished'), 'addon' => lang('addon'));
 								echo form_dropdown('type', $opts, (isset($_POST['type']) ? $_POST['type'] : ($recipe ? $recipe->type : '')), 'class="form-control" id="type" required="required"');
-								
 								?>
-								
 							</td>
 							<td width="100px">
 								<?= lang("item_name", "item_name"); ?>
 							</td>
 							<td width="350px">
-								<?php  // echo form_dropdown('item_name', , 'class="form-control ttip select2" id="item_name" data-placement="top" data-trigger="focus" data-bv-notEmpty-message="' . lang('please_add_items_below') ); 
-								//echo form_input('item_name', '', 'class="search_item_name form-control select2-input" id="item_name"  placeholder="' . lang("select") . ' ' . lang("products") . '" style="width:100%;" '); ?> 
 								<select name="item_name" id="item_name" class="form-control ttip" >
 									<option value="0">Select</option>
 								</select>
@@ -62,16 +55,16 @@
 							<td width="350px">
 								<?php echo form_input('qty', '', 'class="form-control numberonly ttip" id="qty" data-placement="top" data-trigger="focus" data-bv-notEmpty-message="' . lang('please_add_items_below') . '" style="width:100%;"  '); ?>
 							</td>
-							<td>
+							<td style="display: none">
 								<?= lang("selling_price", "selling_price") ?> 
 							</td> 
-							<td>
+							<td style="display: none">
 								<input type="text" name="selling_price" class="form-control tip numberonly" id="selling_price" maxlength="10" >
                                 <input type="hidden" name="variant_id" class="form-control tip" id="variant_id">
                                 <input type="hidden" name="recipe_id" class="form-control tip" id="recipe_id">
 							</td>
 						</tr>	
-						<tr>
+						<tr style="display: none">
 							<td>
 								<?= lang("cost_price", "cost_price") ?> 
 							</td> 
@@ -150,18 +143,12 @@
 
 
 <script type="text/javascript">
-
 	var $existing_purchase_items =[];
-
  $(document).ready(function () {
-
 	$("#production_form").validate({
 		ignore: [],
-        
 	});
-	
 	$('#type').change(function () {
-
         // $("#item_name").val(null).trigger("change"); 
         $("#item_name").select2("val", "");
         $('.purchase-item-container tbody').empty();
@@ -169,7 +156,6 @@
         $('#cost_price').val('');
         $('#variant_id').val('');
         $('#qty').val(''); 
-
 		var type = $(this).val();
 		
 		$.ajax({
@@ -215,22 +201,18 @@
 		});
 	});
 	
-	
-	 
-
-
  $('.search-purchase-items-new').select2({
        minimumInputLength: 1,
        ajax: {
         url: site.base_url+"recipe/search_purchase_items_new",
         dataType: 'json',
-    type:'post',
+        type:'post',
         quietMillis: 15,
         data: function (term, page) {
             return {
                 term: term,
-        existing:$existing_purchase_items,
-        item_type:$('#type').val()
+                existing:$existing_purchase_items,
+                item_type:$('#type').val()
             };
         },
         results: function (data, page) {
@@ -241,10 +223,6 @@
              $results[n] = {};
              $results[n]['id'] = v.id
 			 $results[n]['cm_id'] = v.cm_id
-			 
-			//console.log(v.cm_id);
-			//console.log(v.subcategory_name);
-		 
 			if(v.category_name != ''){
 				$results[n]['cate_name'] = v.category_name
 				var cat_label = ' <strong>Cat</strong>';
@@ -271,13 +249,13 @@
 			 
              $results[n]['html'] = v.name+cat_label+cat+sub_label+sub+brand_label+brand;
 			 $results[n]['text'] = v.name+' Cat '+cat+' | Sub '+sub+' | Brand'+brand;
-			
              $results[n]['unit'] = v.unit_name;
              $results[n]['cost'] = v.cost;
              $results[n]['unit_id'] = v.unit;
+			 $results[n]['units'] = v.units;
+			 
 			 $results[n]['item_customizable'] = v.item_customizable;
         })
-        console.log($results)
                 return {results: $results};
             } else {
                 return { results: [{id: '', text: 'No Match Found'}]};
@@ -288,6 +266,7 @@
     formatResult: function (i) {return '<div>'+i.html+'</div>';},
     formatSelection: function (i) {return '<div>'+i.text+'</div>'; },
   }).on('change', function (v) {
+	  console.log(v.added.units);
     $lable = v.added.text;
     $pid = v.added.id;
     $cm_id = v.added.cm_id;
@@ -299,45 +278,40 @@
     $item_customizable = v.added.item_customizable;    
     $('.search-purchase-items-new').select2("val", "");
     $existing_purchase_items.push($uniqid);
-
-    var Uom = <?php echo json_encode($this->site->getAllUnits()); ?>;       
+    var Uom = v.added.units;       
         var htm = "";
         htm+= "<select name='purchase_item_unit[]' class='select2-container form-control purchase_item_unit'><option value='' >Select </option>";
-        $.each(Uom, function (a, b) 
-        {
-
+        $.each(Uom, function (a, b) {
         htm+= "<option value="+b.id +">"+b.name+"</option>";                                                    
-
         });
         htm+= "</select>";  
-        console.log($item_customizable);
         if($item_customizable == 0){
             $disabled ='disabled="disabled"';
         }else{
             $disabled ='';
         }
-
-
         $html = '<tr class="each-purchase-item">';
         $html +='<td  class="col-sm-1"><input class="p-item-quantity form-control item_customizable" '+$disabled+'  type="checkbox" id="item_customizable" ><input class="form-control customizable" type="hidden"  name="item_customizable[]"></td>';
         $html +='<td  class="col-sm-8"><input class="form-control" type="text" value="'+$lable+'" disabled>';      
         $html +='<input class="form-control" type="hidden" id="purchase_item_id" name="purchase_item_id[]" value="'+$pid+'"><input class="form-control" type="hidden" id="item_cm_id[]" name="purchase_item_cm_id[]" value="'+$cm_id+'"></td>';
-        $html +='<td  class="col-sm-1"><input class="p-item-quantity form-control purchase_item_quantity numberonly" type="text" id="purchase_item_quantity" name="purchase_item_quantity[]" value="" maxlength="5"></td>';        
+        $html +='<td  class="col-sm-1"><input class="p-item-quantity form-control purchase_item_quantity numberonly piq'+$uniqid+'" type="text" id="purchase_item_quantity" name="purchase_item_quantity[]" value="" maxlength="5" autofocus="autofocus" ></td>';        
 	// $html +='<td  class="col-sm-1"><input class="form-control" type="hidden" id="purchase_item_unit" name="purchase_item_unit[]" value="'+$unitid+'"><input readonly="readonly" class="p-item-unit form-control" type="test" name="purchase_item[unit][]" value="'+$unit+'"></td>';
         //$html +='<td  class="col-sm-2"><input class="p-item-cost form-control" type="hidden" name="purchase_item[cost][]" value="'+$cost+'"><input class="p-item-price form-control" type="text" name="purchase_item[price][]" value=""></td>';
-       $html +='<td  class="col-sm-2">'+htm+'</td>';
+        $html +='<td  class="col-sm-2">'+htm+'</td>';
         $html +='<td  class="col-sm-1 text-center"><a href="" data-id="" data-vid="'+$pid+'" class="btn btn-primary btn-xs remove-purchase-item_new"><i class="fa fa-trash-o"></i></a></td>'
         $html +='</tr>';
 		
-        $('.purchase-item-container tbody').prepend($html);
-         $('.purchase-item-container tbody tr:first input[type="checkbox"]').iCheck({
+        $('.purchase-item-container tbody').append($html);
+		$('.piq'+$uniqid).focus();
+		//$(this).siblings('.purchase_item_quantity').focus();
+        
+        $('.search-purchase-items-new').val();		 
+    });
+ $(' input[type="checkbox"]').iCheck({
         checkboxClass: 'icheckbox_square-blue',
         radioClass: 'iradio_square-blue',
         increaseArea: '20%'
         });
-        $('.search-purchase-items-new').val();		 
-    });
-
     $(document).on('ifChecked', '.item_customizable', function() {
         if(this.checked) {           
             $(this).parent().parent().find('.customizable').val(1);             
@@ -351,8 +325,6 @@
     e.preventDefault();
     $obj = $(this);
     $id = $obj.attr('data-id');
-   
-   
     if ($id!='') {
         $.ajax({
         type: "get", async: false,
@@ -367,28 +339,20 @@
             
         }
         })
-    }else{
+         }else{
         $obj.closest('tr').remove();
         alert('Removed');
+        var arr = $existing_purchase_items;       
+        var itemtoRemove = $id;
+        arr.splice($.inArray(itemtoRemove, arr), 1);
+        $existing_purchase_items =arr;
+
     }
-    var index = $existing_purchase_items.indexOf($uniqid);
-        if (index > -1) {
-          $existing_purchase_items.splice(index, 1);
-        }
+   
     });
-//    $(document).on('keyup','.p-item-quantity',function(){
-//	$obj = $(this);
-//	$q = $obj.val();
-//	$c = $obj.closest('.each-purchase-item').find('.p-item-cost').val();
-//	$p = $c*$q;
-//	$obj.closest('.each-purchase-item').find('.p-item-price').val($p);
-//    });
+
 	});
-  
-/*$('#item_name').on("select2-selecting", function(e) {     */
-    // $('#item_name').on("change", function(e) { 
     $(document).on('change', '#item_name', function(e) {
-        // alert($(this).val());
        $('#selling_price').val('');
        $('#cost_price').val('');
        $('#variant_id').val('');

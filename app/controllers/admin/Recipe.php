@@ -1,10 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Recipe extends MY_Controller
-{
-
-    function __construct()
-    {
+class Recipe extends MY_Controller{
+	function __construct(){
         parent::__construct();
         if (!$this->loggedIn) {
             $this->session->set_userdata('requested_page', $this->uri->uri_string());
@@ -22,10 +19,8 @@ class Recipe extends MY_Controller
         $this->popup_attributes = array('width' => '900', 'height' => '600', 'window_name' => 'sma_popup', 'menubar' => 'yes', 'scrollbars' => 'yes', 'status' => 'no', 'resizable' => 'yes', 'screenx' => '0', 'screeny' => '0');
     }
 
-    function index($warehouse_id = NULL)
-    {
+    function index($warehouse_id = NULL){
         $this->sma->checkPermissions();
-
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         if ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) {
             $this->data['warehouses'] = $this->site->getAllWarehouses();
@@ -43,11 +38,8 @@ class Recipe extends MY_Controller
         $this->page_construct('recipe/index', $meta, $this->data);
     }
 	
-    function getrecipe($warehouse_id = NULL)
-    {
+    function getrecipe($warehouse_id = NULL){
         $this->sma->checkPermissions('index', TRUE);
-        //$supplier = $this->input->get('supplier') ? $this->input->get('supplier') : NULL;
-
         if ((! $this->Owner || ! $this->Admin)) {
             $user = $this->site->getUser();
         }
@@ -100,7 +92,7 @@ class Recipe extends MY_Controller
 //            ->edit_column('image', '$1__$2__$3', 'active, recipeid,image');
 //            // ->group_by("products.id");
 	    $this->datatables
-                ->select("'sno',".$this->db->dbprefix('recipe') . ".id as recipeid,".$this->db->dbprefix('recipe') . ".type as item_type, (CASE WHEN {$this->db->dbprefix('recipe')}.recipe_standard = '1' THEN  'Alakat' WHEN {$this->db->dbprefix('recipe')}.recipe_standard = '2' THEN  'BBQ' ELSE 'Alakat and BBQ' END) as recipe_standard, {$this->db->dbprefix('recipe')}.name as name,{$this->db->dbprefix('recipe')}.khmer_name as khmer_name,{$this->db->dbprefix('recipe_categories')}.name as cname,{$this->db->dbprefix('recipe')}.image as image,".$this->db->dbprefix('recipe') . ".id as stock_r_id, price as price,  active", FALSE)
+                ->select("'sno',".$this->db->dbprefix('recipe') . ".id as recipeid,".$this->db->dbprefix('recipe') . ".type as item_type, (CASE WHEN {$this->db->dbprefix('recipe')}.recipe_standard = '1' THEN  'Alakat' WHEN {$this->db->dbprefix('recipe')}.recipe_standard = '2' THEN  'BBQ' ELSE 'Alakat and BBQ' END) as recipe_standard, {$this->db->dbprefix('recipe')}.name as name,{$this->db->dbprefix('recipe')}.khmer_name as khmer_name,{$this->db->dbprefix('recipe_categories')}.name as cname,{$this->db->dbprefix('recipe')}.image as image,".$this->db->dbprefix('recipe') . ".id as stock_r_id, minimum_quantity,maximum_quantity, price as price,  active", FALSE)
                 ->from('recipe')
                 ->join('recipe_categories', 'recipe.category_id=recipe_categories.id', 'left')
 		->join('warehouses_recipe', 'recipe.id=warehouses_recipe.recipe_id', 'left')
@@ -328,29 +320,22 @@ class Recipe extends MY_Controller
 
     /* ------------------------------------------------------- */
 
-    function add($id = NULL)
-    {
-		
-        $this->sma->checkPermissions();
+    function add($id = NULL){
+        $this->sma->checkPermissions(); 
         $this->load->helper('security');
         $warehouses = $this->site->getAllWarehouses();
         //$this->form_validation->set_rules('category', lang("category"), 'required|is_natural_no_zero');
         $warehouse = $this->input->post('warehouse');
         $recipe_standard = ($this->input->post('recipe_standard'))?$this->input->post('recipe_standard'):0;
-	
-        if(!empty($warehouse))
-        {            
-            foreach($warehouse as $id => $ware)
-            {
+        if(!empty($warehouse)){            
+            foreach($warehouse as $id => $ware){
                 $this->form_validation->set_rules('warehouse[' . $id . ']', 'Warehouse', 'required');                
             }
         }
         else{
             $this->form_validation->set_rules('warehouse', 'Warehouse', 'required');  
         }
-        
-        if($recipe_standard == 2)
-        {     
+        if($recipe_standard == 2){     
             $this->form_validation->set_rules('piece', lang("piece"), 'required');            
         } 
        
@@ -363,7 +348,7 @@ class Recipe extends MY_Controller
 		//$this->form_validation->set_rules('stock_quantity', lang("stock_quantity"), 'required');		
         if ($this->form_validation->run() == true) {
 			//            echo "<pre>";
-			//print_r($_POST);exit;
+		//	print_r($_POST);exit;
 
 			//	    $recipe_pro =array();
 			//	    for($j=0; $j<count($this->input->post('purchase_item[id]')); $j++){
@@ -421,13 +406,11 @@ class Recipe extends MY_Controller
                 'supplier5_part_no' => $this->input->post('supplier_5_part_no'),
                 'file' => $this->input->post('file_link'),
                 'slug' => $this->input->post('slug'),
-				
                 'featured' => $this->input->post('featured'),
                 'hsn_code' => $this->input->post('hsn_code'),
 				'active' => 1,
                 'hide' => $this->input->post('hide') ? $this->input->post('hide') : 0,
 				'preparation_time' => $this->input->post('preparation_time'),
-				
 				'minimum_quantity' => $this->input->post('minimum_quantity') ? $this->input->post('minimum_quantity') : 0,
                 'alert_quantity' => $this->input->post('reorder_quantity') ? $this->input->post('reorder_quantity') : 0,
 				'reorder_quantity' => $this->input->post('reorder_quantity') ? $this->input->post('reorder_quantity') : 0,
@@ -436,36 +419,50 @@ class Recipe extends MY_Controller
 				'unit' => $this->input->post('unit'),
 				'sale_unit' => $this->input->post('default_sale_unit'),
                 'purchase_unit' => $this->input->post('default_purchase_unit'),
-		
+				  'stock_unit' => $this->input->post('stock_unit'),
 				'maximum_quantity' => $this->input->post('maximum_quantity'),
 				'batch_required' => $this->input->post('batch_required'),		
 				'expiry_date_required' => $this->input->post('expiry_date_required'),
 				'purchase_tax' => $this->input->post('purchase_tax'),
-		
-		
             );
 	    $sales_type = array('standard','production','combo','quick_service','addon');
+		$stock_unit=!empty($this->input->post('stock_unit'))?$this->input->post('stock_unit'):$this->input->post('unit');
+		$unit = $this->site->getUnitByID($stock_unit);
 	    $cat_mapping_data = array();
 	    if(in_array($_POST['type'],$sales_type)){
-			$cat_mapping_data[0]['category_id'] = $this->input->post('category');
-			$cat_mapping_data[0]['subcategory_id'] = $this->input->post('subcategory') ? $this->input->post('subcategory') : NULL;
-			$cat_mapping_data[0]['brand_id'] = $this->input->post('brand');
-			$cat_mapping_data[0]['purchase_cost'] = $this->input->post('purchase_cost');
-			$cat_mapping_data[0]['selling_price'] = $this->input->post('selling_price');
-			$cat_mapping_data[0]['stock'] = $this->input->post('stock');
-			
+            $varients = $_POST['varients'];
+            $cnt = count($varients['id']);
+            $add_varient = array();
+            if($cnt >0){
+                for($i=0;$i<$cnt;$i++){
+                    $cat_mapping_data[$i]['category_id'] = $this->input->post('category');
+                    $cat_mapping_data[$i]['subcategory_id'] = $this->input->post('subcategory') ? $this->input->post('subcategory') : NULL;
+                    $cat_mapping_data[$i]['brand_id'] = $this->input->post('brand');
+                    $cat_mapping_data[$i]['purchase_cost'] = $varients['price'][$i];
+                    $cat_mapping_data[$i]['selling_price'] = $varients['price'][$i];
+					$stock=$this->site->unitToBaseQty($this->input->post('stock'),$unit->operator,$unit->operation_value);
+                    $cat_mapping_data[$i]['stock'] = $stock;
+                    $cat_mapping_data[$i]['variant_id'] = $varients['id'][$i];
+                }
+            }else{
+                $cat_mapping_data[0]['category_id'] = $this->input->post('category');
+                $cat_mapping_data[0]['subcategory_id'] = $this->input->post('subcategory') ? $this->input->post('subcategory') : NULL;
+                $cat_mapping_data[0]['brand_id'] = $this->input->post('brand');
+                $cat_mapping_data[0]['purchase_cost'] = $this->input->post('purchase_cost');
+                $cat_mapping_data[0]['selling_price'] = $this->input->post('selling_price');
+				$stock=$this->site->unitToBaseQty($this->input->post('stock'),$unit->operator,$unit->operation_value);
+                $cat_mapping_data[0]['stock'] = $stock;
+            }
 			$data['category_id'] = $this->input->post('category');
 			$data['subcategory_id'] = $this->input->post('subcategory') ? $this->input->post('subcategory') : NULL;
 			$data['brand'] = $this->input->post('brand');
 			$data['purchase_cost'] = $this->input->post('purchase_cost');
 			$data['cost'] = $this->input->post('purchase_cost');
 			$data['price'] = $this->input->post('selling_price');
-			
 			$data['stock_quantity'] = $this->input->post('stock') ? $this->input->post('stock') : 0;
 	    }else{
 		$ind = 0;
 			foreach($_POST['group'][0]['recipe_group_id'] as $catid => $subcate){
-				
 				foreach($subcate['sub_category'] as $sub_catid => $brands){
 					foreach($brands['brands'] as $b => $brand_id){	 // echo '<pre>';print_R($brands);
 						$cat_mapping_data[$ind]['category_id'] = $catid;
@@ -478,9 +475,7 @@ class Recipe extends MY_Controller
 					}
 				}
 			}
-	    }
-			
-		//print_r($data);	exit;
+	    }		
 			
             $warehouse_qty = NULL;
 			$recipe_pro = NULL;
@@ -503,9 +498,6 @@ class Recipe extends MY_Controller
 			
 			
             if ($this->input->post('type') == 'addon' || $this->input->post('type') == 'production' || $this->input->post('type') == 'semi_finished') {
-                
-				
-				
 				for($j=0; $j<count($this->input->post('purchase_item[id]')); $j++){
 					$recipe_pro[] = array(
 						'product_id' => $this->input->post('purchase_item[id]['.$j.']'),
@@ -514,11 +506,8 @@ class Recipe extends MY_Controller
 						'unit_id' => $this->input->post('purchase_item[unit_id]['.$j.']'),						
 					);
 				}
-				
-              
             }
 	    if($this->input->post('type') == 'combo'){
-				
 		    for($k=0; $k<count($this->input->post('combo_item_id[]')); $k++){
 			    $items[] = array(
 				    'item_id' => $this->input->post('combo_item_id['.$k.']'),
@@ -530,7 +519,6 @@ class Recipe extends MY_Controller
 	    }
 		
             if ($_FILES['recipe_image']['size'] > 0) {
-
                 $config['upload_path'] = $this->upload_path;
                 $config['allowed_types'] = $this->image_types;
                 $config['max_size'] = $this->allowed_file_size;
@@ -578,9 +566,7 @@ class Recipe extends MY_Controller
                 $this->image_lib->clear();
                 $config = NULL;
             }
-
             if ($_FILES['userfile']['name'][0] != "") {
-
                 $config['upload_path'] = $this->upload_path;
                 $config['allowed_types'] = $this->image_types;
                 $config['max_size'] = $this->allowed_file_size;
@@ -592,25 +578,19 @@ class Recipe extends MY_Controller
                 $files = $_FILES;
                 $cpt = count($_FILES['userfile']['name']);
                 for ($i = 0; $i < $cpt; $i++) {
-
                     $_FILES['userfile']['name'] = $files['userfile']['name'][$i];
                     $_FILES['userfile']['type'] = $files['userfile']['type'][$i];
                     $_FILES['userfile']['tmp_name'] = $files['userfile']['tmp_name'][$i];
                     $_FILES['userfile']['error'] = $files['userfile']['error'][$i];
                     $_FILES['userfile']['size'] = $files['userfile']['size'][$i];
-
                     $this->upload->initialize($config);
-
                     if (!$this->upload->do_upload()) {
                         $error = $this->upload->display_errors();
                         $this->session->set_flashdata('error', $error);
                         admin_redirect("recipe/add");
                     } else {
-
                         $pho = $this->upload->file_name;
-
                         $photos[] = $pho;
-
                         $this->load->library('image_lib');
                         $config['image_library'] = 'gd2';
                         $config['source_image'] = $this->upload_path . $pho;
@@ -618,13 +598,10 @@ class Recipe extends MY_Controller
                         $config['maintain_ratio'] = TRUE;
                         $config['width'] = $this->Settings->twidth;
                         $config['height'] = $this->Settings->theight;
-
                         $this->image_lib->initialize($config);
-
                         if (!$this->image_lib->resize()) {
                             echo $this->image_lib->display_errors();
                         }
-
                         if ($this->Settings->watermark) {
                             $this->image_lib->clear();
                             $wm['source_image'] = $this->upload_path . $pho;
@@ -655,42 +632,36 @@ class Recipe extends MY_Controller
 	    $this->data['sub_cate'] = $this->recipe_model->getrecipeSubCategories($_POST['category']);
 	    $this->data['sub_units'] = $this->site->getUnitsByBUID($_POST['unit']);
 	}
-		
-		
 	
         if ($this->form_validation->run() == true && $this->recipe_model->addrecipe_new($data, $warehouse_qty, $recipe_pro,  $items, $photos,$cat_mapping_data)) 			{
-			
-			
             $this->session->set_flashdata('message', lang("recipe_added"));
             admin_redirect('recipe');
         } else {
-            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-
-            $this->data['categories'] = $this->site->getAllrecipeCategories();
-            $this->data['tax_rates'] = $this->site->getAllTaxRates();
-            $this->data['brands'] = $this->site->getAllBrands();
-            $this->data['base_units'] = $this->site->getAllBaseUnits();
-			$this->data['units'] = $this->site->getAllUnits();
-            $this->data['warehouses'] = $warehouses;
+            $this->data['error']         = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
+            $this->data['categories']    = $this->site->getAllrecipeCategories();
+            $this->data['tax_rates']     = $this->site->getAllTaxRates();
+            $this->data['brands']        = $this->site->getAllBrands();
+            $this->data['base_units']    = $this->site->getAllBaseUnits();
+			$this->data['units']         = $this->site->getAllUnits();
+            $this->data['warehouses']    = $warehouses;
             $this->data['warehouses_recipe'] = $id ? $this->recipe_model->getAllWarehousesWithPQ($id) : NULL;
-            $this->data['recipe'] = $id ? $this->recipe_model->getrecipeByID($id) : NULL;
-            $this->data['variants'] = $this->recipe_model->getAllVariants();
-			$this->data['reskitchen'] = $this->site->getAllResKitchen();
-			$this->data['rescurrency'] = $this->site->getAllCurrencies();
-            $this->data['combo_items'] = ($id && $this->data['recipe']->type == 'combo') ? $this->recipe_model->getrecipeComboItems($id) : NULL;
-            $this->data['recipe_options'] = $id ? $this->recipe_model->getrecipeOptionsWithWH($id) : NULL;
+            $this->data['recipe']             = $id ? $this->recipe_model->getrecipeByID($id) : NULL;
+            $this->data['variants']           = $this->recipe_model->getAllVariants();
+			$this->data['reskitchen']         = $this->site->getAllResKitchen();
+			$this->data['rescurrency']        = $this->site->getAllCurrencies();
+            $this->data['combo_items']        = ($id && $this->data['recipe']->type == 'combo') ? $this->recipe_model->getrecipeComboItems($id) : NULL;
+            $this->data['recipe_options']     = $id ? $this->recipe_model->getrecipeOptionsWithWH($id) : NULL;
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('recipe'), 'page' => lang('recipe')), array('link' => '#', 'page' => lang('add_recipe')));
             $meta = array('page_title' => lang('add_recipe'), 'bc' => $bc);
-	    $this->data['suppliers'] = $this->site->getAllSuppliers();
-	    $this->data['tax_rates'] = $this->site->getAllTaxRates();
-	    $this->data['recipe_groups'] = $this->site->getPurchaseCategories();
+	        $this->data['suppliers']        = $this->site->getAllSuppliers();
+	        $this->data['tax_rates']          = $this->site->getAllTaxRates();
+	        $this->data['recipe_groups']       = $this->site->getPurchaseCategories();
             $this->page_construct('recipe/add', $meta, $this->data);
 			
         }
     }
 	
-	function product_suggestions($term = NULL, $limit = NULL)
-    {
+	function product_suggestions($term = NULL, $limit = NULL){
         // $this->sma->checkPermissions('index');
         if ($this->input->get('term')) {
             $term = $this->input->get('term', TRUE);
@@ -711,19 +682,16 @@ class Recipe extends MY_Controller
         $this->sma->send_json($rows);
     }
 	
-	function product_units($term = NULL)
-    {
+	function product_units($term = NULL){
         // $this->sma->checkPermissions('index');
         if ($this->input->get('term')) {
             $term = $this->input->get('term', TRUE);
         }
-
         $rows['results'] = $this->recipe_model->getrecipeProductsalesUnits($term);
         $this->sma->send_json($rows);
     }
 	
-    function suggestions()
-    {
+    function suggestions(){
         $term = $this->input->get('term', TRUE);
         if (strlen($term) < 1 || !$term) {
             die("<script type='text/javascript'>setTimeout(function(){ window.top.location.href = '" . admin_url('welcome') . "'; }, 10);</script>");
@@ -803,8 +771,7 @@ class Recipe extends MY_Controller
 
     /* -------------------------------------------------------- */
 
-	function Piece_required() 
-	{
+	function Piece_required() {
 		$recipe_standard = $this->input->post('recipe_standard');
 		$piece = $this->input->post('piece'); 
 		if(($recipe_standard != 1)  AND ($piece ==  0))
@@ -824,12 +791,9 @@ function clean($string) {
    return preg_replace('/-+/', '-', $string); // Replaces multiple hyphens with single one.
 }
 
-    function edit($id = NULL)
-    {
-       
-
-/*echo "<pre>";
-print_r($this->input->post());die;*/
+    function edit($id = NULL){
+       /*echo "<pre>";
+		print_r($this->input->post());die;*/
         $this->sma->checkPermissions('edit');
         $this->load->helper('security');
         if ($this->input->post('id')) {
@@ -847,13 +811,9 @@ print_r($this->input->post());die;*/
             redirect($_SERVER["HTTP_REFERER"]);
         }
       //  $this->form_validation->set_rules('category', lang("category"), 'required|is_natural_no_zero');
-        
-		
         if ($this->input->post('code') !== $recipe->code) {
             $this->form_validation->set_rules('code', lang("recipe_code"), 'is_unique[recipe.code]');
         }
-		
-		
         if ($this->input->post('name') !== $recipe->name) {
             $this->form_validation->set_rules('name', lang("recipe_name"), 'is_unique[recipe.name]');
         }      
@@ -862,8 +822,7 @@ print_r($this->input->post());die;*/
         if ($this->input->post('slug') !== $recipe->slug) {
             $this->form_validation->set_rules('slug', lang("slug"), 'required|is_unique[recipe.slug]|alpha_dash');
         }*/
-        if($recipe_standard == 2)
-        { 
+        if($recipe_standard == 2){ 
 			$this->form_validation->set_rules('piece', lang("piece"), 'required|callback_Piece_required');
 		}
         $this->form_validation->set_rules('recipe_image', lang("recipe_image"), 'xss_clean');
@@ -871,7 +830,6 @@ print_r($this->input->post());die;*/
         $this->form_validation->set_rules('userfile', lang("recipe_gallery_images"), 'xss_clean');
 		//$this->form_validation->set_rules('stock_quantity', lang("stock_quantity"), 'required');
         if ($this->form_validation->run('recipe/edit') == true) {
-
 /* 		echo "<pre>";
 		print_r($_POST);exit; 
  */            $data = array(
@@ -887,9 +845,7 @@ print_r($this->input->post());die;*/
 				'name' => $this->input->post('name'),
 				'currency_type' => $this->input->post('currency_type'),
 				'kitchens_id' => $this->input->post('kitchens_id'),
-                //'type' => $this->input->post('type'),
-				
-               
+                'type' => $this->input->post('type'),
                 'tax_rate' => $this->input->post('tax_rate'),
                 'tax_method' => $this->input->post('tax_method'),
                 'tax_amount' => $this->input->post('tax_amount'),
@@ -936,6 +892,7 @@ print_r($this->input->post());die;*/
 				'unit' => $this->input->post('unit'),
 				'sale_unit' => $this->input->post('default_sale_unit'),
 				'purchase_unit' => $this->input->post('default_purchase_unit'),
+				'stock_unit' => $this->input->post('stock_unit'),
 				
 				'maximum_quantity' => $this->input->post('maximum_quantity'),
 				'batch_required' => $this->input->post('batch_required'),		
@@ -951,15 +908,34 @@ print_r($this->input->post());die;*/
 				'stock' => $this->input->post('stock'),
 				*/
             );
+			$stock_unit=!empty($this->input->post('stock_unit'))?$this->input->post('stock_unit'):$this->input->post('unit');
+		    $unit = $this->site->getUnitByID($stock_unit);
 			
 	    $cat_mapping_data = array();
 	    if(in_array($_POST['type'],$sales_type)){
-			$cat_mapping_data[0]['category_id'] = $this->input->post('category');
-			$cat_mapping_data[0]['subcategory_id'] = $this->input->post('subcategory') ? $this->input->post('subcategory') : NULL;
-			$cat_mapping_data[0]['brand_id'] = $this->input->post('brand');
-			$cat_mapping_data[0]['purchase_cost'] = $this->input->post('purchase_cost');
-			$cat_mapping_data[0]['selling_price'] = $this->input->post('selling_price');
-			$cat_mapping_data[0]['stock'] = $this->input->post('stock');
+            $varients = $_POST['varients'];
+            $cnt = count($varients['id']);
+            $add_varient = array();
+            if($cnt >0){
+                for($i=0;$i<$cnt;$i++){
+                    $cat_mapping_data[$i]['category_id'] = $this->input->post('category');
+                    $cat_mapping_data[$i]['subcategory_id'] = $this->input->post('subcategory') ? $this->input->post('subcategory') : NULL;
+                    $cat_mapping_data[$i]['brand_id'] = $this->input->post('brand');
+                    $cat_mapping_data[$i]['purchase_cost'] = $varients['price'][$i];
+                    $cat_mapping_data[$i]['selling_price'] = $varients['price'][$i];
+					$stock=$this->site->unitToBaseQty($this->input->post('stock'),$unit->operator,$unit->operation_value);
+                    $cat_mapping_data[$i]['stock'] = $stock;
+                    $cat_mapping_data[$i]['variant_id'] = $varients['id'][$i];
+                 }   
+            }else{    
+        			$cat_mapping_data[0]['category_id'] = $this->input->post('category');
+        			$cat_mapping_data[0]['subcategory_id'] = $this->input->post('subcategory') ? $this->input->post('subcategory') : NULL;
+        			$cat_mapping_data[0]['brand_id'] = $this->input->post('brand');
+        			$cat_mapping_data[0]['purchase_cost'] = $this->input->post('purchase_cost');
+        			$cat_mapping_data[0]['selling_price'] = $this->input->post('selling_price');
+					$stock=$this->site->unitToBaseQty($this->input->post('stock'),$unit->operator,$unit->operation_value);
+        			$cat_mapping_data[0]['stock'] = $stock;
+            }
 			
 			$data['category_id'] = $this->input->post('category');
 			$data['subcategory_id'] = $this->input->post('subcategory') ? $this->input->post('subcategory') : NULL;
@@ -968,12 +944,15 @@ print_r($this->input->post());die;*/
 			$data['price'] = $this->input->post('selling_price');
 			$data['stock_quantity'] = $this->input->post('stock') ? $this->input->post('stock') : 0;
 	    }else{
-			
 			$ind = 0;
 			foreach($_POST['group'][0]['recipe_group_id'] as $catid => $subcate){
-				
 				foreach($subcate['sub_category'] as $sub_catid => $brands){
-					foreach($brands['brands'] as $b => $brand_id){	 // echo '<pre>';print_R($brands);
+                    //$array = array_filter($brands);
+                     $purchase_cost_array = array_filter($brands['purchase_cost']);
+                     $brands['purchase_cost'] = array_values($purchase_cost_array);
+                     $selling_price_array = array_filter($brands['selling_price']);
+                     $brands['selling_price'] = array_values($selling_price_array);
+					foreach($brands['brands'] as $b => $brand_id){	 
 						$cat_mapping_data[$ind]['category_id'] = $catid;
 						$cat_mapping_data[$ind]['subcategory_id'] = $sub_catid;
 						$cat_mapping_data[$ind]['brand_id'] = $brand_id;
@@ -985,19 +964,15 @@ print_r($this->input->post());die;*/
 				}
 			}
 	    }
-		
-	
-			
+		//echo '<pre>';print_R($cat_mapping_data);die;
             $warehouse_qty = NULL;
 			$recipe_pro = NULL;
-			
             $this->load->library('upload');
 			 for($i=0; $i<count($this->input->post('warehouse[]')); $i++){
 					$warehouse_qty[] = array(
 						'warehouse_id' => $this->input->post('warehouse['.$i.']'),
 					);
 				}
-		
 			/*if ($this->input->post('type') != 'addon') {
 				if(array_filter($this->input->post('recipe_addon[]'))){
 					for($j=0; $j<count($this->input->post('recipe_addon[]')); $j++){
@@ -1009,9 +984,6 @@ print_r($this->input->post());die;*/
 			}*/
 				
              if ($this->input->post('type') == 'addon' || $this->input->post('type') == 'production' || $this->input->post('type') == 'semi_finished') {
-                
-				
-				
 				for($j=0; $j<count($this->input->post('purchase_item[id]')); $j++){
 					$recipe_pro[] = array(
 						'product_id' => $this->input->post('purchase_item[id]['.$j.']'),
@@ -1025,7 +997,6 @@ print_r($this->input->post());die;*/
               
             }
 	    if($this->input->post('type') == 'combo'){
-				
 				for($k=0; $k<count($this->input->post('combo_item_id[]')); $k++){
 					$items[] = array(
 						'item_id' => $this->input->post('combo_item_id['.$k.']'),
@@ -1035,11 +1006,7 @@ print_r($this->input->post());die;*/
 					);
 				}
 			}
-			
-			
-         
             if ($_FILES['recipe_image']['size'] > 0) {
-
                 $config['upload_path'] = $this->upload_path;
                 $config['allowed_types'] = $this->image_types;
                 $config['max_size'] = $this->allowed_file_size;
@@ -1089,7 +1056,6 @@ print_r($this->input->post());die;*/
             }
 
             if ($_FILES['userfile']['name'][0] != "") {
-
                 $config['upload_path'] = $this->upload_path;
                 $config['allowed_types'] = $this->image_types;
                 $config['max_size'] = $this->allowed_file_size;
@@ -1101,25 +1067,19 @@ print_r($this->input->post());die;*/
                 $files = $_FILES;
                 $cpt = count($_FILES['userfile']['name']);
                 for ($i = 0; $i < $cpt; $i++) {
-
                     $_FILES['userfile']['name'] = $files['userfile']['name'][$i];
                     $_FILES['userfile']['type'] = $files['userfile']['type'][$i];
                     $_FILES['userfile']['tmp_name'] = $files['userfile']['tmp_name'][$i];
                     $_FILES['userfile']['error'] = $files['userfile']['error'][$i];
                     $_FILES['userfile']['size'] = $files['userfile']['size'][$i];
-
                     $this->upload->initialize($config);
-
                     if (!$this->upload->do_upload()) {
                         $error = $this->upload->display_errors();
                         $this->session->set_flashdata('error', $error);
                         admin_redirect("recipe/edit/" . $id);
                     } else {
-
                         $pho = $this->upload->file_name;
-
                         $photos[] = $pho;
-
                         $this->load->library('image_lib');
                         $config['image_library'] = 'gd2';
                         $config['source_image'] = $this->upload_path . $pho;
@@ -1127,13 +1087,10 @@ print_r($this->input->post());die;*/
                         $config['maintain_ratio'] = TRUE;
                         $config['width'] = $this->Settings->twidth;
                         $config['height'] = $this->Settings->theight;
-
                         $this->image_lib->initialize($config);
-
                         if (!$this->image_lib->resize()) {
                             echo $this->image_lib->display_errors();
                         }
-
                         if ($this->Settings->watermark) {
                             $this->image_lib->clear();
                             $wm['source_image'] = $this->upload_path . $pho;
@@ -1150,7 +1107,6 @@ print_r($this->input->post());die;*/
                             $this->image_lib->initialize($wm);
                             $this->image_lib->watermark();
                         }
-
                         $this->image_lib->clear();
                     }
                 }
@@ -1165,16 +1121,15 @@ print_r($this->input->post());die;*/
     	    $this->base64ToImage($_POST['recipe_name_img'],$filename);*/
 			
 			// echo '<pre>';print_R($data);exit;
+           //echo '<pre>';print_R($cat_mapping_data);exit;
         }	
 		
         if ($this->form_validation->run() == true && $this->recipe_model->updaterecipe_new($id, $data, $warehouse_qty, $recipe_pro, $items, $photos,$cat_mapping_data)) {		
-		
 			 $this->recipe_model->updateRecipe_variantValues($id);
             $this->session->set_flashdata('message', lang("recipe_updated"));
             admin_redirect('recipe');
         } else {
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-
             $this->data['categories'] = $this->site->getAllrecipeCategories();
             $this->data['tax_rates'] = $this->site->getAllTaxRates();
             $this->data['brands'] = $this->site->getAllBrands();
@@ -1183,13 +1138,10 @@ print_r($this->input->post());die;*/
             $this->data['warehouses_recipe'] = $warehouses_recipe;
 			$this->data['product_recipe'] = $product_recipe;
 			$this->data['addon_recipe'] = $addon_recipe;
-			
 			$this->data['reskitchen'] = $this->site->getAllResKitchen();
 			$this->data['rescurrency'] = $this->site->getAllCurrencies();
-			
             $this->data['recipe'] = $recipe;
             $this->data['variants'] = $this->recipe_model->getAllVariants();
-            
             $this->data['recipe_variants'] = $this->recipe_model->getrecipeOptions($id);
             $this->data['recipe_addon'] = $this->recipe_model->getrecipeAddon($id);
             $this->data['combo_items'] = $recipe->type == 'combo' ? $this->recipe_model->getrecipeComboItems($recipe->id) : NULL;
@@ -1197,39 +1149,31 @@ print_r($this->input->post());die;*/
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('recipe'), 'page' => lang('recipe')), array('link' => '#', 'page' => lang('edit_recipe')));
             $meta = array('page_title' => lang('edit_recipe'), 'bc' => $bc);
             $this->data['varient_values'] = $this->recipe_model->getRecipeVariantData($recipe->id);
-	    $this->data['suppliers'] = $this->site->getAllSuppliers();
-	    $this->data['sub_units'] = $this->site->getUnitsByBUID($recipe->unit);
-	    $this->data['recipe_groups'] = $this->site->getPurchaseCategories();
-	   
-	    if(in_array($recipe->type,$sales_type)){
-		$this->data['sale_category_mapping'] = $this->site->getSaleCategory_mapping($recipe->id);
-		
-	    }else{
-		$this->data['category_mapping'] = $this->site->getCategory_mapping($recipe->id);
+	        $this->data['suppliers'] = $this->site->getAllSuppliers();
+	        $this->data['sub_units'] = $this->site->getUnitsByBUID($recipe->unit);
+	        $this->data['recipe_groups'] = $this->site->getPurchaseCategories();
+	       if(in_array($recipe->type,$sales_type)){
+		   $this->data['sale_category_mapping'] = $this->site->getSaleCategory_mapping($recipe->id);
+	      }else{
+		    $this->data['category_mapping'] = $this->site->getCategory_mapping($recipe->id);
 	    }
-	    
-	  
             $this->page_construct('recipe/edit', $meta, $this->data);
         }
     }
 
        function delete_addon_item($id){
-    $this->recipe_model->delete_addon_item($id);
-    echo json_encode(array('status'=>'success'));exit;
+           $this->recipe_model->delete_addon_item($id);
+           echo json_encode(array('status'=>'success'));exit;
     }
 
     /* ---------------------------------------------------------------- */
 
-    function import_csv_bk()
-    {
-        $this->sma->checkPermissions('csv');
-        $this->load->helper('security');
-        $this->form_validation->set_rules('userfile', lang("upload_file"), 'xss_clean');
-
-        if ($this->form_validation->run() == true) {
-
+    function import_csv_bk(){
+         $this->sma->checkPermissions('csv');
+         $this->load->helper('security');
+         $this->form_validation->set_rules('userfile', lang("upload_file"), 'xss_clean');
+         if ($this->form_validation->run() == true) {
             if (isset($_FILES["userfile"])) {
-
                 $this->load->library('upload');
                 $config['upload_path'] = $this->digital_upload_path;
                 $config['allowed_types'] = 'csv';
@@ -1238,15 +1182,12 @@ print_r($this->input->post());die;*/
                 $config['encrypt_name'] = TRUE;
                 $config['max_filename'] = 25;
                 $this->upload->initialize($config);
-
                 if (!$this->upload->do_upload()) {
                     $error = $this->upload->display_errors();
                     $this->session->set_flashdata('error', $error);
                     admin_redirect("recipe/import_csv");
                 }
-
                 $csv = $this->upload->file_name;
-
                 $arrResult = array();
                 $handle = fopen($this->digital_upload_path . $csv, "r");
                 if ($handle) {
@@ -1267,8 +1208,6 @@ print_r($this->input->post());die;*/
                 foreach ($final as $csv_pr) {
                     if ( ! $this->recipe_model->getrecipeByCode(trim($csv_pr['code']))) {
                         if ($catd = $this->recipe_model->getCategoryByCode(trim($csv_pr['category_code']))) {
-                           
-                            
                             $prsubcat = $this->recipe_model->getCategoryByCode(trim($csv_pr['subcategory_code']));
                             $items[] = array (
 								'type' => trim($csv_pr['type']),
@@ -1285,14 +1224,12 @@ print_r($this->input->post());die;*/
                                 'image' => trim($csv_pr['image']),
 								'warehouse_id' => trim($csv_pr['warehouse_id']),
 								'active' => 1,
-								
                                 );
                         } else {
                             $this->session->set_flashdata('error', lang("check_category_code") . " (" . $csv_pr['category_code'] . "). " . lang("category_code_x_exist") . " " . lang("line_no") . " " . $rw);
                             admin_redirect("recipe/import_csv");
                         }
                     }
-
                     $rw++;
                 }
             }
@@ -1304,15 +1241,12 @@ print_r($this->input->post());die;*/
             $this->session->set_flashdata('message', sprintf(lang("recipe_added"), $prs));
             admin_redirect('recipe');
         } else {
-
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-
             $this->data['userfile'] = array('name' => 'userfile',
                 'id' => 'userfile',
                 'type' => 'text',
                 'value' => $this->form_validation->set_value('userfile')
             );
-
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('recipe'), 'page' => lang('recipe')), array('link' => '#', 'page' => lang('import_recipe_by_csv')));
             $meta = array('page_title' => lang('import_recipe_by_csv'), 'bc' => $bc);
             $this->page_construct('recipe/import_csv', $meta, $this->data);
@@ -1320,26 +1254,19 @@ print_r($this->input->post());die;*/
         }
     }
     function download_sample(){
-    $filename = 'sales-item-import.csv';
-    header('Content-Type: application/csv');
+        $filename = 'sales-item-import.csv';
+        header('Content-Type: application/csv');
         header('Content-Disposition: attachment; filename="'.$filename.'";');
-    $header = array('recipe_code','type','name','sales_item_type','kitchen_type','category','subcategory','quantity','recipe_cost','currency','warehouse_id','pieces');
-    $fp = fopen('php://output', 'w');       
+        $header = array('recipe_code','type','name','sales_item_type','kitchen_type','category','subcategory','brand_id','quantity','recipe_cost','currency','warehouse_id','pieces','base_uom','sale_uom','stock_uom','reorder_quantity','stock_on_hand');
+        $fp = fopen('php://output', 'w');       
         fputcsv($fp, $header);
-    fclose($fp);    
+        fclose($fp);    
     }
     
     function import_csv(){
-		
     $this->form_validation->set_rules('userfile', lang("upload_file"), 'xss_clean');
-    
- 
         if ($this->form_validation->run() == true) {
-    //$filename = 'uploaded_sales_item_status.csv';
-    //header('Content-Type: application/csv');
-    //header('Content-Disposition: attachment; filename="'.$filename.'";');
-            if (isset($_FILES["userfile"])) {
-
+			if (isset($_FILES["userfile"])) {
                 $this->load->library('upload');
                 $config['upload_path'] = $this->digital_upload_path;
                 $config['allowed_types'] = 'csv';
@@ -1348,15 +1275,12 @@ print_r($this->input->post());die;*/
                 $config['encrypt_name'] = TRUE;
                 $config['max_filename'] = 25;
                 $this->upload->initialize($config);
-
                 if (!$this->upload->do_upload()) {
                     $error = $this->upload->display_errors();
                     $this->session->set_flashdata('error', $error);
                     admin_redirect("recipe/import_csv");
                 }
-
                 $csv = $this->upload->file_name;
-
                 $arrResult = array();
                 $handle = fopen($this->digital_upload_path . $csv, "r");
                 if ($handle) {
@@ -1365,27 +1289,20 @@ print_r($this->input->post());die;*/
                     }
                     fclose($handle);
                 }
-        $keys = array_shift($arrResult);//print_R(array_values($keys));exit;
-        $values = $arrResult;
+				$keys = array_shift($arrResult);//print_R(array_values($keys));exit;
+				$values = $arrResult;
                 $final = array();
                 foreach ($arrResult as $k => $value) {
                     $final[$k] = array_combine($keys,array_values($value));
                 }
-        
-        
                 $items = array();
-        
-        //$fp = fopen('php://output', 'w');
-        //header('Set-Cookie: fileLoading=true'); 
-        //$keys[] = 'status';
-        //fputcsv($fp, $keys);
-        $rw = 2;
+				$rw = 2;
                 foreach ($final as $ik => $csv_pr) {
-          $error = false;
-            if($this->my_is_unique($csv_pr['recipe_code'],'code','recipe')){
-            $this->session->set_flashdata('error', lang("check_recipe_code") . " (" . $csv_pr['recipe_code'] . "). " . lang("recipe_code_already_exist") . " " . lang("line_no") . " " . $rw);
+				$error = false;
+				if($this->my_is_unique($csv_pr['recipe_code'],'code','recipe')){
+				$this->session->set_flashdata('error', lang("check_recipe_code") . " (" . $csv_pr['recipe_code'] . "). " . lang("recipe_code_already_exist") . " " . lang("line_no") . " " . $rw);
                         admin_redirect("recipe/import_csv");
-            }
+               }
             if($this->my_is_unique($csv_pr['name'],'name','recipe')){
             $this->session->set_flashdata('error', lang("check_recipe_name") . " (" . $csv_pr['name'] . "). " . lang("recipe_name_already_exist") . " " . lang("line_no") . " " . $rw);
                       
@@ -1394,11 +1311,15 @@ print_r($this->input->post());die;*/
             $currecny = $this->site->getCurrencyByCode($csv_pr['currency']);
             $kitchen_type = $this->recipe_model->getKitchen_idByName($csv_pr['kitchen_type']);
             $category_subcate = $this->recipe_model->getCategoryNsubByName($csv_pr['category'],$csv_pr['subcategory'],$kitchen_type);
-            //$items = $csv_pr;
+			$brand_id=$this->recipe_model->getBrand($csv_pr['brand_id']);
+			$base_uom=$this->site->getUnitByname($csv_pr['base_uom']);
+			$sales_uom=$this->site->getUnitByname($csv_pr['sale_uom']);
+			$stock_uom=$this->site->getUnitByname($csv_pr['stock_uom']);
+			$sales_type=$csv_pr['sales_item_type'];
             $items[$ik]['code'] = $csv_pr['recipe_code'];
-	    $items[$ik]['recipe_standard'] = $csv_pr['type'];
-	    $items[$ik]['piece'] = $csv_pr['pieces'];
-            $items[$ik]['type'] = $csv_pr['sales_item_type'];
+	        $items[$ik]['recipe_standard'] = $csv_pr['type'];
+	        $items[$ik]['piece'] = $csv_pr['pieces'];
+            $items[$ik]['type'] = $sales_type;
             $items[$ik]['name'] = $csv_pr['name'];
             $txt = $csv_pr['native_name'];
             $items[$ik]['khmer_name'] = $csv_pr['name'];//mb_convert_encoding($txt, "GB2312", "UTF-8");//mb_convert_encoding($csv_pr['native_name'], "UTF-8");// 'ផ្សិត';//
@@ -1410,37 +1331,55 @@ print_r($this->input->post());die;*/
             $items[$ik]['subcategory_id'] = $category_subcate['subcat_id'];
             $items[$ik]['active'] = 1;
             $items[$ik]['currency_type'] = $currecny->rate;
-            $items[$ik]['warehouse'] = $csv_pr['warehouse_id'];         
-            $rw++;
-          //fputcsv($fp, $csv_pr);
-                }
-        //fclose($fp);
-            }
-        @unlink($this->digital_upload_path . $csv);
-        //$this->session->set_flashdata('message', lang("items_imported_._Please_check_the_downloded_csv"));
-        //admin_redirect('recipe/import_csv?success');
-            // $this->sma->print_arrays($items);
-        }
+            $items[$ik]['sale_unit'] =$sales_uom->id ;         
+			$items[$ik]['stock_unit'] = $stock_uom->id;   
+			$items[$ik]['unit'] =$base_uom->id ;   
+			$items[$ik]['warehouse'] =$csv_pr['warehouse_id']; 
+			$items[$ik]['brand'] =$brand_id; 
+			//$items[$ik]['cost'] = $csv_pr['cost_price'];   
+			$items[$ik]['reorder_quantity'] = $csv_pr['reorder_quantity'];   	
+			$stock_on_hand=$csv_pr['stock_on_hand'];
+                $sales_type = array('standard','production','combo','quick_service','addon');
+		        $stock_unit=!empty($stock_uom->id)?$stock_uom->id:"";
+		        $unit = $this->site->getUnitByID($stock_unit);
+	            $cat_mapping_data = array();
+                $cat_mapping_data[$ik]['category_id'] = $category_subcate['cat_id'];
+                $cat_mapping_data[$ik]['subcategory_id'] = $category_subcate['subcat_id'] ;
+                $cat_mapping_data[$ik]['purchase_cost'] = $csv_pr['recipe_cost'];
+                $cat_mapping_data[$ik]['selling_price'] = $csv_pr['recipe_cost'];
+				$cat_mapping_data[$ik]['brand_id'] = $brand_id;
+				$stock=$this->site->unitToBaseQty($stock_on_hand,$unit->operator,$unit->operation_value);
+                $cat_mapping_data[$ik]['stock'] = $stock;
 
-        if ($this->form_validation->run() == true && $prs = $this->recipe_model->import_recipe($items)) {
+			
+            $rw++;
+                }
+            }
+			
+			/* print_r($cat_mapping_data);
+			print_r($items);
+			die; */
+        @unlink($this->digital_upload_path . $csv);
+      
+        }
+   
+   
+        if ($this->form_validation->run() == true && $prs = $this->recipe_model->import_recipe($items,$cat_mapping_data)) {
             $this->session->set_flashdata('message', sprintf(lang("recipe_added"), $prs));
             admin_redirect('recipe');
         } else {
-
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-
             $this->data['userfile'] = array('name' => 'userfile',
                 'id' => 'userfile',
                 'type' => 'text',
                 'value' => $this->form_validation->set_value('userfile')
             );
-
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('recipe'), 'page' => lang('recipe')), array('link' => '#', 'page' => lang('import_recipe_by_csv')));
             $meta = array('page_title' => lang('import_recipe_by_csv'), 'bc' => $bc);
-        $this->data['kitchens'] = $this->site->getAllKitchens();
-        $this->data['warehouses'] = $this->site->getAllWarehouses();
-        $this->data['currency'] = $this->site->getAllCurrencies();
-        $this->data['sales_item_types'] = $this->site->getAllCurrencies();
+			$this->data['kitchens'] = $this->site->getAllKitchens();
+			$this->data['warehouses'] = $this->site->getAllWarehouses();
+			$this->data['currency'] = $this->site->getAllCurrencies();
+			$this->data['sales_item_types'] = $this->site->getAllCurrencies();
             $this->page_construct('recipe/import_csv', $meta, $this->data);
 
         }
@@ -1450,15 +1389,9 @@ print_r($this->input->post());die;*/
 	
 	
 	function ingredients_import_csv() {
-		
-		$this->form_validation->set_rules('userfile', lang("upload_file"), 'xss_clean');
-		
-		if ($this->form_validation->run() == true) {
-    //$filename = 'uploaded_sales_item_status.csv';
-    //header('Content-Type: application/csv');
-    //header('Content-Disposition: attachment; filename="'.$filename.'";');
+		 $this->form_validation->set_rules('userfile', lang("upload_file"), 'xss_clean');
+		 if ($this->form_validation->run() == true) {
             if (isset($_FILES["userfile"])) {
-				
                 $this->load->library('upload');
                 $config['upload_path'] = $this->digital_upload_path;
                 $config['allowed_types'] = 'csv';
@@ -1467,15 +1400,12 @@ print_r($this->input->post());die;*/
                 $config['encrypt_name'] = TRUE;
                 $config['max_filename'] = 25;
                 $this->upload->initialize($config);
-
                 if (!$this->upload->do_upload()) {
                     $error = $this->upload->display_errors();
                     $this->session->set_flashdata('error', $error);
                     admin_redirect("recipe/ingredients_import_csv");
                 }
-
                 $csv = $this->upload->file_name;
-
                 $arrResult = array();
                 $handle = fopen($this->digital_upload_path . $csv, "r");
                 if ($handle) {
@@ -1484,25 +1414,16 @@ print_r($this->input->post());die;*/
                     }
                     fclose($handle);
                 }
-        $keys = array_shift($arrResult); // print_R(array_values($keys));exit;
-        $values = $arrResult;
+				$keys = array_shift($arrResult); // print_R(array_values($keys));exit;
+				$values = $arrResult;
                 $final = array();
                 foreach ($arrResult as $k => $value) {
                     $final[$k] = array_combine($keys,array_values($value));
-                }
-      /*    echo '<pre>';
-        print_R($final);exit; */ 
-		
+                }		
                 $items = array();
-        
-        //$fp = fopen('php://output', 'w');
-        //header('Set-Cookie: fileLoading=true'); 
-        //$keys[] = 'status';
-        //fputcsv($fp, $keys);
-			$rw = 2;
-            foreach ($final as $ik => $csv_pr) {
-			$error = false;
-           
+        		$rw = 2;
+                foreach ($final as $ik => $csv_pr) {
+			    $error = false;
 			/* $data = array(
 				'name' => $csv_pr['item_name'],
 				'type' => $csv_pr['item_type'],
@@ -1510,65 +1431,48 @@ print_r($this->input->post());die;*/
 			
 			if($this->my_is_unique($csv_pr['item_name'],'name','recipe')){
 				$item_id 	 = $this->db->get_where('recipe', array('name' => $csv_pr['item_name']))->row('id');
-			
 			}else{
 				$this->session->set_flashdata('error', lang("check_recipe_name") . " (" . $csv_pr['item_name'] . "). " . lang("recipe_name_not_exist") . " " . lang("line_no") . " " . $rw);
 				admin_redirect("recipe/ingredients_import_csv");
 				/* $this->db->insert('recipe', $data);
 				$item_id = $this->db->insert_id(); */
 			}
-			
 			if($this->my_is_unique($csv_pr['ingredients_name'],'name','recipe')){
 				$ingredients_id = $this->db->get_where('recipe', array('name' => $csv_pr['ingredients_name']))->row('id');
 			}else{
 				/* $this->db->insert('recipe', $data);
 				$ingredients_id = $this->db->insert_id(); */
-				
 				$this->session->set_flashdata('error', lang("check_recipe_name") . " (" . $csv_pr['ingredients_name'] . "). " . lang("recipe_name_not_exist") . " " . lang("line_no") . " " . $rw);
 				admin_redirect("recipe/ingredients_import_csv");
-
 			}
-			
 			// check duplicate recipe_id in recipe_products table
 			if($this->my_is_unique($item_id,'recipe_id','recipe_products')){
 				$this->session->set_flashdata('error', lang("check_recipe_name") . " (" . $csv_pr['item_name'] . "). " . lang("recipe_already_mapped") . " " . lang("line_no") . " " . $rw);
-				admin_redirect("recipe/ingredients_import_csv");
+				 admin_redirect("recipe/ingredients_import_csv");
 			}
-			
 			$unit_id = $this->db->get_where('units', array('name' => $csv_pr['uom']))->row('id');
-			
-			
-			$items[$ik]['recipe_id'] = $item_id;
+			$items[$ik]['recipe_id']  = $item_id;
 			$items[$ik]['product_id'] = $ingredients_id;
-			$items[$ik]['create_on'] = date('Y-m-d');
-			$items[$ik]['quantity'] = $csv_pr['quantity'];
-            $items[$ik]['unit_id'] = $unit_id;
-			
+			$items[$ik]['create_on']  = date('Y-m-d');
+			$items[$ik]['quantity']   = $csv_pr['quantity'];
+            $items[$ik]['unit_id']    = $unit_id;
             $rw++;
           //fputcsv($fp, $csv_pr);
                 }
         //fclose($fp);
             }
         @unlink($this->digital_upload_path . $csv);
-        //$this->session->set_flashdata('message', lang("items_imported_._Please_check_the_downloded_csv"));
-        //admin_redirect('recipe/import_csv?success');
-            // $this->sma->print_arrays($items);
-			
           }
-		
 		if ($this->form_validation->run() == true && $prs = $this->recipe_model->import_ingredients($items)) {
-			
             $this->session->set_flashdata('message', sprintf(lang("ingredients_mapped_successfully"), $prs));
             admin_redirect('recipe/ingredients_import_csv');
         } else {
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-
             $this->data['userfile'] = array('name' => 'userfile',
                 'id' => 'userfile',
                 'type' => 'text',
                 'value' => $this->form_validation->set_value('userfile')
             );
-
 			$bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('recipe'), 'page' => lang('recipe')), array('link' => '#', 'page' => lang('import_ingredients_by_csv')));
 			$meta = array('page_title' => lang('import_ingredients_by_csv'), 'bc' => $bc);
 			$this->page_construct('recipe/ingredients_import_csv', $meta, $this->data);
@@ -1594,21 +1498,16 @@ print_r($this->input->post());die;*/
     }
     /* ------------------------------------------------------------------ */
 
-    function update_price()
-    {
+    function update_price(){
         $this->sma->checkPermissions('csv');
         $this->load->helper('security');
         $this->form_validation->set_rules('userfile', lang("upload_file"), 'xss_clean');
-
         if ($this->form_validation->run() == true) {
-
             if (DEMO) {
                 $this->session->set_flashdata('message', lang("disabled_in_demo"));
                 admin_redirect('welcome');
             }
-
             if (isset($_FILES["userfile"])) {
-
                 $this->load->library('upload');
                 $config['upload_path'] = $this->digital_upload_path;
                 $config['allowed_types'] = 'csv';
@@ -1617,15 +1516,12 @@ print_r($this->input->post());die;*/
                 $config['encrypt_name'] = TRUE;
                 $config['max_filename'] = 25;
                 $this->upload->initialize($config);
-
                 if (!$this->upload->do_upload()) {
                     $error = $this->upload->display_errors();
                     $this->session->set_flashdata('error', $error);
                     admin_redirect("recipe");
                 }
-
                 $csv = $this->upload->file_name;
-
                 $arrResult = array();
                 $handle = fopen($this->digital_upload_path . $csv, "r");
                 if ($handle) {
@@ -1635,11 +1531,8 @@ print_r($this->input->post());die;*/
                     fclose($handle);
                 }
                 $titles = array_shift($arrResult);
-
                 $keys = array('code', 'price');
-
                 $final = array();
-
                 foreach ($arrResult as $key => $value) {
                     $final[] = array_combine($keys, $value);
                 }
@@ -1663,7 +1556,6 @@ print_r($this->input->post());die;*/
             $this->session->set_flashdata('message', lang("price_updated"));
             admin_redirect('recipe');
         } else {
-
             $this->data['userfile'] = array('name' => 'userfile',
                 'id' => 'userfile',
                 'type' => 'text',
@@ -1677,16 +1569,13 @@ print_r($this->input->post());die;*/
 
     /* ------------------------------------------------------------------------------- */
 
-    function delete($id = NULL)
-    {
+    function delete($id = NULL){
         $this->sma->checkPermissions(NULL, TRUE);
-
         if ($this->input->get('id')) {
             $id = $this->input->get('id');
         }
 		$delete_check = $this->recipe_model->checkDeleterecipe($id);
 		if($delete_check == FALSE){
-			
         if ($this->recipe_model->deleterecipe($id)) {
             if($this->input->is_ajax_request()) {
                 $this->sma->send_json(array('error' => 0, 'msg' => lang("recipe_deleted")));
@@ -1700,12 +1589,18 @@ print_r($this->input->post());die;*/
 
     }
 
+    function delete_ingredient($id = NULL){
+      $this->sma->checkPermissions('ingredients_delete');
+        $this->recipe_model->delete_ingredient($id);
+        $this->session->set_flashdata('message', lang("Varient_added"));
+        $this->sma->send_json(array('error' => 0, 'msg' => lang("varient_deleted")));
+
+    }
+
     /* ----------------------------------------------------------------------------- */
 
-    function quantity_adjustments($warehouse_id = NULL)
-    {
+    function quantity_adjustments($warehouse_id = NULL){
         $this->sma->checkPermissions('adjustments');
-
         if ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) {
             $this->data['warehouses'] = $this->site->getAllWarehouses();
             $this->data['warehouse'] = $warehouse_id ? $this->site->getWarehouseByID($warehouse_id) : null;
@@ -1713,21 +1608,17 @@ print_r($this->input->post());die;*/
             $this->data['warehouses'] = null;
             $this->data['warehouse'] = $this->session->userdata('warehouse_id') ? $this->site->getWarehouseByID($this->session->userdata('warehouse_id')) : null;
         }
-
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('recipe'), 'page' => lang('recipe')), array('link' => '#', 'page' => lang('quantity_adjustments')));
         $meta = array('page_title' => lang('quantity_adjustments'), 'bc' => $bc);
         $this->page_construct('recipe/quantity_adjustments', $meta, $this->data);
     }
 
-    function getadjustments($warehouse_id = NULL)
-    {
+    function getadjustments($warehouse_id = NULL){
         $this->sma->checkPermissions('adjustments');
-
         $delete_link = "<a href='#' class='tip po' title='<b>" . $this->lang->line("delete_adjustment") . "</b>' data-content=\"<p>"
             . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete' href='" . admin_url('recipe/delete_adjustment/$1') . "'>"
             . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i></a>";
-
         $this->load->library('datatables');
         $this->datatables
             ->select("{$this->db->dbprefix('adjustments')}.id as id, date, reference_no, warehouses.name as wh_name, CONCAT({$this->db->dbprefix('users')}.first_name, ' ', {$this->db->dbprefix('users')}.last_name) as created_by, note, attachment")
@@ -1739,21 +1630,16 @@ print_r($this->input->post());die;*/
                 $this->datatables->where('adjustments.warehouse_id', $warehouse_id);
             }
         $this->datatables->add_column("Actions", "<div class='text-center'><a href='" . admin_url('recipe/edit_adjustment/$1') . "' class='tip' title='" . lang("edit_adjustment") . "'><i class='fa fa-edit'></i></a> " . $delete_link . "</div>", "id");
-
         echo $this->datatables->generate();
-
     }
 
-    public function view_adjustment($id)
-    {
+    public function view_adjustment($id){
         $this->sma->checkPermissions('adjustments', TRUE);
-
         $adjustment = $this->recipe_model->getAdjustmentByID($id);
         if (!$id || !$adjustment) {
             $this->session->set_flashdata('error', lang('adjustment_not_found'));
             $this->sma->md();
         }
-
         $this->data['inv'] = $adjustment;
         $this->data['rows'] = $this->recipe_model->getAdjustmentItems($id);
         $this->data['created_by'] = $this->site->getUser($adjustment->created_by);
@@ -1762,26 +1648,20 @@ print_r($this->input->post());die;*/
         $this->load->view($this->theme.'recipe/view_adjustment', $this->data);
     }
 
-    function add_adjustment($count_id = NULL)
-    {
+    function add_adjustment($count_id = NULL){
         $this->sma->checkPermissions('adjustments', true);
         $this->form_validation->set_rules('warehouse', lang("warehouse"), 'required');
-
         if ($this->form_validation->run() == true) {
-
             if ($this->Owner || $this->Admin) {
                 $date = $this->sma->fld($this->input->post('date'));
             } else {
                 $date = date('Y-m-d H:s:i');
             }
-
             $reference_no = $this->input->post('reference_no') ? $this->input->post('reference_no') : $this->site->getReference('qa');
             $warehouse_id = $this->input->post('warehouse');
             $note = $this->sma->clear_tags($this->input->post('note'));
-
             $i = isset($_POST['recipe_id']) ? sizeof($_POST['recipe_id']) : 0;
             for ($r = 0; $r < $i; $r++) {
-
                 $recipe_id = $_POST['recipe_id'][$r];
                 $type = $_POST['type'][$r];
                 $quantity = $_POST['quantity'][$r];
@@ -1902,8 +1782,7 @@ print_r($this->input->post());die;*/
         }
     }
 
-    function edit_adjustment($id)
-    {
+    function edit_adjustment($id){
         $this->sma->checkPermissions('adjustments', true);
         $adjustment = $this->recipe_model->getAdjustmentByID($id);
         if (!$id || !$adjustment) {
@@ -1911,28 +1790,23 @@ print_r($this->input->post());die;*/
             $this->sma->md();
         }
         $this->form_validation->set_rules('warehouse', lang("warehouse"), 'required');
-
         if ($this->form_validation->run() == true) {
-
             if ($this->Owner || $this->Admin) {
                 $date = $this->sma->fld($this->input->post('date'));
             } else {
                 $date = $adjustment->date;
             }
-
             $reference_no = $this->input->post('reference_no');
             $warehouse_id = $this->input->post('warehouse');
             $note = $this->sma->clear_tags($this->input->post('note'));
 
             $i = isset($_POST['recipe_id']) ? sizeof($_POST['recipe_id']) : 0;
             for ($r = 0; $r < $i; $r++) {
-
                 $recipe_id = $_POST['recipe_id'][$r];
                 $type = $_POST['type'][$r];
                 $quantity = $_POST['quantity'][$r];
                 $serial = $_POST['serial'][$r];
                 $variant = isset($_POST['variant'][$r]) && !empty($_POST['variant'][$r]) ? $_POST['variant'][$r] : null;
-
                 if (!$this->Settings->overselling && $type == 'subtraction') {
                     if ($variant) {
                         if($op_wh_qty = $this->recipe_model->getrecipeWarehouseOptionQty($variant, $warehouse_id)) {
@@ -1966,13 +1840,11 @@ print_r($this->input->post());die;*/
                     );
 
             }
-
             if (empty($recipe)) {
                 $this->form_validation->set_rules('recipe', lang("recipe"), 'required');
             } else {
                 krsort($recipe);
             }
-
             $data = array(
                 'date' => $date,
                 'reference_no' => $reference_no,
@@ -1980,7 +1852,6 @@ print_r($this->input->post());die;*/
                 'note' => $note,
                 'created_by' => $this->session->userdata('user_id')
                 );
-
             if ($_FILES['document']['size'] > 0) {
                 $this->load->library('upload');
                 $config['upload_path'] = $this->digital_upload_path;
@@ -1997,7 +1868,6 @@ print_r($this->input->post());die;*/
                 $photo = $this->upload->file_name;
                 $data['attachment'] = $photo;
             }
-
             // $this->sma->print_arrays($data, $recipe);
 
         }
@@ -2007,7 +1877,6 @@ print_r($this->input->post());die;*/
             $this->session->set_flashdata('message', lang("quantity_adjusted"));
             admin_redirect('recipe/quantity_adjustments');
         } else {
-
             $inv_items = $this->recipe_model->getAdjustmentItems($id);
             // krsort($inv_items);
             $c = rand(100000, 9999999);
@@ -2023,12 +1892,10 @@ print_r($this->input->post());die;*/
                 $row->option = $item->option_id ? $item->option_id : 0;
                 $row->serial = $item->serial_no ? $item->serial_no : '';
                 $ri = $this->Settings->item_addition ? $recipe->id : $c;
-
                 $pr[$ri] = array('id' => str_replace(".", "", microtime(true)), 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
                     'row' => $row, 'options' => $options);
                 $c++;
             }
-
             $this->data['adjustment'] = $adjustment;
             $this->data['adjustment_items'] = json_encode($pr);
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
@@ -2036,23 +1903,18 @@ print_r($this->input->post());die;*/
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('recipe'), 'page' => lang('recipe')), array('link' => '#', 'page' => lang('edit_adjustment')));
             $meta = array('page_title' => lang('edit_adjustment'), 'bc' => $bc);
             $this->page_construct('recipe/edit_adjustment', $meta, $this->data);
-
         }
     }
 
-    function add_adjustment_by_csv()
-    {
+    function add_adjustment_by_csv(){
         $this->sma->checkPermissions('adjustments', true);
         $this->form_validation->set_rules('warehouse', lang("warehouse"), 'required');
-
         if ($this->form_validation->run() == true) {
-
             if ($this->Owner || $this->Admin) {
                 $date = $this->sma->fld($this->input->post('date'));
             } else {
                 $date = date('Y-m-d H:s:i');
             }
-
             $reference_no = $this->input->post('reference_no') ? $this->input->post('reference_no') : $this->site->getReference('qa');
             $warehouse_id = $this->input->post('warehouse');
             $note = $this->sma->clear_tags($this->input->post('note'));
@@ -2064,9 +1926,7 @@ print_r($this->input->post());die;*/
                 'created_by' => $this->session->userdata('user_id'),
                 'count_id' => NULL,
                 );
-
             if ($_FILES['csv_file']['size'] > 0) {
-
                 $this->load->library('upload');
                 $config['upload_path'] = $this->digital_upload_path;
                 $config['allowed_types'] = 'csv';
@@ -2079,10 +1939,8 @@ print_r($this->input->post());die;*/
                     $this->session->set_flashdata('error', $error);
                     redirect($_SERVER["HTTP_REFERER"]);
                 }
-
                 $csv = $this->upload->file_name;
                 $data['attachment'] = $csv;
-
                 $arrResult = array();
                 $handle = fopen($this->digital_upload_path . $csv, "r");
                 if ($handle) {
@@ -2103,7 +1961,6 @@ print_r($this->input->post());die;*/
                     if ($recipe = $this->recipe_model->getrecipeByCode(trim($pr['code']))) {
                         $csv_variant = trim($pr['variant']);
                         $variant = !empty($csv_variant) ? $this->recipe_model->getrecipeVariantID($recipe->id, $csv_variant) : FALSE;
-
                         $csv_quantity = trim($pr['quantity']);
                         $type = $csv_quantity > 0 ? 'addition' : 'subtraction';
                         $quantity = $csv_quantity > 0 ? $csv_quantity : (0-$csv_quantity);
@@ -2207,13 +2064,9 @@ print_r($this->input->post());die;*/
         $this->load->view($this->theme.'recipe/modal_view', $this->data);
     }
 
-    function view($id = NULL)
-    {
-		
+    function view($id = NULL){
         $this->sma->checkPermissions('index');
-
         $pr_details = $this->recipe_model->getrecipeByID($id);
-		
         if (!$id || !$pr_details) {
             $this->session->set_flashdata('error', lang('recipe_not_found'));
             redirect($_SERVER["HTTP_REFERER"]);
@@ -2224,7 +2077,6 @@ print_r($this->input->post());die;*/
         }
 		
         $this->data['recipe'] = $pr_details;
-		
         $this->data['unit'] = $this->site->getUnitByID($pr_details->unit);
         $this->data['brand'] = $this->site->getBrandByID($pr_details->brand);
         $this->data['images'] = $this->recipe_model->getrecipePhotos($id);
@@ -2235,23 +2087,18 @@ print_r($this->input->post());die;*/
         $this->data['warehouses'] = $this->recipe_model->getAllWarehousesWithPQ($id);
         $this->data['options'] = $this->recipe_model->getrecipeOptionsWithWH($id);
         $this->data['variants'] = $this->recipe_model->getrecipeOptions($id);
-		
-		
-		
         $this->data['sold'] = $this->recipe_model->getSoldQty($id);
+		if($pr_details->type =="raw"){
+		$this->data['category_mapping'] = $this->recipe_model->getRecipe_categoryMapping($id);
+		}
 		
-        //$this->data['purchased'] = $this->recipe_model->getPurchasedQty($id);
-
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('recipe'), 'page' => lang('recipe')), array('link' => '#', 'page' => $pr_details->name));
-		
         $meta = array('page_title' => $pr_details->name, 'bc' => $bc);
-		
         $this->page_construct('recipe/view', $meta, $this->data);
 		
     }
 
-    function pdf($id = NULL, $view = NULL)
-    {
+    function pdf($id = NULL, $view = NULL){
         $this->sma->checkPermissions('index');
 
         $pr_details = $this->recipe_model->getrecipeByID($id);
@@ -2553,7 +2400,6 @@ print_r($this->input->post());die;*/
                                 $recipe .= $item->recipe_name.'('.$this->sma->formatQuantity($item->type == 'subtraction' ? -$item->quantity : $item->quantity).')'."\n";
                             }
                         }
-
                         $this->excel->getActiveSheet()->SetCellValue('A' . $row, $this->sma->hrld($adjustment->date));
                         $this->excel->getActiveSheet()->SetCellValue('B' . $row, $adjustment->reference_no);
                         $this->excel->getActiveSheet()->SetCellValue('C' . $row, $warehouse->name);
@@ -2562,7 +2408,6 @@ print_r($this->input->post());die;*/
                         $this->excel->getActiveSheet()->SetCellValue('F' . $row, $recipe);
                         $row++;
                     }
-
                     $this->excel->getActiveSheet()->getColumnDimension('A')->setWidth(20);
                     $this->excel->getActiveSheet()->getColumnDimension('B')->setWidth(20);
                     $this->excel->getActiveSheet()->getColumnDimension('C')->setWidth(15);
@@ -2584,10 +2429,8 @@ print_r($this->input->post());die;*/
         }
     }
 
-    function stock_counts($warehouse_id = NULL)
-    {
+    function stock_counts($warehouse_id = NULL){
         $this->sma->checkPermissions('stock_count');
-
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         if ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) {
             $this->data['warehouses'] = $this->site->getAllWarehouses();
@@ -2598,22 +2441,18 @@ print_r($this->input->post());die;*/
             $this->data['warehouse_id'] = $this->session->userdata('warehouse_id');
             $this->data['warehouse'] = $this->session->userdata('warehouse_id') ? $this->site->getWarehouseByID($this->session->userdata('warehouse_id')) : NULL;
         }
-
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('recipe'), 'page' => lang('recipe')), array('link' => '#', 'page' => lang('stock_counts')));
         $meta = array('page_title' => lang('stock_counts'), 'bc' => $bc);
         $this->page_construct('recipe/stock_counts', $meta, $this->data);
     }
 
-    function getCounts($warehouse_id = NULL)
-    {
+    function getCounts($warehouse_id = NULL){
         $this->sma->checkPermissions('stock_count', TRUE);
-
         if ((! $this->Owner || ! $this->Admin) && ! $warehouse_id) {
             $user = $this->site->getUser();
             $warehouse_id = $user->warehouse_id;
         }
         $detail_link = anchor('admin/recipe/view_count/$1', '<label class="label label-primary pointer">'.lang('details').'</label>', 'class="tip" title="'.lang('details').'" data-toggle="modal" data-target="#myModal"');
-
         $this->load->library('datatables');
         $this->datatables
             ->select("{$this->db->dbprefix('stock_counts')}.id as id, date, reference_no, {$this->db->dbprefix('warehouses')}.name as wh_name, type, brand_names, category_names, initial_file, final_file")
@@ -2622,19 +2461,16 @@ print_r($this->input->post());die;*/
         if ($warehouse_id) {
             $this->datatables->where('warehouse_id', $warehouse_id);
         }
-
         $this->datatables->add_column('Actions', '<div class="text-center">'.$detail_link.'</div>', "id");
         echo $this->datatables->generate();
     }
 
-    function view_count($id)
-    {
+    function view_count($id){
         $this->sma->checkPermissions('stock_count', TRUE);
         $stock_count = $this->recipe_model->getStouckCountByID($id);
         if ( ! $stock_count->finalized) {
             $this->sma->md('admin/recipe/finalize_count/'.$id);
         }
-
         $this->data['stock_count'] = $stock_count;
         $this->data['stock_count_items'] = $this->recipe_model->getStockCountItems($id);
         $this->data['warehouse'] = $this->site->getWarehouseByID($stock_count->warehouse_id);
@@ -2642,14 +2478,11 @@ print_r($this->input->post());die;*/
         $this->load->view($this->theme.'recipe/view_count', $this->data);
     }
 
-    function count_stock($page = NULL)
-    {
+    function count_stock($page = NULL){
         $this->sma->checkPermissions('stock_count');
         $this->form_validation->set_rules('warehouse', lang("warehouse"), 'required');
         $this->form_validation->set_rules('type', lang("type"), 'required');
-
         if ($this->form_validation->run() == true) {
-
             $warehouse_id = $this->input->post('warehouse');
             $type = $this->input->post('type');
             $categories = $this->input->post('category') ? $this->input->post('category') : NULL;
@@ -2747,15 +2580,11 @@ print_r($this->input->post());die;*/
                 'rows' => $rw,
                 'created_by' => $this->session->userdata('user_id')
             );
-
         }
-
         if ($this->form_validation->run() == true && $this->recipe_model->addStockCount($data)) {
             $this->session->set_flashdata('message', lang("stock_count_intiated"));
             admin_redirect('recipe/stock_counts');
-
         } else {
-
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
             $this->data['warehouses'] = $this->site->getAllWarehouses();
             $this->data['categories'] = $this->site->getAllrecipeCategories();
@@ -2768,19 +2597,15 @@ print_r($this->input->post());die;*/
 
     }
 
-    function finalize_count($id)
-    {
+    function finalize_count($id){
         $this->sma->checkPermissions('stock_count');
         $stock_count = $this->recipe_model->getStouckCountByID($id);
         if ( ! $stock_count || $stock_count->finalized) {
             $this->session->set_flashdata('error', lang("stock_count_finalized"));
             admin_redirect('recipe/stock_counts');
         }
-
         $this->form_validation->set_rules('count_id', lang("count_stock"), 'required');
-
         if ($this->form_validation->run() == true) {
-
             if ($_FILES['csv_file']['size'] > 0) {
                 $note = $this->sma->clear_tags($this->input->post('note'));
                 $data = array(
@@ -2788,7 +2613,6 @@ print_r($this->input->post());die;*/
                     'updated_at' => date('Y-m-d H:s:i'),
                     'note' => $note
                 );
-
                 $this->load->library('upload');
                 $config['upload_path'] = $this->digital_upload_path;
                 $config['allowed_types'] = 'csv';
@@ -2801,9 +2625,7 @@ print_r($this->input->post());die;*/
                     $this->session->set_flashdata('error', $error);
                     redirect($_SERVER["HTTP_REFERER"]);
                 }
-
                 $csv = $this->upload->file_name;
-
                 $arrResult = array();
                 $handle = fopen($this->digital_upload_path . $csv, "r");
                 if ($handle) {
@@ -2839,14 +2661,12 @@ print_r($this->input->post());die;*/
                     }
                     $rw++;
                 }
-
                 $data['final_file'] = $csv;
                 $data['differences'] = $differences;
                 $data['matches'] = $matches;
                 $data['missing'] = $stock_count->rows-($rw-2);
                 $data['finalized'] = 1;
             }
-
             // $this->sma->print_arrays($data, $recipe);
         }
 
@@ -2854,7 +2674,6 @@ print_r($this->input->post());die;*/
             $this->session->set_flashdata('message', lang("stock_count_finalized"));
             admin_redirect('recipe/stock_counts');
         } else {
-
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
             $this->data['stock_count'] = $stock_count;
             $this->data['warehouse'] = $this->site->getWarehouseByID($stock_count->warehouse_id);
@@ -2865,21 +2684,12 @@ print_r($this->input->post());die;*/
         }
 
     }
-    function activate_old($id)
-        {
+    function activate_old($id){
            $this->recipe_model->activate($id);
            redirect($_SERVER["HTTP_REFERER"]);
         }    
-
-
-    function activate($id = NULL)
-    {
-        
-
-        // $this->sma->checkPermissions('edit');
-       
+    function activate($id = NULL){
         $this->form_validation->set_rules('confirm', lang("confirm"), 'required');
-
         if ($this->form_validation->run() == FALSE) {
             if ($this->input->post('deactivate')) {
                 $this->session->set_flashdata('error', validation_errors());
@@ -2902,12 +2712,8 @@ print_r($this->input->post());die;*/
             redirect($_SERVER["HTTP_REFERER"]);
         }
     }        
-    function deactivate($id = NULL)
-    {
-       // $this->sma->checkPermissions('edit');
-       
+    function deactivate($id = NULL){
         $this->form_validation->set_rules('confirm', lang("confirm"), 'required');
-
         if ($this->form_validation->run() == FALSE) {
             if ($this->input->post('deactivate')) {
                 $this->session->set_flashdata('error', validation_errors());
@@ -2922,11 +2728,7 @@ print_r($this->input->post());die;*/
                 if ($id != $this->input->post('id')) {
                     show_error(lang('error_csrf'));
                 }
-                // if ($this->Owner) {
-                    
                     $this->recipe_model->deactivate($id);
-                    
-                // }
             }
             redirect($_SERVER["HTTP_REFERER"]);
         }
@@ -2942,32 +2744,27 @@ print_r($this->input->post());die;*/
 }
 /*recipe variant start*/
 
-   function varients()
-    {
+   function varients(){
     $this->sma->checkPermissions();
         $this->data['error'] = validation_errors() ? validation_errors() : $this->session->flashdata('error');
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => '#', 'page' => lang('varients')));
         $meta = array('page_title' => lang('varients'), 'bc' => $bc);
         $this->page_construct('recipe/varients', $meta, $this->data);
     }
-    function getVarients()
-    {
-    $this->sma->checkPermissions('categories');
-        
+    function getVarients(){
+		$this->sma->checkPermissions('categories');
         $this->load->library('datatables');
         $this->datatables
             ->select("'sno',{$this->db->dbprefix('recipe_variants')}.id as id,  {$this->db->dbprefix('recipe_variants')}.name, {$this->db->dbprefix('recipe_variants')}.native_name ", FALSE)
             ->from("recipe_variants")
             ->add_column("Actions", "<div class=\"text-center\"> <a href='" . admin_url('recipe/edit_varient/$1') . "'  class='tip' title='" . lang("edit_varient") . "'><i class=\"fa fa-edit\"></i></a> <a href='#' class='tip po' title='<b>" . lang("delete_category") . "</b>' data-content=\"<p>" . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete' href='" . admin_url('recipe/delete_varient/$1') . "'>" . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i></a></div>", "id");
-
         echo $this->datatables->generate();
     }
-   function add_varient()
-    {
+   function add_varient(){
     $this->sma->checkPermissions();
         $this->load->helper('security');
         $this->form_validation->set_rules('name', lang("name"), 'required|min_length[3]|is_unique[recipe_variants.name]');
-    $this->form_validation->set_rules('variant_code', lang("variant_code"), 'required|min_length[3]|is_unique[recipe_variants.variant_code]');
+       $this->form_validation->set_rules('variant_code', lang("variant_code"), 'required|min_length[3]|is_unique[recipe_variants.variant_code]');
         $this->form_validation->set_rules('native_name', lang("native_name"), 'required');
         if ($this->form_validation->run() == true) {
             $data = array(
@@ -2975,9 +2772,6 @@ print_r($this->input->post());die;*/
                 'native_name' => $this->input->post('native_name'),
         'variant_code' => $this->input->post('variant_code')
             );
-
-            
-
         } elseif ($this->input->post('add_varient')) {
             $error = validation_errors();
             $response['error'] = $error;
@@ -2986,11 +2780,10 @@ print_r($this->input->post());die;*/
         if ($this->form_validation->run() == true && $id = $this->recipe_model->add_varient($data)) {
             $data['id'] = $id;
             $response['varient'] = $data;
-         $this->session->set_flashdata('message', lang("Varient_added"));
+			$this->session->set_flashdata('message', lang("Varient_added"));
             echo json_encode($response);exit;
             //admin_redirect("recipe/varients");
         } else {
-            
             $this->data['error'] = validation_errors() ? validation_errors() : $this->session->flashdata('error');
             $this->data['modal_js'] = $this->site->modal_js();
             $this->load->view($this->theme . 'recipe/add_varient', $this->data);
@@ -3012,8 +2805,7 @@ print_r($this->input->post());die;*/
     $this->recipe_model->deleteRecipeVariant($id);
     echo json_encode(array('status'=>'success'));exit;
     }
-     function edit_varient($id)
-    {
+    function edit_varient($id){
     $this->sma->checkPermissions();
         $this->load->helper('security');
          $variant = $this->recipe_model->getVariantbyID($id);
@@ -3034,9 +2826,6 @@ print_r($this->input->post());die;*/
                 'variant_code' => $this->input->post('variant_code'),
                 'variant_localname_image' => str_replace(' ', '-',$this->input->post('name')).'.png',
             );
-
-            
-
         } elseif ($this->input->post('edit_varient')) {
             $error = validation_errors();
             $response['error'] = $error;
@@ -3046,34 +2835,29 @@ print_r($this->input->post());die;*/
         if ($this->form_validation->run() == true &&  $this->recipe_model->update_varient($id,$data)) {
             $data['id'] = $id;
             $response['varient'] = $data;
-        $this->session->set_flashdata('message', lang("Varient_updated"));
-
+            $this->session->set_flashdata('message', lang("Varient_updated"));
             $filename = 'assets/language/'.str_replace(' ', '-',$_POST['name']).'.png';
             $this->base64ToImage($_POST['recipe_name_img'],$filename);
-
             echo json_encode($response);exit;
             //admin_redirect("recipe/varients");
         } else {
-            
             $this->data['error'] = validation_errors() ? validation_errors() : $this->session->flashdata('error');
             $this->data['modal_js'] = $this->site->modal_js();
-        $this->data['variant'] = $this->recipe_model->getVariantbyID($id);
-           $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('recipe/variants'), 'page' => lang('variants')), array('link' => '#', 'page' => lang('edit_varient')));
+            $this->data['variant'] = $this->recipe_model->getVariantbyID($id);
+            $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('recipe/variants'), 'page' => lang('variants')), array('link' => '#', 'page' => lang('edit_varient')));
             $meta = array('page_title' => lang('edit_varient'), 'bc' => $bc);
             $this->page_construct('recipe/edit_varient', $meta, $this->data);
         }
     }
 
-    function ItemsWith_varients()
-    {
-    $this->sma->checkPermissions();
+    function ItemsWith_varients(){
+        $this->sma->checkPermissions();
         $this->data['error'] = validation_errors() ? validation_errors() : $this->session->flashdata('error');
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => '#', 'page' => lang('ItemsWith_varients')));
         $meta = array('page_title' => lang('ItemsWith_varients'), 'bc' => $bc);
         $this->page_construct('recipe/item_with_varients', $meta, $this->data);
     }
-    function getItemsWithVarients()
-    {
+    function getItemsWithVarients(){
     //$this->sma->checkPermissions('categories');        
         $this->load->library('datatables');
         $this->datatables
@@ -3087,18 +2871,9 @@ print_r($this->input->post());die;*/
     }
 
 
-function edit_item_with_varient($id)
-    {
+function edit_item_with_varient($id){
     $this->sma->checkPermissions();
         $this->load->helper('security');
-        /* $variant = $this->recipe_model->getVariantbyID($id);
-        if ($this->input->post('name') != $variant->name) {
-            $this->form_validation->set_rules('name', lang("name"), 'required|is_unique[recipe_variants.name]');
-        } 
-        if ($this->input->post('variant_code') != $variant->variant_code) {
-            $this->form_validation->set_rules('variant_code', lang("name"), 'required|is_unique[recipe_variants.variant_code]');
-        }  */
-       
         $this->form_validation->set_rules('item_native_name', lang("item_native_name"), 'required');
         if ($this->form_validation->run() == true) {
 
@@ -3107,13 +2882,10 @@ function edit_item_with_varient($id)
                 'image' => str_replace(' ', '-',$image_name).'.png',
             );
 
-/*echo "<pre>";
-        print_r($data);die;*/
-
         } elseif ($this->input->post('edit_varient')) {
             $error = validation_errors();
             $response['error'] = $error;
-        $this->session->set_flashdata('error', $error);
+            $this->session->set_flashdata('error', $error);
             echo json_encode($response);exit;
         }
         
@@ -3163,17 +2935,18 @@ function edit_item_with_varient($id)
     function stock($rid){
 		$id =$rid;
 		$this->data['recipe'] = $this->recipe_model->getrecipeByID($id);
+        $this->data['total_stock'] = $this->recipe_model->getTotalStock($id);
 		$this->data['id'] = $id;
 		$this->data['modal_js'] = $this->site->modal_js();
 		$this->load->view($this->theme . 'recipe/stock', $this->data);
     }
-	function stock_details($id)
-    {
+	function stock_details($id){
         $this->load->library('datatables');
 		$this->datatables
-				->select("'sno',".$this->db->dbprefix('warehouses') . ".name as store_name,rc.name as category_name,rsc.name as subcategory_name,b.name as brand_name,stock_in,stock_out,(stock_in-stock_out) as stock,(stock_in_piece-stock_out_piece) as stock_piece,batch,cost_price,".$this->db->dbprefix('pro_stock_master') . ".selling_price,expiry_date", FALSE)
+				->select("'sno',".$this->db->dbprefix('warehouses') . ".name as store_name,rc.name as category_name,rsc.name as subcategory_name,b.name as brand_name,stock_in,stock_out,(stock_in-stock_out) as stock,(stock_in_piece-stock_out_piece) as stock_piece,batch,cm.purchase_cost as cost_price,cm.selling_price as selling_price,expiry_date", FALSE)
 				->from('pro_stock_master')		
-				->join('category_mapping as cm','cm.product_id=pro_stock_master.product_id','left')
+                ->join('category_mapping as cm','cm.product_id=pro_stock_master.product_id','left')
+				->join('recipe as r','r.id=pro_stock_master.product_id','left')
 				->join('recipe_categories as rc','rc.id=pro_stock_master.category_id','left')
 				->join('recipe_categories rsc','rsc.id=pro_stock_master.subcategory_id','left')	
 				->join('brands b','b.id=pro_stock_master.brand_id','left')
@@ -3186,31 +2959,14 @@ function edit_item_with_varient($id)
     }
 /*recipe variant end*/
     function getRecipeCategories($type){
-	//if($type=="standard" || $type=="production" || $type=="combo" || $type=="quick_service"){
 	    if ($rows = $this->recipe_model->getrecipeCategories()) {
-			
 		$data = json_encode($rows);
 	    } else {
 		$data = false;
-			    
 	    }
 	    echo $data;
-	//}else{
-	//    if ($rows = $this->recipe_model->getPurchaseCategories()) {
-	//		
-	//	$data = json_encode($rows);
-	//    } else {
-	//	$data = false;
-	//		    
-	//    }
-	//    echo $data;
-	//}
-	
     }
-    function getrecipeSubCategories($type,$category_id = NULL)
-    {
-        // $category_id = $this->input->post('category_id');
-	//if($type=="standard" || $type=="production" || $type=="combo" || $type=="quick_service"){
+    function getrecipeSubCategories($type,$category_id = NULL){
 	    if ($rows = $this->recipe_model->getrecipeSubCategories($category_id)) {
 		$data = json_encode($rows);
 	    } else {
@@ -3218,49 +2974,33 @@ function edit_item_with_varient($id)
 			    
 	    }
 	    echo $data;
-	//}else{
-	//    if ($rows = $this->recipe_model->getPurchaseSubCategories($category_id)) {
-	//		    
-	//	$data = json_encode($rows);
-	//    } else {
-	//	$data = false;
-	//		    
-	//    }
-	//    echo $data;
-	//}
     }
 	
 	
-	function getrecipeItemName()
-    {
+	function getrecipeItemName(){
 		$type = $this->input->post('type');
-
 	    if ($rows = $this->recipe_model->getrecipeItemName($type)) {
-			    
 		$data = json_encode($rows);
 	    } else {
 		$data = false;
-			    
 	    }
 	    echo $data;
     }
 	
 	// Ingredients
-	function add_ingredients()
-    {
-        $this->sma->checkPermissions();
-		
+	function add_ingredients(){
+       $this->sma->checkPermissions('add_ingredients');
+	   
 		$bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('recipe/list_ingredients'), 'page' => lang('ingredients')), array('link' => '#', 'page' => lang('add_ingredients')));
         $meta = array('page_title' => lang('add_ingredients'), 'bc' => $bc);
         $this->page_construct('recipe/add_ingredients', $meta, $this->data);
 	}
 	
-	function ingredients_mapping() 
-    {
-        $this->sma->checkPermissions();
+	function ingredients_mapping() {
+        $this->sma->checkPermissions('add_ingredients');
         $this->form_validation->set_rules('item_name', lang("item_name"), 'required');
 		$this->form_validation->set_rules('type', lang("type"), 'required');
-        if ($this->form_validation->run() == true) {			            
+        if ($this->form_validation->run() == true) {	
             $item_id = $this->input->post('recipe_id');
 			$variant_id = $this->input->post('variant_id');
 			$production_array = array(
@@ -3270,13 +3010,13 @@ function edit_item_with_varient($id)
                 'price' => $this->input->post('selling_price'),
                 'cost' => $this->input->post('cost_price'),             
             );
-
             $ingrediends_head = array(
-                'recipe_id' => $this->input->post('recipe_id'),
-                'variant_id' => $this->input->post('variant_id'),
+                'recipe_id' => $item_id,
+                'variant_id' => $variant_id,
+				'type'=>$this->input->post('type'),
+				'qty'=> $this->input->post('qty'),
                 'created_on' => date('Y-m-d H:i:s'),                             
-            );			
-	
+            );		
 			for($j=0; $j<count($this->input->post('purchase_item_id[]')); $j++){
 					$recipe_pro[] = array(
                         'recipe_id' => $item_id,
@@ -3288,21 +3028,19 @@ function edit_item_with_varient($id)
                         'cm_id' => $this->input->post('purchase_item_cm_id['.$j.']'),
 						'item_customizable' => $this->input->post('item_customizable['.$j.']') ? $this->input->post('item_customizable['.$j.']') : 0,
 					);
-			}
-				
+			}	
+			
+			
 			if(empty($production_array) || empty($recipe_pro)){
 				 $this->session->set_flashdata('error', lang("purchase_item_is_empty_or_quantity_value_empty"));
            		 admin_redirect('recipe/add_ingredients');
 			}
-			
         }
 
         if ($this->form_validation->run() == true && $ing = $this->recipe_model->ingredients_mapping($recipe_pro,$ingrediends_head)) {
-			
             $this->session->set_flashdata('message', lang("production_added"));
-            admin_redirect('recipe/add_ingredients');
+            admin_redirect('recipe/list_ingredients');
         } else {
-			
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('recipe'), 'page' => lang('recipe')), array('link' => '#', 'page' => lang('add_ingredients')));
             $meta = array('page_title' => lang('add'), 'bc' => $bc);
@@ -3311,10 +3049,8 @@ function edit_item_with_varient($id)
         }
     }
 	
-	function list_ingredients($warehouse_id = NULL)
-    {
+	function list_ingredients($warehouse_id = NULL){
         $this->sma->checkPermissions();
-
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         if ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) {
             $this->data['warehouses'] = $this->site->getAllWarehouses();
@@ -3325,74 +3061,63 @@ function edit_item_with_varient($id)
             $this->data['warehouse_id'] = $this->session->userdata('warehouse_id');
             $this->data['warehouse'] = $this->session->userdata('warehouse_id') ? $this->site->getWarehouseByID($this->session->userdata('warehouse_id')) : NULL;
         }
-
         $this->data['supplier'] = $this->input->get('supplier') ? $this->site->getCompanyByID($this->input->get('supplier')) : NULL;
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => '#', 'page' => lang('recipe')));
         $meta = array('page_title' => lang('recipe'), 'bc' => $bc);
         $this->page_construct('recipe/list_ingredients', $meta, $this->data);
     }
 	
-	function get_ingredients($warehouse_id = NULL)
-    {
+	function get_ingredients($warehouse_id = NULL){
         $this->sma->checkPermissions('index', TRUE);
-        //$supplier = $this->input->get('supplier') ? $this->input->get('supplier') : NULL;
-
         if ((! $this->Owner || ! $this->Admin)) {
             $user = $this->site->getUser();
         }
-      //  $detail_link = anchor('admin/recipe/view/$1', '<i class="fa fa-file-text-o"></i> ' . lang('recipe_details'));
-      /*   $delete_link = "<a href='#' class='tip po' title='<b>" . $this->lang->line("delete_recipe") . "</b>' data-content=\"<p>"
-            . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete1' id='a__$1' href='" . admin_url('recipe/delete/$1') . "'>"
-            . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i> "
-            . lang('delete_recipe') . "</a>"; */
+        $delete_link = "<a href='#' class='tip po' title='<b>" . $this->lang->line("delete_ingredient") . "</b>' data-content=\"<p>"
+        . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete1' id='a__$1' href='" . admin_url('recipe/delete_ingredient/$1') . "'>"
+        . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i> "
+        . lang('delete_ingredient') . "</a>"; 
         $single_barcode = anchor('admin/recipe/print_barcodes/$1', '<i class="fa fa-print"></i> ' . lang('print_barcode_label'));
-        // $single_label = anchor_popup('recipe/single_label/$1/' . ($warehouse_id ? $warehouse_id : ''), '<i class="fa fa-print"></i> ' . lang('print_label'), $this->popup_attributes);
-        $view_link = '<a href="'.admin_url('recipe/ingredients_view/$1').'" data-toggle="modal" data-target="#myModal"><i class="fa fa-edit"></i>'.lang('ingredients_view').'</a>';
-
+        $view_link = '<a href="'.admin_url('recipe/ingredients_view/$1').'"  class="view_class" data-toggle="modal" data-target="#myModal"><i class="fa fa-edit"></i>'.lang('ingredients_view').'</a>';
         $action = '<div class="text-center"><div class="btn-group text-left">'
             . '<button type="button" class="btn btn-default btn-xs btn-primary dropdown-toggle" data-toggle="dropdown">'
             . lang('actions') . ' <span class="caret"></span></button>
         <ul class="dropdown-menu pull-right" role="menu">
             <li>' . $view_link . '</li>
-           
-            <li><a href="' . admin_url('recipe/edit_ingredients/$1') . '"><i class="fa fa-edit"></i> ' . lang('edit_ingredients') . '</a></li>';
-        if ($warehouse_id) {
-            $action .= '<li><a href="' . admin_url('recipe/set_rack/$1/' . $warehouse_id) . '" data-toggle="modal" data-target="#myModal"><i class="fa fa-bars"></i> '
-                . lang('set_rack') . '</a></li>';
-        }
+       <li><a href="' . admin_url('recipe/edit_ingredients/$1') . '"><i class="fa fa-edit"></i> ' . lang('edit_ingredients') . '</a></li>';
+       
         $action .= '<li><a href="' . base_url() . 'assets/uploads/$2" data-type="image" data-toggle="lightbox"><i class="fa fa-file-photo-o"></i> '
             . lang('view_image') . '</a></li>
-            
+             <li>' . $delete_link . '</li>
             <li class="divider"></li>
            
             </ul>
         </div></div>';
         $this->load->library('datatables');
-		if ($warehouse_id) {      
-
+		if ($warehouse_id) {
 			$this->datatables
-                ->select("'sno',".$this->db->dbprefix('ingrediend_head') . ".id as recipeid,".$this->db->dbprefix('recipe') . ".type as item_type, (CASE WHEN {$this->db->dbprefix('recipe')}.recipe_standard = '1' THEN  'Alakat' WHEN {$this->db->dbprefix('recipe')}.recipe_standard = '2' THEN  'BBQ' ELSE 'Alakat and BBQ' END) as recipe_standard, (CASE WHEN {$this->db->dbprefix('recipe')}.variants = 0 THEN  {$this->db->dbprefix('recipe')}.name  ELSE CONCAT({$this->db->dbprefix('recipe')}.name, ' - ', {$this->db->dbprefix('recipe_variants')}.name)  END) as name,{$this->db->dbprefix('recipe')}.khmer_name as khmer_name,{$this->db->dbprefix('recipe_categories')}.name as cname,{$this->db->dbprefix('recipe')}.image as image,".$this->db->dbprefix('recipe') . ".id as stock_r_id, (CASE WHEN {$this->db->dbprefix('recipe')}.variants = 0 THEN  {$this->db->dbprefix('recipe')}.price  ELSE {$this->db->dbprefix('recipe_variants_values')}.price END) as price, active", FALSE)
+              
+                ->select("'sno',".$this->db->dbprefix('ingrediend_head') . ".id as recipeid,".$this->db->dbprefix('recipe') . ".type as item_type, (CASE WHEN {$this->db->dbprefix('recipe')}.recipe_standard = '1' THEN  'Alakat' WHEN {$this->db->dbprefix('recipe')}.recipe_standard = '2' THEN  'BBQ' ELSE 'Alakat and BBQ' END) as recipe_standard,  (CASE  WHEN (".$this->db->dbprefix('recipe') . ".variants = 0) THEN ".$this->db->dbprefix('recipe') . ".name ELSE CONCAT(".$this->db->dbprefix('recipe') . ".name,'-', ".$this->db->dbprefix('recipe_variants') . ".name) END)  as name,{$this->db->dbprefix('recipe')}.khmer_name as khmer_name,{$this->db->dbprefix('recipe_categories')}.name as cname,{$this->db->dbprefix('recipe')}.image as image,".$this->db->dbprefix('recipe') . ".id as stock_r_id, ".$this->db->dbprefix('category_mapping') . ".selling_price AS price", FALSE)
                 ->from('recipe')
-                ->join('recipe_categories', 'recipe.category_id=recipe_categories.id', 'left')
+                ->join('category_mapping','category_mapping.product_id=recipe.id','left')
+                ->join('recipe_categories', 'recipe_categories.id=category_mapping.category_id', 'left')
                 ->join('warehouses_recipe', 'recipe.id=warehouses_recipe.recipe_id', 'left')
                 ->join('warehouses', 'warehouses_recipe.warehouse_id=warehouses.id')
                 ->join('recipe_products', 'recipe_products.recipe_id=recipe.id')
                 ->join('ingrediend_head', 'ingrediend_head.id=recipe_products.ingrediends_hd_id')
                 ->join('recipe_variants_values', 'recipe.id=recipe_variants_values.recipe_id', 'left')
                 ->join('recipe_variants', 'recipe_variants.id=recipe_products.variant_id', 'left')
-                ->join('ingrediend_head', 'ingrediend_head.id=recipe_products.ingrediends_hd_id')
 				->where('srampos_warehouses_recipe.warehouse_id',$warehouse_id)
-				//->where('recipe.ingredients_mapping',1)
-				->where_in('recipe.type',array('production','quick_service'))
+				->where_in('recipe.type',array('production','quick_service','semi_finished','addon'))
                 ->group_by("recipe_products.recipe_id,recipe_products.variant_id")
-                //->order_by('recipe.id desc')
-                ->edit_column('active', '$1__$2', 'active, recipeid')
-                ->edit_column('image', '$1__$2__$3', 'active, recipeid,image');
+				->order_by('ingrediend_head.created_on desc')
+                ->edit_column('image', '$1__$2', 'recipeid,image');
         } else {
 			$this->datatables
-                ->select("'sno',".$this->db->dbprefix('ingrediend_head') . ".id as recipeid,".$this->db->dbprefix('recipe') . ".type as item_type, (CASE WHEN {$this->db->dbprefix('recipe')}.recipe_standard = '1' THEN  'Alakat' WHEN {$this->db->dbprefix('recipe')}.recipe_standard = '2' THEN  'BBQ' ELSE 'Alakat and BBQ' END) as recipe_standard, (CASE WHEN {$this->db->dbprefix('recipe')}.variants = 0 THEN  {$this->db->dbprefix('recipe')}.name  ELSE CONCAT({$this->db->dbprefix('recipe')}.name, ' - ', {$this->db->dbprefix('recipe_variants')}.name)  END) as name,{$this->db->dbprefix('recipe')}.khmer_name as khmer_name,{$this->db->dbprefix('recipe_categories')}.name as cname,{$this->db->dbprefix('recipe')}.image as image,".$this->db->dbprefix('recipe') . ".id as stock_r_id, (CASE WHEN {$this->db->dbprefix('recipe')}.variants = 0 THEN  {$this->db->dbprefix('recipe')}.price  ELSE {$this->db->dbprefix('recipe_variants_values')}.price END) as price, active", FALSE)
+                ->select("'sno',".$this->db->dbprefix('ingrediend_head') . ".id as recipeid,".$this->db->dbprefix('recipe') . ".type as item_type, (CASE WHEN {$this->db->dbprefix('recipe')}.recipe_standard = '1' THEN  'Alakat' WHEN {$this->db->dbprefix('recipe')}.recipe_standard = '2' THEN  'BBQ' ELSE 'Alakat and BBQ' END) as recipe_standard,(CASE  WHEN (".$this->db->dbprefix('recipe') . ".variants = 0) THEN ".$this->db->dbprefix('recipe') . ".name ELSE CONCAT(".$this->db->dbprefix('recipe') . ".name,'-', ".$this->db->dbprefix('recipe_variants') . ".name) END)  as name,{$this->db->dbprefix('recipe')}.khmer_name as khmer_name,{$this->db->dbprefix('recipe_categories')}.name as cname,{$this->db->dbprefix('recipe')}.image as image,".$this->db->dbprefix('recipe') . ".id as stock_r_id, ".$this->db->dbprefix('category_mapping') . ".selling_price AS price", FALSE)
+
                 ->from('recipe')
-                ->join('recipe_categories', 'recipe.category_id=recipe_categories.id', 'left')
+                ->join('category_mapping','category_mapping.product_id=recipe.id','left')
+                ->join('recipe_categories', 'recipe_categories.id=category_mapping.category_id', 'left')
 				->join('warehouses_recipe', 'recipe.id=warehouses_recipe.recipe_id', 'left')
 				->join('warehouses', 'warehouses_recipe.warehouse_id=warehouses.id')
                 ->join('recipe_products', 'recipe_products.recipe_id=recipe.id')
@@ -3400,42 +3125,40 @@ function edit_item_with_varient($id)
                 ->join('recipe_variants_values', 'recipe.id=recipe_variants_values.recipe_id', 'left')
                 ->join('recipe_variants', 'recipe_variants.id=recipe_products.variant_id', 'left')
 				//->where('recipe.ingredients_mapping',1)
-				->where_in('recipe.type',array('production','quick_service'))
+				->where_in('recipe.type',array('production','quick_service','semi_finished','addon'))
                 ->group_by("recipe_products.recipe_id,recipe_products.variant_id")
-                //->order_by('recipe.id desc')
-                ->edit_column('active', '$1__$2', 'active, recipeid')
-                ->edit_column('image', '$1__$2__$3', 'active, recipeid,image');
+                ->order_by('ingrediend_head.created_on desc')
+                ->edit_column('active', '$1', ' recipeid')
+                ->edit_column('image', '$1__$2', 'recipeid,image');
         }
-
         $this->datatables->add_column("Actions", $action, "recipeid, image, name");
 		
         echo $this->datatables->generate();
     }
 	
-	function edit_ingredients($id = NULL)
-    {
-        $this->sma->checkPermissions('edit_ingredients');
+ function edit_ingredients($id = NULL){
+        $this->sma->checkPermissions('ingredients_edit');
         $this->load->helper('security');
         if ($this->input->post('id')) {
             $id = $this->input->post('id');
         }
-		/*$ingrediends = $this->recipe_model->getingrediends($id);
-        $recipe_id = $ingrediends->recipe_id;
-        $variant_id = $ingrediends->variant_id; */       
-		$this->data['recipe'] = $this->recipe_model->getrecipeItemName_withVariant($id);   
-        $this->data['id'] = $id;        
-		$this->data['product_recipe'] = $this->recipe_model->getProductWithRecipe($id);     
+		$this->recipe_model->recent_ingrediend_head($id);
+		$this->data['recipe'] = $this->recipe_model->getrecipeItemName_withVariant($id);  
+		$this->data['product_recipe_master'] = $this->recipe_model->get_ingredientHead($id); 
+		$this->data['productlist']=$this->recipe_model->get_ingredient_productlist($id); 
+        $this->data['id'] = $id;   
+		$this->data['product_recipe'] = $this->recipe_model->getProductWithRecipe($id);    
 		$this->form_validation->set_rules('item_name', lang("item_name"), 'xss_clean');
 		$this->form_validation->set_rules('type', lang("type"), 'xss_clean');		
 			if ($this->form_validation->run('recipe/edit_ingredients') == true) {                     
                 $item_id = $this->input->post('item_name');
 				$variant_id = $this->input->post('variant_id');				
-			for($j=0; $j<count($this->input->post('purchase_item_id[]')); $j++){
+			    for($j=0; $j<count($this->input->post('purchase_item_id[]')); $j++){
 				$recipe_pro[] = array(
                     'recipe_id' => $item_id,
 					'variant_id' => $variant_id,
 					'product_id' => $this->input->post('purchase_item_id['.$j.']'),
-					'create_on' => date('Y-m-d'),
+					'create_on' =>date('Y-m-d H:i:s'),
 					'quantity' => $this->input->post('purchase_item_quantity['.$j.']'),
 					'unit_id' => $this->input->post('purchase_item_unit['.$j.']'),
 					'cm_id' => $this->input->post('purchase_item_cm_id['.$j.']'),
@@ -3447,7 +3170,6 @@ function edit_item_with_varient($id)
 				$this->session->set_flashdata('message', lang("ingredients_mapping_updated"));
 				admin_redirect('recipe/list_ingredients');
 			}else {
-				
 				$this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
 				$bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('recipe/list_ingredients'), 'page' => lang('ingredients')), array('link' => '#', 'page' => lang('edit_ingredients')));
 				$meta = array('page_title' => lang('edit_ingredients'), 'bc' => $bc);
@@ -3456,13 +3178,13 @@ function edit_item_with_varient($id)
 			}
 	}
 
-    public function ingredients_view($id = null)
-    {        
-        // $this->sma->checkPermissions();
-        $store_id = $this->data['default_store'];                
-        $c=1;
+    public function ingredients_view($id = null){        
+        $store_id = $this->data['default_store'];    
+		$this->data['id'] = $id;       		
         $this->data['recipe'] = $this->recipe_model->getrecipeItemName_withVariant($id);   
-        $this->data['id'] = $id;        
+		$this->recipe_model->recent_ingrediend_head($id);
+		$this->data['productlist']=$this->recipe_model->get_ingredient_productlist($id); 
+		$this->data['product_recipe_master'] = $this->recipe_model->get_ingredientHead($id);   
         $this->data['product_recipe'] = $this->recipe_model->getProductWithRecipe($id);           
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('recipe/list_ingredients'), 'page' => lang('ingredients')), array('link' => '#', 'page' => lang('view')));
         $meta = array('page_title' => lang('ingredients_details'), 'bc' => $bc);
@@ -3471,8 +3193,7 @@ function edit_item_with_varient($id)
     }
 /*Ingredients end */    
 /*recipe and variant add on mapping start*/    
-   function recipe_and_variant_addon()
-    {
+   function recipe_and_variant_addon(){
     $this->sma->checkPermissions();
         $this->data['error'] = validation_errors() ? validation_errors() : $this->session->flashdata('error');
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => '#', 'page' => lang('recipe_and_variant_addon')));
@@ -3480,52 +3201,41 @@ function edit_item_with_varient($id)
         $this->page_construct('recipe/recipe_and_variant_addon_list', $meta, $this->data);
     } 
    
-    public function getrecipeandvariantaddon()
-    {       
-     
+    public function getrecipeandvariantaddon(){       
         $delete_link = "<a href='#' class='tip po' title='<b>" . $this->lang->line("delete_recipe") . "</b>' data-content=\"<p>"
             . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete1' id='a__$1' href='" . admin_url('recipe/delete_recipe_and_variant_addon/$1') . "'>"
             . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i> "
             . lang('delete_recipe') . "</a>";
-
         $action = '<div class="text-center"><div class="btn-group text-left">'
             . '<button type="button" class="btn btn-default btn-xs btn-primary dropdown-toggle" data-toggle="dropdown">'
             . lang('actions') . ' <span class="caret"></span></button>
         <ul class="dropdown-menu pull-right" role="menu"><li><a href="' . admin_url('recipe/edit_recipe_and_variant_addon/$1') . '"><i class="fa fa-edit"></i> ' . lang('edit_recipe_and_variant_addon') . '</a></li>';
-       
         $action .= '            
             <li class="divider"></li> 
             <li>' . $delete_link . '</li>          
             </ul>
         </div></div>';
         $this->load->library('datatables');      
-                      
         $this->datatables
                 ->select("'sno',recipe_addon.id as id,r.name, rv.name as variant_name ", FALSE)
                 ->from("recipe_addon")
                 ->join('recipe as r', "r.id = recipe_addon.recipe_id", 'left')
                 ->join('recipe_variants rv', "rv.id = recipe_addon.variant_id", 'left');             
-        
         $this->datatables->add_column("Actions", $action, "id");
-        
         echo $this->datatables->generate();
         
     } 
-    function recipe_and_variant_addon_add()
-    {        
+    function recipe_and_variant_addon_add(){        
         $this->load->helper('security');
         $Allrecipe = $this->recipe_model->getrecipeWithoutADDon();        
         $this->form_validation->set_rules('recipe_id', lang("recipe_id"), 'required');       
-        
         if ($this->form_validation->run() == true) {
-           
             $add_on = array(
                 'recipe_id' => $this->input->post('recipe_id'),
                 'variant_id' => $this->input->post('variant_id'),
                 'create_on' => date('Y-m-d H:i:s'),                
                 'created_by' => $this->session->userdata('user_id'),                
             );
-    
             for($j=0; $j<count($this->input->post('addon_id[]')); $j++){
                 $addon_items[] = array(
                     'addon_item_id' => $this->input->post('addon_id['.$j.']'),                    
@@ -3547,8 +3257,7 @@ function edit_item_with_varient($id)
             
         }
     }
-    function edit_recipe_and_variant_addon($id = NULL)
-    {
+    function edit_recipe_and_variant_addon($id = NULL){
         $item = array();        
         //$this->sma->checkPermissions();
         $this->load->helper('security');
@@ -3558,26 +3267,20 @@ function edit_item_with_varient($id)
         $recipevariantaddon = $this->recipe_model->getrecipevariantaddon($id);        
         $Allrecipe = $this->recipe_model->getAllrecipe(); 
         $recipevariants = $this->recipe_model->getRecipeVariantsbyrecipeid($recipevariantaddon->recipe_id);
-           
         $addon_item = $this->recipe_model->getrecipevariantaddondetails($id); 
-     /*echo "<pre>";
-     print_r($addon_item);die;*/
         if ($addon_item) {
             foreach ($addon_item as $row) {
                 $item[$row->id] = array('id' => $row->id, 'label' => $row->name,  'name' => $row->name, 'code' => $row->code);
             }
         }        
-        $this->form_validation->set_rules('recipe_id', lang("recipe_id"), 'required');          
-        
+        $this->form_validation->set_rules('recipe_id', lang("recipe_id"), 'required');
         if ($this->form_validation->run() == true) {   
-
          $add_on = array(
                 'recipe_id' => $this->input->post('recipe_id'),
                 'variant_id' => $this->input->post('variant_id'),
                 'create_on' => date('Y-m-d H:i:s'),                
                 'created_by' => $this->session->userdata('user_id'),                
             );
-    
             for($j=0; $j<count($this->input->post('addon_id[]')); $j++){
                 $addon_items[] = array(
                     'addon_item_id' => $this->input->post('addon_id['.$j.']'),                    
@@ -3607,33 +3310,18 @@ function edit_item_with_varient($id)
     $this->sma->send_json(array('error' => 0, 'msg' => lang("varient_deleted")));
     }
 
-   public function getrecipevariants()
-    {
+   public function getrecipevariants(){
         $recipe_id = $this->input->post('recipe_id');
         if ($rows = $this->recipe_model->getRecipeVariantsbyrecipeid_except($recipe_id)) {
         $data = json_encode($rows);
         } else {
         $data = false;
-                
         }
         echo $data;    
     }
-    /*public function get_addon_suggestions($term = NULL, $limit = NULL)
-    {        
-        if ($this->input->get('term')) {
-            $term = $this->input->get('term', TRUE);
-        }
-        $limit = $this->input->get('limit', TRUE);
-        $rows['results'] = $this->recipe_model->getRecipeaddon($term, $limit);
-        $this->sma->send_json($rows);
-    }*/    
-    public function get_addon_suggestions()
-    {
+  
+    public function get_addon_suggestions(){
         $term = $this->input->get('term', TRUE);
-       /* if (strlen($term) < 1 || !$term) {
-            die("<script type='text/javascript'>setTimeout(function(){ window.top.location.href = '" . admin_url('welcome') . "'; }, 10);</script>");
-        }*/
-
         $rows = $this->recipe_model->getrecipeAddonDetails($term);
         $units = $this->site->getAllUnits();
         if ($rows) {
@@ -3644,7 +3332,12 @@ function edit_item_with_varient($id)
         } else {
             $this->sma->send_json(array(array('id' => 0, 'label' => lang('no_match_found'), 'value' => $term)));
         }
+		
     }    
-/*recipe and variant add on mapping end*/    
-
+    /*recipe and variant add on mapping end*/    
+     
+    
+	  
+	  
+	  
 }

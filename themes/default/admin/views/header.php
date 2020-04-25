@@ -1027,6 +1027,7 @@
                                         </a>
                                     </li>
                                     <?php } ?>
+                                    
                                     <li id="customers_index">
                                         <a class="submenu" href="<?= admin_url('customers'); ?>">
                                             <span class="text"> <?= lang('customers_list'); ?></span>
@@ -1076,6 +1077,28 @@
                                     <?php } ?>                                   
                                 </ul>
                             </li>
+                            <li class="mm_shiftmaster">
+                                <a class="dropmenu" href="#">
+                                    <i class="fa fa-credit-card"></i>
+                                    <span class="text"> <?= lang('shiftmaster'); ?> </span>
+                                    <span class="chevron closed"></span>
+                                </a>
+                                <ul>
+                                    <?php if ($Owner) { ?>
+                                    <li id="shiftmaster_list">
+                                        <a class="submenu" href="<?= admin_url('shiftmaster'); ?>">
+                                            <span class="text"> <?= lang('shiftmaster'); ?></span>
+                                        </a>
+                                    </li>
+                                     <li id="shiftmaster_add">
+                                        <a class="submenu" href="<?= admin_url('shiftmaster/add'); ?>">
+                                            <span class="text"> <?= lang('add_shiftmaster'); ?></span>
+                                        </a>
+                                    </li>   
+                                      
+                                    <?php } ?>                                   
+                                </ul>
+                            </li>
                             <!-- <li class="mm_maintenance">
                                 <a class="dropmenu" href="#">
                                     <i class="fa fa-cog"></i>
@@ -1093,7 +1116,32 @@
                                     <?php } ?>                                   
                                 </ul>
                             </li> -->
-                            
+                             <li class="mm_member_discount">
+                                <a class="dropmenu" href="#">
+                                    <i class="fa fa-credit-card"></i>
+                                    <span class="text"> <?= lang('member_discount'); ?> </span>
+                                    <span class="chevron closed"></span>
+                                </a>
+                                <ul>
+                                  
+                                  	  <li id="system_settings_member_discount">
+                                            <a href="<?= admin_url('member_discount') ?>">
+                                                <span class="text"> <?= lang('member_discount'); ?></span>
+                                            </a>
+                                        </li>
+										  <li id="system_settings_member_discount">
+                                            <a href="<?= admin_url('member_discount/member_discount_card') ?>">
+                                                <span class="text"> <?= lang('member_discount_card'); ?></span>
+                                            </a>
+                                        </li>
+										 <li id="system_settings_member_discount">
+                                            <a href="<?= admin_url('member_discount/member_discount_card_issue') ?>">
+                                                <span class="text"> <?= lang('card Issue'); ?></span>
+                                            </a>
+                                        </li>
+                                    
+                                </ul>
+                            </li>
                             <li class="mm_notifications">
                                 <a class="submenu" href="<?= admin_url('notifications'); ?>">
                                     <i class="fa fa-info-circle"></i>
@@ -1122,23 +1170,6 @@
                                                 <span class="text"> <?= lang('pos_settings'); ?></span>
                                             </a>
                                         </li>
-
-                                       <?php if($this->isStore) : ?>
-                                        <li id="system_settings_sync_tables">
-                                            <a href="<?= admin_url('system_settings/sync') ?>">
-                                                <span class="text"> <?= lang('sync'); ?></span>
-                                            </a>
-                                        </li>
-                                        <?php endif; ?>
-                                        <?php if($this->isWarehouse){ ?>
-                                        <li id="system_settings_sync_tables">
-                                            <a href="<?= admin_url('system_settings/sync_tables') ?>">
-                                                <span class="text"> <?= lang('sync_settings'); ?></span>
-                                            </a>
-                                        </li>
-                                        <?php } ?>
-
-
                                         <li id="pos_printers">
                                             <a href="<?= admin_url('pos/printers') ?>">
                                                 <span class="text"> <?= lang('list_printers'); ?></span>
@@ -1147,6 +1178,11 @@
                                         <li id="pos_add_printer">
                                             <a href="<?= admin_url('pos/add_printer') ?>">
                                                 <span class="text"> <?= lang('add_printer'); ?></span>
+                                            </a>
+                                        </li>
+                                        <li id="system_settings_tills">
+                                            <a href="<?= admin_url('system_settings/tills') ?>">
+                                                <span class="text"> <?= lang('tills'); ?></span>
                                             </a>
                                         </li>
                                          <li id="system_settings_shift_time">
@@ -1322,6 +1358,19 @@
                                                 <span class="text"> <?= lang('recipe_feedback_mapping'); ?></span>
                                             </a>
                                         </li>
+										 <li id="system_settings_Wallets">
+                                            <a href="<?= admin_url('system_settings/Wallets') ?>">
+                                                <span class="text"> <?= lang('Wallets'); ?></span>
+                                            </a>
+                                        </li>
+										
+										
+										 <li id="system_settings_Wallets">
+                                            <a href="<?= admin_url('system_settings/ncKotMaster') ?>">
+                                                <span class="text"> <?= lang('NC_Kot_Master'); ?></span>
+                                            </a>
+                                        </li>
+									
                                         <!-- <li id="system_settings_updates">
                                             <a href="<?= admin_url('system_settings/updates') ?>">
                                                 <i class="fa fa-upload"></i><span class="text"> <?= lang('updates'); ?></span>
@@ -1525,6 +1574,16 @@
                                                   <span class="text"> <?= lang('bill_reprint'); ?></span>
                                               </a>
                                           </li>
+										     <li id="reports_nc_kot">
+                                              <a  class="submenu"  href="<?= admin_url('reports/nc_kot') ?>">
+                                                  <span class="text"> <?= lang('NC_Kot'); ?></span>
+                                              </a>
+                                          </li> 
+										  <li id="reports_nc_kot">
+                                              <a  class="submenu"  href="<?= admin_url('reports/resettlement') ?>">
+                                                  <span class="text"> <?= lang('resettlement'); ?></span>
+                                              </a>
+                                          </li> 
                                        </ul>
                                     </li>
                                     <li>
@@ -2529,6 +2588,35 @@
                                 </ul>
                             </li>
                             <?php } ?>
+                            
+                             <?php if ($GP['shiftmaster-index'] || $GP['shiftmaster-add']) { ?>
+                            <li class="mm_shiftmaster">
+                                <a class="dropmenu" href="#">
+                                    <i class="fa fa-credit-card"></i>
+                                    <span class="text"> <?= lang('shiftmaster'); ?> </span>
+                                    <span class="chevron closed"></span>
+                                </a>
+                                <ul>
+                                    <?php if ($GP['shiftmaster-index']) { ?> 
+                                    <li id="shiftmaster_list">
+                                        <a class="submenu" href="<?= admin_url('shiftmaster'); ?>">
+                                            <span class="text"> <?= lang('shiftmaster'); ?></span>
+                                        </a>
+                                    </li>
+                                    <?php } ?>
+                                    <?php if ($GP['shiftmaster-add']) { ?>
+                                     <li id="shiftmaster_add">
+                                        <a class="submenu" href="<?= admin_url('shiftmaster/add'); ?>">
+                                            <span class="text"> <?= lang('add_shiftmaster'); ?></span>
+                                        </a>
+                                    </li>  
+                                    <?php } ?> 
+                                      
+                                                           
+                                </ul>
+                            </li>
+                             <?php } ?>
+                            
                              <?php if ($GP['pos-printers'] || $GP['pos-add_printer'] || $GP['system_settings-payment_methods']|| $GP['system_settings-customfeedback']|| $GP['system_settings-change_logo']|| $GP['system_settings-currencies']|| $GP['system_settings-customer_groups']|| $GP['system_settings-categories'] || $GP['system_settings-recipecategories'] || $GP['system_settings-expense_categories'] || $GP['system_settings-units'] || $GP['system_settings-brands'] || $GP['system_settings-sales_type'] || $GP['system_settings-tax_rates'] || $GP['system_settings-discounts'] || $GP['system_settings-customer_discounts'] || $GP['system_settings-buy_get'] || $GP['system_settings-email_templates'] || $GP['system_settings-backups'] || $GP['system_settings-group_permissions'] || $GP['system_settings-bbq_menu']) { ?>
 <li class="mm_system_settings <?= strtolower($this->router->fetch_method()) == 'sales' ? '' : 'mm_pos' ?>">
                                     <a class="dropmenu" href="#">
@@ -2550,6 +2638,12 @@
                                             </a>
                                         </li>
                                         <?php } ?>
+                                        
+                                        <li id="system_settings_tills">
+                                            <a href="<?= admin_url('system_settings/tills') ?>">
+                                                <span class="text"> <?= lang('tills'); ?></span>
+                                            </a>
+                                        </li>
                                        
                                         <?php if ($GP['system_settings-payment_methods']) { ?>
                                         <li id="system_settings_paymentmethods">
@@ -2558,8 +2652,7 @@
                                             </a>
                                         </li>
                                         
-                                        <?php }
-                                        
+                                        <?php }                                        
                                         if ($GP['system_settings-bbq_menu']) { ?>
                                         <li id="system_settings_bbq_menu">
                                             <a href="<?= admin_url('system_settings/bbq_menu') ?>">
@@ -2740,19 +2833,19 @@
                     <div class="col-lg-12">
                         <?php if ($message) { ?>
                             <div class="alert alert-success">
-                                <button data-dismiss="alert" class="close" type="button">?</button>
+                                <button data-dismiss="alert" class="close" type="button">x</button>
                                 <?= $message; ?>
                             </div>
                         <?php } ?>
                         <?php if ($error) { ?>
                             <div class="alert alert-danger">
-                                <button data-dismiss="alert" class="close" type="button">?</button>
+                                <button data-dismiss="alert" class="close" type="button">x</button>
                                 <?= $error; ?>
                             </div>
                         <?php } ?>
                         <?php if ($warning) { ?>
                             <div class="alert alert-warning">
-                                <button data-dismiss="alert" class="close" type="button">?</button>
+                                <button data-dismiss="alert" class="close" type="button">x</button>
                                 <?= $warning; ?>
                             </div>
                         <?php } ?>

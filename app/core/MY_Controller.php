@@ -1,7 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 class MY_Controller extends CI_Controller {
-
     function __construct()
     {
         parent::__construct();
@@ -9,18 +8,68 @@ class MY_Controller extends CI_Controller {
         $this->pos_settings = $this->site->get_posSetting();
         ini_set('memory_limit',-1);
         //define('SOCKET_PORT',$this->Settings->socket_port);
-        //define('SOCKET_HOST',$this->Settings->socket_host);        
+        //define('SOCKET_HOST',$this->Settings->socket_host);  
         $thisStore = $this->site->getThisStore();        
         $this->isWarehouse = ($thisStore->type==1)?false:true;
         $this->isStore = ($thisStore->type==1)?true:false;
         $this->store_id = $thisStore->id;
         $this->store_name = $thisStore->name;
-
-        $this->centerdb_connected =  false;
-        if($this->isStore){
-            $this->center_server->connect();           
-        }
-
+		$this->myIp = getHostByName(php_uname('n'));
+		if(!empty($this->myIp)){
+			$counter = $this->site->getCounter($this->myIp);
+			if(!empty($counter)){
+				$this->till_name = $counter->till_name;
+				$this->till_id = $counter->id;
+			}else{
+				$this->till_name = 'N/A';
+				$this->till_id = 0;
+			}
+		}else{
+			$this->till_name = 'N/A';
+			$this->till_id = 0;
+		}
+		
+		$exitShift = $this->site->exitShift($this->till_id);
+		$continueShift = $this->site->continueShift($this->till_id);
+		$dontcontinueShift = $this->site->dontcontinueShift($this->till_id);
+		$getShiftmaster = $this->site->getShiftmaster();
+		
+		$this->currencies = $this->site->getAllCurrencies();
+		$this->defaultcurdata =  $this->site->defaultCurrencyData($this->Settings->default_currency);
+		if(!empty($getShiftmaster)){
+			$this->currentShift = $getShiftmaster;	
+		}else{
+			$this->currentShift = 0;
+		}
+		
+		if(!empty($exitShift)){
+			$this->isShiftCreated = 1;	
+			$this->exitShift = $exitShift;	
+		}else{
+			$this->isShiftCreated = 0;
+		}
+		$this->exitShift->id;
+		if(!empty($continueShift)){
+			$this->iscontinueShift = 1;	
+		}else{
+			$this->iscontinueShift = 0;
+		}
+		
+		if(!empty($dontcontinueShift)){
+			$this->dontcontinueShift = 1;	
+		}else{
+			$this->dontcontinueShift = 0;
+		}
+		
+		if($this->isShiftCreated == 1){
+			$this->ShiftID = $exitShift->id;
+		}else{
+			if($this->iscontinueShift == 1){
+				$this->ShiftID = $continueShift->id;
+			}else{
+				$this->ShiftID = 0;
+			}
+		}
 
         if($sma_language = $this->input->cookie('sma_language', TRUE)) {
             $this->config->set_item('language', $sma_language);
@@ -53,11 +102,6 @@ class MY_Controller extends CI_Controller {
         $this->loggedIn = $this->sma->logged_in();
 
         if($this->loggedIn) {
-            
-            if($this->isStore && $this->centerdb_connected){ 
-                $this->site->start_sync();
-            }
-
             if($this->Settings->transaction_date==1){
                 $this->site->set_cur_transaction_date();
             }
@@ -78,8 +122,14 @@ class MY_Controller extends CI_Controller {
             
             $this->data['pos_store_name'] = $this->session->userdata('store_name');
             /////// autobackup - end//////////////
-            // $this->data['isNightauditDone'] = ($this->Settings->night_audit_rights)?$this->site->getPreviousDayNightAudit($this->Settings->default_warehouse):1;
-            $this->data['isNightauditDone'] = ($this->Settings->night_audit_rights)?$this->site->getPreviousDayNightAudit($this->store_id):1;
+			
+			//-------------------- achrival start  -----------------//
+			 if($this->session->userdata('admin_panel') && $this->Settings->archival==1){
+                $this->load->library('archival');
+                @$this->archival->start();  
+            } 
+			//--------------------archival end     ----------------//
+            $this->data['isNightauditDone'] = ($this->Settings->night_audit_rights)?$this->site->getPreviousDayNightAudit($this->Settings->default_warehouse):1;
             $this->default_currency = $this->site->getCurrencyByCode($this->Settings->default_currency);
             $this->data['default_currency'] = $this->default_currency;
             $this->Owner = $this->sma->in_group('owner') ? TRUE : NULL;
@@ -151,6 +201,7 @@ class MY_Controller extends CI_Controller {
                 $this->load->library('gst');
             }
         }
+		date_default_timezone_set( $this->Settings->timezone);
     }
 
     function page_construct($page, $meta = array(), $data = array()) {

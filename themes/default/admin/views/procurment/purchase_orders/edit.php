@@ -676,12 +676,12 @@ $(document).ready(function(e) {
     }
     $bill_disc = $('.bill_disc').val();
     if ($bill_disc!=0) {        
-    localStorage.setItem('bill_disc',$bill_disc);    
+    localStorage.setItem('inv_bill_disc',$bill_disc);    
     }
 
-    $bill_disc_val = $('.bill_disc_val').val();
+    $bill_disc_val = $('.inv_bill_disc_percentage').val();
     if ($bill_disc_val!=0) {        
-    localStorage.setItem('bill_disc_val',$bill_disc_val);    
+    localStorage.setItem('inv_bill_disc_percentage',$bill_disc_val);    
     }
     
 

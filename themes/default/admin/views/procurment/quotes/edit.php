@@ -290,8 +290,17 @@
                                     <?= lang("request_date", "request_date") ?>
                                 </td>
                                 <td>
-                                <input type="datetime" name="requestdate" id="qu_requestdate" readonly class="form-control" value="<?php echo $inv->requestdate ?>">
+                                 <?php if($inv->requestdate !='0000-00-00 00:00:00') {
+                                          $requestdate = $inv->requestdate;
+                                    }else{
+                                        $requestdate = '';
+                                    }
+                                    ?>
+                                <input type="text" name="requestdate" id="qu_requestdate" readonly class="form-control" value="<?= $requestdate ?>">
                                 </td>
+
+                               <!--  <input type="datetime" name="requestdate" id="qu_requestdate" readonly class="form-control" value="<?php echo $inv->requestdate ?>"> -->
+                                
                                 <td width="150px">
                                     <?= lang("quotation_request_number", "quotation_request_number"); ?>
                                 </td>
@@ -360,6 +369,7 @@
                                             <th class="col-md-2"><?= lang("Brand"); ?></th>
                                             <th class="col-md-2"><?= lang("Cost.Price"); ?></th>
                                             <th class="col-md-2"><?= lang("Quantity"); ?></th>
+                                            <th class="col-md-2"><?= lang("uom"); ?></th>
                                             <th class="col-md-2"><?= lang("Selling.Price"); ?></th>
 											<th class="col-md-1" style="text-align: center;">
                                                   <i class="fa fa-trash-o"
@@ -531,7 +541,13 @@ $(document).on('change', '#qu_requestnumber', function(){
 			
 
 			localStorage.setItem('qu_requestnumber',  quotes_value["id"]);
-			localStorage.setItem('qu_requestdate',  quotes_value["date"]);
+            if(quotes_value["date"] !='0000-00-00 00:00:00'){
+                quotes_value = quotes_value["date"];
+            }else{
+                quotes_value ='';
+            }
+            
+			localStorage.setItem('qu_requestdate',  quotes_value);
 			localStorage.setItem('qu_warehouse', quotes_value["warehouse_id"]);
 			localStorage.setItem('qu_note', quotes_value["note"]);
 			localStorage.setItem('qu_discount', 0);

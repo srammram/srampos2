@@ -1,0 +1,4 @@
+Php ini file:
+	under line extension=php_ftp.dll
+
+	Add extension=php_imagick.dll

@@ -1,23 +1,17 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Request_model extends CI_Model
-{
-
-    public function __construct()
-    {
+class Request_model extends CI_Model{
+    public function __construct(){
         parent::__construct();
     }
-
-    public function getProductNames($term, $limit = 10)
-    {
+    public function getProductNames($term, $limit = 10){
         $type = array('standard','raw');
         $this->db->select('r.*,t.rate as purchase_tax_rate');
         $this->db->from('recipe r');
         $this->db->join('tax_rates t','r.purchase_tax=t.id','left');
-            $this->db->where("(r.name LIKE '%" . $term . "%' OR r.code LIKE '%" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '%" . $term . "%')");
-            $this->db->where_in('r.type',$type);
+        $this->db->where("(r.name LIKE '%" . $term . "%' OR r.code LIKE '%" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '%" . $term . "%')");
+        $this->db->where_in('r.type',$type);
         $this->db->limit($limit);
-        
             $q = $this->db->get();
             if ($q->num_rows() > 0) {
                 foreach (($q->result()) as $row) {
@@ -28,8 +22,7 @@ class Request_model extends CI_Model
             return FALSE;
     }
 
-    public function getProductByCode($code)
-    {
+    public function getProductByCode($code){
         $q = $this->db->get_where('products', array('code' => $code), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -37,8 +30,7 @@ class Request_model extends CI_Model
         return FALSE;
     }
 
-    public function getWHProduct($id)
-    {
+    public function getWHProduct($id){
         $this->db->select('products.id, code, name, warehouses_products.quantity, cost, tax_rate')
             ->join('warehouses_products', 'warehouses_products.product_id=products.id', 'left')
             ->group_by('products.id');
@@ -48,9 +40,7 @@ class Request_model extends CI_Model
         }
         return FALSE;
     }
-
-    public function getItemByID($id)
-    {
+    public function getItemByID($id){
         $q = $this->db->get_where('pro_request_items', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -58,15 +48,16 @@ class Request_model extends CI_Model
         return FALSE;
     }
 
-    public function getAllRequestItemsWithDetails($request_id)
-    {
-        $this->db->select('p.*');
+    public function getAllRequestItemsWithDetails($request_id){
+        $this->db->select('p.*,u.name as unit_name');
         $this->db->from('pro_request_items as p');
-	$this->db->join('recipe as r', 'r.id=p.product_id', 'left');
+        $this->db->join('recipe as r', 'r.id=p.product_id', 'left');
+        $this->db->join('units u','u.id=r.unit','left');
         $this->db->order_by('id', 'asc');
         $this->db->where(array('request_id' => $request_id));
-	//echo $this->db->get_compiled_select();
-	$q = $this->db->get();
+	   //echo $this->db->get_compiled_select();
+	   $q = $this->db->get();
+      //print_r($this->db->last_query());die;
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -75,8 +66,7 @@ class Request_model extends CI_Model
         }
     }
 
-    public function getRequestByID($id)
-    {
+    public function getRequestByID($id){
         $q = $this->db->get_where('pro_request', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -84,8 +74,7 @@ class Request_model extends CI_Model
         return FALSE;
     }
 
-    public function getAllRequestItems($request_id)
-    {
+    public function getAllRequestItems($request_id){
         $this->db->select('pro_store_request.from_store_id as store_id,pro_store_request_items.*, tax_rates.code as tax_code, tax_rates.name as tax_name, tax_rates.rate as tax_rate, recipe.unit, recipe.image, recipe.details as details, recipe_variants.name as variant, recipe.hsn_code as hsn_code, ')
             ->join('recipe', 'recipe.id=pro_store_request_items.product_id', 'left')
             ->join('recipe_variants', 'recipe_variants.id=pro_store_request_items.option_id', 'left')
@@ -105,11 +94,7 @@ class Request_model extends CI_Model
         return FALSE;
     }
 
-    public function addRequest($data = array(), $items = array(), $reference, $date, $status, $un,$store_request_id)
-    {
-        //echo "<pre>";
-        //print_r($data);//die;
-        
+    public function addRequest($data = array(), $items = array(), $reference, $date, $status, $un,$store_request_id){
             foreach ($data as $key =>  $request_data) {
             $this->db->insert('pro_request', $request_data);// print_r($this->db->error());  exit;         
             $request_id = $this->db->insert_id();     
@@ -147,8 +132,7 @@ class Request_model extends CI_Model
     }
 
 
-    public function updateRequest($id, $data, $items = array())
-    {
+    public function updateRequest($id, $data, $items = array()){
         if ($this->db->update('pro_request', $data, array('id' => $id)) && $this->db->delete('pro_request_items', array('request_id' => $id))) {
             foreach ($items as $item) {
                 $item['request_id'] = $id;
@@ -159,8 +143,7 @@ class Request_model extends CI_Model
         return false;
     }
 
-    public function updateStatus($id, $status, $note)
-    {
+    public function updateStatus($id, $status, $note){
         if ($this->db->update('pro_request', array('status' => $status, 'note' => $note), array('id' => $id))) {
             return true;
         }
@@ -168,17 +151,14 @@ class Request_model extends CI_Model
     }
 
 
-    public function deleteRequest($id)
-    {
-        
+    public function deleteRequest($id){
         if ($this->db->delete('pro_request_items', array('request_id' => $id)) && $this->db->delete('pro_request', array('id' => $id))) {
             return true;
         }        
         return FALSE;
     }
 
-    public function getProductByName($name)
-    {
+    public function getProductByName($name){
         $q = $this->db->get_where('products', array('name' => $name), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -186,8 +166,7 @@ class Request_model extends CI_Model
         return FALSE;
     }
 
-    public function getWarehouseProductQuantity($warehouse_id, $product_id)
-    {
+    public function getWarehouseProductQuantity($warehouse_id, $product_id){
         $q = $this->db->get_where('warehouses_products', array('warehouse_id' => $warehouse_id, 'product_id' => $product_id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -195,8 +174,7 @@ class Request_model extends CI_Model
         return FALSE;
     }
 
-    public function getProductComboItems($pid, $warehouse_id)
-    {
+    public function getProductComboItems($pid, $warehouse_id){
         $this->db->select('products.id as id, combo_items.item_code as code, combo_items.quantity as qty, products.name as name, products.type as type, warehouses_products.quantity as quantity')
             ->join('products', 'products.code=combo_items.item_code', 'left')
             ->join('warehouses_products', 'warehouses_products.product_id=products.id', 'left')
@@ -212,8 +190,7 @@ class Request_model extends CI_Model
         }
         return FALSE;
     }
-    public function getProductOptions($product_id)
-    {
+    public function getProductOptions($product_id){
         $q = $this->db->get_where('recipe_variants', array('recipe_id' => $product_id));
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -242,16 +219,14 @@ class Request_model extends CI_Model
         return FALSE;
     }*/
 
-    public function getProductOptionByID($id)
-    {
+    public function getProductOptionByID($id){
         $q = $this->db->get_where('product_variants', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
         }
         return FALSE;
     }
-    public function getStoreRequestByID($id)
-    {
+    public function getStoreRequestByID($id){
         $this->db->select()
         ->from('pro_store_request')        
         ->where_in('id',($id));        
@@ -262,8 +237,7 @@ class Request_model extends CI_Model
         }
         return FALSE;
     }
-        public function getStoreRequestItems($store_requestid)
-    {
+   public function getStoreRequestItems($store_requestid){
         $this->db->select('pro_store_request_items.*, tax_rates.code as tax_code, tax_rates.name as tax_name, tax_rates.rate as tax_rate, recipe.unit, recipe.details as details, recipe_variants.name as variant, recipe.hsn_code as hsn_code')
             ->join('recipe', 'recipe.id=pro_store_request_items.product_id', 'left')
             ->join('recipe_variants', 'recipe_variants.id=pro_store_request_items.option_id', 'left')
@@ -280,7 +254,6 @@ class Request_model extends CI_Model
         return FALSE;
     }
     public function getAllSTOREREQUEST(){
-
         $this->db->select('pro_store_request.*, warehouses.name as store_name')
             ->join('warehouses', 'warehouses.id=pro_store_request.from_store_id', 'left');            
             $this->db->where('status', 'approved');
@@ -290,11 +263,9 @@ class Request_model extends CI_Model
             foreach (($q->result()) as $row) {
                 $data[] = $row;
             }
-
             return $data;
         }
         return FALSE;
-
         $this->db->where('status', 'approved');
         $this->db->or_where('status', 'partial_complete');
         $q = $this->db->get('pro_store_request');
@@ -306,4 +277,13 @@ class Request_model extends CI_Model
         }
         return FALSE;
     }
+    public function checkrequeststatus($id){
+        $this->db->where('status', 'process');             
+        $this->db->where('pro_request.id', $id);
+        $q = $this->db->get('pro_request');
+        if ($q->num_rows() > 0) {
+            return FALSE;
+        }
+        return TRUE;
+    }    
 }

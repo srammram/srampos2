@@ -1,0 +1,10 @@
+ALTER TABLE `srampos_bils` ADD `store_id` INT NOT NULL AFTER `seats`, ADD `till_id` INT NOT NULL AFTER `store_id`, ADD `shift_id` INT NOT NULL AFTER `till_id`;
+ALTER TABLE `srampos_orders` ADD `store_id` INT NOT NULL AFTER `waiter_id`, ADD `till_id` INT NOT NULL AFTER `store_id`, ADD `shift_id` INT NOT NULL AFTER `till_id`;
+ALTER TABLE `srampos_sales` ADD `store_id` INT NOT NULL AFTER `table_whitelisted`, ADD `till_id` INT NOT NULL AFTER `store_id`, ADD `shift_id` INT NOT NULL AFTER `till_id`;
+ALTER TABLE `srampos_bbq` ADD `store_id` INT NOT NULL AFTER `order_request`, ADD `till_id` INT NOT NULL AFTER `store_id`, ADD `shift_id` INT NOT NULL AFTER `till_id`;
+
+
+ ALTER TABLE `srampos_bils_archival` ADD `store_id` INT NOT NULL AFTER `seats`, ADD `till_id` INT NOT NULL AFTER `store_id`, ADD `shift_id` INT NOT NULL AFTER `till_id`;
+ALTER TABLE `srampos_orders_archival` ADD `store_id` INT NOT NULL AFTER `waiter_id`, ADD `till_id` INT NOT NULL AFTER `store_id`, ADD `shift_id` INT NOT NULL AFTER `till_id`;
+ALTER TABLE `srampos_sales_archival` ADD `store_id` INT NOT NULL AFTER `table_whitelisted`, ADD `till_id` INT NOT NULL AFTER `store_id`, ADD `shift_id` INT NOT NULL AFTER `till_id`;
+ALTER TABLE `srampos_bbq_archival` ADD `store_id` INT NOT NULL AFTER `order_request`, ADD `till_id` INT NOT NULL AFTER `store_id`, ADD `shift_id` INT NOT NULL AFTER `till_id`;

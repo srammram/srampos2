@@ -192,7 +192,7 @@ class Companies_model extends CI_Model
 function getCustomerSuggestions($term, $limit = 10){
 
     $this->db->select("C.id, (CASE WHEN C.company = '-' THEN C.name ELSE CONCAT(C.company, ' (', C.name, ')') END) as text", FALSE);
-        $this->db->from('companies C');
+    $this->db->from('companies C');
     $this->db->join('loyalty_points LP','LP.customer_id=C.id','left');    
     $this->db->where(" (C.id LIKE '%" . $term . "%' OR C.name LIKE '%" . $term . "%' OR C.company LIKE '%" . $term . "%' OR C.email LIKE '%" . $term . "%' OR C.phone LIKE '%" . $term . "%') ");
     $this->db->where('C.group_name', 'customer');    
@@ -210,7 +210,29 @@ function getCustomerSuggestions($term, $limit = 10){
         return '';
     }
 
+function getCustomerSuggestions_with_discount_card($term, $limit = 10){
 
+    $this->db->select("C.id, (CASE WHEN C.company = '-' THEN C.name ELSE CONCAT(C.company, ' (', C.name, ')') END) as text", FALSE);
+    $this->db->from('companies C');
+    $this->db->join('loyalty_points LP','LP.customer_id=C.id','left');  
+	$this->db->join('memberdisountcard_issued mci','mci.customer_id=C.id','left');
+	$this->db->join('memberdiscountcards mdc','mdc.id=mci.card_id','left');  	
+    $this->db->where(" (C.id LIKE '%" . $term . "%' OR C.name LIKE '%" . $term . "%' OR C.company LIKE '%" . $term . "%' OR C.email LIKE '%" . $term . "%' OR C.phone LIKE '%" . $term . "%') ");
+    $this->db->or_where('mdc.card_no', $term);    
+	$this->db->where('C.group_name', 'customer');    
+    $this->db->or_where('LP.total_points >',0);
+    $this->db->or_where('LP.loyalty_card_no !=', '') ;  
+    $this->db->limit($limit);
+    $q = $this->db->get();  
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+
+            return $data;
+        }
+        return '';
+    }
     public function getSupplierSuggestions($term, $limit = 10)
     {
         $this->db->select("id, (CASE WHEN company = '-' THEN name ELSE CONCAT(company, ' (', name, ')') END) as text", FALSE);

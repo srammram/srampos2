@@ -1,0 +1,3 @@
+ALTER TABLE `srampos_pro_stock_master` ADD `stock_in_piece` INT NOT NULL AFTER `stock_in`
+
+ALTER TABLE `srampos_pro_stock_master` ADD `stock_out_piece` DECIMAL(10,2) NOT NULL AFTER `stock_out`;

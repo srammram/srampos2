@@ -85,7 +85,6 @@
 
                         </div>
                         <div class="col-md-4">
-
                             <div class="form-group">
                                 <?= lang('status', 'status'); ?>
                                 <?php
@@ -93,10 +92,16 @@
                                 echo form_dropdown('status', $opt, (isset($_POST['status']) ? $_POST['status'] : ''), 'id="status" required="required" class="form-control select" style="width:100%;"');
                                 ?>
                             </div>
-                            
-                            
-                           
-                            
+							 <div class="form-group">
+                            <?= lang("area", "area"); ?>
+                            <?php
+							  $fl[""] = lang('All');
+                            foreach ($areas as $area) {  ?>
+                                    <div class="col-md-12"><label><input type="checkbox" name="area_id[]" value="<?=$area->id?>"><?=$area->name?></label></div>
+                             <?php     }
+                          
+                            ?>
+                            </div>
                         <div class="form-group">
                             <?= lang("group", "group"); ?>
                             <?php
@@ -150,6 +155,7 @@
                                 <?= lang("allow_discount", "allow_discount"); ?>
                                 <?= form_dropdown('allow_discount', $opts, (isset($_POST['allow_discount']) ? $_POST['allow_discount'] : 0), 'id="allow_discount" class="form-control select" style="width:100%;"'); ?>
                             </div>
+							
                            <!-- <div class="form-group max-discount" style="display:none;">
                                 <?= lang("Max_discount_percentage", "max_discount_percent"); ?>
                                  <input type="text" id="max_discount_percent" maxlength=3 name="max_discount_percent" value="<?=(isset($_POST['max_discount_percent']) ? $_POST['max_discount_percent'] : '')?>" class="form-control numberonly"/>

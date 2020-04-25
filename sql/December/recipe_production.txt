@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_recipe_products` CHANGE `variant_id` `variant_id` INT(4) NOT NULL; 

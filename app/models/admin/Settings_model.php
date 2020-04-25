@@ -1,13 +1,10 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Settings_model extends CI_Model
-{
-
+class Settings_model extends CI_Model{
     public function __construct()
     {
         parent::__construct();
     }
-
     public function updateLogo($photo)
     {
         $logo = array('logo' => $photo);
@@ -701,19 +698,28 @@ public function deleteTaxRate($id)
     	$this->db->insert('buy_get', $buy_array);
 		$buy_get_id = $this->db->insert_id();
         if ($buy_get_id) {
+                $item_array['buy_get_id'] = $buy_get_id;
+				$this->db->insert('buy_get_items', $item_array);
 			
-			foreach($item_array as $item){
-                $item['buy_get_id'] = $buy_get_id;
-				$this->db->insert('buy_get_items', $item);
-			}
+            return true;
+        }
+        return false;
+    }
+		public function editBuy($buy_array = array(), $item_array = array(),$id){
+		$this->db->where("id",$id);
+    	if($this->db->update('buy_get', $buy_array)){
+			$this->db->where('buy_get_id',$id);
+			$this->db->delete("buy_get_items");
+                $item_array['buy_get_id'] = $id;
+				$this->db->insert('buy_get_items', $item_array);
+			
             return true;
         }
         return false;
     }
 	
-	public function editDiscount($discount_array = array(), $item_array = array(), $condition_array = array(), $id = NULL)
-    {
-                $this->db->where(array('id' => $id));
+	public function editDiscount($discount_array = array(), $item_array = array(), $condition_array = array(), $id = NULL){
+        $this->db->where(array('id' => $id));
 		$this->db->update('discounts',$discount_array);
 		$this->db->delete('discount_items', array('discount_id' => $id));
 		$this->db->delete('discount_conditions', array('discount_id' => $id));
@@ -807,8 +813,7 @@ public function deleteTaxRate($id)
         return FALSE;
     }
 	
-	 public function getBuyByID($id)
-    {
+ public function getBuyByID($id){
         $q = $this->db->get_where('buy_get', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -816,17 +821,13 @@ public function deleteTaxRate($id)
         return FALSE;
     }
 
-    public function addWarehouse($data)
-    {
-	
+    public function addWarehouse($data){
         $this->db->insert('warehouses', $data);//file_put_contents('tttt.txt',json_encode($this->db->error()),FILE_APPEND);
         $insert_id =  $this->db->insert_id();
-        
        return $insert_id;
     }
 
-    public function updateWarehouse($id, $data = array())
-    {
+    public function updateWarehouse($id, $data = array()){
         $this->db->where('id', $id);
         if ($this->db->update('warehouses', $data)) {
             return true;
@@ -838,10 +839,10 @@ public function deleteTaxRate($id)
 		$this->db->where('buy_get_id', $id);
 		$q = $this->db->get('buy_get_items');
         if ($q->num_rows() > 0) {
-            foreach (($q->result()) as $row) {
+            /* foreach (($q->result()) as $row) {
                 $data[] = $row;
-            }
-            return $data;
+            } */
+            return $q->row();
         }
         return FALSE;
 	}
@@ -878,8 +879,7 @@ public function deleteTaxRate($id)
         return FALSE;
     }
 	
-	public function deleteDiscount($id)
-    {
+	public function deleteDiscount($id){
         $this->db->delete('discounts', array('id' => $id));
 	    $this->db->delete('discount_conditions', array('discount_id' => $id));
 	    $itemsType = $this->db->get_where('discount_items', array('discount_id' => $id))->result();
@@ -888,7 +888,6 @@ public function deleteTaxRate($id)
 		$this->db->delete('discount_item_list', array('discount_item_id' => $row->id));
 	    }
             return true;
-        
         return FALSE;
     }
 
@@ -1041,10 +1040,10 @@ public function deleteTaxRate($id)
 	if(!$this->getUserByID($id)){
 	    $data['user_id'] = $id;
 	    $this->db->insert('user_permissions',$data);
+		
 	    return $this->db->insert_id();
 	}else{
 	  if ($this->db->update('user_permissions', $data, array('user_id' => $id))) {
-			
             return true;
 	    }  
 	}	
@@ -1507,6 +1506,52 @@ public function getBBQMenus()
     public function deleteSales_type($id)
     {
         if ($this->db->delete('sales_type', array('id' => $id))) {
+            return true;
+        }
+        return FALSE;
+    }
+	
+	public function addTills($data)
+    {
+        if ($this->db->insert('tills', $data)) {
+            return true;
+        }
+        return false;
+    }
+
+    public function updateTills($id, $data = array())
+    {
+        $this->db->where('id', $id);
+        if ($this->db->update('tills', $data)) {
+            return true;
+        }
+        return false;
+    }
+
+    public function getAllTills()
+    {
+        $q = $this->db->get('tills');
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return FALSE;
+    }
+
+    public function getTillsByID($id)
+    {
+        $q = $this->db->get_where('tills', array('id' => $id), 1);
+        if ($q->num_rows() > 0) {
+            return $q->row();
+        }
+        return FALSE;
+    }
+
+    public function deleteTills($id)
+    {
+        if ($this->db->delete('tills', array('id' => $id))) {
             return true;
         }
         return FALSE;
@@ -2182,52 +2227,112 @@ public function getBBQMenus()
         }
         return FALSE;
     }
-/*Sales Syn 14-10-2019*/  
-    function update_sync_tables($db_tables){
-        $selected_ids = array();  
-        foreach($db_tables as $k => $type){
-            $q = $this->db->get_where('sync_settings',array('type'=>$type));
-            if($q->num_rows()>0){
-                $u_data['enable_sync'] = 1;
-                $this->db->where(array('type'=>$type));
-                $this->db->update('sync_settings',$u_data);               
-                array_push($selected_ids,$q->row('id'));
-            }else{
-                $i_data['enable_sync'] = 1;
-                $i_data['type'] = $type;
-                $this->db->insert('sync_settings',$i_data);
-                $insertID = $this->db->insert_id();
-                array_push($selected_ids,$insertID);
-            }
+	function delete_buy_x_get_x($id){
+		$this->db->where("id",$id);
+		if($this->db->delete("buy_get")){
+			$this->db->where("buy_get_id",$id);
+			$this->db->delete("buy_get_items");
+			return true;
+		}
+		return false;
+	}
+	function update_buy_x_status($id,$status){
+	$data['status'] = $status;
+	$this->db->update("buy_get", $data, array('id' => $id));
+	return true;
+    }
+	function get_recipe_variant($recipeid){
+		$this->db->select("recipe_variants.*");
+		$this->db->join("recipe_variants","recipe_variants.id=recipe_variants_values.attr_id");
+		$this->db->where("recipe_variants_values.recipe_id",$recipeid);
+		$q=$this->db->get("recipe_variants_values");
+		if($q->num_rows()>0){
+			foreach($q->result() as $row){
+				$data[]=$row;
+			}
+			return $data;
+		}
+		return false;
+	}
+	
+	public function addWallets($data)    {
+        if ($this->db->insert('wallet_master', $data)) {
+            return true;
         }
-        if(!empty($selected_ids)){
-                $d_data['enable_sync'] = 0;
-                $this->db->where_not_in('id',$selected_ids);
-                $this->db->update('sync_settings',$d_data);
-        }else{
-            $d_data['enable_sync'] = 0;            
-            $this->db->update('sync_settings',$d_data);
-        }
+        return false;
     }
 
-    function getSyncEnabledTables(){
-        $q = $this->db->get_where('sync_settings',array('enable_sync'=>1));
-        if($q->num_rows()>0){
-            $types = array();
-            foreach($q->result() as $k => $row){
-                array_push($types,$row->type);
-            }
-            return $types;
+    public function updateWallets($id, $data = array()){
+        $this->db->where('id', $id);
+        if ($this->db->update('wallet_master', $data)) {
+            return true;
         }
+        return false;
     }
-    function getSyncDeniedTables(){
-        $table_names = array(
-            'sales','sale_items','payments','sale_currency','suspended_bills','suspended_items','sales_order','sales_order_items','sessions',
-            'user_logins','logos'
-        );
-        
-        return $table_names;
-    }    
-/*Sales Syn*/ 
+    public function getWallets(){
+        $q = $this->db->get('wallet_master');
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return FALSE;
+    }
 
+    public function getWalletsByID($id){
+        $q = $this->db->get_where('wallet_master', array('id' => $id), 1);
+        if ($q->num_rows() > 0) {
+            return $q->row();
+        }
+        return FALSE;
+    }
+
+    public function deleteWallets($id){
+		  $this->db->where("id",$id);
+        if ($this->db->update('wallet_master', array('active' => 0))) {
+            return true;
+        }
+        return FALSE;
+    }
+	
+	public function addNCKotMater($data)    {
+        if ($this->db->insert('nc_kot_type_master', $data)) {
+            return true;
+        }
+        return false;
+    }
+    public function updateNCKotMaster($id, $data = array()){
+        $this->db->where('id', $id);
+        if ($this->db->update('nc_kot_type_master', $data)) {
+            return true;
+        }
+        return false;
+    }
+    public function getNCKotMaster(){
+        $q = $this->db->get('nc_kot_type_master');
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return FALSE;
+    }
+
+    public function getNCKotMasterByID($id){
+        $q = $this->db->get_where('nc_kot_type_master', array('id' => $id), 1);
+        if ($q->num_rows() > 0) {
+            return $q->row();
+        }
+        return FALSE;
+    }
+
+    public function deleteNCKotMaster($id){
+		  $this->db->where("id",$id);
+        if ($this->db->update('nc_kot_type_master', array('active' => 0))) {
+            return true;
+        }
+        return FALSE;
+    }
 }

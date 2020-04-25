@@ -19,6 +19,7 @@
             localStorage.setItem('reqcustomer', <?=$this->input->get('customer');?>);
         }
         <?php } ?>
+        $("#reqdate").prop('disabled', true);
         <?php //if ($Owner || $Admin) { ?>
         if (!localStorage.getItem('reqdate')) {
             $("#reqdate").datetimepicker({
@@ -280,7 +281,7 @@
                         </table>
                      </div>  
 
-                        <div class="col-md-12">
+                        <div class="col-md-12" style="display: none">
                             <div class="control-group table-group">
                                 <label class="table-label"><?= lang("Store_request_list"); ?></label>
                                 <div class="controls table-controls">
@@ -357,7 +358,8 @@
                                              <th class="col-md-2"><?= lang("Category"); ?></th>
                                             <th class="col-md-2"><?= lang("Subcategory"); ?></th>
                                             <th class="col-md-2"><?= lang("Brand"); ?></th>
-                                            <th class="col-md-2"><?= lang("qantity"); ?></th>
+                                            <th class="col-md-2"><?= lang("quantity"); ?></th>
+                                            <th class="col-md-2"><?= lang("uom"); ?></th>
                                             <th class="col-md-2"><?= lang("Cost.Price"); ?></th>
                                             <th class="col-md-2"><?= lang("Selling.Price"); ?></th>
                                            <th class="col-md-1" style="text-align: center;"><i
@@ -596,7 +598,7 @@ $(document).ready(function(e) {
    $selecte_stores = localStorage.getItem("store_id_check");
    
    if ($selecte_stores==null || $selecte_stores=="[]") {
-    localStorage.removeItem('reqitems');
+    //localStorage.removeItem('reqitems');
    }
 
 $('.store_id').on('ifChecked', function(event){       

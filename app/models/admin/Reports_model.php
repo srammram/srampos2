@@ -1,15 +1,11 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Reports_model extends CI_Model
-{
-
+class Reports_model extends CI_Model{
     public function __construct()
     {
         parent::__construct();
     }
-
-    public function getProductNames($term, $limit = 5)
-    {
+    public function getProductNames($term, $limit = 5){
         $this->db->select('id, code, name')
             ->like('name', $term, 'both')->or_like('code', $term, 'both');
         $this->db->limit($limit);
@@ -22,16 +18,14 @@ class Reports_model extends CI_Model
         }
         return FALSE;
     }
-  function getSettings()
-    {
+  function getSettings(){
         $q = $this->db->get('settings');
         if ($q->num_rows() > 0) {
             return $q->row();
         }
         return FALSE;
     }
-      function getshifttime()
-    {
+    function getshifttime(){
          $this->db->where('status', 1);
         $q = $this->db->get('shift_time');
          if ($q->num_rows() > 0) {
@@ -58,9 +52,7 @@ class Reports_model extends CI_Model
         return FALSE;
     }
 
-    public function getSalesTotals($customer_id)
-    {
-
+    public function getSalesTotals($customer_id){
         $this->db->select('SUM(COALESCE('.$this->db->dbprefix('sales').'.grand_total, 0)) as total_amount, SUM(COALESCE('.$this->db->dbprefix('sales').'.paid, 0)) as paid', FALSE)
         ->join('bils b','b.sales_id=sales.id')
             ->where('sales.customer_id', $customer_id);
@@ -74,8 +66,7 @@ class Reports_model extends CI_Model
         return FALSE;
     }
 
-    public function getCustomerSales($customer_id)
-    {
+    public function getCustomerSales($customer_id){
         $this->db->from('sales')->where('sales.customer_id', $customer_id);
         $this->db->join('bils b','b.sales_id=sales.id');
         if(!$this->Owner && !$this->Admin){
@@ -83,7 +74,6 @@ class Reports_model extends CI_Model
             }
         return $this->db->count_all_results();
     }
-
     public function getCustomerQuotes($customer_id)
     {
         $this->db->from('quotes')->where('customer_id', $customer_id);
@@ -762,7 +752,7 @@ class Reports_model extends CI_Model
         return FALSE;
     }    
 
-public function getItemSaleReports($start,$end,$warehouse_id,$varient_id,$limit,$offset,$report_view_access,$report_show,$category_id,$subcategory_id,$recipe_id){
+public function getItemSaleReports($start,$end,$warehouse_id,$varient_id,$limit,$offset,$report_view_access,$report_show,$category_id,$subcategory_id,$recipe_id,$discount_status){
 
        $where ='';
         if($warehouse_id != 0)
@@ -854,6 +844,143 @@ public function getItemSaleReports($start,$end,$warehouse_id,$varient_id,$limit,
                     {
                        $where .= "AND BI.recipe_id =".$recipe_id."";
                     }
+					if(!empty($discount_status)){
+						 $discount_status= $discount_status ==2?'Paid':'Complimentary';
+						 $where .= "AND BI.item_type ='".$discount_status."'";
+					}
+                    /*$myQuery = "SELECT R.price AS rate,WH.name as warehouse,R.name,SUM(BI.item_discount) AS item_discount,SUM(BI.off_discount) AS off_discount,SUM(BI.input_discount) AS input_discount,SUM(BI.quantity) AS quantity,SUM(BI.tax) AS tax1,SUM(BI.subtotal-CASE WHEN (BI.tax_type= 0) THEN BI.tax ELSE 0 END) as subtotal,SUM(BI.subtotal-BI.item_discount-BI.off_discount-BI.input_discount+CASE WHEN (BI.tax_type = 1) THEN BI.tax ELSE 0 END) as amt,SUM(CASE WHEN BI.tax_type = 1 THEN BI.tax ELSE 0 END) AS tax,SUM(CASE WHEN BI.tax_type = 0 THEN BI.tax ELSE 0 END) AS inclusive_tax,SUM(CASE WHEN BI.tax_type = 1 THEN BI.tax ELSE 0 END) AS exclusive_tax
+                    FROM " . $this->db->dbprefix('bil_items') . " BI
+                    JOIN " . $this->db->dbprefix('recipe') . " R ON R.id = BI.recipe_id
+                    JOIN " . $this->db->dbprefix('bils') . " B ON B.id = BI.bil_id
+                    JOIN " . $this->db->dbprefix('warehouses') . " WH ON WH.id = B.warehouse_id
+                    WHERE DATE(B.date) BETWEEN '".$start."' AND '".$end."' AND
+                    R.subcategory_id =".$sow->sub_id." AND  B.payment_status ='Completed'" .$where. " GROUP BY R.id " ; */
+
+                     $myQuery = "SELECT BI.recipe_variant,BI.unit_price AS rate,WH.name as warehouse,R.name,SUM(BI.item_discount) AS item_discount,SUM(BI.off_discount) AS off_discount,SUM(BI.input_discount) AS input_discount,SUM(BI.quantity) AS quantity,SUM(BI.tax) AS tax1,SUM(BI.subtotal-CASE WHEN (BI.tax_type= 0) THEN BI.tax ELSE 0 END)+BI.service_charge_amount as subtotal,SUM(BI.subtotal-BI.item_discount-BI.off_discount-BI.input_discount-BI.manual_item_discount+CASE WHEN (BI.tax_type = 1) THEN BI.tax ELSE 0 END)+BI.service_charge_amount as amt,SUM(CASE WHEN BI.tax_type = 1 = 1 THEN BI.tax ELSE 0 END) AS tax,SUM(BI.service_charge_amount) AS service_charge_amount,CASE WHEN RV.name  is NOT NULL THEN RV.name ELSE 'No Variant' END AS variant,CASE
+					WHEN BI.item_type ='Paid' THEN 'Paid'  ELSE 'Complimentary'   END AS item_saled_type
+                FROM " . $this->db->dbprefix('bil_items') . " BI
+                JOIN " . $this->db->dbprefix('recipe') . " R ON R.id = BI.recipe_id
+                JOIN " . $this->db->dbprefix('bils') . " B ON B.id = BI.bil_id
+                JOIN " . $this->db->dbprefix('warehouses') . " WH ON WH.id = BI.warehouse_id
+                LEFT JOIN " . $this->db->dbprefix('recipe_variants') . " RV ON RV.id = BI.recipe_variant_id
+                WHERE DATE(B.date) BETWEEN '".$start."' AND '".$end."' AND 
+                R.subcategory_id =".$sow->sub_id." AND  B.payment_status ='Completed'" .$where. " GROUP BY R.id,BI.recipe_variant_id,item_type" ;
+                    $o = $this->db->query($myQuery);
+                        $split[$row->cate_id][] = $sow;
+                        if ($o->num_rows() > 0) {                                    
+                            foreach($o->result() as $oow){
+                                $order[$sow->sub_id][] = $oow;
+                            }
+                        }
+                        $sow->order = $order[$sow->sub_id];                   
+                }                    
+                        $row->split_order = $split[$row->cate_id];
+        }else{
+            $row->split_order = array();
+        }                
+        $data[] = $row;
+
+            }
+            //echo $total->num_rows();
+           // print_R($data);exit;
+            return array('data'=>$data,'total'=>$total->num_rows());
+        }        
+        return FALSE;   
+    }  
+
+
+public function getItemSaleReports_archival($start,$end,$warehouse_id,$varient_id,$limit,$offset,$report_view_access,$report_show,$category_id,$subcategory_id,$recipe_id){
+
+       $where ='';
+        if($warehouse_id != 0)
+        {
+            $where = "AND B.warehouse_id =".$warehouse_id."";
+        }
+		
+		if($varient_id != 0)
+        {
+            $where .= "AND BI.recipe_variant_id =".$varient_id."";
+        }
+        if($recipe_id != 0)
+        {
+            $where .= "AND BI.recipe_id =".$recipe_id."";
+        }
+		
+
+        if($report_view_access != 1)
+         {
+             $where .= " AND B.table_whitelisted = ".$report_show." ";
+         }        
+
+        if($category_id != 0)
+        {
+            $where .= " AND R.category_id =".$category_id."";
+        }
+
+        if($subcategory_id != 0)
+        {
+            $where .= " AND R.subcategory_id =".$subcategory_id."";
+        }
+        $category = "SELECT RC.id AS cate_id,RC.name as category, 'split_order' 
+        FROM " . $this->db->dbprefix('recipe_categories') . " RC
+        JOIN " . $this->db->dbprefix('recipe') . " R ON  R.category_id = RC.id
+        JOIN " . $this->db->dbprefix('bil_items_archival') . " BI ON BI.recipe_id = R.id
+        JOIN " . $this->db->dbprefix('bils_archival') . " B ON B.id = BI.bil_id        
+        WHERE DATE(B.date) BETWEEN '".$start."' AND '".$end."' AND
+         B.payment_status ='Completed' ".$where." GROUP BY RC.id";
+
+            $limit_q = " limit $offset,$limit";
+            $total = $this->db->query($category);
+            if($limit!=0) $category .=$limit_q;
+            // echo $category;die;
+            $t = $this->db->query($category);
+
+        if ($t->num_rows() > 0) {
+            
+            foreach ($t->result() as $row) {                  
+
+                $this->db->select("recipe_categories.id AS sub_id,recipe_categories.name AS sub_category,bils_archival.total_tax, 'order'")
+                ->join('recipe', 'recipe.subcategory_id = recipe_categories.id')
+                ->join('bil_items_archival', 'bil_items_archival.recipe_id = recipe.id')
+                ->join('bils_archival', 'bils_archival.id = bil_items_archival.bil_id')
+                ->where('bils_archival.payment_status', 'Completed')
+                ->where('bils_archival.date BETWEEN "' . $start . '" and "' . $end.'"')
+                ->where('recipe.category_id', $row->cate_id);
+                if(!$this->Owner && !$this->Admin){
+                    $this->db->where('bils_archival.table_whitelisted', 0); 
+                }
+				
+                if($recipe_id != 0)
+                {
+                    $this->db->where('bil_items_archival.recipe_id', $recipe_id);                    
+                }
+
+				if($varient_id != 0) {
+                    $this->db->where('bil_items_archival.recipe_variant_id', $varient_id);
+				//$where .= " AND BI.recipe_variant_id ='".$varient_id."'";
+                }
+				
+                $this->db->group_by('recipe.subcategory_id');
+                    
+                $s = $this->db->get('recipe_categories');
+             //  print_r($this->db->last_query());die;
+               /*$s = $this->db->query($subcategory);*/
+            if ($s->num_rows() > 0) {
+                foreach ($s->result() as $sow) {
+                    
+                    $where = '';
+
+                    if(!$this->Owner && !$this->Admin){
+                        $where .= " AND B.table_whitelisted =0";
+                    }
+					
+					if($varient_id != 0){
+						$where .= " AND BI.recipe_variant_id ='".$varient_id."'"; // BI.recipe_variant_id =".$varient_id." AND
+					}
+                    if($recipe_id != 0)
+                    {
+                       $where .= "AND BI.recipe_id =".$recipe_id."";
+                    }
                     /*$myQuery = "SELECT R.price AS rate,WH.name as warehouse,R.name,SUM(BI.item_discount) AS item_discount,SUM(BI.off_discount) AS off_discount,SUM(BI.input_discount) AS input_discount,SUM(BI.quantity) AS quantity,SUM(BI.tax) AS tax1,SUM(BI.subtotal-CASE WHEN (BI.tax_type= 0) THEN BI.tax ELSE 0 END) as subtotal,SUM(BI.subtotal-BI.item_discount-BI.off_discount-BI.input_discount+CASE WHEN (BI.tax_type = 1) THEN BI.tax ELSE 0 END) as amt,SUM(CASE WHEN BI.tax_type = 1 THEN BI.tax ELSE 0 END) AS tax,SUM(CASE WHEN BI.tax_type = 0 THEN BI.tax ELSE 0 END) AS inclusive_tax,SUM(CASE WHEN BI.tax_type = 1 THEN BI.tax ELSE 0 END) AS exclusive_tax
                     FROM " . $this->db->dbprefix('bil_items') . " BI
                     JOIN " . $this->db->dbprefix('recipe') . " R ON R.id = BI.recipe_id
@@ -863,9 +990,9 @@ public function getItemSaleReports($start,$end,$warehouse_id,$varient_id,$limit,
                     R.subcategory_id =".$sow->sub_id." AND  B.payment_status ='Completed'" .$where. " GROUP BY R.id " ; */
 
                      $myQuery = "SELECT BI.recipe_variant,BI.unit_price AS rate,WH.name as warehouse,R.name,SUM(BI.item_discount) AS item_discount,SUM(BI.off_discount) AS off_discount,SUM(BI.input_discount) AS input_discount,SUM(BI.quantity) AS quantity,SUM(BI.tax) AS tax1,SUM(BI.subtotal-CASE WHEN (BI.tax_type= 0) THEN BI.tax ELSE 0 END)+BI.service_charge_amount as subtotal,SUM(BI.subtotal-BI.item_discount-BI.off_discount-BI.input_discount-BI.manual_item_discount+CASE WHEN (BI.tax_type = 1) THEN BI.tax ELSE 0 END)+BI.service_charge_amount as amt,SUM(CASE WHEN BI.tax_type = 1 = 1 THEN BI.tax ELSE 0 END) AS tax,SUM(BI.service_charge_amount) AS service_charge_amount,CASE WHEN RV.name  is NOT NULL THEN RV.name ELSE 'No Variant' END AS variant
-                FROM " . $this->db->dbprefix('bil_items') . " BI
+                FROM " . $this->db->dbprefix('bil_items_archival') . " BI
                 JOIN " . $this->db->dbprefix('recipe') . " R ON R.id = BI.recipe_id
-                JOIN " . $this->db->dbprefix('bils') . " B ON B.id = BI.bil_id
+                JOIN " . $this->db->dbprefix('bils_archival') . " B ON B.id = BI.bil_id
                 JOIN " . $this->db->dbprefix('warehouses') . " WH ON WH.id = BI.warehouse_id
                 LEFT JOIN " . $this->db->dbprefix('recipe_variants') . " RV ON RV.id = BI.recipe_variant_id
                 WHERE DATE(B.date) BETWEEN '".$start."' AND '".$end."' AND 
@@ -894,7 +1021,7 @@ public function getItemSaleReports($start,$end,$warehouse_id,$varient_id,$limit,
             return array('data'=>$data,'total'=>$total->num_rows());
         }        
         return FALSE;   
-    }   
+    } 	
  public function getPosSettlementReport($start,$end,$warehouse_id,$defalut_currency,$limit,$offset,$report_view_access,$report_show)
     {  
         $where ='';
@@ -937,7 +1064,8 @@ public function getItemSaleReports($start,$end,$warehouse_id,$varient_id,$limit,
                         WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
                          P.payment_status ='Completed' AND U.id='".$uow->id."'
                         ".$where." GROUP BY PM.bill_id ORDER BY U.username ASC";*/
-                    $myQuery = "SELECT P.seats,DATE_FORMAT(P.created_on, '%Y-%m-%d') as bill_date,DATE_FORMAT(P.created_on, '%H:%i') as bill_time,WH.name as warehouse,ST.name as bill_type,U.first_name AS username,P.bill_number AS Bill_No,SUM(DISTINCT CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id = ".$defalut_currency.")) THEN PM.amount ELSE 0 END) AS Cash,SUM(DISTINCT CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != ".$defalut_currency.")) THEN amount_exchange*currency_rate ELSE 0 END) as For_Ex,SUM(DISTINCT CASE WHEN PM.paid_by = 'CC' THEN PM.amount ELSE 0 END) AS Credit_Card,SUM(DISTINCT CASE WHEN PM.paid_by = 'credit' THEN PM.amount ELSE 0 END) AS credit,SUM(DISTINCT P.paid) AS Bill_amt,SUM(DISTINCT P.balance) AS return_balance,SUM(DISTINCT CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != ".$defalut_currency.")) THEN SC.amount ELSE 0 END) as ForEx,T.name as table_name
+                    $myQuery = "SELECT P.seats,DATE_FORMAT(P.created_on, '%Y-%m-%d') as bill_date,DATE_FORMAT(P.created_on, '%H:%i') as bill_time,WH.name as warehouse,ST.name as bill_type,U.first_name AS username,P.bill_number AS Bill_No,SUM(DISTINCT CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id = ".$defalut_currency.")) THEN PM.amount ELSE 0 END) AS Cash,SUM(DISTINCT CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != ".$defalut_currency.")) THEN amount_exchange*currency_rate ELSE 0 END) as For_Ex,SUM(DISTINCT CASE WHEN PM.paid_by = 'CC' THEN PM.amount ELSE 0 END) AS Credit_Card,SUM(DISTINCT CASE WHEN PM.paid_by = 'credit' THEN PM.amount ELSE 0 END) AS credit,SUM(DISTINCT CASE WHEN PM.paid_by = 'nc_kot' THEN PM.amount ELSE 0 END) AS NC_Kot,
+					SUM(DISTINCT CASE WHEN PM.paid_by = 'wallets' THEN PM.amount ELSE 0 END) AS wallet,SUM(DISTINCT P.paid) AS Bill_amt,SUM(DISTINCT P.balance) AS return_balance,SUM(DISTINCT CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != ".$defalut_currency.")) THEN SC.amount ELSE 0 END) as ForEx,T.name as table_name
                     FROM " . $this->db->dbprefix('bils') . " P
                     JOIN ". $this->db->dbprefix('sales') ." AS S ON S.id = P.sales_id
                     JOIN ". $this->db->dbprefix('orders') ." AS O ON O.split_id = S.sales_split_id
@@ -950,7 +1078,76 @@ public function getItemSaleReports($start,$end,$warehouse_id,$varient_id,$limit,
                         WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
                          P.payment_status ='Completed' AND U.id='".$uow->id."'
                         ".$where." GROUP BY PM.bill_id ORDER BY U.username ASC";                        
-                    // echo $myQuery;die;
+                  //   echo $myQuery;die;
+                    $q = $this->db->query($myQuery);
+                    if ($q->num_rows() > 0) {
+                        foreach (($q->result()) as $row) {
+                            $user[$uow->id][] = $row;
+                        }
+                        $uow->user = $user[$uow->id];
+                        $data[] = $uow;
+                    }
+                }
+            return array('data'=>$data,'total'=>$t->num_rows());
+        }
+        return FALSE;
+    }
+	public function getPosSettlementReport_archival($start,$end,$warehouse_id,$defalut_currency,$limit,$offset,$report_view_access,$report_show)
+    {  
+        $where ='';
+        if($warehouse_id != 0)
+        {
+            $where = "AND P.warehouse_id =".$warehouse_id."";
+        }
+        if($report_view_access != 1)
+         {
+             $where .= " AND P.table_whitelisted = ".$report_show." ";
+         }
+         /*elseif ($report_view_access == 3) {
+             $where .= " AND P.table_whitelisted = ".$report_show."";
+         }*/
+
+        /*if(!$this->Owner && !$this->Admin){
+            $where .= " AND P.table_whitelisted =0";
+        }*/
+
+         $User = "SELECT U.id
+            FROM " . $this->db->dbprefix('bils_archival') . " P
+            JOIN " . $this->db->dbprefix('users') . " U ON P.created_by = U.id
+            JOIN " . $this->db->dbprefix('payments_archival') . " PM ON PM.bill_id = P.id
+            JOIN " . $this->db->dbprefix('warehouses') . " WH ON WH.id = P.warehouse_id
+            WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+             P.payment_status ='Completed' ".$where."
+            GROUP BY U.id ORDER BY U.username ASC";
+            $limit_q = " limit $offset,$limit";
+            $t = $this->db->query($User);
+            if($limit!=0) $User .=$limit_q;
+            $u = $this->db->query($User);
+        
+        if ($u->num_rows() > 0) {
+            foreach (($u->result()) as $uow) {
+
+                /*$myQuery = "SELECT DATE_FORMAT(P.date, '%H:%i') as bill_time,U.username,P.bill_number AS Bill_No,SUM(CASE WHEN PM.paid_by = 'cash' THEN PM.amount ELSE 0 END) AS Cash, SUM(CASE WHEN PM.paid_by = 'cash' THEN (PM.amount_usd*4000) ELSE 0 END) AS For_Ex, SUM(CASE WHEN PM.paid_by = 'cash' THEN PM.amount_usd ELSE 0 END) AS USD,SUM(CASE WHEN PM.paid_by = 'CC' THEN PM.amount ELSE 0 END) AS Credit_Card, P.paid AS Bill_amt,P.balance AS return_balance
+                    FROM " . $this->db->dbprefix('bils') . " P
+                    JOIN " . $this->db->dbprefix('users') . " U ON P.created_by = U.id
+                    JOIN " . $this->db->dbprefix('payments') . " PM ON PM.bill_id = P.id
+                        WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+                         P.payment_status ='Completed' AND U.id='".$uow->id."'
+                        ".$where." GROUP BY PM.bill_id ORDER BY U.username ASC";*/
+                    $myQuery = "SELECT P.seats,DATE_FORMAT(P.created_on, '%Y-%m-%d') as bill_date,DATE_FORMAT(P.created_on, '%H:%i') as bill_time,WH.name as warehouse,ST.name as bill_type,U.first_name AS username,P.bill_number AS Bill_No,SUM(DISTINCT CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id = ".$defalut_currency.")) THEN PM.amount ELSE 0 END) AS Cash,SUM(DISTINCT CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != ".$defalut_currency.")) THEN amount_exchange*currency_rate ELSE 0 END) as For_Ex,SUM(DISTINCT CASE WHEN PM.paid_by = 'CC' THEN PM.amount ELSE 0 END) AS Credit_Card,SUM(DISTINCT CASE WHEN PM.paid_by = 'credit' THEN PM.amount ELSE 0 END) AS credit,SUM(DISTINCT P.paid) AS Bill_amt,SUM(DISTINCT P.balance) AS return_balance,SUM(DISTINCT CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != ".$defalut_currency.")) THEN SC.amount ELSE 0 END) as ForEx,T.name as table_name
+                    FROM " . $this->db->dbprefix('bils_archival') . " P
+                    JOIN ". $this->db->dbprefix('sales_archival') ." AS S ON S.id = P.sales_id
+                    JOIN ". $this->db->dbprefix('orders_archival') ." AS O ON O.split_id = S.sales_split_id
+		    LEFT JOIN ". $this->db->dbprefix('restaurant_tables') ." AS T ON T.id = O.table_id
+                    JOIN " . $this->db->dbprefix('users') . " U ON P.created_by = U.id
+                    JOIN " . $this->db->dbprefix('payments_archival') . " PM ON PM.bill_id = P.id
+                    JOIN " . $this->db->dbprefix('sale_currency_archival') . " SC ON SC.bil_id = P.id
+                    JOIN " . $this->db->dbprefix('warehouses') . " WH ON WH.id = P.warehouse_id
+                    LEFT JOIN " . $this->db->dbprefix('sales_type') . " ST ON ST.id = P.order_type
+                        WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+                         P.payment_status ='Completed' AND U.id='".$uow->id."'
+                        ".$where." GROUP BY PM.bill_id ORDER BY U.username ASC";                        
+                    //echo $myQuery;die;
                     $q = $this->db->query($myQuery);
                     if ($q->num_rows() > 0) {
                         foreach (($q->result()) as $row) {
@@ -1405,7 +1602,7 @@ public function getKotCancelReport($start,$end,$warehouse_id,$varient_id,$limit,
             $where1 .="AND OI.recipe_variant_id =".$varient_id."";
         }
 		
-        $KotCancel = "SELECT DATE_FORMAT(O.date, '%d-%m-%Y') date,OI.id,R.name AS recipename,OI.order_item_cancel_note,T.name AS table_name,U.username,CASE
+        $KotCancel = "SELECT DATE_FORMAT(O.date, '%d-%m-%Y') date,OI.id,R.name AS recipename,OI.order_item_cancel_note,T.name AS table_name,U.username,OI.quantity,IFNULL(OI.item_cancel_type,'')item_cancel_type,CASE
         WHEN RV.name  is NOT NULL THEN RV.name ELSE 'No Variant' END AS variant
         FROM " . $this->db->dbprefix('orders') . " O
         JOIN " . $this->db->dbprefix('order_items') . " OI ON OI.sale_id = O.id
@@ -1414,11 +1611,13 @@ public function getKotCancelReport($start,$end,$warehouse_id,$varient_id,$limit,
         JOIN " . $this->db->dbprefix('users') . " U ON U.id = O.created_by 
         JOIN " . $this->db->dbprefix('restaurant_tables') . " T ON T.id = O.table_id
         LEFT JOIN " . $this->db->dbprefix('recipe_variants') . " RV ON RV.id = OI.recipe_variant_id
-            WHERE DATE(O.date) BETWEEN '".$start."' AND '".$end."' AND OI.order_item_cancel_status= 1 ".$where1." GROUP BY OI.recipe_variant_id";
+            WHERE DATE(O.date) BETWEEN '".$start."' AND '".$end."' AND OI.order_item_cancel_status= 1 ".$where1."";
+//			GROUP BY OI.recipe_variant_id";
         $limit_q = " limit $offset,$limit";        
         $t = $this->db->query($KotCancel);
         if($limit!=0) $KotCancel .=$limit_q;
         $q = $this->db->query($KotCancel);
+		
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -2267,7 +2466,29 @@ public function getRoundamount($start,$end,$warehouse_id)
             return $data;
         }
         return FALSE;
-    }    
+    } 
+public function getRoundamount_archival($start,$end,$warehouse_id)
+    {
+        $where ='';
+        if($warehouse_id != 0)
+        {
+            $where = "AND P.warehouse_id =".$warehouse_id."";
+        }
+
+        $round = "SELECT SUM(P.grand_total - round_total) AS round
+        FROM " . $this->db->dbprefix('bils') . " AS P
+            WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+             P.payment_status ='Completed' ".$where."";
+            /*echo $cover; die;*/
+        $q = $this->db->query($round);
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return FALSE;
+    }  	
 public function getCoverAnalysisReport($start,$end,$warehouse_id,$limit,$offset,$report_view_access,$report_show)
     {
         $where ='';
@@ -2399,6 +2620,89 @@ public function getBillDetailsReport($start,$end,$bill_no,$warehouse_id,$varient
         }
         return FALSE;
     }  
+	
+	
+	public function getBillDetailsReport_archival($start,$end,$bill_no,$warehouse_id,$varient_id,$limit,$offset,$report_view_access,$report_show)
+    {  
+        $where1 ='';
+        if($warehouse_id != 0)
+        {
+            $where1 = "AND P.warehouse_id =".$warehouse_id."";
+        }
+        if($report_view_access != 1){
+             $where .= " AND P.table_whitelisted = ".$report_show." ";
+         }
+		 
+		if($varient_id != 0)
+        {
+            $where2 = "AND BI.recipe_variant_id =".$varient_id."";
+        } 
+
+        /*if(!$this->Owner && !$this->Admin){
+            $where1 .= " AND P.table_whitelisted =0";
+        }
+        if(($this->Owner || $this->Admin) && $table_whitelisted!='all'){
+            $where1 .= " AND P.table_whitelisted =".$table_whitelisted;
+        }*/
+        if($bill_no)
+        {
+            $where = "AND P.id =".$bill_no."";
+        }
+        else{
+            $where = "";
+        }
+        
+         $bill = "SELECT P.id,SUM(DISTINCT P.total-P.total_discount+CASE WHEN (P.tax_type= 1) THEN P.total_tax ELSE 0 END)+P.service_charge_amount as grand_total,P.round_total 
+            FROM ". $this->db->dbprefix('bils_archival') ." AS P
+             JOIN ". $this->db->dbprefix('users') ." AS U ON P.created_by = U.id
+             JOIN ". $this->db->dbprefix('payments_archival') ." AS PM ON PM.bill_id = P.id
+            WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+             P.payment_status ='Completed' ".$where." ".$where1." 
+            GROUP BY P.id ORDER BY P.id ASC";
+            
+            $limit_q = " limit $offset,$limit";
+            $t = $this->db->query($bill);
+            if($limit!=0) $bill .=$limit_q;
+            $u = $this->db->query($bill);
+            
+        if ($u->num_rows() > 0) {
+            foreach (($u->result()) as $uow) {
+
+             $Billdetails = "SELECT K.id AS kitchenno,DATE_FORMAT(P.date, '%Y-%m-%d')  as bill_date,DATE_FORMAT(O.date, '%d-%m-%Y') AS kot_date,T.name AS table_name, U.username,OU.username AS steward,R.name AS item,BI.quantity,P.bill_number, BI.subtotal AS Bill_amt,DATE_FORMAT(P.created_on, '%H:%i') as bill_time,BI.item_discount,BI.off_discount,BI.manual_item_discount,BI.input_discount,BI.tax,BI.service_charge_amount,TY.name AS order_type,P.grand_total,P.round_total,P.id as Bill_id,BI.tax_type,P.table_whitelisted,W.name branch,CASE
+                WHEN RV.name  is NOT NULL THEN RV.name ELSE 'No Variant' END AS variant
+                    FROM ".$this->db->dbprefix('bils_archival')." AS P
+                    JOIN ". $this->db->dbprefix('sales_archival') ." AS S ON S.id = P.sales_id
+                    JOIN ". $this->db->dbprefix('orders_archival') ." AS O ON O.split_id = S.sales_split_id
+                    LEFT JOIN ". $this->db->dbprefix('sales_type') ." AS TY ON TY.id = O.order_type
+                    JOIN ". $this->db->dbprefix('bil_items_archival') ." AS BI ON BI.bil_id = P.id
+                    JOIN ". $this->db->dbprefix('recipe') ." AS R ON BI.recipe_id = R.id
+                    LEFT JOIN ". $this->db->dbprefix('restaurant_tables') ." AS T ON T.id = O.table_id
+                    JOIN ". $this->db->dbprefix('kitchen_orders_archival') ." AS K ON K.sale_id = O.id
+                    JOIN ". $this->db->dbprefix('users') ." AS U ON U.id = P.created_by
+                    JOIN ". $this->db->dbprefix('users') ." AS OU ON OU.id = O.created_by
+                    LEFT JOIN " . $this->db->dbprefix('warehouses') . " W ON W.id = P.warehouse_id
+                    LEFT JOIN " . $this->db->dbprefix('recipe_variants') . " RV ON RV.id = BI.recipe_variant_id
+                    WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."'  ".$where2." AND
+                    P.payment_status ='Completed' AND P.id='".$uow->id."' GROUP BY BI.id,BI.recipe_variant_id";                    
+
+                    $q = $this->db->query($Billdetails);
+                    if ($q->num_rows() > 0) {
+                        foreach (($q->result()) as $row) {
+                            $user[$uow->id][] = $row;
+                        }
+                        $uow->user = $user[$uow->id];
+                        $data[] = $uow;
+                    }
+                }
+            return array('data'=>$data,'total'=>$t->num_rows());
+        }
+        return FALSE;
+    } 
+	
+	
+	
+	
+	
 public function getQSRBillDetailsReport($start,$end,$bill_no,$warehouse_id,$varient_id,$limit,$offset,$report_view_access,$report_show)
     {  
         $where1 ='';
@@ -2472,7 +2776,88 @@ public function getQSRBillDetailsReport($start,$end,$bill_no,$warehouse_id,$vari
             return array('data'=>$data,'total'=>$t->num_rows());
         }
         return FALSE;
-    }      
+    }  
+
+public function getQSRBillDetailsReport_archival($start,$end,$bill_no,$warehouse_id,$varient_id,$limit,$offset,$report_view_access,$report_show)
+    {  
+        $where1 ='';
+        if($warehouse_id != 0)
+        {
+            $where1 = "AND P.warehouse_id =".$warehouse_id."";
+        }
+        if($report_view_access != 1){
+             $where .= " AND P.table_whitelisted = ".$report_show." ";
+        }
+		 
+		if($varient_id != 0)
+        {
+            $where2 = "AND BI.recipe_variant_id =".$varient_id."";
+        } 
+
+        /*if(!$this->Owner && !$this->Admin){
+            $where1 .= " AND P.table_whitelisted =0";
+        }
+        if(($this->Owner || $this->Admin) && $table_whitelisted!='all'){
+            $where1 .= " AND P.table_whitelisted =".$table_whitelisted;
+        }*/
+        if($bill_no)
+        {
+            $where = "AND P.id =".$bill_no."";
+        }
+        else{
+            $where = "";
+        }
+        
+         $bill = "SELECT P.id,SUM(DISTINCT P.total-P.total_discount+CASE WHEN (P.tax_type= 1) THEN P.total_tax ELSE 0 END)+P.service_charge_amount  as grand_total,P.round_total 
+            FROM ". $this->db->dbprefix('bils_archival') ." AS P
+             JOIN ". $this->db->dbprefix('users') ." AS U ON P.created_by = U.id
+             JOIN ". $this->db->dbprefix('payments_archival') ." AS PM ON PM.bill_id = P.id
+            WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+             P.payment_status ='Completed' ".$where." ".$where1."
+            GROUP BY P.id ORDER BY P.id ASC";
+            
+            $limit_q = " limit $offset,$limit";
+            $t = $this->db->query($bill);
+            if($limit!=0) $bill .=$limit_q;
+            $u = $this->db->query($bill);
+            
+        if ($u->num_rows() > 0) {
+            foreach (($u->result()) as $uow) {
+
+            $Billdetails = "SELECT DATE_FORMAT(O.date, '%d-%m-%Y') AS kot_date, U.username,OU.username AS steward,R.name AS item,BI.quantity,P.bill_number, BI.subtotal AS Bill_amt,DATE_FORMAT(P.created_on, '%H:%i') as bill_time,BI.item_discount,BI.off_discount,BI.input_discount,BI.manual_item_discount,BI.service_charge_amount,BI.tax,TY.name AS order_type,P.grand_total,P.round_total,P.id as Bill_id,BI.tax_type,P.table_whitelisted,W.name branch,CASE
+                WHEN RV.name  is NOT NULL THEN RV.name ELSE 'No Variant' END AS variant
+                    FROM ".$this->db->dbprefix('bils_archival')." AS P
+                    JOIN ". $this->db->dbprefix('sales_archival') ." AS S ON S.id = P.sales_id
+                    JOIN ". $this->db->dbprefix('orders_archival') ." AS O ON O.split_id = S.sales_split_id
+                    LEFT JOIN ". $this->db->dbprefix('sales_type') ." AS TY ON TY.id = O.order_type
+                    JOIN ". $this->db->dbprefix('bil_items_archival') ." AS BI ON BI.bil_id = P.id
+                    JOIN ". $this->db->dbprefix('recipe') ." AS R ON BI.recipe_id = R.id
+                    JOIN ". $this->db->dbprefix('users') ." AS U ON U.id = P.created_by
+                    JOIN ". $this->db->dbprefix('users') ." AS OU ON OU.id = O.created_by
+                    LEFT JOIN " . $this->db->dbprefix('warehouses') . " W ON W.id = P.warehouse_id
+                    LEFT JOIN " . $this->db->dbprefix('recipe_variants') . " RV ON RV.id = BI.recipe_variant_id
+                    WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' ".$where2." AND
+                    P.payment_status ='Completed' AND P.id='".$uow->id."' GROUP BY BI.id,BI.recipe_variant_id";                    
+
+                    $q = $this->db->query($Billdetails);
+                    if ($q->num_rows() > 0) {
+                        foreach (($q->result()) as $row) {
+                            $user[$uow->id][] = $row;
+                        }
+                        $uow->user = $user[$uow->id];
+                        $data[] = $uow;
+                    }
+                }
+            return array('data'=>$data,'total'=>$t->num_rows());
+        }
+        return FALSE;
+    }  
+
+
+
+
+
+    
 public function getStockVariance($start,$product_id,$warehouse_id,$limit,$offset)
     {   
         $where ='';
@@ -3395,7 +3780,7 @@ public function check_reportview_access($pass_code){
     {  
       
      
-        $query= "SELECT QR.reference_no,SR.reference_no as store_request,W.name as store_name,QR.supplier,QRI.product_code,QRI.product_name,QRI.quantity,QRI.unit_price
+       /* $query= "SELECT QR.reference_no,SR.reference_no as store_request,W.name as store_name,QR.supplier,QRI.product_code,QRI.product_name,QRI.quantity,QRI.unit_price
         FROM " . $this->db->dbprefix('pro_request_items') . " QRI        
         JOIN " . $this->db->dbprefix('pro_request') . "  QR ON QR.id = QRI.request_id
         JOIN " . $this->db->dbprefix('warehouses') . " W ON W.id = QRI.store_id
@@ -3404,9 +3789,17 @@ public function check_reportview_access($pass_code){
          JOIN " . $this->db->dbprefix('pro_store_request_items') . "  SRI ON SRI.store_request_id = SR.id AND QRI.product_id = SRI.product_id
         WHERE DATE(QR.date) BETWEEN '".$start."' AND '".$end."' 
         ORDER BY QRI.id";
+        $limit_q = " limit $offset,$limit"; */
+
+          $query= "SELECT QR.date,QR.reference_no,SR.reference_no as store_request,W.name as store_name,QR.supplier,QRI.product_code,QRI.product_name,QRI.quantity,QRI.unit_price
+        FROM " . $this->db->dbprefix('pro_request_items') . " QRI        
+        JOIN " . $this->db->dbprefix('pro_request') . "  QR ON QR.id = QRI.request_id
+        JOIN " . $this->db->dbprefix('warehouses') . " W ON W.id = QRI.store_id
+        LEFT JOIN " . $this->db->dbprefix('pro_store_request') . "  SR ON FIND_IN_SET(SR.id,QR.store_request_ids) > 0       
+        WHERE DATE(QR.date) BETWEEN '".$start."' AND '".$end."' 
+        ORDER BY QRI.id";
         $limit_q = " limit $offset,$limit"; 
-        $t = $this->db->query($query);        
-        // var_dump($t->num_rows());die;
+        $t = $this->db->query($query);                
         if($limit!=0) $query .=$limit_q;
         $q = $this->db->query($query);
         if ($q->num_rows() > 0) {
@@ -3422,7 +3815,7 @@ public function check_reportview_access($pass_code){
     {  
       
      
-       $query= "SELECT Q.reference_no,QR.reference_no as quote_request,QR.store_request_no as store_request,Q.supplier,QI.product_code,QI.product_name,QI.quantity,QI.cost_price as cost
+       $query= "SELECT Q.date,Q.reference_no,QR.reference_no as quote_request,QR.store_request_no as store_request,Q.supplier,QI.product_code,QI.product_name,QI.quantity,QI.cost_price as cost
         FROM " . $this->db->dbprefix('pro_quote_items') . " QI        
         JOIN " . $this->db->dbprefix('pro_quotes') . "  Q ON Q.id = QI.quote_id
         LEFT JOIN " . $this->db->dbprefix('pro_request') . "  QR ON QR.id = Q.request_id
@@ -4948,8 +5341,7 @@ public function check_reportview_access($pass_code){
         $this->db->where_in('id',$bill_ids);
         $this->db->update('bils',$data);
     }
-    public function getBillReprintReport($start,$end,$bill_no,$warehouse_id,$limit,$offset,$report_view_access,$report_show)
-    {  
+    public function getBillReprintReport($start,$end,$bill_no,$warehouse_id,$limit,$offset,$report_view_access,$report_show){  
         $where1 ='';
         if($warehouse_id != 0)
         {
@@ -5016,21 +5408,13 @@ public function check_reportview_access($pass_code){
             $where .= ' AND BI.recipe_id IN ('.$item_ids.')';
             $where1 .= ' AND BIM.recipe_id IN ('.$item_ids.')';
         }
-        
-        //$where1 = ltrim($where1,"AND ");
         $bill = "SELECT P.id as bill_id,P.bill_number,BI.grand_total as grand_total ,BI.*
-            
-
-            
             FROM ". $this->db->dbprefix('bil_items') ." AS BI
             JOIN ". $this->db->dbprefix('bils') ." AS P ON BI.bil_id = P.id
 	  
             WHERE P.delete_action=0 AND DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND 
             P.payment_status ='Completed' ".$where;
             if($target_amt!=''){
-            //    $billl ="  AND BI.grand_total + coalesce((select sum(BIM.grand_total) from ".$this->db->dbprefix('bil_items')." BIM 
-            //            JOIN ".$this->db->dbprefix('bils')." AS B ON BIM.bil_id = B.id where B.delete_action=0 AND DATE(B.date) BETWEEN '".$start."' AND '".$end."' AND 
-            //B.payment_status ='Completed' ".$where1." AND (BIM.grand_total >= BI.grand_total AND BIM.id <> BI.id) order by BIM.grand_total ASC),0) <= ".$target_amt; 
             }
             $bill .="  order by P.id DESC,BI.grand_total ASC";// GROUP BY P.id
           // echo $bill;
@@ -5070,35 +5454,35 @@ public function check_reportview_access($pass_code){
     }
     function auto_modify_bills($bill_id,$sale_id,$bill_data,$sale_data,$bill_item_ids,$payment,$multi_currency,$order_item_ids){
         //*** sales  insert and update//
-        $ori_bill_data = $this->db->get_where('bils',array('id'=>$bill_id))->row();
-	$ori_bill_data->action = 1;	
-	$this->db->insert('archive_bils',$ori_bill_data);
+		$ori_bill_data = $this->db->get_where('bils',array('id'=>$bill_id))->row();
+		$ori_bill_data->action = 1;	
+		$this->db->insert('archive_bils',$ori_bill_data);
 	
-	$bill_data['action'] = 1;
-	$this->db->where('id',$bill_id);
-	$this->db->update('bils',$bill_data);
+		$bill_data['action'] = 1;
+		$this->db->where('id',$bill_id);
+		$this->db->update('bils',$bill_data);
 	
 	//*** sales  insert and update//	
-	$ori_sale_data = $this->db->get_where('sales',array('id'=>$sale_id))->row();	
-	$this->db->insert('archive_sales',$ori_sale_data);	
-	$this->db->where('id',$sale_id);
-	$this->db->update('sales',$sale_data);
+	    $ori_sale_data = $this->db->get_where('sales',array('id'=>$sale_id))->row();	
+	    $this->db->insert('archive_sales',$ori_sale_data);	
+	    $this->db->where('id',$sale_id);
+	    $this->db->update('sales',$sale_data);
         
         //** payment insert and delete insert//
         $archive_payment = $this->db->get_where('payments',array('bill_id'=>$bill_id))->result();	
-	$this->db->insert_batch('archive_payments',$archive_payment);
+	    $this->db->insert_batch('archive_payments',$archive_payment);
         
         $this->db->where(array('bill_id'=>$bill_id));	
-	$this->db->delete('payments');
+	    $this->db->delete('payments');
         
         $this->db->insert_batch('payments',$payment);
         
         //** sale currency insert and insert//
         $archive_salecurrency = $this->db->get_where('sale_currency',array('bil_id'=>$bill_id))->result();	
-	$this->db->insert_batch('archive_sale_currency',$archive_salecurrency);
+	    $this->db->insert_batch('archive_sale_currency',$archive_salecurrency);
         
         $this->db->where(array('bil_id'=>$bill_id));	
-	$this->db->delete('sale_currency');
+	    $this->db->delete('sale_currency');
         
         $this->db->insert_batch('sale_currency',$multi_currency);
         
@@ -5106,22 +5490,22 @@ public function check_reportview_access($pass_code){
         //** bill items insert and delete//
         
         $ori_bill_items_data = $this->db->get_where('bil_items',array('bil_id'=>$bill_id))->result();
-	$this->db->insert_batch('archive_bil_items',$ori_bill_items_data);
+	    $this->db->insert_batch('archive_bil_items',$ori_bill_items_data);
 	
-	$this->db->where('bil_id',$bill_id);
+	    $this->db->where('bil_id',$bill_id);
         $this->db->where_not_in('id',$bill_item_ids);
-	$this->db->delete('bil_items');
+	    $this->db->delete('bil_items');
         
         
        
         
         //** orders //
         $split_id = $ori_sale_data->sales_split_id;
-	$all_orders = $this->db->get_where('orders',array('split_id'=>$split_id))->result();
-	$all_order_ids  = array();
-	foreach($all_orders as $ao => $all_o){
+		$all_orders = $this->db->get_where('orders',array('split_id'=>$split_id))->result();
+		$all_order_ids  = array();
+		foreach($all_orders as $ao => $all_o){
 	    array_push($all_order_ids,$all_o->id);
-	}
+		}
         //** order items//
         $del_order_ids = array();$orderIDS = array();
         if(!empty($all_order_ids)){
@@ -5197,14 +5581,12 @@ public function check_reportview_access($pass_code){
         return $del_items;
         //echo $sum;exit;
     }
-    public function fetch_recipe($category_id,$subcategory_id)
-    {
+    public function fetch_recipe($category_id,$subcategory_id){
         $warehouse_id = $this->session->userdata('warehouse_id');
 		$where_in = array('standard','production','quick_service','combo');
 		$this->db->select('recipe.*');
 		$this->db->join('recipe', "recipe.id = warehouses_recipe.recipe_id AND recipe.active = 1");
-                $this->db->join('recipe_mapping_for_modify_bills','recipe_mapping_for_modify_bills.recipe_id=recipe.id');
-		// $this->db->where('recipe.recipe_standard !=', 2);	
+        $this->db->join('recipe_mapping_for_modify_bills','recipe_mapping_for_modify_bills.recipe_id=recipe.id');
 		$this->db->where('warehouses_recipe.warehouse_id', $warehouse_id);
 		$this->db->where_in('recipe.type',$where_in);
 		if ($category_id) {
@@ -5216,16 +5598,10 @@ public function check_reportview_access($pass_code){
 		$this->db->limit($limit, $start);
 		$this->db->order_by("recipe.name", "asc");
 		$query = $this->db->get("warehouses_recipe");
-		
-		// print_r($this->db->last_query());die;
-       	
-		
         if ($query->num_rows() > 0) {
-			
             foreach ($query->result() as $row) {
                 $data[] = $row;
             }
-			
             return $data;
         }
         return false;
@@ -5294,5 +5670,281 @@ public function check_reportview_access($pass_code){
         }
         return FALSE;
     }
+	public function getnc_kotReport($start,$end,$warehouse_id,$defalut_currency,$limit,$offset,$report_view_access,$report_show)
+    {  
+        $where ='';
+        if($warehouse_id != 0)
+        {
+            $where = "AND P.warehouse_id =".$warehouse_id."";
+        }
+        if($report_view_access != 1)
+         {
+             $where .= " AND P.table_whitelisted = ".$report_show." ";
+         }
+         /*elseif ($report_view_access == 3) {
+             $where .= " AND P.table_whitelisted = ".$report_show."";
+         }*/
+
+        /*if(!$this->Owner && !$this->Admin){
+            $where .= " AND P.table_whitelisted =0";
+        }*/
+
+         $User = "SELECT U.id
+            FROM " . $this->db->dbprefix('bils') . " P
+            JOIN " . $this->db->dbprefix('users') . " U ON P.created_by = U.id
+            JOIN " . $this->db->dbprefix('payments') . " PM ON PM.bill_id = P.id
+            JOIN " . $this->db->dbprefix('warehouses') . " WH ON WH.id = P.warehouse_id
+            WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+             P.payment_status ='Completed' ".$where." and PM.paid_by='nc_kot'
+            GROUP BY U.id ORDER BY U.username ASC";
+            $limit_q = " limit $offset,$limit";
+            $t = $this->db->query($User);
+            if($limit!=0) $User .=$limit_q;
+            $u = $this->db->query($User);
+        
+        if ($u->num_rows() > 0) {
+            foreach (($u->result()) as $uow) {
+
+           
+                    $myQuery = "SELECT P.seats,DATE_FORMAT(P.created_on, '%Y-%m-%d') as bill_date,DATE_FORMAT(P.created_on, '%H:%i') as bill_time,WH.name as warehouse,ST.name as bill_type,U.first_name AS username,P.bill_number AS Bill_No,P.grand_total,T.name as table_name,PM.nc_kot_type_name,PM.nc_kot_details
+                    FROM " . $this->db->dbprefix('bils') . " P
+                    JOIN ". $this->db->dbprefix('sales') ." AS S ON S.id = P.sales_id
+                    JOIN ". $this->db->dbprefix('orders') ." AS O ON O.split_id = S.sales_split_id
+		            LEFT JOIN ". $this->db->dbprefix('restaurant_tables') ." AS T ON T.id = O.table_id
+                    JOIN " . $this->db->dbprefix('users') . " U ON P.created_by = U.id
+                    JOIN " . $this->db->dbprefix('payments') . " PM ON PM.bill_id = P.id
+                    JOIN " . $this->db->dbprefix('sale_currency') . " SC ON SC.bil_id = P.id
+                    JOIN " . $this->db->dbprefix('warehouses') . " WH ON WH.id = P.warehouse_id
+                    LEFT JOIN " . $this->db->dbprefix('sales_type') . " ST ON ST.id = P.order_type
+                        WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+                         P.payment_status ='Completed' AND U.id='".$uow->id."'
+                        ".$where." and PM.paid_by='nc_kot' GROUP BY PM.bill_id ORDER BY U.username ASC";                        
+                    // echo $myQuery;die;
+                    $q = $this->db->query($myQuery);
+                    if ($q->num_rows() > 0) {
+                        foreach (($q->result()) as $row) {
+                            $user[$uow->id][] = $row;
+                        }
+                        $uow->user = $user[$uow->id];
+                        $data[] = $uow;
+                    }
+                }
+            return array('data'=>$data,'total'=>$t->num_rows());
+        }
+        return FALSE;
+    }
+	public function getnc_kot_archival($start,$end,$warehouse_id,$defalut_currency,$limit,$offset,$report_view_access,$report_show){  
+        $where ='';
+        if($warehouse_id != 0){
+            $where = "AND P.warehouse_id =".$warehouse_id."";
+        }
+        if($report_view_access != 1){
+             $where .= " AND P.table_whitelisted = ".$report_show." ";
+         }
+         /*elseif ($report_view_access == 3) {
+             $where .= " AND P.table_whitelisted = ".$report_show."";
+         }*/
+
+        /*if(!$this->Owner && !$this->Admin){
+            $where .= " AND P.table_whitelisted =0";
+        }*/
+
+         $User = "SELECT U.id
+            FROM " . $this->db->dbprefix('bils_archival') . " P
+            JOIN " . $this->db->dbprefix('users') . " U ON P.created_by = U.id
+            JOIN " . $this->db->dbprefix('payments_archival') . " PM ON PM.bill_id = P.id
+            JOIN " . $this->db->dbprefix('warehouses') . " WH ON WH.id = P.warehouse_id
+            WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+             P.payment_status ='Completed' ".$where." and PM.paid_by='nc_kot'
+            GROUP BY U.id ORDER BY U.username ASC";
+            $limit_q = " limit $offset,$limit";
+            $t = $this->db->query($User);
+            if($limit!=0) $User .=$limit_q;
+            $u = $this->db->query($User);
+        if ($u->num_rows() > 0) {
+            foreach (($u->result()) as $uow) {
+                    $myQuery = "SELECT P.seats,DATE_FORMAT(P.created_on, '%Y-%m-%d') as bill_date,DATE_FORMAT(P.created_on, '%H:%i') as bill_time,WH.name as warehouse,ST.name as bill_type,U.first_name AS username,P.bill_number AS Bill_No,P.grand_total,PM>nc_kot_type_name,T.name as table_name,PM.nc_kot_details
+                    FROM " . $this->db->dbprefix('bils_archival') . " P
+                    JOIN ". $this->db->dbprefix('sales_archival') ." AS S ON S.id = P.sales_id
+                    JOIN ". $this->db->dbprefix('orders_archival') ." AS O ON O.split_id = S.sales_split_id
+		            LEFT JOIN ". $this->db->dbprefix('restaurant_tables') ." AS T ON T.id = O.table_id
+                    JOIN " . $this->db->dbprefix('users') . " U ON P.created_by = U.id
+                    JOIN " . $this->db->dbprefix('payments_archival') . " PM ON PM.bill_id = P.id
+                    JOIN " . $this->db->dbprefix('sale_currency_archival') . " SC ON SC.bil_id = P.id
+                    JOIN " . $this->db->dbprefix('warehouses') . " WH ON WH.id = P.warehouse_id
+                    LEFT JOIN " . $this->db->dbprefix('sales_type') . " ST ON ST.id = P.order_type
+                        WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+                         P.payment_status ='Completed' AND U.id='".$uow->id."'
+                        ".$where." and PM.paid_by='nc_kot' GROUP BY PM.bill_id ORDER BY U.username ASC";                        
+                    $q = $this->db->query($myQuery);
+                    if ($q->num_rows() > 0) {
+                        foreach (($q->result()) as $row) {
+                            $user[$uow->id][] = $row;
+                        }
+                        $uow->user = $user[$uow->id];
+                        $data[] = $uow;
+                    }
+                }
+            return array('data'=>$data,'total'=>$t->num_rows());
+        }
+        return FALSE;
+    }
+	
+	function get_item_stock($store_id,$recipe_id,$type,$category_id,$subcategory_id,$limit=false,$offset=false){
+		$this->db->start_cache();
+        $this->db->select('r.id')
+	    ->from('recipe r');
+        $this->db->join('pro_stock_master s','r.id = s.product_id');
+        if($recipe_id){
+            $this->db->where('s.product_id', $recipe_id);
+        }
+        if($category_id!='' && $category_id !=0){
+            $this->db->where('s.category_id',$category_id);
+        }
+        if($subcategory_id!='' && $subcategory_id !=0){
+            $this->db->where('s.subcategory_id',$subcategory_id);
+        }
+        if(!empty($type)){
+            $this->db->where('r.type',$type);
+        }
+		if($store_id!='' && $store_id !=0){
+            $this->db->where('s.store_id',$store_id);
+        }
+        $this->db->group_by('s.product_id');
+        $this->db->stop_cache();
+        $t = $this->db->get();
+        $q = $this->db->get();
+        $this->db->flush_cache();
+        $data =  array();
+		
+        if($q->num_rows()>0){
+            $data = $q->result();
+            foreach($data as $k => $row){
+				$this->db->select("'sno',IF(r.name  IS NULL OR r.name  = '', '-', r.name ) AS item_name,r.type,IF(rc.name  IS NULL OR rc.name  = '', '-', rc.name ) AS category_name,IF(rsc.name  IS NULL OR rsc.name  = '', '-', rsc.name ) AS subcategory_name,IF(b.name  IS NULL OR b.name  = '', '-', b.name ) AS brand_name,IF(batch  IS NULL OR batch  = '', '-',batch ) AS batch,(stock_in-stock_out) as current_stocks,u.name as unit_name,cost_price,selling_price,IF(expiry  IS NULL OR expiry  = '', '-', expiry ) AS expiry_date,
+				CASE operator
+				WHEN '*' THEN (stock_in-stock_out)/operation_value
+				WHEN '/' THEN 	(stock_in-stock_out)*operation_value
+				WHEN '+' THEN (stock_in-stock_out)-operation_value
+				WHEN '-' THEN (stock_in-stock_out)+operation_value
+				ELSE (stock_in-stock_out)
+				END AS 'current_stock',
+				CASE operator
+				WHEN '*' THEN (stock_in)/operation_value
+				WHEN '/' THEN (stock_in)*operation_value
+				WHEN '+' THEN (stock_in)-operation_value
+				WHEN '-' THEN (stock_in)+operation_value
+				ELSE (stock_in)
+				END AS 'stock_in',
+				CASE operator
+				WHEN '*' THEN (stock_out)/operation_value
+				WHEN '/' THEN (stock_out)*operation_value
+				WHEN '+' THEN (stock_out)-operation_value
+				WHEN '-' THEN (stock_out)+operation_value
+				ELSE (stock_out)
+				END AS 'stock_out'", FALSE);
+                $this->db->from('pro_stock_master');
+                $this->db->join('recipe as r','r.id=pro_stock_master.product_id');
+                $this->db->join('recipe_categories as rc','pro_stock_master.category_id=rc.id');
+                $this->db->join('recipe_categories as rsc','pro_stock_master.subcategory_id=rsc.id');
+                $this->db->join('brands as b','pro_stock_master.brand_id=b.id') ;
+                $this->db->join('units u','u.id=r.stock_unit','left')       ;        
+                $this->db->group_by("pro_stock_master.id");
+			    $this->db->where('pro_stock_master.product_id',$row->id);
+                if($store_id){
+                 $this->db->where($this->db->dbprefix('pro_stock_master') . ".store_id", $store_id);
+                }
+                if($type && $type !=0){
+                 $this->db->where("r.type", $type);
+                }
+                if($category_id && $category_id !=0){
+                 $this->db->where("pro_stock_master.category_id", $category_id);
+                }
+                if($subcategory_id && $subcategory_id !=0){
+                 $this->db->where("pro_stock_master.subcategory_id", $subcategory_id);
+                }
+                if($recipe_id){
+                 $this->db->where("r.id", $recipe_id);
+                }
+				
+				if($limit){
+                   $this->db->limit($limit,$offset);
+                }
+				$s = $this->db->get();
+			    if($s->num_rows()>0){
+                $data[$k]->stock = $s->result();
+            }
+			}
+			
+		}
+		return array('data'=>$data,'total'=>10); 
+	}
+	
+	public function get_stock_total($store_id,$type,$category_id,$subcategory_id,$recipe_id){
+			$this->db->select("r.id", FALSE);
+                $this->db->from('pro_stock_master');
+                $this->db->join('recipe as r','r.id=pro_stock_master.product_id');
+                $this->db->join('recipe_categories as rc','pro_stock_master.category_id=rc.id');
+                $this->db->join('recipe_categories as rsc','pro_stock_master.subcategory_id=rsc.id');
+                $this->db->join('brands as b','pro_stock_master.brand_id=b.id') ;
+                $this->db->join('units u','u.id=r.stock_unit','left')       ;        
+                $this->db->group_by("pro_stock_master.id");
+                if($store_id){
+                 $this->db->where($this->db->dbprefix('pro_stock_master') . ".store_id", $store_id);
+                }
+                if($type && $type !=0){
+                 $this->db->where("r.type", $type);
+                }
+                if($category_id && $category_id !=0){
+                 $this->db->where("pro_stock_master.category_id", $category_id);
+                }
+                if($subcategory_id && $subcategory_id !=0){
+                 $this->db->where("pro_stock_master.subcategory_id", $subcategory_id);
+                }
+                if($recipe_id){
+                 $this->db->where("r.id", $recipe_id);
+                }
+		        $q = $this->db->get();
+				return $q->num_rows();
+		
+	}
+	
+	
+	
+	public function getresettlementreports($start,$end,$warehouse_id,$limit,$offset,$report_view_access,$report_show){  
+        $where ='';
+        if($warehouse_id != 0){
+            $where = "AND P.warehouse_id =".$warehouse_id."";
+        }
+        if($report_view_access != 1){
+             $where .= " AND P.table_whitelisted = ".$report_show." ";
+         }
+            $query = "SELECT PM.*,P.reference_no, U.first_name AS settled_user,ru.first_name AS resettle_user,WH.name AS warehouses,P.customer,T.name AS tablen,o.seats_id,ST.name as bill_type,DATE_FORMAT(P.created_on, '%H:%i') as bill_time
+            FROM " . $this->db->dbprefix('bils') . " P
+            JOIN " . $this->db->dbprefix('resettlement_log') . " PM ON PM.bill_id = P.id
+			JOIN " . $this->db->dbprefix('users') . " U ON PM.settled_user = U.id
+			JOIN " . $this->db->dbprefix('users') . " ru ON PM.resettle_user = ru.id
+		    JOIN ". $this->db->dbprefix('sales') ." AS S ON S.id = P.sales_id
+            JOIN ". $this->db->dbprefix('orders') ." AS O ON O.split_id = S.sales_split_id
+		    LEFT JOIN ". $this->db->dbprefix('restaurant_tables') ." AS T ON T.id = O.table_id
+            JOIN " . $this->db->dbprefix('warehouses') . " WH ON WH.id = P.warehouse_id
+			LEFT JOIN " . $this->db->dbprefix('sales_type') . " ST ON ST.id = P.order_type
+            WHERE DATE(PM.resettlement_date) BETWEEN '".$start."' AND '".$end."' AND
+             P.payment_status ='Completed' ".$where."
+            ORDER BY PM.resettlement_date ASC";
+            $limit_q = " limit $offset,$limit";
+            $t = $this->db->query($query);
+            if($limit!=0) $query .=$limit_q;
+            $u = $this->db->query($query);
+			/* echo $this->db->last_query();
+			die; */
+         if ($u->num_rows() > 0) {
+            foreach (($u->result()) as $uow) {
+                        $data[] = $uow;
+                    }
+					 return array('data'=>$data,'total'=>$t->num_rows());
+                }
+             return FALSE;
+        }
+      
 }
 

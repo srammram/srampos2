@@ -1,0 +1,5 @@
+https://ourcodeworld.com/articles/read/349/how-to-install-and-enable-the-imagick-extension-in-xampp-for-windows
+
+https://imagemagick.org/script/download.php
+
+https://mlocati.github.io/articles/php-windows-imagick.html

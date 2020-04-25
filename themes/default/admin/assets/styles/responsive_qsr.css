@@ -1,0 +1,95 @@
+@font-face {
+    font-family: 'barlow_condensedregular';
+    src: url('../fonts/barlow_condensed/barlowcondensed-regular-webfont.woff2') format('woff2'),
+         url('../fonts/barlow_condensed/barlowcondensed-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'barlow_condensedmedium';
+    src: url('../fonts/barlow_condensed/barlowcondensed-medium-webfont.woff2') format('woff2'),
+         url('../fonts/barlow_condensed/barlowcondensed-medium-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+
+/*qsr*/
+	.logo_header{min-height: 55px;}
+	.logo_header h3{margin: 0px;padding-top: 10px;}
+	.logo_header a img {padding: 5px 0px 5px;}
+	.carousel-inner {height: 310px;overflow: auto;}
+	.menu_nav li button{width:10.7%;}
+	#item-list{max-height:310px;}
+	#table_pay_s{margin-bottom: 0px;max-height: 145px;overflow: auto;background-color: #4c0a0a;}
+	.table_pay_s_foot tr td{padding: 5px!important;background-color: #4c0a0a;}
+/*	table, th, td{border: none!important;}*/
+	.table_item_ls.table_pay_s_foot tbody tr td{text-align: right;}
+	.pos_bottom_s {margin-bottom: 5px;}
+	.table_item_ls thead tr th{padding: 5px!important;font-size: 16px;}
+	#item_list_m {max-height: 133px;overflow: auto;width: 100%;}
+	.top_left_order tr:first-child td{padding-bottom: 0px;}
+	.top_left_order tr td .form-group{margin-bottom: 0px;}
+	.top_left_order tr td .input-group-addon{background-color: #380404; border: 1px solid #4f0909;}
+	.top_left_order tr td .input-group-addon .fa{color: #f78745;}
+	.top_left_order tr td .select2-container.select2-container-disabled .select2-choice .select2-arrow,.top_left_order tr td .top_left_order tr td .select2-container.select2-container-disabled .select2-choice{background-color: #380404; border: 1px solid #4f0909;}
+	 .select2-container .select2-choice > .select2-chosen{color: #757777;}
+.select2-container .select2-choice{background-color: #380404; border: 1px solid #4f0909;}
+.select2-container .select2-choice .select2-arrow{background-color: #380404; }
+ .select2-search input{    border: 1px solid #6d0202;background-color: #380404;}
+.select2-results .select2-result-label{color: #fff;}
+ .select2-drop-active{    border: 1px solid #4c0a0a;}
+ .select2-drop{background: #380404;}
+.select2-dropdown-open .select2-choice{box-shadow: none;}
+/* #item-list .btn-prni .rippon .offer_list:hover{opacity: 0;transition: all 0.5s ease-out;}*/
+
+/*media*/
+@media  (max-width: 1920px) and (min-width: 1900px){
+	.carousel-inner {height: 594px;overflow: auto;}
+	.table_list_carousel {height: 594px;overflow: auto;}
+	#item-list{max-height:594px;overflow: auto;}
+	#item_list_m{max-height:191px;overflow: auto;width: 100%;}
+	.btn_item{width: 172px;}
+	.btn_item .name_strong{font-size: 15px;}
+	
+}
+@media (max-width: 1680px) and (min-width: 1650px){}
+@media (max-width: 1600px) and (min-width: 1500px){
+	.btn_item{width: 164px;}
+	.btn_default{width: 148px;padding: 2px;}
+	.btn_lightred{width: 148px;}
+	#item-list{max-height:420px;overflow: auto;}
+	#item_list_m{max-height:155px;overflow: auto;width: 100%;}
+	.carousel-inner {height: 420px;overflow: auto;}
+	.table_list_carousel {height: 420px;overflow: auto;}
+	.head_left_order{height: 82vh;}
+	.btn-default.recipe{width: 165px;}
+}
+@media (max-width: 1440px) and (min-width: 1400px){}
+@media (max-width: 1366px) and (min-width: 1362px){
+	.head_left_order{height: 78.9vh;}
+}
+@media (max-width: 1360px) and (min-width: 1300px){}
+@media (max-width: 1280px) and (min-width: 1200px){
+	.btn_default{width: 116px;}
+	.btn-default.recipe{width: 157px;}
+}
+@media (max-width: 1024px) and (min-width: 980px){
+	.btn_item{width: 156px;}
+	.carousel-inner {height:315px;overflow: auto;}
+	.table_list_carousel {height: 255px;overflow: auto;}
+	#item-list{max-height:315px;overflow: auto;}
+	.menu_nav li figure{width: 12.9%;}
+	.btn-default.recipe{width: 153px;}
+}
+
+@media (max-width: 1199px){}
+
+@media (min-width: 992px) and (max-width: 1199px){}
+
+@media (max-width: 991px){}
+
+@media (min-width: 768px) and (max-width: 991px){}
+
+@media (max-width: 767px){}

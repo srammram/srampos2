@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_bils` ADD `member_dis_cardno` VARCHAR(50) NOT NULL AFTER `shift_id`, ADD `member_dscount` DECIMAL(12,2) NOT NULL DEFAULT '0.00' AFTER `member_dis_cardno`, ADD `member_discount_type` VARCHAR(50) NOT NULL AFTER `member_dscount`;

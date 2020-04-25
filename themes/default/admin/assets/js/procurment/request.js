@@ -877,33 +877,29 @@ function loadItems() {
         $('#add_sale, #edit_sale').attr('disabled', false);
 		var c = 1;
         $.each(sortedItems, function () {
-			
             var item = this;
-			
             // var item_id = site.settings.item_addition == 1 ? item.item_id : item.item_id;
             var item_id = item.item_id;
-            
             // item.order = item.order ? item.order : new Date().getTime();
 
             var product_id = item.row.id, item_type = item.row.type, combo_items = item.combo_items, item_price = item.row.price, item_qty = item.row.qty, item_aqty = item.row.quantity, item_tax_method = item.row.tax_method, item_ds = item.row.discount, item_discount = 0, item_option = item.row.option, item_code = item.row.code, item_serial = item.row.serial, item_name = item.row.name.replace(/"/g, "&#034;").replace(/'/g, "&#039;");
-
             var unit_price = item.row.real_unit_price;
-			
-			var cost_price = item.row.purchase_cost ? item.row.purchase_cost : 0;
-			var selling_price = item.row.cost ? item.row.cost : 0;
-			
+			var cost_price = item.row.cost ? item.row.cost : 0;
+			var selling_price = item.row.price ? item.row.price : 0;
             var product_unit = item.row.unit, base_quantity = item.row.base_quantity;
-	    var category_id = item.row.category_id,
-		category_name = item.row.category_name,
-		subcategory_id = item.row.subcategory_id,
-		subcategory_name = item.row.subcategory_name,
-		brand_id = item.row.brand_id,
-		brand_name = item.row.brand_name;
+	        var category_id = item.row.category_id,
+		    category_name = item.row.category_name,
+		    subcategory_id = item.row.subcategory_id,
+		    subcategory_name = item.row.subcategory_name,
+		    brand_id = item.row.brand_id,
+            brand_name = item.row.brand_name,
+            variant_id = item.row.variant_id,
+		    unit_name = item.row.unit_name ? item.row.unit_name :'-'; 
             if(item.units && item.row.fup != 1 && product_unit != item.row.base_unit) {
                 $.each(item.units, function(){
                     if (this.id == product_unit) {
                         base_quantity = formatDecimal(unitToBaseQty(item.row.qty, this), 4);
-                        unit_price = formatDecimal((parseFloat(item.row.base_unit_price)*(unitToBaseQty(1, this))), 4);
+                      //  unit_price = formatDecimal((parseFloat(item.row.base_unit_price)*(unitToBaseQty(1, this))), 4);
                     }
                 });
             }
@@ -928,7 +924,6 @@ function loadItems() {
                  item_discount = formatDecimal(ds);
             }
             product_discount += parseFloat(item_discount * item_qty);
-
             unit_price = formatDecimal(unit_price-item_discount);
             var pr_tax = item.tax_rate;
             var pr_tax_val = 0, pr_tax_rate = 0;
@@ -962,44 +957,36 @@ function loadItems() {
                 }
             });
             var row_no = (new Date).getTime();
-	    $store_id= default_store;
+			$store_id= default_store;
             if (item.store_id) {
                 $store_id = item.store_id;
             }
-            var newTr = $('<tr id="row_' + row_no + '" class="row_' + item_id + '" data-item-id="' + item_id+'_'+$store_id+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id + '"></tr>');
-			
-			
-			
+            var newTr = $('<tr id="row_' + row_no + '" class="row_' + item_id + '" data-item-id="' + item_id+'_'+$store_id+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id +'_'+item.row.variant_id + '"></tr>');
 			tr_html = '<td><span class="sno" id="no_' + row_no + '">' + c  +'</span></td>';
 			c++;
-			
 			tr_html += '<td><span class="scode" id="code_' + row_no + '">' + item_code +'</span></td>';
-			
-            tr_html += '<td><input name="store_id[]" type="hidden" class="store-id" value="' + $store_id + '"><input name="product_id[]" type="hidden" class="rid" value="' + product_id + '"><input name="product_type[]" type="hidden" class="rtype" value="' + item_type + '"><input name="product_code[]" type="hidden" class="rcode" value="' + item_code + '"><input name="product_name[]" type="hidden" class="rname" value="' + item_name + '"><input name="product_option[]" type="hidden" class="roption" value="' + item_option + '"><span class="sname" id="name_' + row_no + '">' + item_name +'</span> </td>';
+            tr_html += '<td><input name="store_id[]" type="hidden" class="store-id" value="' + $store_id + '"><input name="product_id[]" type="hidden" class="rid" value="' + product_id + '"><input name="variant_id[]" type="hidden" class="rvariant_id" value="' + variant_id + '"><input name="product_type[]" type="hidden" class="rtype" value="' + item_type + '"><input name="product_code[]" type="hidden" class="rcode" value="' + item_code + '"><input name="product_name[]" type="hidden" class="rname" value="' + item_name + '"><input name="product_option[]" type="hidden" class="roption" value="' + item_option + '"><span class="sname" id="name_' + row_no + '">' + item_name +'</span> </td>';
 	    
-	    if (category_name==null) {category_name ='';}if (category_id==null) {category_id =0;}
-	    tr_html +='<td>'+
+	         if (category_name==null) {category_name ='';}if (category_id==null) {category_id =0;}
+	         tr_html +='<td>'+
 		     '<input name="category_id[]" type="hidden" class="cid" value="' + category_id + '">'+
 		     '<input name="category_name[]" type="hidden" class="cname" readonly value="' + category_name + '">'+
 		     '<span class="sname" id="name_' + row_no + '">' + category_name +'</span>'+
 		     '</td>';
 		     if (subcategory_name==null) {subcategory_name ='';}if (subcategory_id==null) {subcategory_id =0;}
-	    tr_html +='<td>'+
+	         tr_html +='<td>'+
 		     '<input name="subcategory_id[]" type="hidden" class="scid" value="' + subcategory_id + '">'+
 		     '<input name="subcategory_name[]" type="hidden" class="scname" readonly value="' + subcategory_name + '">'+
 		     '<span class="sname" id="name_' + row_no + '">' + subcategory_name +'</span>'+
 		     '</td>';
 		    if (brand_name==null) {brand_name ='';}if (brand_id==null) {brand_id =0;}
-	    tr_html +='<td>'+
+	         tr_html +='<td>'+
 		     '<input name="brand_id[]" type="hidden" class="bid" value="' + brand_id + '">'+
 		     '<input name="brand_name[]" type="hidden" class="bname" readonly value="' + brand_name + '">'+
 		     '<span class="sname" id="name_' + row_no + '">' + brand_name +'</span>'+
 		     '</td>';
-	    
-			
-			
-            tr_html += '<input class="form-control input-sm text-right rprice" name="net_price[]" type="hidden" id="price_' + row_no + '" value="' + formatDecimal(item_price) + '"><input class="ruprice" name="unit_price[]" type="hidden" value="' + unit_price + '"><input class="realuprice" name="real_unit_price[]" type="hidden" value="' + item.row.real_unit_price + '">';
-            tr_html += '<td><input class="form-control text-right rquantity" tabindex="'+((site.settings.set_focus == 1) ? an : (an+1))+'" name="quantity[]" type="text" value="' + formatDecimals(item_qty) + '" data-id="' + row_no + '" data-item="' + item_id + '" id="quantity_' + row_no + '" onClick="this.select();"><input name="product_unit[]" type="hidden" class="runit" value="' + product_unit + '"><input name="product_base_quantity[]" type="hidden" class="rbase_quantity" value="' + base_quantity + '"></td>';
+             tr_html += '<input class="form-control input-sm text-right rprice" name="net_price[]" type="hidden" id="price_' + row_no + '" value="' + formatDecimal(item_price) + '"><input class="ruprice" name="unit_price[]" type="hidden" value="' + unit_price + '"><input class="realuprice" name="real_unit_price[]" type="hidden" value="' + item.row.real_unit_price + '">';
+             tr_html += '<td><input class="form-control text-right rquantity" tabindex="'+((site.settings.set_focus == 1) ? an : (an+1))+'" name="quantity[]" type="text" value="' + formatDecimals(item_qty) + '" data-id="' + row_no + '" data-item="' + item_id + '" id="quantity_' + row_no + '" onClick="this.select();"><input name="product_unit[]" type="hidden" class="runit" value="' + product_unit + '"><input name="product_base_quantity[]" type="hidden" class="rbase_quantity" value="' + base_quantity + '"></td>';
             /*if ((site.settings.product_discount == 1 && allow_discount == 1) || item_discount) {
                 tr_html += '<td class="text-right"><input class="form-control input-sm rdiscount" name="product_discount[]" type="hidden" id="discount_' + row_no + '" value="' + item_ds + '"><span class="text-right sdiscount text-danger" id="sdiscount_' + row_no + '">' + formatMoney(0 - (item_discount * item_qty)) + '</span></td>';
             }*/
@@ -1007,7 +994,10 @@ function loadItems() {
                 tr_html += '<td class="text-right"><input class="form-control input-sm text-right rproduct_tax" name="product_tax[]" type="hidden" id="product_tax_' + row_no + '" value="' + pr_tax.id + '"><span class="text-right sproduct_tax" id="sproduct_tax_' + row_no + '">' + (pr_tax_rate ? '(' + formatDecimal(pr_tax_rate) + ')' : '') + ' ' + formatMoney(pr_tax_val * item_qty) + '</span></td>';
             }*/
 			
+             tr_html += '<td class="text-right"><input data-id="' + row_no + '" data-item="' + item_id + '" id="unit_name_' + row_no + '"  class="form-control runit_name text-right" readonly="readonly"  style="width:70px!important" name="unit_name[]" value="' +unit_name + '"></td>';
+
             tr_html += '<td class="text-right"><input data-id="' + row_no + '" data-item="' + item_id + '" id="cost_price_' + row_no + '"  class="form-control rcost_price text-right" readonly="readonly"  name="cost_price[]" value="' + formatDecimals(cost_price) + '"></td>';
+
 			tr_html += '<td class="text-right"><input data-id="' + row_no + '" data-item="' + item_id + '" id="selling_price_' + row_no + '"  class="form-control rselling_price" readonly="readonly" text-right" name="selling_price[]" value="' + formatDecimals(selling_price) + '"></td>';
 			
 		
@@ -1120,7 +1110,7 @@ function loadItems() {
             $('#reqwarehouse').select2("readonly", true);
 			$('#reqstore').select2("readonly", true);
         } else {
-            bootbox.alert(lang.select_above);
+            bootbox.alert(lang.select_supplier);
             item = null;
             return;
         }
@@ -1130,8 +1120,8 @@ function loadItems() {
 
    // var item_id = site.settings.item_addition == 1 ? item.item_id : item.id;
 	console.log(item)
-	var item_id = item.item_id+'_'+default_store+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id;
-	
+	var item_id = item.item_id+'_'+default_store+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id+'_'+item.row.variant_id;
+	//alert(item.row.variant_id);
     if (reqitems[item_id]) {
 
         var new_qty = parseFloat(reqitems[item_id].row.qty) + 1;

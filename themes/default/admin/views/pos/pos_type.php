@@ -111,8 +111,11 @@
         </ul>
     </li>
     
-   <li><a href="<?php echo site_url('frontend/logout'); ?>" onClick=" localStorage.clear(); "><button type="button" class="btn btn-default pull-left" title="Log Out"><i class="fa fa-sign-out" aria-hidden="true"></i> <?=lang('logout')?></button></a></li>
+   <li><a href="<?php echo site_url('frontend/logout'); ?>" onClick=" localStorage.clear(); "><button type="button" class="btn btn-default pull-left" title="Log Out"><i class="fa fa-sign-out" aria-hidden="true"></i> <?=lang('logout1')?></button></a></li>
+   
    </ul>
+   
+   
    </div>
   <div class="bg_table_front">
   	
@@ -159,7 +162,12 @@
 	   		<img src="<?=$assets?>images/billing.png">
 	   		<p><?=lang('billing')?></p>
 	   	</button>
-	   	
+		<a href="<?php  echo base_url('admin/pos/consolidate') ?>">
+		<button class="location"    <?php if($this->sma->actionPermissions('billing')){ echo ''; }else{  echo 'disabled'; }  ?> >
+	   		<img src="<?=$assets?>images/cons.png">
+	   		<p><?=lang('consolidate')?></p>
+	   	</button>
+	   	</a>
    </div>
   </div>
 </div>

@@ -1,9 +1,17 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 <script>
+ function buy_x_status(x) {
+    var y = x.split("__");
+	
+    return y[0] == 'Open' ?
+    '<a href="'+site.base_url+'system_settings/buy_x_get_x_deactivate/'+ y[1] +'/'+'Closed'+'"><span class="label label-success"><i class="fa fa-check"></i> '+lang['active']+'</span></a>' :
+    '<a href="'+site.base_url+'system_settings/buy_x_get_x_deactivate/'+ y[1] +'/'+'Open'+'"><span class="label label-danger"><i class="fa fa-times"></i> '+lang['inactive']+'</span><a/>';
+}
     $(document).ready(function () {
         function buy_type(x) {
             return (x == 1) ? "<?=lang('percentage')?>" : "<?=lang('fixed')?>";
         }
+
 
         oTable = $('#CURData').dataTable({
             "aaSorting": [[2, "asc"]],
@@ -28,7 +36,7 @@
             "aoColumns": [null,{
                 "bSortable": false,
                 "mRender": checkbox
-            }, null, null, null, null, null, null, null, {"bSortable": false}]
+            }, null, null, null, null, null, null,{"mRender": buy_x_status}, {"bSortable": false}]
         });
     });
 </script>

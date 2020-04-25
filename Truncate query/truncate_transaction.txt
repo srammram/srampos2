@@ -1,0 +1,60 @@
+TRUNCATE srampos_restaurant_table_orders;
+
+TRUNCATE srampos_kitchen_orders;
+TRUNCATE srampos_restaurant_table_sessions;
+
+TRUNCATE srampos_bils;
+TRUNCATE srampos_bil_items;
+TRUNCATE srampos_addon_bill_items;
+
+TRUNCATE srampos_orders;
+TRUNCATE srampos_order_items;
+
+TRUNCATE srampos_sales;
+TRUNCATE srampos_sale_items;
+TRUNCATE srampos_addon_sale_items;
+
+TRUNCATE srampos_sale_currency;
+TRUNCATE srampos_payments;
+
+
+TRUNCATE srampos_bbq;
+TRUNCATE srampos_bbq_bil_items;
+
+
+TRUNCATE srampos_rough_tender_sale_currency;
+TRUNCATE srampos_rough_tender_payments;
+
+
+
+TRUNCATE srampos_archive_restaurant_table_orders;
+
+TRUNCATE srampos_archive_kitchen_orders;
+TRUNCATE srampos_archive_restaurant_table_sessions;
+
+TRUNCATE srampos_archive_bils;
+TRUNCATE srampos_archive_bil_items;
+
+TRUNCATE srampos_archive_orders;
+TRUNCATE srampos_archive_order_items;
+
+TRUNCATE srampos_archive_sales;
+TRUNCATE srampos_archive_sale_items;
+
+TRUNCATE srampos_archive_sale_currency;
+TRUNCATE srampos_archive_payments;
+
+
+TRUNCATE srampos_archive_bbq;
+TRUNCATE srampos_archive_bbq_bil_items;
+
+
+TRUNCATE srampos_sale_return;
+TRUNCATE TABLE srampos_notiy;
+
+
+
+TRUNCATE srampos_archive_rough_tender_sale_currency;
+TRUNCATE srampos_archive_rough_tender_payments;
+UPDATE `srampos_latest_bill` SET `bill_number`="" ,dont_print_billnumber="";
+UPDATE srampos_restaurant_tables  SET current_order_status =0 AND current_order_user = 0

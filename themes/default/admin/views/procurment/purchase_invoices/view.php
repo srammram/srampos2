@@ -4,12 +4,12 @@
         font-weight: bold;
      }
 </style>
-<div class="modal-dialog modal-lg" style="width: 1159px !important;">
+<div class="modal-dialog modal-lg" style="width: 1259px !important;">
     <div class="modal-content">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-2x">&times;</i>
             </button>
-            <h4 class="modal-title" id="myModalLabel"><?=lang('purchase_order')?> <?=$orders->reference_no?></h4>
+            <h4 class="modal-title" id="myModalLabel"><?=lang('purchase_invoice')?> <?=$orders->reference_no?></h4>
         </div>
       
       
@@ -33,11 +33,22 @@
                     <td colspan=2 class="td-value"><?=$currency?></td>
                 </tr>
                 <tr>   
+                    <?php
+                        $supplier = '';
+                        $supplier_address = '';
+                        foreach ($suppliers as $supplier) {                                             
+                            if($orders->supplier_id == $supplier->id ){
+                               $supplier_address = $supplier->address.','.$supplier->city.','.$supplier->state;
+                               $supplier = $supplier->name;                                
+                               break;
+                            }                            
+                        }    
+                        ?>
                     <td colspan=2 ><?=lang('supplier')?>: </td>
-                    <td colspan=2 class="td-value"><?=$orders->supplier?></td>
+                    <td colspan=2 class="td-value"><?=$supplier?></td>
                     
                     <td colspan=2 ><?=lang('supplier_address')?>: </td>
-                    <td colspan=2 class="td-value"><?=$orders->supplier_address?></td>
+                    <td colspan=2 class="td-value"><?=$supplier_address?></td>
                     
                     <td colspan=2 ><?=lang('status')?>: </td>
                     <td colspan=2  class="td-value"><?=$orders->status?></td>
@@ -106,7 +117,7 @@
                             <td><?=$row['row']->product_code?></td>
                             <td><?=$row['row']->product_name?></td>
                             <td><?=$row['row']->quantity?></td>
-                            <td><?=$row['row']->batch?></td>
+                            <td><?=$row['row']->batch_no?></td>
                             <td><?=$row['row']->expiry?> <?=$row['row']->expiry_type?></td>
                             <td><?=$row['row']->cost?></td>
                             <td><?=$row['row']->gross?></td>
@@ -116,7 +127,7 @@
                             <td><?=$row['row']->item_bill_disc_amt?></td>
                             <td><?=$row['row']->total?></td>
                             <td><?=$row['row']->tax_rate?></td>
-                            <td><?=$row['row']->item_tax?></td>
+                            <td><?=$row['row']->tax?></td>
                             <td><?=$row['row']->landing_cost?></td>
                             <td><?=$row['row']->selling_price?></td>
                             <td><?=$row['row']->margin?></td>
@@ -159,7 +170,7 @@
                         <tr>                            
                             <td></td>
                             <td></td>
-                            <td colspan=5 class="pull-right"><?=lang('freight')?></td>
+                            <td colspan=5 class="pull-right"><?=lang('shipping_charge')?></td>
                             <td class="td-value"><?=$orders->shipping?></td>
                         </tr>
                         <tr>                            

@@ -34,21 +34,23 @@
                 var oSettings = oTable.fnSettings();
                 nRow.id = aData[1];
                 nRow.className = "recipe_link";
-		var oSettings = oTable.fnSettings();
+		        var oSettings = oTable.fnSettings();
                 $index = oSettings._iDisplayStart+parseInt(iDisplayIndex) +parseInt(1) ;
                 $("td:first", nRow).html($index);
                 //if(aData[7] > aData[9]){ nRow.className = "recipe_link warning"; } else { nRow.className = "recipe_link"; }
                 return nRow;
+				  
             },
 			 "aoColumns": [
-			 	null,{"bSortable": false, "mRender": checkbox}, null,null, null,null,null, {"bSortable": false, "mRender": recipe_img},  {"bSortable": false, "mRender": recipe_stock},  {"mRender": currencyFormat}, {"mRender": recipe_status},  {"bSortable": false}
+			 	null,{"bSortable": false, "mRender": checkbox}, null,null, null,null,null, {"bSortable": false, "mRender": recipe_img},  {"bSortable": false, "mRender": recipe_stock},  {"mRender": currencyFormat},   {"bSortable": false}
 			 ],
 		}).fnSetFilteringDelay().dtFilter([
-            {column_number: 4, filter_default_label: "[<?=lang('name');?>]", filter_type: "text", data: []},
-			{column_number: 5, filter_default_label: "[<?=lang('category');?>]", filter_type: "text", data: []},
-			{column_number: 6, filter_default_label: "[<?=lang('price');?>]", filter_type: "text", data: []},
+            {column_number: 3, filter_default_label: "[<?=lang('name');?>]", filter_type: "text", data: []},
+			{column_number: 4, filter_default_label: "[<?=lang('category');?>]", filter_type: "text", data: []},
+			{column_number: 5, filter_default_label: "[<?=lang('price');?>]", filter_type: "text", data: []},
 			],"footer");
 	});
+	
 </script>
 <?php if ($Owner || $GP['bulk_actions']) {
     echo admin_form_open('recipe/recipe_actions'.($warehouse_id ? '/'.$warehouse_id : ''), 'id="action-form"');
@@ -57,11 +59,9 @@
     <div class="box-header">
         <h2 class="blue"><i class="fa-fw fa fa-barcode"></i><?= lang('ingredients_mapping'); ?>
         </h2>
-
         <div class="box-icon">
             <ul class="btn-tasks">
                 <li class="dropdown">
-				
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#">
                         <i class="icon fa fa-tasks tip" data-placement="left" title="<?= lang("actions") ?>"></i>
                     </a>
@@ -71,58 +71,12 @@
                                 <i class="fa fa-plus-circle"></i> <?= lang('add_ingredients') ?>
                             </a>
                         </li>
-                        <?php if(!$warehouse_id) { ?>
-                        <!--<li>
-                            <a href="<?= admin_url('recipe/update_price') ?>" data-toggle="modal" data-target="#myModal">
-                                <i class="fa fa-file-excel-o"></i> <?= lang('update_price') ?>
-                            </a>
-                        </li>-->
-                        <?php } ?>
-                        <!--<li>
-                            <a href="#" id="labelrecipe" data-action="labels">
-                                <i class="fa fa-print"></i> <?= lang('print_barcode_label') ?>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" id="sync_quantity" data-action="sync_quantity">
-                                <i class="fa fa-arrows-v"></i> <?= lang('sync_quantity') ?>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" id="excel" data-action="export_excel">
-                                <i class="fa fa-file-excel-o"></i> <?= lang('export_to_excel') ?>
-                            </a>
-                        </li>-->
-                        <li>
-                            <a href="#" id="excel" data-action="export_excel">
-                                <i class="fa fa-file-excel-o"></i> <?= lang('export_to_excel') ?>
-                            </a>
-                        </li>
+                      
                         <li class="divider"></li>
-                       <!--  <li>
-                            <a href="#" class="bpo" title="<b><?= $this->lang->line("delete_recipe") ?></b>"
-                                data-content="<p><?= lang('r_u_sure') ?></p><button type='button' class='btn btn-danger' id='delete' data-action='delete'><?= lang('i_m_sure') ?></a> <button class='btn bpo-close'><?= lang('no') ?></button>"
-                                data-html="true" data-placement="left">
-                            <i class="fa fa-trash-o"></i> <?= lang('delete_recipe') ?>
-                             </a>
-                         </li> -->
+                      
                     </ul>
                 </li>
-                <?php // if (!empty($warehouses)) { ?>
-				<!--
-                    <li class="dropdown">
-                        <a data-toggle="dropdown" class="dropdown-toggle" href="#"><i class="icon fa fa-building-o tip" data-placement="left" title="<?= lang("warehouses") ?>"></i></a>
-                        <ul class="dropdown-menu pull-right tasks-menus" role="menu" aria-labelledby="dLabel">
-                            <li><a href="<?= admin_url('recipe') ?>"><i class="fa fa-building-o"></i> <?= lang('all_warehouses') ?></a></li>
-                            <li class="divider"></li>
-                            <?php
-                            /* foreach ($warehouses as $warehouse) {
-                                echo '<li><a href="' . admin_url('recipe/' . $warehouse->id) . '"><i class="fa fa-building"></i>' . $warehouse->name . '</a></li>';
-                            } */
-                            ?>
-                        </ul>
-                    </li> -->
-                <?php // } ?>
+              
             </ul>
         </div>
     </div>
@@ -135,22 +89,19 @@
                     <table id="PRData" class="table table-bordered table-condensed table-hover table-striped">
                         <thead>
                         <tr class="primary">
-			    <th><?= lang("s.no") ?></th>
+			            <th><?= lang("s.no") ?></th>
                             <th style="min-width:30px; width: 30px; text-align: center;">
                                 <input class="checkbox checkth" type="checkbox" name="check"/>
                             </th>
-			    <th><?= lang("item_type") ?></th>
+                            <th><?= lang("item_type") ?></th>
                             <th><?= lang("type") ?></th>
                             <th><?= lang("name") ?></th>
                             <th><?= lang("native_name") ?></th>
                             <th><?= lang("category") ?></th>
                             <th style="min-width:40px; width: 40px; text-align: center;"><?php echo $this->lang->line("image"); ?></th>
                             <th><?= lang("Stock") ?></th>
-			    <th><?= lang("price") ?></th>
-                            <th><?= lang("status") ?></th>
-                            
-                            
-                         
+                            <th><?= lang("price") ?></th>
+                            <!-- <th><?= lang("status") ?></th> -->
                             <th style="min-width:65px; text-align:center;"><?= lang("actions") ?></th>
                         </tr>
                         </thead>
@@ -162,23 +113,19 @@
 
                         <tfoot class="dtFilter">
                         <tr class="active">
-			    <th></th>
-                            <th style="min-width:30px; width: 30px; text-align: center;">
-                                <input class="checkbox checkft" type="checkbox" name="check"/>
-                            </th>
-			    <th></th>
-                            <th></th>
-			    <th></th>
-                            <th style="min-width:40px; width: 40px; text-align: center;"><?php echo $this->lang->line("image"); ?></th>
-                            <th></th>
-			    <th></th>
-                            <th></th>
-                             <th></th><th></th>
-                            
-                           
-                            
-                            
-                            <th style="width:65px; text-align:center;"><?= lang("actions") ?></th>
+                        <th></th>
+                        <th style="min-width:30px; width: 30px; text-align: center;">
+                        <input class="checkbox checkft" type="checkbox" name="check"/>
+                        </th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th style="min-width:40px; width: 40px; text-align: center;"><?php echo $this->lang->line("image"); ?></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th style="width:65px; text-align:center;"><?= lang("actions") ?></th>
                         </tr>
                         </tfoot>
                     </table>

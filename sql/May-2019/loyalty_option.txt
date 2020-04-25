@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_pos_settings` ADD `loyalty_option` TINYINT NOT NULL AFTER `item_comment_price_option`;

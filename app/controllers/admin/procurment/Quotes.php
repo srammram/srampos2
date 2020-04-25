@@ -43,13 +43,14 @@ class Quotes extends MY_Controller
 		 krsort($inv_items);
 		$c = rand(100000, 9999999);
 		foreach ($inv_items as $item) {
-			
-			$row = $this->siteprocurment->getRecipeByID($item->product_id);
+            $row = $this->siteprocurment->getRecipeByID($item->product_id);
+            if ($item->variant_id !=0) {
+                $variant_row = $this->siteprocurment->getVariantByID($item->variant_id); 
+                $row->name =$row->name.'-'.$variant_row->name;
+            }
 			$row->expiry = (($item->expiry && $item->expiry != '0000-00-00') ? $this->sma->hrsd($item->expiry) : '');
-			$row->mfg = (($item->mfg && $item->mfg != '0000-00-00') ? $this->sma->hrsd($item->mfg) : '');
-			
-			$row->batch_no = $item->batch_no ? $item->batch_no : '';
-						
+			$row->mfg = (($item->mfg && $item->mfg != '0000-00-00') ? $this->sma->hrsd($item->mfg) : '');			
+			$row->batch_no = $item->batch_no ? $item->batch_no : '';						
 			$row->base_quantity = $item->quantity;
 			$row->base_unit = $row->unit ? $row->unit : $item->product_unit_id;
 			$row->base_unit_cost = $row->cost ? $row->cost : $item->unit_cost;
@@ -64,11 +65,11 @@ class Quotes extends MY_Controller
 			$row->option = $item->option_id;
             // $row->real_unit_cost = $item->real_unit_price;
 			$row->real_unit_cost = $item->cost_price;
-			$row->cost = $this->sma->formatDecimal($item->net_unit_price + ($item->item_discount / $item->quantity));
+			// $row->cost = $this->sma->formatDecimal($item->net_unit_price + ($item->item_discount / $item->quantity));
 					
 			$row->tax_rate = $row->tax_rate;
 			$row->tax_method = $row->tax_method;
-			unset($row->details, $row->product_details, $row->price, $row->file, $row->product_group_id);
+			unset($row->details, $row->product_details, $row->file, $row->product_group_id);
 			$units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
 			$tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
 			
@@ -79,16 +80,20 @@ class Quotes extends MY_Controller
 			$row->subcategory_name = $item->subcategory_name;
 			$row->brand_id = $item->brand_id;
 			$row->brand_name = $item->brand_name;
-			$row->cost = $item->selling_price;
+            $row->cost = $item->cost_price ? $item->cost_price : 0;
+            $row->price = $item->selling_price ? $item->selling_price : 0;
+            $row->variant_id = $item->variant_id;
+			
 		
 			$ri = $this->Settings->item_addition ? $row->id : $row->id;
 			 $ri = $row->id;
-			$item_key = $ri.'_'.$item->store_id.'_'.$item->category_id.'_'.$item->subcategory_id.'_'.$item->brand_id;
+			$item_key = $ri.'_'.$item->store_id.'_'.$item->category_id.'_'.$item->subcategory_id.'_'.$item->brand_id.'_'.$item->variant_id;
 			$pr[$item_key] = array('store_id'=>$item->store_id,'id' => $c, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
 				'row' => $row, 'tax_rate' => $row->tax_rate, 'units' => $units, 'options' => $options);
 			$c++;
 		}
-		
+		/*echo "<pre>";
+        print_r($pr);die;*/
 		$data['quotesitem'] = $pr;
 		
 		
@@ -194,13 +199,15 @@ class Quotes extends MY_Controller
         if ($warehouse_id) {        
         // echo "fg";exit;    
             $this->datatables
-                ->select("id, DATE_FORMAT(date, '%Y-%m-%d %T') as date, reference_no, req_reference_no, supplier, status,attachment")
+                ->select("pro_quotes.id as quote_id, DATE_FORMAT(date, '%Y-%m-%d %T') as date, reference_no, req_reference_no, C.name as supplier, status,IFNULL(attachment,'') as attachment")
                 ->from('pro_quotes')
-                ->where('warehouse_id', $warehouse_id);
+                ->join('companies C','C.id=pro_quotes.supplier_id' ,'left')
+                ->where('pro_quotes.warehouse_id', $warehouse_id);
         } else {
             // echo "sdsd";exit;
             $this->datatables
-                ->select("id, DATE_FORMAT(date, '%Y-%m-%d %T') as date, reference_no, req_reference_no, supplier, status,attachment")
+                ->select("pro_quotes.id as quote_id, DATE_FORMAT(date, '%Y-%m-%d %T') as date, pro_quotes.reference_no, pro_quotes.req_reference_no,  C.name as supplier, pro_quotes.status,IFNULL(attachment,'') as attachment")
+                ->join('companies C','C.id=pro_quotes.supplier_id' ,'left')
                 ->from('pro_quotes');
                 
         }
@@ -211,7 +218,7 @@ class Quotes extends MY_Controller
             $this->datatables->where('customer_id', $this->session->userdata('user_id'));
         }*/
 	$this->datatables->edit_column('attachment', '$1__$2', $this->digital_upload_path.', attachment');
-        $this->datatables->add_column("Actions", $action, "id");
+        $this->datatables->add_column("Actions", $action, "quote_id");
 
         echo $this->datatables->generate();
     }
@@ -247,24 +254,32 @@ class Quotes extends MY_Controller
     public function view($quotes_id = null)
     {
 		
-        $this->sma->checkPermissions('index');
+    $this->sma->checkPermissions('index');
 	$id = $quotes_id;
-        $this->data['quotations'] =  $this->quotes_model->getQuotesByID($id);
-$inv_items = $this->quotes_model->getAllQuotesItems($id);   
+    $this->data['quotations'] =  $this->quotes_model->getQuotesByID($id);
+    $inv_items = $this->quotes_model->getAllQuotesItems($id);   
 
-             krsort($inv_items);
-            $c = rand(100000, 9999999);
-            foreach ($inv_items as $item) {
-                          
-                $row = $this->siteprocurment->getRecipeByID($item->product_id);                   
-               
-                $ri = $this->Settings->item_addition ? $row->id : $row->id;
+    krsort($inv_items);
+    $c = rand(100000, 9999999);
 
-                $pr[$ri.'_'.$item->store_id] = array('id' => $c, 'store_id'=>$item->store_id,'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
-                    'row' => $item, 'tax_rate' => $row->tax_rate);
+    foreach ($inv_items as $item) {
+
+        $store = $this->siteprocurment->getWarehouseByID($item->store_id);
+        
+                $item->store_name = $store->name;
+                $ri = $item->id;
+
+                $pr[$ri.'_'.$item->store_id] = array('row' => $item);
+                
                 $c++;
-            }
-			
+
+       /* $row = $this->siteprocurment->getRecipeByID($item->product_id);
+        $ri = $this->Settings->item_addition ? $row->id : $row->id;
+        $pr[$ri.'_'.$item->store_id] = array('id' => $c, 'store_id'=>$item->store_id,'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
+            'row' => $item, 'tax_rate' => $row->tax_rate);
+        $c++;*/
+    }
+			//echo "<pre>";print_r($pr);die;
             $this->data['quotations_items'] = $pr;
 	   //echo '<pre>';print_R($this->data['quotations']);
 			$q = $this->db->get_where('companies', array('id' => $this->data['quotations']->supplier_id));
@@ -457,12 +472,9 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
 
     /* -------------------------------------------------------------------------------------------------------------------------------- */
 
-    public function add($quotes_id = null)
-    {
+    public function add($quotes_id = null){
         $this->sma->checkPermissions();
 		
-		
-
        // $this->form_validation->set_message('is_natural_no_zero', $this->lang->line("no_zero_required"));
         //$this->form_validation->set_rules('warehouse', $this->lang->line("warehouse"), 'required|is_natural_no_zero');
         $this->form_validation->set_rules('supplier', $this->lang->line("supplier"), 'required');
@@ -471,7 +483,7 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
 		$this->form_validation->set_rules('quotes_no', $this->lang->line("quotes_no"), 'required');*/
 
         $this->session->unset_userdata('csrf_token');
-        if ($this->form_validation->run() == true) {          
+        if ($this->form_validation->run() == true) { //echo "<pre>";print_r($this->input->post());die;         
 	    $n = $this->siteprocurment->lastidQuotation();
 	    $reference = 'PQ'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
             //$reference = $this->input->post('quotation_no') ? $this->input->post('quotation_no') : $new_reference;
@@ -505,6 +517,7 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
             for ($r = 0; $r < $i; $r++) {
                 $store_id = $_POST['store_id'][$r];
                 $item_id = $_POST['product_id'][$r];
+                $variant_id = $_POST['variant_id'][$r];
                 $item_type = $_POST['product_type'][$r];
                 $item_code = $_POST['product_code'][$r];
                 $item_name = $_POST['product_name'][$r];
@@ -513,6 +526,7 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
                 $quantity = $_POST['quantity'][$r];
                 $item_unit = $_POST['product_unit'][$r];
                 $item_quantity = $_POST['product_base_quantity'][$r];
+				$item_unit_quantity = $_POST['product_base_quantity'][$r];
 
                 $item_option = isset($_POST['product_option'][$r]) && !empty($_POST['product_option'][$r]) && $_POST['product_option'][$r] != 'false' ? $_POST['product_option'][$r] : null;               
                 $item_tax_rate = isset($_POST['product_tax'][$r]) ? $_POST['product_tax'][$r] : null;
@@ -522,27 +536,22 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
                 $supplier_part_no = (isset($_POST['part_no'][$r]) && !empty($_POST['part_no'][$r])) ? $_POST['part_no'][$r] : null;
                 $item_unit = $_POST['product_unit'][$r];
                 $item_quantity = $_POST['quantity'][$r];
-		$category_id = $_POST['category_id'][$r];
+		        $category_id = $_POST['category_id'][$r];
                 $category_name = $_POST['category_name'][$r];
-		$subcategory_id = $_POST['subcategory_id'][$r];
+		        $subcategory_id = $_POST['subcategory_id'][$r];
                 $subcategory_name = $_POST['subcategory_name'][$r];
-		$brand_id = $_POST['brand_id'][$r];
+		        $brand_id = $_POST['brand_id'][$r];
                 $brand_name = $_POST['brand_name'][$r];
-
                 if (isset($item_code) && isset($unit_cost) &&  isset($quantity)) {
-
                     $product_details = $this->quotes_model->getProductByCode($item_code);                    
                     $pr_discount = $this->siteprocurment->calculateDiscount($item_discount, $unit_cost);
                     $unit_cost = $this->sma->formatDecimal($unit_cost - $pr_discount);
-					
                     $item_net_cost = $unit_cost;
                     $pr_item_discount = $this->sma->formatDecimal($pr_discount * $quantity);
                     $product_discount += $pr_item_discount;
                     $pr_item_tax = $item_tax = 0;
                     $tax = "";
-
                     if (isset($item_tax_rate) && $item_tax_rate != 0) {
-
                         $tax_details = $this->siteprocurment->getTaxRateByID($item_tax_rate);
                         $ctax = $this->siteprocurment->calculateTax($product_details, $tax_details, $unit_cost);
                         $item_tax = $ctax['amount'];
@@ -557,7 +566,6 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
                             $total_igst += $gst_data['igst'];
                         }
                     }
-
                     $product_tax += $pr_item_tax;
                     $subtotal = (($item_net_cost * $quantity) + $pr_item_tax);
                     $unit = $this->siteprocurment->getUnitByID($item_unit);
@@ -565,15 +573,16 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
                     $products[] = array(
                         'store_id' => $store_id,
                         'product_id' => $item_id,
+                        'variant_id' => $variant_id,
                         'product_code' => $item_code,
                         'product_name' => $item_name,
                         'cost_price' => $unit_cost,
                         'selling_price' => $selling_price,
                         'product_type' => $item_type,
                         'quantity' => $quantity,
-                        'unit_quantity' => $quantity,
+                        'unit_quantity' => $item_unit_quantity,
                         'product_unit_id' => $item_unit,
-                        // 'product_unit_code' => $unit->code,
+                        'product_unit_code' => $unit->code,
                         'warehouse_id' => $warehouse_id,
                         'category_id' => $category_id,
                         'category_name' => $category_name,
@@ -677,18 +686,7 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
 				);
 			}
 			
-           //$this->sma->print_arrays($data, $products, $quotes_array, $this->input->post('requestnumber'));
-		   //die;
         }
-        // echo "<pre>";
-        // print_r($data);die;
-        /*
-        
-        // var_dump($products);
-        var_dump($this->input->post('requestnumber'));
-        var_dump($quotes_array);
-        die;
-		 */
         if ($this->form_validation->run() == true && $this->quotes_model->addQuotes($data, $products, $quotes_array, $this->input->post('requestnumber'))) {
             
             $this->session->set_userdata('remove_pols', 1);
@@ -795,38 +793,24 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
 
     /* ------------------------------------------------------------------------------------- */
 
-    public function edit($id = null)
-    {
+    public function edit($id = null){
         $this->sma->checkPermissions();
-
         if ($this->input->get('id')) {
             $id = $this->input->get('id');
         }
-		
-		
         $inv = $this->quotes_model->getQuotesByID($id);
         if ($inv->status == 'approved' || $inv->status == 'completed') {
 			$this->session->set_flashdata('error', lang("Do not allowed edit option"));
 			admin_redirect("procurment/quotes");
 		}
-       /* if ($inv->status == 'returned' || $inv->return_id || $inv->return_purchase_ref) {
-            $this->session->set_flashdata('error', lang('purchase_x_action'));
-            admin_redirect(isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : 'welcome');
-        }*/
-        /*if (!$this->session->userdata('edit_right')) {
-            $this->sma->view_rights($inv->created_by);
-        }*/
+      
         // $this->form_validation->set_message('is_natural_no_zero', $this->lang->line("no_zero_required"));
         //$this->form_validation->set_rules('reference_no', $this->lang->line("ref_no"), 'required');
         //$this->form_validation->set_rules('warehouse', $this->lang->line("warehouse"), 'required|is_natural_no_zero');
         $this->form_validation->set_rules('supplier', $this->lang->line("supplier"), 'required');
-        // $this->form_validation->set_rules('requestnumber', $this->lang->line("requestnumber"), 'required');
-        //$this->form_validation->set_rules('supplier', $this->lang->line("supplier"), 'required');
-		//$this->form_validation->set_rules('requestnumber', $this->lang->line("requestnumber"), 'required');
-		
         $this->session->unset_userdata('csrf_token');
         if ($this->form_validation->run() == true) {
-
+            //echo "<pre>";print_r($this->input->post());die;
 
             $reference = $this->input->post('quotation_no');
             if ($this->Owner || $this->Admin) {
@@ -859,8 +843,9 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
             $gst_data = [];
             $total_cgst = $total_sgst = $total_igst = 0;
             for ($r = 0; $r < $i; $r++) {
-		$store_id = $_POST['store_id'][$r];
+                $store_id = $_POST['store_id'][$r];
                 $item_id = $_POST['product_id'][$r];
+                $variant_id = $_POST['variant_id'][$r];
                 $item_type = $_POST['product_type'][$r];
                 $item_code = $_POST['product_code'][$r];
                 $item_name = $_POST['product_name'][$r];
@@ -868,48 +853,26 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
                 $selling_price = $_POST['selling_price'][$r];
                 $quantity = $_POST['quantity'][$r];
                 $item_unit = $_POST['product_unit'][$r];
-                $item_quantity = $_POST['product_base_quantity'][$r];
-		$category_id = $_POST['category_id'][$r];
+                $item_unit_quantity = $_POST['product_base_quantity'][$r];
+                $category_id = $_POST['category_id'][$r];
                 $category_name = $_POST['category_name'][$r];
-		$subcategory_id = $_POST['subcategory_id'][$r];
+                $subcategory_id = $_POST['subcategory_id'][$r];
                 $subcategory_name = $_POST['subcategory_name'][$r];
-		$brand_id = $_POST['brand_id'][$r];
+                $brand_id = $_POST['brand_id'][$r];
                 $brand_name = $_POST['brand_name'][$r];
                 $item_net_cost = $this->sma->formatDecimal($_POST['net_cost'][$r]);
                 // $unit_cost = $this->sma->formatDecimal($_POST['unit_cost'][$r]);
 				$unit_cost_new = $this->sma->formatDecimal($_POST['unit_cost'][$r]);
                 $real_unit_cost = $this->sma->formatDecimal($_POST['real_unit_cost'][$r]);
-                $item_unit_quantity = $_POST['quantity'][$r];
+               // $item_unit_quantity = $_POST['quantity'][$r];
                 // $quantity_received = $_POST['received_base_quantity'][$r];
                 $item_option = isset($_POST['product_option'][$r]) && $_POST['product_option'][$r] != 'false' ? $_POST['product_option'][$r] : null;
                 $item_tax_rate = isset($_POST['product_tax'][$r]) ? $_POST['product_tax'][$r] : null;
 				$item_tax_method = isset($_POST['tax1'][$r]) ? $_POST['tax1'][$r] : 0;
                 $item_discount = isset($_POST['product_discount'][$r]) ? $_POST['product_discount'][$r] : null;
-				
-                // $item_expiry = (isset($_POST['expiry'][$r]) && !empty($_POST['expiry'][$r])) ? $this->sma->fsd($_POST['expiry'][$r]) : null;
-				// $item_mfg = (isset($_POST['mfg'][$r]) && !empty($_POST['mfg'][$r])) ? $this->sma->fsd($_POST['mfg'][$r]) : null;
-				// $item_batch_no = isset($_POST['batch_no'][$r]) ? $_POST['batch_no'][$r] : null;
-				
-                // $supplier_part_no = (isset($_POST['part_no'][$r]) && !empty($_POST['part_no'][$r])) ? $_POST['part_no'][$r] : null;
-                // $quantity_balance = $_POST['quantity_balance'][$r];
-                // $ordered_quantity = $_POST['ordered_quantity'][$r];
                 $item_unit = $_POST['product_unit'][$r];
                 $item_quantity = $_POST['product_base_quantity'][$r];
-
-                // if ($status == 'received' || $status == 'partial') {
-                //     if ($quantity_received < $item_quantity) {
-                //         $partial = 'partial';
-                //     } elseif ($quantity_received > $item_quantity) {
-                //         $this->session->set_flashdata('error', lang("received_more_than_ordered"));
-                //         redirect($_SERVER["HTTP_REFERER"]);
-                //     }
-                //     $balance_qty =  $quantity_received - ($ordered_quantity - $quantity_balance);
-                // } else {
-                //     $balance_qty = $item_quantity;
-                //     $quantity_received = $item_quantity;
-                // }
                 if (isset($item_code) && isset($unit_cost) && isset($item_quantity)) {
-
                     $product_details = $this->quotes_model->getProductByCode($item_code);
                     // $unit_cost = $real_unit_cost;
                     $pr_discount = $this->siteprocurment->calculateDiscount($item_discount, $unit_cost);
@@ -920,46 +883,29 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
                     $pr_item_tax = 0;
                     $item_tax = 0;
                     $tax = "";
-
-                    /*if (isset($item_tax_rate) && $item_tax_rate != 0) {
-
-                        $tax_details = $this->siteprocurment->getTaxRateByID($item_tax_rate);
-                        $ctax = $this->siteprocurment->calculateTax($product_details, $tax_details, $unit_cost);
-                        $item_tax = $ctax['amount'];
-                        $tax = $ctax['tax'];
-                        if ($product_details->tax_method != 1) {
-                            $item_net_cost = $unit_cost - $item_tax;
-                        }
-                        $pr_item_tax = $this->sma->formatDecimal($item_tax * $item_unit_quantity, 4);
-                        if ($this->Settings->indian_gst && $gst_data = $this->gst->calculteIndianGST($pr_item_tax, ($this->Settings->state == $supplier_details->state), $tax_details)) {
-                            $total_cgst += $gst_data['cgst'];
-                            $total_sgst += $gst_data['sgst'];
-                            $total_igst += $gst_data['igst'];
-                        }
-                    }*/
-
                     $product_tax += $pr_item_tax;
                     $subtotal = (($item_net_cost * $item_unit_quantity) + $pr_item_tax);
                     $unit = $this->siteprocurment->getUnitByID($item_unit);
                     /*update common_quote_items*/
                      $item[] = array(
-			'store_id' => $store_id,
+                        'store_id' => $store_id,
                         'product_id' => $item_id,
+                        'variant_id' => $variant_id,
                         'product_code' => $item_code,
                         'product_name' => $item_name,
                         'cost_price' => $unit_cost,
                         'selling_price' => $selling_price,
                         'product_type' => $item_type,
                         'quantity' => $quantity,
-                        'unit_quantity' => $quantity,
+                        'unit_quantity' => $item_unit_quantity,
                         'product_unit_id' => $item_unit,
-                       // 'product_unit_code' => $unit->code,
+                        'product_unit_code' => $unit->code,
                         'warehouse_id' => $warehouse_id,
-			'category_id' => $category_id,
+                        'category_id' => $category_id,
                         'category_name' => $category_name,
-			'subcategory_id' => $subcategory_id,
+                        'subcategory_id' => $subcategory_id,
                         'subcategory_name' => $subcategory_name,
-			'brand_id' => $brand_id,
+                        'brand_id' => $brand_id,
                         'brand_name' => $brand_name,
                     );
                     // $items[] = ($item+$gst_data);
@@ -1000,8 +946,8 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
                 'updated_by' => $this->session->userdata('user_id'),                
                 'updated_on' => date('Y-m-d H:i:s'),
                 'hash' => hash('sha256', microtime() . mt_rand()),
-		'total_no' => $this->input->post('total_no_items'),
-		'total_qty' => $this->input->post('total_no_qty'),
+        		'total_no' => $this->input->post('total_no_items'),
+        		'total_qty' => $this->input->post('total_no_qty'),
             );
             if($status=="approved"){
 		$data['approved_by'] = $this->session->userdata('user_id');
@@ -1028,10 +974,8 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
                 }
                 $photo = $this->upload->file_name;
                 $data['attachment'] = $photo;
-		@unlink($this->digital_upload_path.$inv->attachment);
+		         @unlink($this->digital_upload_path.$inv->attachment);
             }
-
-             //$this->sma->print_arrays($data, $items);die;
         }
 
         if ($this->form_validation->run() == true && $this->quotes_model->updateQuotes($id, $data, $item)) {             
@@ -1050,23 +994,21 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
             }
 	  
             $inv_items = $this->quotes_model->getAllQuotesItems($id);   
-
+//echo "<pre>";print_r($inv_items);die;
              krsort($inv_items);
-            $c = rand(100000, 9999999);
+            $c = rand(100000, 9999999);            
             foreach ($inv_items as $item) {
-                          
                 $row = $this->siteprocurment->getRecipeByID($item->product_id);
-		
-                $row->base_quantity = $item->quantity;
+                $row->base_quantity = $item->unit_quantity;
                 $row->base_unit = $row->unit ? $row->unit : $item->product_unit_id;
                 $row->base_unit_cost = $row->cost ? $row->cost : $item->unit_price;
                 $row->unit = $item->product_unit_id;
-                $row->qty = $item->unit_quantity;
-                $row->oqty = $item->quantity;
-		
-		$row->cost = $item->selling_price;
-                $row->purchase_cost = $item->cost_price;
-		
+                $row->unit_name = $item->unit_name;
+                $row->qty = $item->quantity;
+                $row->oqty = $item->quantity;		
+                $row->cost = $item->cost_price;
+		        $row->price = $item->selling_price;
+                $row->purchase_cost = $item->cost_price;		
                 // $row->supplier_part_no = $item->supplier_part_no;
                 // $row->received = $item->quantity_received ? $item->quantity_received : $item->quantity;
                 // $row->quantity_balance = $item->quantity_balance + ($item->quantity-$row->received);
@@ -1078,22 +1020,22 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
                
                 $row->tax_rate = $item->tax_rate_id;
 				$row->tax_method = $item->item_tax_method ? $item->item_tax_method : 0;
-                unset($row->details, $row->product_details, $row->price, $row->file, $row->product_group_id);
+                unset($row->details, $row->product_details, $row->file, $row->product_group_id);
                 $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
                 $tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
                 $ri = $this->Settings->item_addition ? $row->id : $row->id;
-		$row->category_id = $item->category_id;
+                $row->category_id = $item->category_id;
                 $row->category_name = $item->category_name;
-		$row->subcategory_id = $item->subcategory_id;
+                $row->subcategory_id = $item->subcategory_id;
                 $row->subcategory_name = $item->subcategory_name;
-		$row->brand_id = $item->brand_id;
+                $row->brand_id = $item->brand_id;
                 $row->brand_name = $item->brand_name;
-		$item_key = $ri.'_'.$item->store_id.'_'.$item->category_id.'_'.$item->subcategory_id.'_'.$item->brand_id;
+                $row->variant_id = $item->variant_id;
+                $item_key = $ri.'_'.$item->store_id.'_'.$item->category_id.'_'.$item->subcategory_id.'_'.$item->brand_id.'_'.$item->variant_id;
                 $pr[$item_key] = array('id' => $c, 'store_id'=>$item->store_id,'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
                     'row' => $row, 'tax_rate' => $row->tax_rate, 'units' => $units, 'options' => $options);
                 $c++;
-            }
- 
+            }            
             $this->data['inv_items'] = json_encode($pr);
             $this->data['id'] = $id;
             $this->data['suppliers'] = $this->siteprocurment->getAllCompanies('supplier');
@@ -1359,15 +1301,19 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
         if ($this->input->get('id')) {
             $id = $this->input->get('id');
         }
-        if ($this->quotes_model->deleteQuotes($id)) {
-
-            if ($this->input->is_ajax_request()) {
-                $this->sma->send_json(array('error' => 0, 'msg' => lang("quotes_deleted")));
+        $delete_check = $this->quotes_model->checkquotetatus($id);
+        if($delete_check == FALSE){
+            if ($this->quotes_model->deleteQuotes($id)) {            
+                if ($this->input->is_ajax_request()) {
+                    $this->sma->send_json(array('error' => 0, 'msg' => lang("quotes_deleted")));
+                }
+                $this->session->set_flashdata('message', lang('quotes_deleted'));
+                admin_redirect('procurment/welcome');
+            } 
+         }else{
+              $this->sma->send_json(array('error' => 1, 'msg' => lang("could_not_be_delete_this_quotation")));  
             }
-            $this->session->set_flashdata('message', lang('quotes_deleted'));
-            admin_redirect('procurment/welcome');
         }
-    }
     
     /* --------------------------------------------------------------------------- */
 
@@ -1385,7 +1331,8 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
         $option_id = $analyzed['option_id'];
 
         $rows = $this->siteprocurment->getProductNames($sr);
-		
+		/*echo "<pre>";
+        print_r($rows);die;*/
         if ($rows) {
             $c = str_replace(".", "", microtime(true));
             $r = 0;
@@ -1410,6 +1357,7 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
                 }
                 $row->cost = $supplier_id ? $this->getSupplierCost($supplier_id, $row) : $row->cost;
                 $row->real_unit_cost = $row->cost;
+                $row->price = $row->price;
                 $row->base_quantity = 1;
                 $row->base_unit = $row->unit;
                 $row->base_unit_cost = $row->cost;
@@ -1419,11 +1367,10 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
                 $row->qty = 1;
                 $row->quantity_balance = '';
                 $row->discount = '0';
-                unset($row->details, $row->product_details, $row->price, $row->file, $row->supplier1price, $row->supplier2price, $row->supplier3price, $row->supplier4price, $row->supplier5price, $row->supplier1_part_no, $row->supplier2_part_no, $row->supplier3_part_no, $row->supplier4_part_no, $row->supplier5_part_no);
-
+                unset($row->details, $row->product_details, $row->file, $row->supplier1price, $row->supplier2price, $row->supplier3price, $row->supplier4price, $row->supplier5price, $row->supplier1_part_no, $row->supplier2_part_no, $row->supplier3_part_no, $row->supplier4_part_no, $row->supplier5_part_no);
                 $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
                 $tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
-		$label = $row->name . " (" . $row->code . ") CAT - ".$row->category_name." | SUBCAT - ".$row->subcategory_name." | BRAND - ".$row->brand_name;
+				$label = $row->name . " (" . $row->code . ") CAT - ".$row->category_name." | SUBCAT - ".$row->subcategory_name." | BRAND - ".$row->brand_name;
                 $pr[] = array('id' => ($c + $r), 'item_id' => $row->id, 'label' => $label,
                     'row' => $row, 'tax_rate' => $tax_rate, 'units' => $units, 'options' => $options);
                 $r++;
@@ -1436,8 +1383,7 @@ $inv_items = $this->quotes_model->getAllQuotesItems($id);
 
     /* -------------------------------------------------------------------------------- */
 
-    public function quotes_actions()
-    {
+    public function quotes_actions(){
         if (!$this->Owner && !$this->GP['bulk_actions']) {
             $this->session->set_flashdata('warning', lang('access_denied'));
             redirect($_SERVER["HTTP_REFERER"]);

@@ -1,10 +1,4 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
-/*
- *  ==============================================================================
- *  Author  : Tharani
- *  Email   : info@srampos.com
- *  ==============================================================================
- */
 
 class Backup
 {

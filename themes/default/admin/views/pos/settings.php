@@ -15,9 +15,7 @@
     <div class="box-content">
         <div class="row">
             <div class="col-lg-12">
-
                 <p class="introtext"><?= lang('update_info'); ?></p>
-
                 <?php
                 $attrib = array('data-toggle' => 'validator', 'role' => 'form', 'id' => 'pos_setting');
                 echo admin_form_open("pos/settings", $attrib);
@@ -225,7 +223,16 @@
                             ?>
                             <?= form_dropdown('loyalty_option', $loyalty_option, $pos->loyalty_option, 'class="form-control" id="loyalty_option" required="required"'); ?>
                         </div>
-                    </div>                  
+                    </div> 
+
+						<div class="col-md-4 col-sm-4">
+                        <div class="form-group">
+                            <?= lang('Sales Item Search'); ?>
+                            <?php $item_search =  array(0 => lang('Both'), 1 => lang('Code Search'), 2 => lang('Name Search')); 
+                            ?>
+                            <?= form_dropdown('item_search', $item_search, $pos->item_search, 'class="form-control" id="item_search" required="required"'); ?>
+                        </div>
+                    </div> 					
 
                    
                 </fieldset>
@@ -314,6 +321,66 @@
                     </div>
 
                 </fieldset>
+
+
+
+                <fieldset class="scheduler-border">
+                    <legend class="scheduler-border"><?= lang('pos_receipt_settings') ?></legend>
+                    <div class="col-md-6 col-sm-6">
+                        <div class="form-group col-md-12">
+                            <?= lang('vat_number','vat_number'); ?>
+                            <?php $vat_number =  array(0 => lang('disable'), 1 => lang('enable')); 
+                            ?>
+                            <?= form_dropdown('vat_number_print', $vat_number, $pos->vat_number_print, 'class="form-control" id="vat_number" required="required"'); ?>
+							<br>
+							<label><input type="checkbox" name="vat_print[]"value="1"  <?php   echo in_array(1,json_decode($pos->vat_print))?"checked":"" ;    ?>>Billprint</label>
+						    <label><input type="checkbox" name="vat_print[]" value="2"   <?php   echo in_array(2,json_decode($pos->vat_print))?"checked":"" ;    ?>>Print only</label>
+						    <label><input type="checkbox" name="vat_print[]" value="3"  <?php   echo in_array(3,json_decode($pos->vat_print))?"checked":"" ;    ?>>Payment print</label>
+						    <label><input type="checkbox" name="vat_print[]" value="4"  <?php   echo in_array(4,json_decode($pos->vat_print))?"checked":"" ;    ?>>Reprint</label>
+                        </div>
+                    </div>
+					 <div class="col-md-6 col-sm-6">
+                        <div class="form-group col-md-12">
+                            <?= lang('number_of_people','number_of_people'); ?>
+                            <?php $number_of_people =  array(0 => lang('disable'), 1 => lang('enable')); 
+                            ?>
+                            <?= form_dropdown('number_of_people_print', $number_of_people, $pos->number_of_people_print, 'class="form-control" id="number_of_people" required="required"'); ?>
+							<br>
+							<label><input type="checkbox" name="nop_print[]" value="1" <?php   echo in_array(1,json_decode($pos->nop_print))?"checked":"" ;    ?>>Billprint</label>
+						    <label><input type="checkbox" name="nop_print[]" value="2" <?php   echo in_array(2,json_decode($pos->nop_print))?"checked":"" ;    ?>>Print only</label>
+						    <label><input type="checkbox" name="nop_print[]" value="3" <?php   echo in_array(3,json_decode($pos->nop_print))?"checked":"" ;    ?>>Payment print</label>
+						    <label><input type="checkbox" name="nop_print[]" value="4" <?php   echo in_array(4,json_decode($pos->nop_print))?"checked":"" ;    ?>>Reprint</label>
+                        </div>
+                    </div>
+					 <div class="col-md-6 col-sm-6">
+                        <div class="form-group col-md-12">
+                            <?= lang('floor_area','floor_area'); ?>
+                            <?php $floor_area =  array(0 => lang('disable'), 1 => lang('enable')); 
+                            ?>
+                            <?= form_dropdown('floor_area_print', $floor_area, $pos->floor_area_print, 'class="form-control" id="floor_area" required="required"'); ?>
+							<br>
+							<label><input type="checkbox" name="floor_print[]" value="1" <?php   echo in_array(1,json_decode($pos->floor_print))?"checked":"" ;    ?>>Billprint</label>
+						    <label><input type="checkbox" name="floor_print[]" value="2" <?php   echo in_array(2,json_decode($pos->floor_print))?"checked":"" ;    ?>>Print only</label>
+						    <label><input type="checkbox" name="floor_print[]" value="3" <?php   echo in_array(3,json_decode($pos->floor_print))?"checked":"" ;    ?>>Payment print</label>
+						    <label><input type="checkbox" name="floor_print[]" value="4" <?php   echo in_array(4,json_decode($pos->floor_print))?"checked":"" ;    ?>>Reprint</label>
+                        </div>
+                    </div>
+					 <div class="col-md-6 col-sm-6">
+                        <div class="form-group col-md-12">
+                            <?= lang('customer_name','customer_name'); ?>
+                            <?php $customer_name =  array(0 => lang('disable'), 1 => lang('enable')); 
+                            ?>
+                            <?= form_dropdown('customer_name', $customer_name, $pos->customer_name, 'class="form-control" id="customer_name" required="required"'); ?>
+							<br>
+							<label><input type="checkbox" name="cus_print[]" value="1" <?php   echo in_array(1,json_decode($pos->cus_print))?"checked":"" ;    ?>>Billprint</label>
+						    <label><input type="checkbox" name="cus_print[]" value="2" <?php   echo in_array(2,json_decode($pos->cus_print))?"checked":"" ;    ?>>Print only</label>
+						    <label><input type="checkbox" name="cus_print[]" value="3" <?php   echo in_array(3,json_decode($pos->cus_print))?"checked":"" ;    ?>>Payment print</label>
+						    <label><input type="checkbox" name="cus_print[]" value="4" <?php   echo in_array(4,json_decode($pos->cus_print))?"checked":"" ;    ?>>Reprint</label>
+                        </div>
+                    </div>
+
+                </fieldset>
+
 
                 <fieldset class="scheduler-border">
                     <legend class="scheduler-border"><?= lang('table_&_pos_header_settings') ?></legend>

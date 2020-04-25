@@ -76,12 +76,7 @@ function formatMoney(x, symbol) {
 $currency = $this->site->getAllCurrencies();
 ?>
 <div id="wrapper">
-   
-	<?php
-	$this->load->view($this->theme . 'qsr/qsr_header');
-	?>
-    
-    
+<?php  $this->load->view($this->theme . 'qsr/qsr_header');  ?>
     <div id="content">
         <div class="c1">
             <div class="pos">
@@ -1866,7 +1861,10 @@ function widthFunctions(e) {
 
         /*$(document).on('click', '.recipe', function (e) {*/
         $(document).on('click', '.recipe:not(".has-varients")', function (e) {
-            
+          if($(this).hasClass("non_transaction")){
+			 bootbox.alert('ITEM IS NOT AVAILABLE');
+			 return false;
+			}
             $('#modal-loading').show();
             code = $(this).val(),
 			
@@ -1893,7 +1891,10 @@ function widthFunctions(e) {
         });
 
     $(document).on('click', '.recipe-varient', function (e) {
-            
+           if($(this).hasClass("non_transaction")){
+			 bootbox.alert('ITEM IS NOT AVAILABLE');
+			 return false;
+			}
             code = $(this).val(),
         $('#myVaraintModal').modal('hide');$('#modal-loading').show();
                 wh = $('#poswarehouse').val(),

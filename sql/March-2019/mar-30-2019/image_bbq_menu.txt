@@ -1,0 +1,3 @@
+ALTER TABLE `srampos_bbq_menu` ADD `image` VARCHAR(255) NOT NULL AFTER `kids_price`;
+
+ALTER TABLE `srampos_bbq_menu` ADD `khmer_name` VARCHAR(50) NOT NULL AFTER `name`;

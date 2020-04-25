@@ -1,15 +1,11 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Production_model extends CI_Model
-{
-
+class Production_model extends CI_Model{
     public function __construct()
     {
         parent::__construct();
     }
-
-    public function getAllproduction()
-    {
+    public function getAllproduction(){
         $q = $this->db->get('production');
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -20,8 +16,7 @@ class Production_model extends CI_Model
         return FALSE;
     }
 	
-	public function getproductionItems($id)
-    {
+	public function getproductionItems($id){
 		$this->db->where('production_id', $id);
         $q = $this->db->get('production_items');
         if ($q->num_rows() > 0) {
@@ -34,8 +29,7 @@ class Production_model extends CI_Model
     }
 	
 
-    public function getCategoryproduction($category_id)
-    {
+    public function getCategoryproduction($category_id){
         $q = $this->db->get_where('production', array('category_id' => $category_id));
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -389,8 +383,7 @@ class Production_model extends CI_Model
 
     }
 	
-	public function addproduction_new($production_array, $purchases_item)
-    {
+	public function addproduction_new($production_array, $purchases_item){
         if ($this->db->insert('production', $production_array)) {
             $production_id = $this->db->insert_id();
 			if ($purchases_item && !empty($purchases_item)) {
@@ -402,13 +395,8 @@ class Production_model extends CI_Model
             return true;
         }
         return false;
-
     }
-	
-	
-
-    public function getPrductVariantByPIDandName($production_id, $name)
-    {
+    public function getPrductVariantByPIDandName($production_id, $name){
         $q = $this->db->get_where('production_variants', array('production_id' => $production_id, 'name' => $name), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -416,8 +404,7 @@ class Production_model extends CI_Model
         return FALSE;
     }
 
-    public function addAjaxproduction($data)
-    {
+    public function addAjaxproduction($data){
         if ($this->db->insert('production', $data)) {
             $production_id = $this->db->insert_id();
             return $this->getproductionByID($production_id);
@@ -425,24 +412,20 @@ class Production_model extends CI_Model
         return false;
     }
 	
-	public function getproductionProductsalesUnits($term)
-    {
+	public function getproductionProductsalesUnits($term){
         $this->db->select("units.name, units.id", FALSE);
-	   $this->db->join('units', 'units.id=products.sale_unit', 'left');
+	    $this->db->join('units', 'units.id=products.sale_unit', 'left');
 	    $this->db->where("products.id = ".$term." ");
         $q = $this->db->get('products');
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
             }
-
             return $data;
         }
     }
 	
-	public function getproductionProductSuggestions($term, $limit = 10)
-    {
-		
+	public function getproductionProductSuggestions($term, $limit = 10){
         $this->db->select("id, (CASE WHEN code = '-' THEN name ELSE CONCAT(code, ' - ', name, ' ') END) as text", FALSE);
         $this->db->where(" (id LIKE '%" . $term . "%' OR name LIKE '%" . $term . "%' OR code LIKE '%" . $term . "%') ");
         $q = $this->db->get('products', '', $limit);
@@ -457,8 +440,7 @@ class Production_model extends CI_Model
     }
 	
 
-    public function add_production($production = array())
-    {
+    public function add_production($production = array()){
         if (!empty($production)) {
             foreach ($production as $production) {
                 $variants = explode('|', $production['variants']);
@@ -478,8 +460,7 @@ class Production_model extends CI_Model
         return false;
     }
 
-    public function getproductionNames($term, $limit = 10)
-    {
+    public function getproductionNames($term, $limit = 10){
         $this->db->select('*')
             ->where("name LIKE '%" . $term . "%' ");
         $this->db->limit($limit);
@@ -493,8 +474,7 @@ class Production_model extends CI_Model
         return false;
     }
 
-    public function getQASuggestions($term, $limit = 5)
-    {
+    public function getQASuggestions($term, $limit = 5){
         $this->db->select('' . $this->db->dbprefix('production') . '.id, code, ' . $this->db->dbprefix('production') . '.name as name')
             ->where("type != 'combo' AND "
                 . "(" . $this->db->dbprefix('production') . ".name LIKE '%" . $term . "%' OR code LIKE '%" . $term . "%' OR
@@ -510,8 +490,7 @@ class Production_model extends CI_Model
         return false;
     }
 
-    public function getproductionForPrinting($term, $limit = 5)
-    {
+    public function getproductionForPrinting($term, $limit = 5){
         $this->db->select('' . $this->db->dbprefix('production') . '.id, code, ' . $this->db->dbprefix('production') . '.name as name, ' . $this->db->dbprefix('production') . '.price as price')
             ->where("(" . $this->db->dbprefix('production') . ".name LIKE '%" . $term . "%' OR code LIKE '%" . $term . "%' OR
                 concat(" . $this->db->dbprefix('production') . ".name, ' (', code, ')') LIKE '%" . $term . "%')")
@@ -526,10 +505,8 @@ class Production_model extends CI_Model
         return false;
     }
 
-    public function updateproduction($id, $data, $items, $warehouse_qty, $production_attributes, $photos, $update_variants)
-    {
+    public function updateproduction($id, $data, $items, $warehouse_qty, $production_attributes, $photos, $update_variants){
         if ($this->db->update('production', $data, array('id' => $id))) {
-
             if ($items) {
                 $this->db->delete('combo_items', array('production_id' => $id));
                 foreach ($items as $item) {
@@ -539,35 +516,28 @@ class Production_model extends CI_Model
             }
 
             $tax_rate = $this->site->getTaxRateByID($data['tax_rate']);
-
             if ($warehouse_qty && !empty($warehouse_qty)) {
                 foreach ($warehouse_qty as $wh_qty) {
                     $this->db->update('warehouses_production', array('rack' => $wh_qty['rack']), array('production_id' => $id, 'warehouse_id' => $wh_qty['warehouse_id']));
                 }
             }
-
             if (!empty($update_variants)) {
                 $this->db->update_batch('production_variants', $update_variants, 'id');
             }
-
             if ($photos) {
                 foreach ($photos as $photo) {
                     $this->db->insert('production_photos', array('production_id' => $id, 'photo' => $photo));
                 }
             }
-
             if ($production_attributes) {
                 foreach ($production_attributes as $pr_attr) {
-
                     $pr_attr['production_id'] = $id;
                     $variant_warehouse_id = $pr_attr['warehouse_id'];
                     unset($pr_attr['warehouse_id']);
                     $this->db->insert('production_variants', $pr_attr);
                     $option_id = $this->db->insert_id();
-
                     if ($pr_attr['quantity'] != 0) {
                         $this->db->insert('warehouses_production_variants', array('option_id' => $option_id, 'production_id' => $id, 'warehouse_id' => $variant_warehouse_id, 'quantity' => $pr_attr['quantity']));
-
                         $tax_rate_id = $tax_rate ? $tax_rate->id : NULL;
                         $tax = $tax_rate ? (($tax_rate->type == 1) ? $tax_rate->rate . "%" : $tax_rate->rate) : NULL;
                         $unit_cost = $data['cost'];
@@ -625,8 +595,7 @@ class Production_model extends CI_Model
         }
     }
 	
-	public function updateproduction_new($id, $production_array, $purchases_item)
-    {
+	public function updateproduction_new($id, $production_array, $purchases_item){
         
 		if ($this->db->update('production', $production_array, array('id' => $id))) {
 			$this->db->delete('production_items', array('production_id' => $id));
@@ -812,9 +781,7 @@ class Production_model extends CI_Model
         return FALSE;
     }
 
-    public function addQuantity($production_id, $warehouse_id, $quantity, $rack = NULL)
-    {
-
+    public function addQuantity($production_id, $warehouse_id, $quantity, $rack = NULL){
         if ($this->getproductionQuantity($production_id, $warehouse_id)) {
             if ($this->updateQuantity($production_id, $warehouse_id, $quantity, $rack)) {
                 return TRUE;
@@ -828,8 +795,7 @@ class Production_model extends CI_Model
         return FALSE;
     }
 
-    public function insertQuantity($production_id, $warehouse_id, $quantity, $rack = NULL)
-    {
+    public function insertQuantity($production_id, $warehouse_id, $quantity, $rack = NULL){
         $production = $this->site->getproductionByID($production_id);
         if ($this->db->insert('warehouses_production', array('production_id' => $production_id, 'warehouse_id' => $warehouse_id, 'quantity' => $quantity, 'rack' => $rack, 'avg_cost' => $production->cost))) {
             $this->site->syncproductionQty($production_id, $warehouse_id);
@@ -882,8 +848,7 @@ class Production_model extends CI_Model
         return false;
     }
 
-    public function getproductionWarehouseOptionQty($option_id, $warehouse_id)
-    {
+    public function getproductionWarehouseOptionQty($option_id, $warehouse_id){
         $q = $this->db->get_where('warehouses_production_variants', array('option_id' => $option_id, 'warehouse_id' => $warehouse_id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -891,8 +856,7 @@ class Production_model extends CI_Model
         return FALSE;
     }
 
-    public function syncVariantQty($option_id)
-    {
+    public function syncVariantQty($option_id){
         $wh_pr_vars = $this->getproductionWarehouseOptions($option_id);
         $qty = 0;
         foreach ($wh_pr_vars as $row) {
@@ -904,8 +868,7 @@ class Production_model extends CI_Model
         return FALSE;
     }
 
-    public function getproductionWarehouseOptions($option_id)
-    {
+    public function getproductionWarehouseOptions($option_id){
         $q = $this->db->get_where('warehouses_production_variants', array('option_id' => $option_id));
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -916,16 +879,14 @@ class Production_model extends CI_Model
         return FALSE;
     }
 
-    public function setRack($data)
-    {
+    public function setRack($data){
         if ($this->db->update('warehouses_production', array('rack' => $data['rack']), array('production_id' => $data['production_id'], 'warehouse_id' => $data['warehouse_id']))) {
             return TRUE;
         }
         return FALSE;
     }
 
-    public function getSoldQty($id)
-    {
+    public function getSoldQty($id){
         $this->db->select("date_format(" . $this->db->dbprefix('sales') . ".date, '%Y-%M') month, SUM( " . $this->db->dbprefix('sale_items') . ".quantity ) as sold, SUM( " . $this->db->dbprefix('sale_items') . ".subtotal ) as amount")
             ->from('sales')
             ->join('sale_items', 'sales.id=sale_items.sale_id', 'left')
@@ -1142,5 +1103,7 @@ class Production_model extends CI_Model
         }
         return NULL;
     }
+	
+	
 
 }

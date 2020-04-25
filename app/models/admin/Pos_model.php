@@ -1,7 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Pos_model extends CI_Model
-{
+class Pos_model extends CI_Model{
 
     public function __construct()
     {
@@ -227,8 +226,7 @@ class Pos_model extends CI_Model
 	}
 
 	
-	public function bbqrecipe_count($category_id, $warehouse_id, $subcategory_id = NULL, $brand_id = NULL)
-    {
+	public function bbqrecipe_count($category_id, $warehouse_id, $subcategory_id = NULL, $brand_id = NULL){
 		/*$this->db->where('bbq_categories.id', $bbq_set_id);
 		$q = $this->db->get('bbq_categories');
         if ($q->num_rows() > 0) {
@@ -297,7 +295,7 @@ class Pos_model extends CI_Model
         }*/
 		$where_in = array('standard','production','quick_service','combo');
 		$this->db->select('recipe.*');	
-		$this->db->join('recipe', "recipe.id = warehouses_recipe.recipe_id AND recipe.active = 1");
+		$this->db->join('recipe', "recipe.id = warehouses_recipe.recipe_id ");
 		$this->db->where('recipe.recipe_standard !=', 1);	
 
 		$this->db->where('warehouses_recipe.warehouse_id', $warehouse_id);
@@ -310,7 +308,7 @@ class Pos_model extends CI_Model
         if ($subcategory_id) {
             $this->db->where('recipe.subcategory_id', $subcategory_id);
         }
-
+$this->db->where_in('recipe.active', array(1,2));
 		$this->db->order_by("recipe.name", "asc");
 		$this->db->limit($limit, $start);
 		$query = $this->db->get("warehouses_recipe");
@@ -333,7 +331,7 @@ class Pos_model extends CI_Model
         $today = "$mydate[weekday]";
 		$where_in = array('standard','production','quick_service','combo');
 		$this->db->select('recipe.*');
-		$this->db->join('recipe', "recipe.id = warehouses_recipe.recipe_id AND recipe.active = 1");	
+		$this->db->join('recipe', "recipe.id = warehouses_recipe.recipe_id ");	
 		$this->db->join('sale_items_mapping_details', "sale_items_mapping_details.recipe_group_id = recipe.category_id");		
 		$this->db->join('sale_items_mapping_head', 'sale_items_mapping_head.id=sale_items_mapping_details.sales_map_hd_id');
 		$this->db->where('sale_items_mapping_head.sale_type', $sale_type);
@@ -349,6 +347,7 @@ class Pos_model extends CI_Model
         if ($subcategory_id) {
             $this->db->where('recipe.subcategory_id', $subcategory_id);
         }
+$this->db->where_in('recipe.active', array(1,2));
 		$this->db->limit($limit, $start);
 		$this->db->group_by("recipe.id");
 		$this->db->order_by("recipe.name", "asc");
@@ -1491,7 +1490,7 @@ class Pos_model extends CI_Model
         $today = "$mydate[weekday]";
 		$where_in = array('standard','production','quick_service','combo');
 		$this->db->select('recipe.*');
-		$this->db->join('recipe', "recipe.id = warehouses_recipe.recipe_id AND recipe.active = 1");	
+		$this->db->join('recipe', "recipe.id = warehouses_recipe.recipe_id ");	
 		$this->db->join('sale_items_mapping_details', "sale_items_mapping_details.recipe_group_id = recipe.category_id");		
 		$this->db->join('sale_items_mapping_head', 'sale_items_mapping_head.id=sale_items_mapping_details.sales_map_hd_id');
 		$this->db->where('sale_items_mapping_head.sale_type', $sale_type);
@@ -1507,10 +1506,11 @@ class Pos_model extends CI_Model
         if ($subcategory_id) {
             $this->db->where('recipe.subcategory_id', $subcategory_id);
         }
+		 $this->db->where_in('recipe.active', array(1,2));
 		$this->db->limit($limit, $start);
 		$this->db->group_by("recipe.id");
 		$this->db->order_by("recipe.name", "asc");
-		$query = $this->db->get("warehouses_recipe");       
+		$query = $this->db->get("warehouses_recipe");  
         if ($query->num_rows() > 0) {
 			
             foreach ($query->result() as $row) {
@@ -1544,7 +1544,8 @@ class Pos_model extends CI_Model
 		
 		$where_in = array('standard','production','quick_service','combo');
 		$this->db->select('recipe.*');
-		$this->db->join('recipe', "recipe.id = warehouses_recipe.recipe_id AND recipe.active = 1");
+		$this->db->join('recipe', "recipe.id = warehouses_recipe.recipe_id ");
+		
 		$this->db->where('recipe.recipe_standard !=', 2);	
 		$this->db->where('warehouses_recipe.warehouse_id', $warehouse_id);
 		$this->db->where_in('recipe.type',$where_in);
@@ -1556,13 +1557,10 @@ class Pos_model extends CI_Model
         if ($subcategory_id) {
             $this->db->where('recipe.subcategory_id', $subcategory_id);
         }
+		$this->db->where_in('recipe.active', array(1,2));	
 		$this->db->limit($limit, $start);
 		$this->db->order_by("recipe.name", "asc");
 		$query = $this->db->get("warehouses_recipe");
-		
-		// print_r($this->db->last_query());die;
-       	
-		
         if ($query->num_rows() > 0) {
 			
             foreach ($query->result() as $row) {
@@ -2057,10 +2055,10 @@ public function checkTimeoutNotify($id){
 		$this->db->order_by("bils.bill_number", "desc");
 
 		$s = $this->db->get('sales');
-// print_r($this->db->last_query());die;
+ 	/* echo $this->db->last_query();
+		die; */
 		if ($s->num_rows() > 0) {
             foreach ($s->result() as $row) {
-				
 				$this->db->select("bils.*");
 				// $this->db->join("sales", "bils.sales_id = sales.id");		
 				$this->db->where('bils.sales_id', $row->id);
@@ -2099,7 +2097,6 @@ public function checkTimeoutNotify($id){
 		$t = $this->db->get("orders");
 		if ($t->num_rows() > 0) {
 			foreach($t->result() as $row){
-				
 				$this->db->select("id ");
 				$checkbils = $this->db->get_where('sales', array('sales_split_id' => $row->split_id));
 				if ($checkbils->num_rows() == 0) {
@@ -2110,31 +2107,21 @@ public function checkTimeoutNotify($id){
 					$o = $this->db->get_where('orders', array('orders.split_id' => $row->split_id));
 					$split[$row->id][] = $row;
 					if ($o->num_rows() > 0) {
-						
 						foreach($o->result() as $oow){
-							
 							$this->db->select("order_items.*, recipe.image, recipe.khmer_name")
 							->join('recipe', 'recipe.id = order_items.recipe_id');
 							$i = $this->db->get_where('order_items', array('sale_id' => $oow->id));
-							
 							if($i->num_rows() > 0){
-								
 								foreach($i->result() as $item){
 									$item_list[$oow->id][] = $item;
 								}
-								
 							}
-							
 							$oow->item = $item_list[$oow->id];
-							
 							$order[$row->split_id][] = $oow;
 						}
 					}
-					
 				}
 					$row->order = $order[$row->split_id];					
-					
-				
 				$data[] = $row;
 			}
 			return $data;	
@@ -2154,48 +2141,34 @@ public function checkTimeoutNotify($id){
 		$t = $this->db->get("orders");
 		if ($t->num_rows() > 0) {
 			foreach($t->result() as $row){
-						
 				$this->db->select("id ");
 				$checkbils = $this->db->get_where('sales', array('sales_split_id' => $row->split_id));
 				if ($checkbils->num_rows() == 0) {
-								
 					 $this->db->select("orders.id, orders.customer_id, kitchen_orders.id AS kitchen, kitchen_orders.status,orders.order_type, orders.seats_id, orders.order_status, orders.reference_no, orders.date, orders.split_id, orders.table_id, 'items' AS item")
-					 
 					->join('kitchen_orders', 'kitchen_orders.sale_id = orders.id', 'left')
 					->where('orders.split_id', $row->split_id)
 					->where('DATE(date)', $current_date);
-					
 					$o = $this->db->get('orders');
 					$split[$row->id][] = $row;
 					if ($o->num_rows() > 0) {
-						
 						foreach($o->result() as $oow){
-							
 							$this->db->select("order_items.*, recipe.image, recipe.khmer_name")
 							->join('recipe', 'recipe.id = order_items.recipe_id');
 							$i = $this->db->get_where('order_items', array('sale_id' => $oow->id));
-							
 							if($i->num_rows() > 0){
-								
 								foreach($i->result() as $item){
 									$item_list[$oow->id][] = $item;
 								}
-								
 							}
-							
 							$oow->item = $item_list[$oow->id];
-							
 							$order[$row->split_id][] = $oow;
 						}
 					}
 					
 				}
-					$row->order = $order[$row->split_id];					
-					
-				
+					$row->order = $order[$row->split_id];		
 				$data[] = $row;
 			}
-			
 			return $data;	
 		}
 		return FALSE;
@@ -2961,11 +2934,13 @@ public function checkTimeoutNotify($id){
     }*/
 	public function getrecipeAddons($recipe_id)
     {
-      	$this->db->select("recipe_addon_details.*, recipe.name AS addon,recipe.khmer_name AS addon_native_name, recipe.price")
+		
+      	$this->db->select("recipe_addon_details.*, recipe.name AS addon, recipe.khmer_name AS addon_native_name, recipe.price")
       	->join('recipe_addon_details', 'recipe_addon_details.addon_head_id = recipe_addon.id')
       	->join('recipe', 'recipe.id = recipe_addon_details.addon_item_id','left')
       	->where('recipe_addon.recipe_id', $recipe_id);      	
-        $q = $this->db->get('recipe_addon');        
+        $q = $this->db->get('recipe_addon');   
+//print_r($this->db->last_query());die; 		
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -3325,64 +3300,30 @@ public function checkTimeoutNotify($id){
 	
 	public function addKitchen($data = array(), $items = array(), $kitchen = array(), $notification_array = array(), $warehouse_id, $user_id)
 	{
-// echo "<pre>";
-// print_r($items);die;
+/*echo "<pre>";
+print_r($items);die;*/
 		if ($this->db->insert('orders', $data)){
 				$sale_id = $this->db->insert_id();
-				
-				$order_id = $this->store_id.$sale_id;				
-			    $orders_update['id'] = $order_id;
-			    $this->db->where('s_no',$sale_id);
-			    $this->db->update('orders',$orders_update);
-
 				$this->site->create_notification($notification_array);
 				$msg = array();
 				$msg[] = 'Your order has been success';
-				$kitchen['sale_id'] = $order_id;
-
-				$this->db->insert('restaurant_table_orders', array('order_id' => $order_id, 'table_id' => $data['table_id']));
-				$table_orders_id = $this->db->insert_id();
-				$unique_table_orders_id = $this->store_id.$table_orders_id;
-
-				$this->db->where('s_no',$table_orders_id);
-				$table_orders_update['id'] = $unique_table_orders_id;
-			    $this->db->update('restaurant_table_orders',$table_orders_update);
-
-				$this->db->insert('restaurant_table_sessions', array('table_id' => $data['table_id'],'order_id' => $order_id, 'split_id' => $data['split_id'], 'customer_id' => $data['customer_id'], 'session_started' => date('Y-m-d H:i:s')));
-
-				$table_sessions_id = $this->db->insert_id();
-				$unique_table_sessions_id = $this->store_id.$table_sessions_id;
-
-				$this->db->where('s_no',$table_sessions_id);
-				$table_sessions_update['id'] = $unique_table_sessions_id;
-			    $this->db->update('restaurant_table_sessions',$table_sessions_update);
-
+				$kitchen['sale_id'] = $sale_id;
+				$this->db->insert('restaurant_table_orders', array('order_id' => $sale_id, 'table_id' => $data['table_id']));
+				$this->db->insert('restaurant_table_sessions', array('table_id' => $data['table_id'],'order_id' => $sale_id, 'split_id' => $data['split_id'], 'customer_id' => $data['customer_id'], 'session_started' => date('Y-m-d H:i:s')));
 				$print_items =[]; 				
 				if($this->db->insert('kitchen_orders', $kitchen)){
-					$kitchen_id = $this->db->insert_id();	
-
-					$unique_kitchen_id = $this->store_id.$kitchen_id;
-					$this->db->where('s_no',$kitchen_id);
-					$kitchen_orders_update['id'] = $unique_kitchen_id;
-				    $this->db->update('kitchen_orders',$kitchen_orders_update);
-
+					$kitchen_id = $this->db->insert_id();					
 					foreach ($items as $item) {		
 
-						$item['sale_id'] = $order_id;
-						$item['kitchen_id'] = $unique_kitchen_id;						
+						$item['sale_id'] = $sale_id;
+						$item['kitchen_id'] = $kitchen_id;						
 						$this->db->insert('order_items', $item);						
-						$order_item_id = $this->db->insert_id();
-
-						$unique_order_item_id = $this->store_id.$order_item_id;	
-						$item['order_item_id'] = $unique_order_item_id;
-
-						$this->db->where('s_no',$order_item_id);
-						$order_items_update['id'] = $unique_order_item_id;
-				    	$this->db->update('order_items',$order_items_update);
+						$order_item_id = $this->db->insert_id();						
+						$item['order_item_id'] = $order_item_id;
 
 						if($this->pos_settings->kot_print_lang_option ==1){  //if kot only for local language
 							$item['image_path'] = str_replace(' ', '-',$order_item_id).'.png';
-							$this->db->update('order_items', array('image_path' => str_replace(' ', '-',$order_item_id).'.png'), array('s_no' => $order_item_id));
+							$this->db->update('order_items', array('image_path' => str_replace(' ', '-',$order_item_id).'.png'), array('id' => $order_item_id));
 							$yesdrdayfolder = date('Ymd',strtotime("-1 days"));
 							if (file_exists('assets/language/'.$yesdrdayfolder)) {							
 								$path   = 'assets/language/'.$yesdrdayfolder; 	
@@ -3418,12 +3359,12 @@ public function checkTimeoutNotify($id){
 									'split_id'      => $data['split_id'],
 									'order_id'      => $sale_id,
 									'sale_item_id'      => $recipeDetails->id,
-									'order_item_id'      => $unique_order_item_id,
+									'order_item_id'      => $order_item_id,
 									'addon_id'      => $addon,
-									'price'      => $recipeDetails->cost ? $recipeDetails->cost : 0,
+									'price'      => $recipeDetails->price ? $recipeDetails->price : 0,
 									'qty'      => $addonqty[$key],
 									'addon_name_img' => $addon_name_img[$key] ? $addon_name_img[$key] :'',
-									'subtotal'      => ($addonqty[$key] * $recipeDetails->cost),
+									'subtotal'      => ($addonqty[$key] * $recipeDetails->price),
 								);
 							endif;	
 							}											
@@ -3443,6 +3384,7 @@ public function checkTimeoutNotify($id){
 					}
 					/*addon array*/	
 						$cm = $this->db->get_where('category_mapping',array('product_id'=>$item['recipe_id'],'status'=>1))->row();
+						$cate['category_id'] = $cm->id;
 						$cate['category_id'] = $cm->category_id;
 						$cate['subcategory_id'] = $cm->subcategory_id;
 						$cate['brand_id'] = $cm->brand_id;
@@ -3451,9 +3393,10 @@ public function checkTimeoutNotify($id){
 						print_r($cate);die;*/
 						if($this->Settings->procurment == 1){
 							if($item['recipe_type'] =='standard' || $item['recipe_type'] =='production'){
-								$this->site->updateStockMaster_new($item['recipe_id'],$item['quantity'],$cate,$unique_order_item_id);
+								//var_dump($item['recipe_variant_id']);die;
+								$this->site->updateStockMaster_new($item['recipe_id'],$item['recipe_variant_id'],$item['quantity'],$cate,$order_item_id);
 							}elseif($item['recipe_type'] =='quick_service'){
-								$this->siteprocurment->production_salestock_out($item['recipe_id'],$item['quantity'],$kit_item['recipe_variant_id']);
+								$this->siteprocurment->production_salestock_out($item['recipe_id'],$item['quantity'],$item['recipe_variant_id']);
 							}	
 						}
 						$print_items[] = $item;
@@ -3475,8 +3418,8 @@ public function checkTimeoutNotify($id){
 					$consolidate_kitchens_kot['orders_details'] = $orders_details;
 				}	
 /*Consolidate kot for table area wise */ 
-if($this->pos_settings->kot_enable_disable == 1){
-	if($this->pos_settings->consolidated_kot_print_option == 0){
+            if($this->pos_settings->kot_enable_disable == 1){
+	        if($this->pos_settings->consolidated_kot_print_option == 0){
 			if($this->pos_settings->consolidated_kot_print != 0){
 				$table_id = $consolid_kit['orders_details']->table_id;
 				$consolid_kot_print_details = $this->db->select("printers.*")
@@ -5681,6 +5624,7 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
     
     public function InsertBill($order_data = array(), $order_item = array(), $billData = array(), $splitData = array(), $sales_total = NULL, $delivery_person = NULL,$timelog_array = NULL, $notification_array = array(),$order_item_id =array(), $split_id, $request_discount, $dine_in_discount,$birthday)
     {		
+    	
 
 		if(empty($dine_in_discount)){
 			foreach ($request_discount as $request) {
@@ -5693,18 +5637,23 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
 					$q = $this->db->insert('customer_request_discount', $request);
 				}				
 			}
-		}		
-    	
-		if($this->Settings->socket_enable !=0){
-			$this->site->create_notification($notification_array);
 		}
+		
+    	$sales_array = array(
+		            'grand_total' => $sales_total,
+					'delivery_person_id' => $delivery_person
+		        );
+
+			if($this->Settings->socket_enable !=0){
+				$this->site->create_notification($notification_array);
+			}
     	foreach ($timelog_array as $time) {
-            $res = $this->db->insert('time_log', $time);
-        }    
+              	$res = $this->db->insert('time_log', $time);
+        }     	   	
+	
 	
         if ($this->db->insert('sales', $order_data)) {
             $sale_id = $this->db->insert_id();
-
 	    /*********** seats count **************/
 		    $splitID = $order_data['sales_split_id'];
 		    $this->db->where(array('split_id'=>$splitID));
@@ -5716,48 +5665,28 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
 		    }
 	    /*********** seats count **************/
         	if(!empty($birthday)){ 	$this->db->insert('birthday', $birthday); }
-
-        	/*$sales_array = array(
-		            'grand_total' => $sales_total,
-					'delivery_person_id' => $delivery_person
-		        );*/
-
-        	$unique_sale_id = $this->store_id.$sale_id;				
-			$sales_update['id'] = $unique_sale_id;
-			$sales_update['grand_total'] = $sales_total;
-			$sales_update['delivery_person_id'] = $delivery_person;
-			$this->db->where('s_no',$sale_id);
-			$this->db->update('sales',$sales_update);
-
-            // $this->db->update('sales', $sales_array, array('id' => $sale_id));
+            $this->db->update('sales', $sales_array, array('id' => $sale_id));
 	    
             foreach ($billData as $key =>  $bills) {
-             	$bills['sales_id'] = $unique_sale_id;		
+             	$bills['sales_id'] = $sale_id;
+		
+		
 				$bills['table_whitelisted'] = $this->isTableWhitelisted($order_data['sales_table_id']);
 				$bills['seats'] = $bill_seats;
               	$this->db->insert('bils', $bills);
 				$bill_id = $this->db->insert_id();
-				$unique_bill_id = $this->store_id.$bill_id;		
 				//$bill_number = sprintf("%'.05d", $bill_id);
 				//$bill_number = $this->site->generate_bill_number(0,$bill_id);		
 		        // $bill_number = $this->site->generate_bill_number($bills['table_whitelisted']);
               	//$this->db->update('bils', array('bill_number' => $bill_number,'bill_sequence_number' => $bill_id), array('id' => $bill_id));
 		/// update latest bill////
 		// $this->site->latest_bill($bill_number);
-				$this->db->update('bils', array('bill_sequence_number' => $bill_id,'id' => $unique_bill_id), array('s_no' => $bill_id));
+				$this->db->update('bils', array('bill_sequence_number' => $bill_id), array('id' => $bill_id));
 				foreach ($splitData[$key]  as $bill_items) {
-					$bill_items['bil_id'] = $unique_bill_id;					
-					$this->db->insert('bil_items', $bill_items);
-
-					$bill_item_id = $this->db->insert_id();
-					$unique_bill_item_id = $this->store_id.$bill_item_id;								
-					$bill_item_update['id'] = $unique_bill_item_id;
-					$this->db->where('s_no',$bill_item_id);
-			        $this->db->update('bil_items',$bill_item_update);
-
-					//echo '<pre>';print_R($bill_items);print_R($this->db->error());exit;
+					$bill_items['bil_id'] = $bill_id;
+					$this->db->insert('bil_items', $bill_items);//echo '<pre>';print_R($bill_items);print_R($this->db->error());exit;
 					/*addon array*/
-							
+							$bill_item_id = $this->db->insert_id();
 							$recipe_addon_item =[];
 							$addonid = explode(',',$bill_items['addon_id'] ); 
 							$addonqty = explode(',', $bill_items['addon_qty']);						
@@ -5767,12 +5696,12 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
 								$recipeDetails = $this->pos_model->getrecipeByID($AddonDetails->addon_item_id);
 								$recipe_addon_item[] = array(									
 									'bill_id'      => $bill_id,
-									'bill_item_id'      => $unique_bill_item_id,
+									'bill_item_id'      => $bill_item_id,
 									'sale_item_id'      => $recipeDetails->id,
 									'addon_id'      => $addon,
-									'price'      => $recipeDetails->cost ? $recipeDetails->cost : 0,
+									'price'      => $recipeDetails->price ? $recipeDetails->price : 0,
 									'qty'      => $addonqty[$key],
-									'subtotal'      => ($addonqty[$key] * $recipeDetails->cost),
+									'subtotal'      => ($addonqty[$key] * $recipeDetails->price),
 								);
 							endif;	
 							}								
@@ -5785,17 +5714,12 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
             }
 
             foreach ($order_item as $item) {
-            
+            	/*echo "<pre>";
+print_r($item);die;*/
                 $this->db->insert('sale_items', $item);
                 // print_r($this->db->last_query());die;
                 $sale_item_id = $this->db->insert_id();
-
-                $unique_sale_item_id = $this->store_id.$sale_item_id;				
-			    /*$orders_update['id'] = $unique_sale_item_id;
-			    $this->db->where('s_no',$sale_id);
-			    $this->db->update('orders',$orders_update)*/;
-
-                $this->db->update('sale_items', array('sale_id' =>  $unique_sale_id,'id' =>$unique_sale_item_id), array('s_no' => $sale_item_id));
+                $this->db->update('sale_items', array('sale_id' =>  $sale_id), array('id' => $sale_item_id));
 
             }
 			$kitchen_array = array(
@@ -5867,12 +5791,7 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
 		    $item['customer_payment_type'] = $updateCreditLimit['customer_type'];
 		    $this->db->insert('payments', $item);
 		    $pid = $this->db->insert_id();
-
-		    $unique_pid = $this->store_id.$pid;				
-		    $payments_update['id'] = $unique_pid;
-		    $this->db->where('s_no',$pid);
-		    $this->db->update('payments',$payments_update);
-
+		    
 		    if($pid && $item['paid_by']=='credit'){
 			$creditedAmt = $item['pos_paid'];
 			$d_q = $this->db->get_where('deposits', array('company_id' => $updateCreditLimit['company_id'],'credit_balance!='=>0))->result_array();
@@ -5932,11 +5851,6 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
     		}
 			foreach ($multi_currency as $currency) {
     			$this->db->insert('sale_currency', $currency);
-    			$sale_currency_id = $this->db->insert_id();
-    			$unique_sale_currency_id = $this->store_id.$sale_currency_id;				
-			    $sale_currency_update['id'] = $unique_sale_currency_id;
-			    $this->db->where('s_no',$sale_currency_id);
-			    $this->db->update('sale_currency',$sale_currency_update);
     		}
     		 
 	    		$sales_array = array(
@@ -5969,11 +5883,16 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
 
     public function getAllBillitems($id =NULL)
     {
-    	 $Billitems = "SELECT BI.id,BI.recipe_name,BI.recipe_id,BI.input_discount,BI.unit_price  AS net_unit_price,BI.manual_item_discount,BI.manual_item_discount_per_val,SUM(BI.quantity) AS quantity,SUM(BI.subtotal) AS subtotal,R.khmer_name,BI.discount,BI.recipe_variant,B.customer_discount_id,BI.item_discount,BI.off_discount,BI.input_discount,BI.birthday_discount,BI.customer_discount_val,BI.comment,BI.comment_price,BI.recipe_variant_id
+    	 /* $Billitems = "SELECT BI.id,BI.recipe_name,BI.recipe_id,BI.input_discount,BI.unit_price  AS net_unit_price,BI.manual_item_discount,BI.manual_item_discount_per_val,SUM(BI.quantity) AS quantity,SUM(BI.subtotal) AS subtotal,R.khmer_name,BI.discount,BI.recipe_variant,B.customer_discount_id,BI.item_discount,BI.off_discount,BI.input_discount,BI.birthday_discount,BI.customer_discount_val,BI.comment,BI.comment_price,BI.recipe_variant_id
                     FROM ".$this->db->dbprefix('bil_items')." AS BI
                     JOIN ". $this->db->dbprefix('recipe') ." AS R ON R.id = BI.recipe_id
                     JOIN ". $this->db->dbprefix('bils') ." AS B ON B.id = BI.bil_id
-                    WHERE BI.bil_id='".$id."' GROUP BY BI.recipe_name,BI.recipe_variant_id";
+                   WHERE BI.bil_id='".$id."' GROUP BY BI.recipe_name,BI.recipe_variant_id"; */
+				   $Billitems = "SELECT BI.id,BI.recipe_name,BI.recipe_id,BI.input_discount,BI.unit_price  AS net_unit_price,BI.manual_item_discount,BI.manual_item_discount_per_val,BI.quantity AS quantity,BI.subtotal AS subtotal,R.khmer_name,BI.discount,BI.recipe_variant,B.customer_discount_id,BI.item_discount,BI.off_discount,BI.input_discount,BI.birthday_discount,BI.customer_discount_val,BI.comment,BI.comment_price,BI.recipe_variant_id
+                    FROM ".$this->db->dbprefix('bil_items')." AS BI
+                    JOIN ". $this->db->dbprefix('recipe') ." AS R ON R.id = BI.recipe_id
+                    JOIN ". $this->db->dbprefix('bils') ." AS B ON B.id = BI.bil_id
+                   WHERE BI.bil_id='".$id."' ";
             /*echo $Billitems;die;*/
         $q = $this->db->query($Billitems);
         if ($q->num_rows() > 0) {
@@ -6298,7 +6217,7 @@ public function getItemSaleReports($start,$end,$report_view_access,$report_show,
         WHERE DATE(B.date) BETWEEN '".$start."' AND '".$end."' AND
          B.payment_status ='Completed' ".$categorys." ".$subcategory." ".$where." GROUP BY RC.id";   
          //var_dump($category);exit;            
-            $t = $this->db->query($category);   
+        $t = $this->db->query($category);   
         if ($t->num_rows() > 0) {
      /*$this->db->select("recipe_categories.id AS cate_id,recipe_categories.name as category,SUM(" . $this->db->dbprefix('bils') . ".grand_total) AS grand_total,SUM(" . $this->db->dbprefix('bils') . ".round_total) AS round_total, 'split_order'")
         ->join('recipe', 'recipe.category_id = recipe_categories.id')
@@ -6370,6 +6289,105 @@ public function getItemSaleReports($start,$end,$report_view_access,$report_show,
         }        
         return FALSE;   
     }
+	
+	public function getItemSaleReports_archival($start,$end,$report_view_access,$report_show,$group,$subgroup){
+		if($group !=""){
+			$categorys = "AND R.category_id ='".$group."'";
+		} else {
+			$categorys="";
+		}
+		if($subgroup !=""){
+			$subcategory = "AND R.subcategory_id ='".$subgroup."'";
+		} else {
+			$subcategory="";
+		}
+		$where = '';
+         if($report_view_access != 1)
+         {
+             $where .= " AND B.table_whitelisted = ".$report_show." ";
+         }
+        $category = "SELECT RC.id AS cate_id,RC.name as category, 'split_order' 
+        FROM " . $this->db->dbprefix('recipe_categories') . " RC
+        JOIN " . $this->db->dbprefix('recipe') . " R ON  R.category_id = RC.id
+        JOIN " . $this->db->dbprefix('bil_items_archival') . " BI ON BI.recipe_id = R.id
+        JOIN " . $this->db->dbprefix('bils_archival') . " B ON B.id = BI.bil_id        
+        WHERE DATE(B.date) BETWEEN '".$start."' AND '".$end."' AND
+         B.payment_status ='Completed' ".$categorys." ".$subcategory." ".$where." GROUP BY RC.id";   
+         //var_dump($category);exit;            
+        $t = $this->db->query($category);   
+        if ($t->num_rows() > 0) {
+     /*$this->db->select("recipe_categories.id AS cate_id,recipe_categories.name as category,SUM(" . $this->db->dbprefix('bils') . ".grand_total) AS grand_total,SUM(" . $this->db->dbprefix('bils') . ".round_total) AS round_total, 'split_order'")
+        ->join('recipe', 'recipe.category_id = recipe_categories.id')
+        ->join('bil_items', 'bil_items.recipe_id = recipe.id')
+        ->join('bils', 'bils.id = bil_items.bil_id')
+        ->where('recipe_categories.parent_id', NULL)
+        ->or_where('recipe_categories.parent_id',0);
+                
+        $this->db->group_by('recipe_categories.id');        
+        $t = $this->db->get('recipe_categories');      
+        
+        if ($t->num_rows() > 0) {*/
+            
+            foreach ($t->result() as $row) {
+                    $this->db->select("recipe_categories.id AS sub_id,recipe_categories.name AS sub_category,bils_archival.total_tax, 'order'")
+                    ->join('recipe', 'recipe.subcategory_id = recipe_categories.id')
+                    ->join('bil_items_archival', 'bil_items_archival.recipe_id = recipe.id')
+                    ->join('bils_archival', 'bils_archival.id = bil_items_archival.bil_id')
+                    ->where('recipe.category_id', $row->cate_id);
+                    if($report_view_access != 1)
+	                 {
+	                     $this->db->where('bils_archival.table_whitelisted', $report_show);                      
+	                 }
+
+                    $this->db->group_by('recipe.subcategory_id');
+                    
+                    $s = $this->db->get('recipe_categories');
+					
+                if ($s->num_rows() > 0) {
+                        
+                        foreach ($s->result() as $sow) {
+
+                        	if($group !=""){
+			$categorys = "AND R.category_id ='".$group."'";
+		} else {
+			$categorys="";
+		}
+		if($subgroup !=""){
+			$subcategory = "AND R.subcategory_id ='".$subgroup."'";
+		} else {
+			$subcategory="";
+		}
+
+								$myQuery = "SELECT R.name,SUM(BI.item_discount) AS item_discount,SUM(BI.off_discount) AS off_discount,SUM(BI.input_discount) AS input_discount,SUM(BI.manual_item_discount) AS manual_item_discount,SUM(CASE WHEN (BI.tax_type= 1) THEN BI.tax ELSE 0 END) as tax,SUM(BI.service_charge_amount) AS service_charge_amount,SUM(BI.quantity) AS quantity,SUM(BI.subtotal) AS subtotal,CASE WHEN RV.name  is NOT NULL THEN RV.name ELSE 'No Variant' END AS variant
+								FROM " . $this->db->dbprefix('bil_items_archival') . " BI
+								JOIN " . $this->db->dbprefix('recipe') . " R ON R.id = BI.recipe_id
+								JOIN " . $this->db->dbprefix('bils_archival') . " B ON B.id = BI.bil_id
+								LEFT JOIN " . $this->db->dbprefix('recipe_variants') . " RV ON RV.id = BI.recipe_variant_id
+								WHERE DATE(B.date) BETWEEN '".$start."' AND '".$end."' AND
+								R.subcategory_id =".$sow->sub_id."  AND  B.payment_status ='Completed'   ".$categorys." ".$subcategory."
+								GROUP BY R.id,BI.recipe_variant_id ";
+								$o = $this->db->query($myQuery);
+/*  echo $this->db->last_query();
+die;  */
+                                $split[$row->cate_id][] = $sow;
+                                if ($o->num_rows() > 0) {                                    
+                                    foreach($o->result() as $oow){
+                                        $order[$sow->sub_id][] = $oow;
+                                    }
+                                }
+                                $sow->order = $order[$sow->sub_id];                   
+                        }                    
+                    $row->split_order = $split[$row->cate_id];
+                }else{
+                    $row->split_order = array();
+                }                
+                $data[] = $row;
+
+            }            
+            return $data;
+        }        
+        return FALSE;   
+    }
 
 	public function getdaysummary($start,$end,$report_view_access,$report_show)
     {	
@@ -6396,7 +6414,27 @@ public function getItemSaleReports($start,$end,$report_view_access,$report_show,
         return FALSE;
     }
 
+	public function getdaysummary_archival($start,$end,$report_view_access,$report_show){	
+        $this->db->select('SUM(COALESCE(total, 0)) as total,SUM(COALESCE(grand_total, 0)) as total_amount1, SUM(COALESCE(total_tax, 0)) as total_tax,SUM(COALESCE(service_charge_amount, 0)) as service_charge_amount, SUM(COALESCE(total_discount+bbq_cover_discount+bbq_daywise_discount, 0)) as total_discount,SUM(total-total_discount+CASE WHEN (tax_type= 1) THEN total_tax ELSE 0 END) as total_amount, COUNT(' . $this->db->dbprefix('bils_archival') . '.id) as totalbill,SUM(total-total_discount-bbq_cover_discount-bbq_daywise_discount+service_charge_amount +CASE WHEN (tax_type= 1) THEN total_tax ELSE 0 END)as net_amt,SUM(total) as gross_amt,SUM(total-CASE WHEN (tax_type= 0) THEN total_tax ELSE 0 END) as netamt', FALSE)
+			->where('payment_status', 'Completed')
+			->where('DATE(date) >=', $start)
+			->where('DATE(date) <=', $end);
+			if($report_view_access != 1)
+		     {
+		         $this->db->where('table_whitelisted', $report_show);                      
+		     }
 
+			 /*->where('S.status',1);    		 
+		    if($customer_id){
+		    	$this->db->where('LP.customer_id', $customer_id);
+		    }	*/
+        $q = $this->db->get('bils_archival');
+		// print_r($this->db->last_query());die;
+        if ($q->num_rows() > 0) {
+            return $q->row();
+        }
+        return FALSE;
+    }
 
 	public function getCollection($start,$end,$report_view_access,$report_show)
     {
@@ -6479,6 +6517,48 @@ public function getItemSaleReports($start,$end,$report_view_access,$report_show,
 
 		$exchange = $this->db->query($exchange);
 
+		$data['Exchange'] = $exchange->result();
+		$data['Tender_Type'] = $tenderType_res->result();
+
+	  return $data;
+      return FALSE;
+
+
+    } 
+	public function getTendertypes_archival($start,$end,$report_view_access,$report_show)
+    {
+    	if($start == ''){
+    		$start = date('d-m-Y');
+    	}
+    	if($end == ''){
+    		$end = date('d-m-Y');
+    	}
+    	
+    	$where = '';
+    	$where1 = '';
+         if($report_view_access != 1)
+         {
+             $where .= " AND table_whitelisted = ".$report_show." ";
+             $where1 .= " AND P.table_whitelisted = ".$report_show." ";
+         }
+
+		$tenderType = "SELECT PA.paid_by tender_type,SUM(PA.amount-PA.pos_balance) tender_type_total
+		FROM " . $this->db->dbprefix('bils_archival') . "  P
+		LEFT JOIN srampos_payments  PA
+		ON P.id = PA.bill_id
+		WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+		P.payment_status ='Completed'  ".$where."
+		GROUP BY PA.paid_by HAVING SUM(PA.amount-PA.pos_balance) > 0";
+		$tenderType_res = $this->db->query($tenderType);
+
+		$default_currency = $this->Settings->default_currency;
+
+		$exchange = "SELECT SUM(CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != ".$default_currency.")) THEN amount_exchange*currency_rate ELSE 0 END) as usd,SUM(CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != ".$default_currency.")) THEN SC.amount ELSE 0 END) as For_Ex FROM " . $this->db->dbprefix('sale_currency_archival') . " SC
+		JOIN " . $this->db->dbprefix('bils_archival') . " P ON P.id = SC.bil_id
+		JOIN " . $this->db->dbprefix('payments_archival') . " PM ON PM.bill_id = P.id
+		WHERE P.payment_status ='Completed' ".$where." AND DATE(P.date) BETWEEN '".$start."' AND '".$end."' ";
+
+		$exchange = $this->db->query($exchange);
 		$data['Exchange'] = $exchange->result();
 		$data['Tender_Type'] = $tenderType_res->result();
 
@@ -6572,7 +6652,7 @@ public function getItemSaleReports_new($start,$end){
             $where .= "AND P.table_whitelisted = ".$report_show."";
         }
 
-        $myQuery = "SELECT U.username,SUM(P.total-P.total_discount-P.bbq_cover_discount-P.bbq_daywise_discount+P.service_charge_amount+CASE WHEN (P.tax_type= 1) THEN total_tax ELSE 0 END) AS grand_total
+        $myQuery = "SELECT U.id,U.username,SUM(P.total-P.total_discount-P.bbq_cover_discount-P.bbq_daywise_discount+P.service_charge_amount+CASE WHEN (P.tax_type= 1) THEN total_tax ELSE 0 END) AS grand_total
         FROM srampos_bils  P
             LEFT JOIN srampos_users  U
             ON P.created_by = U.id
@@ -6581,6 +6661,34 @@ public function getItemSaleReports_new($start,$end){
             GROUP BY U.username";
             
         $q = $this->db->query($myQuery);
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return FALSE;
+    }
+	
+	public function getCashierReport_archival($start,$end,$report_view_access,$report_show)
+    {
+
+    	$where ='';
+    	  if($report_view_access != 1 ){
+            $where .= "AND P.table_whitelisted = ".$report_show."";
+        }
+
+        $myQuery = "SELECT U.id,U.username,SUM(P.total-P.total_discount-P.bbq_cover_discount-P.bbq_daywise_discount+P.service_charge_amount+CASE WHEN (P.tax_type= 1) THEN total_tax ELSE 0 END) AS grand_total
+        FROM srampos_bils_archival  P
+            LEFT JOIN srampos_users  U
+            ON P.created_by = U.id
+            WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+             P.payment_status ='Completed' ".$where."
+            GROUP BY U.username";
+            
+        $q = $this->db->query($myQuery);
+		//echo $this->db->last_query();
+		
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -7558,6 +7666,128 @@ function change_customer($change_split_id, $changed_customer_id){
 	  return $data;
       return FALSE;
     }   
+	
+	 public function getSettlementReport_archival($start,$end, $report_view_access,$report_show){
+    	$where ='';
+    	  if($report_view_access != 1 ){
+            $where .= "AND P.table_whitelisted = ".$report_show."";
+        }
+        $saletype = "SELECT st.name sale_type,SUM(P.round_total) sale_type_total1,SUM(P.total-P.total_discount-P.bbq_cover_discount-P.bbq_daywise_discount+P.service_charge_amount+CASE WHEN (P.tax_type= 1) THEN P.total_tax ELSE 0 END) AS sale_type_total
+        FROM " . $this->db->dbprefix('bils_archival') . "  P
+            LEFT JOIN srampos_sales_archival  s
+            ON s.id = P.sales_id
+	    LEFT JOIN srampos_sales_type  st
+            ON st.id = s.sales_type_id
+            WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+            P.payment_status ='Completed' ".$where."
+            GROUP BY s.sales_type_id";
+            
+        $saletype_res = $this->db->query($saletype);
+	
+	$tenderType = "SELECT PA.paid_by tender_type,SUM(PA.amount-PA.pos_balance) tender_type_total
+        FROM " . $this->db->dbprefix('bils_archival') . "  P
+            LEFT JOIN srampos_payments_archival  PA
+            ON P.id = PA.bill_id
+            WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+            P.payment_status ='Completed'  ".$where."
+            GROUP BY PA.paid_by HAVING SUM(PA.amount-PA.pos_balance) > 0";
+
+        $tenderType_res = $this->db->query($tenderType);
+		$default_currency = $this->Settings->default_currency;
+
+        $exchange = "SELECT SUM(CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != ".$default_currency.")) THEN amount_exchange*currency_rate ELSE 0 END) as usd,SUM(CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != ".$default_currency.")) THEN SC.amount ELSE 0 END) as For_Ex FROM " . $this->db->dbprefix('sale_currency_archival') . " SC
+ 		JOIN " . $this->db->dbprefix('bils_archival') . " P ON P.id = SC.bil_id
+ 		JOIN " . $this->db->dbprefix('payments_archival') . " PM ON PM.bill_id = P.id
+ 		 WHERE P.payment_status ='Completed' ".$where." AND DATE(P.date) BETWEEN '".$start."' AND '".$end."' ";
+
+ 	$exchange = $this->db->query($exchange);
+	// print_r($this->db->error());die;
+	$query = "SELECT count(P.id) total_transaction,SUM(P.round_total) gross_total1,SUM(P.total-P.total_discount-P.bbq_cover_discount-P.bbq_daywise_discount+P.service_charge_amount+CASE WHEN (P.tax_type= 1) THEN P.total_tax ELSE 0 END) AS gross_total,SUM(P.round_total-P.total_discount) net_total1,SUM(P.total-P.total_discount-P.bbq_cover_discount-P.bbq_daywise_discount+CASE WHEN (P.tax_type= 1) THEN P.total_tax ELSE 0 END)+P.service_charge_amount  AS net_total
+        FROM " . $this->db->dbprefix('bils_archival') . "  P
+            WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+            P.payment_status ='Completed' ".$where." ";
+
+	$details = $this->db->query($query);
+
+    $open_cash = "SELECT RP.id,SUM(RP.cash_in_hand) AS opensale
+        FROM " . $this->db->dbprefix('open_register_payments') . " AS RP
+         JOIN  " . $this->db->dbprefix('pos_open_register') . " AS PR ON PR.id = RP.register_id
+         JOIN  " . $this->db->dbprefix('users') . " AS U ON U.id = PR.user_id
+         JOIN  " . $this->db->dbprefix('users') . " AS UU ON UU.id = PR.created_by
+            WHERE DATE(RP.date) BETWEEN '".$start."' AND '".$end."'  ";  
+
+    $open_cash = $this->db->query($open_cash);
+   $buffet_sale = "SELECT count(P.id) as total_transaction,st.name sale_type,SUM(P.total-P.total_discount+CASE WHEN (P.tax_type= 1) THEN P.total_tax ELSE 0 END)  AS sale_type_total
+    FROM " . $this->db->dbprefix('bbq_bils') . " AS P
+     JOIN  " . $this->db->dbprefix('bbq_sales') . " AS s ON s.id = P.sales_id
+     JOIN  " . $this->db->dbprefix('sales_type') . " AS st ON st.id = s.sales_type_id        
+        WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND P.payment_status ='Completed' ".$where." GROUP BY s.sales_type_id ";
+// echo $buffet_sale;die;
+    $buffet_sale = $this->db->query($buffet_sale);   
+
+    $buffet_saletype = "SELECT st.name sale_type,SUM(P.total-P.total_discount+CASE WHEN (P.tax_type= 1) THEN P.total_tax ELSE 0 END) AS sale_type_total
+        FROM " . $this->db->dbprefix('bbq_bils') . "  P
+            LEFT JOIN " . $this->db->dbprefix('bbq_sales') . " AS  s
+            ON s.id = P.sales_id
+	    LEFT JOIN " . $this->db->dbprefix('sales_type') . " AS  st
+            ON st.id = s.sales_type_id
+            WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+            P.payment_status ='Completed' ".$where." 
+            GROUP BY s.sales_type_id";
+            
+     $buffet_saletype = $this->db->query($buffet_saletype);
+
+     $buffet_tender_type = "SELECT PA.paid_by tender_type,SUM(PA.amount-PA.pos_balance) tender_type_total
+        FROM " . $this->db->dbprefix('bbq_bils') . "  P
+            LEFT JOIN " . $this->db->dbprefix('bbq_payments') . "  PA
+            ON P.id = PA.bill_id
+            WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+            P.payment_status ='Completed' 
+            GROUP BY PA.paid_by";  
+
+      $buffet_tender_type = $this->db->query($buffet_tender_type);
+
+      $buffet_exchange = "SELECT SUM(CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != ".$default_currency.")) THEN amount_exchange*currency_rate ELSE 0 END) as usd,SUM(CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != ".$default_currency.")) THEN SC.amount ELSE 0 END) as For_Ex FROM " . $this->db->dbprefix('sale_currency') . " SC
+ 		JOIN " . $this->db->dbprefix('bbq_bils') . " P ON P.id = SC.bil_id
+ 		JOIN " . $this->db->dbprefix('bbq_payments') . " PM ON PM.bill_id = P.id
+ 		 WHERE P.payment_status ='Completed'AND DATE(P.date) BETWEEN '".$start."' AND '".$end."' ";
+
+     	$buffet_exchange = $this->db->query($buffet_exchange);
+	  
+	  $data['payments'] = $details->result(); 
+
+	 $dine_tender = $tenderType_res->result(); 
+	 $buffet_tender = $buffet_tender_type->result();
+
+
+	 $tender_meged = array_merge($dine_tender, $buffet_tender);
+
+	$tender_totals = array();
+	foreach ($tender_meged as $row) {
+	  $tender_type = $row->tender_type;
+	  $tender_type_total = $row->tender_type_total;
+	  $tender_totals[$tender_type] += $tender_type_total;
+	}
+
+	$tendertype = array();
+	foreach ($tender_totals as $tender_type => $tender_type_total) {
+	  $tendertype[] = array('tender_type' => $tender_type, 'tender_type_total' => $tender_type_total);
+	}  
+
+
+	$data['tender_type'] = $tendertype;
+	/*$data['tender_type'] = $tenderType_res->result();*/
+	$data['sale_type'] = $saletype_res->result(); 
+	$data['exchange_amt'] = $exchange->result();
+	$data['open_sale'] = $open_cash->result();
+
+	$data['buffet_sale'] = $buffet_sale->result();
+	$data['buffet_saletype'] = $buffet_saletype->result();
+	$data['buffet_exchange'] = $buffet_exchange->result();
+
+	  return $data;
+      return FALSE;
+    }   
 
     public function getShiftWiseReport_new($start,$end,$shift_id,$report_view_access,$report_show)
     {  
@@ -7629,6 +7859,8 @@ function change_customer($change_split_id, $changed_customer_id){
 
 
     }  
+	
+	
 public function getShiftWiseReport($start,$end,$shift_id,$report_view_access,$report_show)
     {  
     	$defalut_currency = $this->Settings->default_currency;
@@ -7690,6 +7922,63 @@ public function getShiftWiseReport($start,$end,$shift_id,$report_view_access,$re
     }  
 
 
+public function getShiftWiseReport_archival($start,$end,$shift_id,$report_view_access,$report_show)
+    {  
+    	$defalut_currency = $this->Settings->default_currency;
+         $where ='';
+        if($report_view_access != 1)
+         {
+             $where .= " AND B.table_whitelisted = ".$report_show." ";
+         } 
+
+         $WHERE1 ='';
+            if($shift_id != 0 ){
+                $WHERE1 .= "WHERE id =".$shift_id."";
+            }else{
+            	$WHERE1 .= "WHERE status=1";
+            }
+            
+            $category = "SELECT name,start_time,end_time,id as cate_id, 'split_order' 
+            FROM " . $this->db->dbprefix('shift_time') . " ".$WHERE1."";                
+            $u = $this->db->query($category);
+            
+        if ($u->num_rows() > 0) {
+            foreach (($u->result()) as $uow) {
+
+            /*$myQuery = "SELECT U.first_name AS username,SUM(DISTINCT CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id = ".$defalut_currency.")) THEN PM.amount ELSE 0 END) AS Cash,SUM(DISTINCT CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != ".$defalut_currency.")) THEN amount_exchange*currency_rate ELSE 0 END) as For_Ex,SUM(DISTINCT CASE WHEN PM.paid_by = 'CC' THEN PM.amount ELSE 0 END) AS Credit_Card,SUM(DISTINCT CASE WHEN PM.paid_by = 'credit' THEN PM.amount ELSE 0 END) AS credit,SUM(DISTINCT P.paid) AS Bill_amt,SUM(DISTINCT P.balance) AS return_balance,SUM(CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != ".$defalut_currency.")) THEN SC.amount ELSE 0 END) as ForEx
+                    FROM " . $this->db->dbprefix('bils') . " P
+                    JOIN " . $this->db->dbprefix('users') . " U ON P.created_by = U.id
+                    JOIN " . $this->db->dbprefix('payments') . " PM ON PM.bill_id = P.id
+                    JOIN " . $this->db->dbprefix('sale_currency') . " SC ON SC.bil_id = P.id
+                        WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."' AND
+                         P.payment_status ='Completed' 
+                        ".$where." GROUP BY U.id "; */
+
+			/*	$myQuery = "SELECT t.id,t.username,t.Cash,t.For_Exto_usd,t.Credit_Card,t.credit,(t.Cash+t.For_Exto_usd+t.Credit_Card+t.credit) as Bill_amt from (SELECT ".$uow->cate_id." as id, U.first_name AS username,SUM(CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id = 2)) THEN SC.amount - PM.pos_balance ELSE 0 END) AS Cash,SUM(CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != 2)) THEN amount_exchange*currency_rate ELSE 0 END) as For_Exto_usd,SUM(CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != 2)) THEN SC.amount ELSE 0 END) as For_Ex,SUM(DISTINCT CASE WHEN PM.paid_by = 'CC' THEN PM.amount ELSE 0 END) AS Credit_Card,SUM(DISTINCT CASE WHEN PM.paid_by = 'credit' THEN PM.amount ELSE 0 END) AS credit,SUM( DISTINCT P.balance) AS return_balance,SUM(DISTINCT P.total-P.total_discount+CASE WHEN (P.tax_type= 1) THEN P.total_tax ELSE 0 END) AS Bill_amt FROM " . $this->db->dbprefix('sale_currency') . " SC JOIN " . $this->db->dbprefix('bils') . " P ON P.id = SC.bil_id JOIN " . $this->db->dbprefix('payments') . " PM ON PM.bill_id = P.id
+				JOIN " . $this->db->dbprefix('users') . " U ON U.id =P.created_by WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."'  AND P.payment_status='Completed' AND DATE_FORMAT(P.created_on,'%H:%i:%s') BETWEEN '".$uow->start_time."' AND '".$uow->end_time."' AND SC.bil_id IN (SELECT id FROM srampos_bils  WHERE P.payment_status ='Completed' AND DATE(P.date) BETWEEN '".$start."' AND '".$end."' ) GROUP BY U.id) t";*/
+  // echo $myQuery;die;
+					
+
+				$myQuery = "SELECT t.id,t.username,t.Cash,t.For_Exto_usd,t.Credit_Card,t.credit,(t.Cash+t.For_Exto_usd+t.Credit_Card+t.credit) as Bill_amt from (SELECT ".$uow->cate_id." as id, U.first_name AS username,SUM(CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id = 2)) THEN SC.amount - PM.pos_balance ELSE 0 END) AS Cash,SUM(CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != 2)) THEN amount_exchange*currency_rate ELSE 0 END) as For_Exto_usd,SUM(CASE WHEN ((PM.paid_by = 'cash') AND (SC.currency_id != 2)) THEN SC.amount ELSE 0 END) as For_Ex,SUM(DISTINCT CASE WHEN PM.paid_by = 'CC' THEN PM.amount ELSE 0 END) AS Credit_Card,SUM(DISTINCT CASE WHEN PM.paid_by = 'credit' THEN PM.amount ELSE 0 END) AS credit,SUM( DISTINCT P.balance) AS return_balance,SUM(DISTINCT P.total-P.total_discount+CASE WHEN (P.tax_type= 1) THEN P.total_tax ELSE 0 END) AS Bill_amt FROM " . $this->db->dbprefix('sale_currency_archival') . " SC JOIN " . $this->db->dbprefix('bils_archival') . " P ON P.id = SC.bil_id JOIN " . $this->db->dbprefix('payments_archival') . " PM ON PM.bill_id = P.id
+				JOIN " . $this->db->dbprefix('users') . " U ON U.id =P.created_by WHERE DATE(P.date) BETWEEN '".$start."' AND '".$end."'  AND P.payment_status='Completed' AND DATE_FORMAT(P.created_on,'%H:%i:%s') BETWEEN '".$uow->start_time."' AND '".$uow->end_time."' AND SC.bil_id IN (SELECT id FROM srampos_bils_archival  WHERE P.payment_status ='Completed') GROUP BY U.id) t";
+ // echo $myQuery;die;
+
+                    $q = $this->db->query($myQuery);
+                    if ($q->num_rows() > 0) {
+                        foreach (($q->result()) as $row) {
+                            $user[$uow->cate_id][] = $row;
+                        }
+                        $uow->user = $user[$uow->cate_id];
+                        $data[] = $uow;
+                    }
+                }//die;
+                    //echo "<pre>";
+                    //print_r($data);die;
+                return $data;
+            // return array('data'=>$data);
+        }
+        return FALSE;
+    }  
 public function getShiftWiseReport_23012019($start,$end,$shift_id,$report_view_access,$report_show)
     {  
         $where ='';
@@ -7853,7 +8142,7 @@ public function check_reportview_access($pass_code){
     /*variant start*/
 
     function isVarientExist($rid){
-	$this->db->select('v.*,r.*,v.id variant_id');
+	$this->db->select('v.*,r.*,v.id variant_id,r.price as variant_price');
 	$this->db->from('recipe_variants_values r');
 	$this->db->join('recipe_variants v','v.id=r.attr_id');
 	$this->db->where(array('r.recipe_id'=>$rid));
@@ -8749,8 +9038,8 @@ if($this->pos_settings->consolidated_kot_print_option == 0){/*Consolidate kot fo
 			$bill->action = 2;
 			$this->db->insert('archive_bils',$bill);
 			
-    		    $this->db->where('id',$billid);
-                        $this->db->delete('bils');
+    		$this->db->where('id',$billid);
+            $this->db->delete('bils');
 			
 			$bill_items = $this->db->get_where('bil_items',array('bil_id'=>$billid))->result();
 			$this->db->insert_batch('archive_bil_items',$bill_items);
@@ -8770,9 +9059,9 @@ if($this->pos_settings->consolidated_kot_print_option == 0){/*Consolidate kot fo
 			$this->db->insert_batch('archive_rough_tender_sale_currency',$r_sale_currency_data);
 			
     		    $this->db->where('bill_id',$billid);
-                        $this->db->delete('rough_tender_payments');
+                $this->db->delete('rough_tender_payments');
     		    $this->db->where('bil_id',$billid);
-                        $this->db->delete('rough_tender_sale_currency');
+                $this->db->delete('rough_tender_sale_currency');
 			
 			///rough tender - end
 			if($sale_id){
@@ -9175,6 +9464,1100 @@ if($this->pos_settings->consolidated_kot_print_option == 0){/*Consolidate kot fo
         }
         return FALSE;
     }
+    public function Payment_for_consolidate($update_bill = array(), $bill_id =NULL, $payment = array(), $multi_currency = array(), $salesid = NULL, $sales_bill = array(), $order_split_id = NULL, $notification_array,$updateCreditLimit,$total,$customer_id,$loyalty_used_points,$taxation,$customer_changed)
+    {    
+    	
+		$q = $this->db->select('sales_split_id, sales_table_id')->where('id', $salesid)->get('sales');		
+		if($this->pos_settings->bill_series_settings == 1){
+			$bill_number = $this->site->Payment_dine_bill_number($taxation,$bill_id);		
+			$bill_no = $bill_number;
+			$this->db->update('bils', array('bill_number' => $bill_number), array('id' => $bill_id));
+		}else{
+			$bill_number = $this->site->generate_bill_number($taxation,$bill_id);	
+			$this->db->update('bils', array('bill_number' => $bill_number), array('id' => $bill_id));
+		}
+		$bill_no = $bill_number;		
+		// var_dump($bill_no);die;
+		if ($q->num_rows() > 0) {
+            $split_id =  $q->row('sales_split_id');
+			$table_id =  $q->row('sales_table_id');
+        }
+		$k = $this->db->select('id ')->where('split_id', $split_id)->get('orders');
+		if ($k->num_rows() > 0) {
+            $id =  $k->row('id');
+        }		
+		$k = $this->db->select('waiter_id, chef_id')->where('sale_id', $id)->get('kitchen_orders');
+		if ($k->num_rows() > 0) {
+            $waiter_id =  $k->row('waiter_id');
+			$chef_id =  $k->row('chef_id');
+        }		
+		$notification_array['insert_array']['msg'] = 'Cashier has been payment this bil ('.$bill_no.'';
+		$notification_array['insert_array']['table_id'] = $table_id;
+		$notification_array['insert_array']['type'] = 'Cashier payment bils';
+		$notification_array['insert_array']['role_id'] = WAITER;
+		$notification_array['insert_array']['to_user_id'] = $waiter_id;	
+		$this->site->create_notification($notification_array);
+		
+    	if ($this->db->update('bils', $update_bill, array('id' => $bill_id))){
+			$this->db->update('sales', $sales_bill, array('id' => $salesid));
+    			$order_count = $this->db->get_where('bils', array('sales_id' => $salesid));
+				$order_count =$order_count->num_rows();
+				
+				 $order_closed_count = $this->db->get_where('bils', array('bils.sales_id' => $salesid,'bils.payment_status' => 'Completed'));
+				 $order_closed_count =$order_closed_count->num_rows();
+
+    		foreach ($payment as $item) {
+		    $item['customer_payment_type'] = $updateCreditLimit['customer_type'];
+		    $this->db->insert('payments', $item);
+		    $pid = $this->db->insert_id();
+		    
+		    if($pid && $item['paid_by']=='credit'){
+			$creditedAmt = $item['pos_paid'];
+			$d_q = $this->db->get_where('deposits', array('company_id' => $updateCreditLimit['company_id'],'credit_balance!='=>0))->result_array();
+			$amountpayable = $item['pos_paid'];
+			foreach($d_q as $dep => $depositRow){			    
+			    if($amountpayable<=$depositRow['credit_balance']){
+				$payableamt = $amountpayable;
+				$this->db->set('credit_balance', 'credit_balance-'.$payableamt,false);
+				$this->db->set('credit_used', 'credit_used+'.$payableamt,false);
+				$this->db->where('id',$depositRow['id']);
+				$this->db->update('deposits');//echo 'exit';exit;
+				$amountpayable =0;
+				break;
+			    }else{
+				$payableamt = $depositRow['credit_balance'];
+				$this->db->set('credit_balance', 'credit_balance-'.$payableamt,false);
+				$this->db->set('credit_used', 'credit_used+'.$payableamt,false);
+				$this->db->where('id',$depositRow['id']);
+				$this->db->update('deposits');
+				$amountpayable = $amountpayable-$payableamt;
+				
+			    }
+			}
+			if($updateCreditLimit['customer_type']=="postpaid") {
+			    if($amountpayable>0){
+				$date = date('Y-m-d H:i:s');
+				$deposit_data = array(
+				    'date' => $date,
+				    'credit_amount' => $amountpayable,
+				    'credit_used' => $amountpayable,
+				    'paid_by' => 'postpaid',
+				    'company_id' => $updateCreditLimit['company_id'],
+				    'created_by' => $this->session->userdata('user_id'),
+				    'added_on' => date('Y-m-d H:i:s'),
+				);
+				if ($this->db->insert('deposits', $deposit_data)) {
+				    $this->db->set('credit_limit', 'credit_limit+'.$deposit_data['credit_amount'],false);
+					$this->db->where('id',$deposit_data['company_id']);
+					$this->db->update('companies');
+				}
+			    }
+			    $com = $this->db->get_where('companies', array('id' => $updateCreditLimit['company_id']))->row_array();
+			    $postpaid_bill['company_id'] = $updateCreditLimit['company_id'];
+			    $postpaid_bill['credit_amount'] = $creditedAmt;
+			    $postpaid_bill['amount_payable'] = $creditedAmt;
+			    $postpaid_bill['bill_id'] = $bill_id;
+			    $postpaid_bill['created_on'] = date('Y-m-d H:i:s');
+			    $postpaid_bill['due_date'] = date('Y-m-d H:i:s',strtotime('+'.$com['credit_days'].' days', strtotime(date('Y-m-d H:i:s'))));		 $postpaid_bill['status'] = 9;
+			    $this->db->insert('companies_postpaid_bills', $postpaid_bill);
+			    $this->db->insert_id();
+			}
+			$this->db->set('credit_limit', 'credit_limit-'.$creditedAmt,false);
+			$this->db->where('id',$updateCreditLimit['company_id']);
+			$this->db->update('companies');//echo 'exit';exit;       
+		    }
+    		
+    		}
+			foreach ($multi_currency as $currency) {
+    			$this->db->insert('sale_currency', $currency);
+    		}
+    		 
+	    		$sales_array = array(
+		            'sale_status' => "Closed",
+		            'payment_status' => "Paid",
+		        );
+
+		        $tables_array = array(
+		            'session_end' => date('Y-m-d H:m:s'),
+		        );   		        
+
+			    if ($order_count  == $order_closed_count) {			    	
+			         $this->db->update('sales', $sales_array, array('id' => $salesid));
+			         $this->db->update('orders', $sales_array, array('split_id' =>  $order_split_id));
+			        $res =  $this->db->update('restaurant_table_sessions', $tables_array, array('split_id' =>  $order_split_id));
+		        }
+		        if($customer_changed == 1){
+		        	$this->site->UpdateCustomerFromLoyalty($customer_id,$bill_id,$salesid,$split_id);	       
+		        }
+
+		/*Loyalty inser and Update*/	
+		 $this->site->LoyaltyinserAndUpdate($bill_id,$total,$customer_id,$loyalty_used_points);	  
+		 $this->site->update_TableStatus_after_payment_for_consolidate($table_id,0,$salesid,$split_id);
+		 // print_r($this->db->error());die;
+    	 return true;
+    	}    	
+    	// print_r($this->db->error());die;
+    	return false;
+    }   
+     public function merger_multiple_to_single_split_consolidate($merge_splits, $current_split,$merge_table_id ){
+        $order_array = array(
+            'table_id' => $merge_table_id,
+            'split_id' => $current_split,
+        );
+		$this->db->select("table_id");
+		$this->db->where_in('split_id', $merge_splits);
+		$q = $this->db->get('orders'); 
+		if($q->num_rows()>0){
+			$merge_tables_from=$q->result();
+		}
+		$stack = $merge_splits;
+		array_push($stack, $current_split);
+		//unknow block start past code move here///
+		$this->db->select("SUM(srampos_order_items.quantity) as quantity,order_items.recipe_id,order_items.unit_price", FALSE);
+		$this->db->join('orders', 'orders.id = order_items.sale_id');
+		$this->db->where_in('split_id', $stack);		
+		$this->db->where('order_items.order_item_cancel_status', 0);		
+		$this->db->group_by('CASE WHEN srampos_order_items.manual_item_discount >= 0.00 THEN ' . $this->db->dbprefix('order_items') . '.recipe_id END HAVING COUNT(*) > 1',FALSE);
+		$ms = $this->db->get('order_items'); 
+	  if ($ms->num_rows() > 0) {  	
+            foreach (($ms->result()) as $row) {
+					$this->db->select("order_items.id", FALSE);
+					$this->db->join('orders', 'orders.id = order_items.sale_id');
+					$this->db->where('orders.split_id', $current_split);	
+					$this->db->where('order_items.recipe_id', $row->recipe_id);				
+					$cs = $this->db->get('order_items');
+            		//$this->db->update('order_items', array('quantity' => $row->quantity,'subtotal' => $row->unit_price*($row->quantity)), array('id' => $cs->row('id')));
+
+            		$this->db->select("order_items.id", FALSE);
+					$this->db->join('orders', 'orders.id = order_items.sale_id');
+					$this->db->where_in('split_id', $merge_splits);		
+					$this->db->where('recipe_id', $row->recipe_id);		
+					//$this->db->group_by('order_items.id,CASE WHEN srampos_order_items.manual_item_discount != 0.00 THEN ' . $this->db->dbprefix('order_items') . '.recipe_id END',FALSE);		
+					$cancelssplit = $this->db->get('order_items');
+//print_r($this->db->last_query());die;
+					//$this->db->update('order_items', array('order_item_cancel_id' => $this->session->userdata('user_id'),'order_item_cancel_note' => 'Cancelled','item_status' => 'Cancel','order_item_cancel_status' => 1), array('id' => $cancelssplit->row('id')));
+            }
+        }        
+        ////unknow block end   ///
+/*table status changed if only one orderd placed*/
+     
+ $this->db->select("table_id", FALSE);		
+		$this->db->where_in('split_id', $merge_splits);	
+		$this->db->where_not_in('table_id', $merge_table_id);	
+		$this->db->group_by('table_id HAVING COUNT(*) >= 1',FALSE);		
+		$table = $this->db->get('orders'); 	
+	        if ($table->num_rows() > 0) {
+	            foreach (($table->result()) as $row) {
+	            	$this->db->update('restaurant_tables', array('current_order_status' => 1,'current_order_user' => 0), array('id' => $row->table_id));
+	            
+	            }
+	        }		
+/*table status changed if only one orderd placed*/
+
+        $this->db->where_in('split_id', $merge_splits);
+        if ($this->db->update('orders',  $order_array)) {
+			if(!empty($merge_tables_from)){
+			$this->merge_table_status_update($merge_tables_from);
+			}
+			$orders_id = "SELECT O.id 
+			FROM ".$this->db->dbprefix('orders')." AS O
+			WHERE O.split_id='".$current_split."' ";
+			$q = $this->db->query($orders_id);			
+	        if ($q->num_rows() > 0) {
+	            foreach (($q->result()) as $row) {
+	            	$this->db->update('restaurant_table_orders', array('table_id' => $merge_table_id), array('order_id' => $row->id));
+	            	$this->db->update('restaurant_table_sessions', array('table_id' => $merge_table_id), array('order_id' => $row->id));	                
+	            }
+	            return TRUE;
+	        }		
+			return true;
+		}
+		return false;
+    }
+  
+  
+	function merge_table_status_update($merge_tables_from){
+			if(!empty($merge_tables_from)){
+				foreach($merge_tables_from as $table){
+				   $this->db->select("table_id")	;
+				   $this->db->where("table_id",$table->table_id);
+				   //$this->db->where_not_in("payment_status",array('Cancelled','Paid'));
+				   $this->db->where("payment_status IS NULL");
+				   $q=$this->db->get("orders");
+				    if(empty($q->result())){
+					   $this->db->where("id",$table->table_id);
+					   $this->db->update("restaurant_tables",array("current_order_status"=>0));
+				   } 
+				}
+			}	
+	}
+	
+	
+public function ALLCancelOrdersItem_consolidate($cancel_remarks, $split_table_id, $user_id, $notification_array){
+
     
-    
+		$k = $this->db->select('id,GROUP_CONCAT(id SEPARATOR ",") as ordersid ')->where('split_id', $split_table_id)->get('orders');
+		if ($k->num_rows() > 0) {
+            $id =  $k->row('ordersid');
+        }
+
+        $bb = $this->db->select('split_id')->where('reference_no', $split_table_id)->get('bbq');
+		if ($k->num_rows() > 0) {
+		        $bbqupdate = array(
+					'cancel_status' => 1,
+					'cancel_msg' => 'BBQ Covers Cancel',
+					'status' => 'Cancelled',
+					'payment_status' => 'Cancelled',
+					'cancel_by' => $this->session->userdata('user_id')
+				);
+				$this->db->where('reference_no', $split_table_id);
+				$this->db->update('bbq', $bbqupdate);
+		}
+		
+		$k = $this->db->select('waiter_id, chef_id')->where('sale_id', $id)->get('kitchen_orders');
+		if ($k->num_rows() > 0) {
+            $waiter_id =  $k->row('waiter_id');
+			$chef_id =  $k->row('chef_id');
+        }
+		
+		/*$notification_array['insert_array']['msg'] = 'Cashier has benn cancel this bil ('.$split_id.')';
+		$notification_array['insert_array']['table_id'] = $table_id;
+		$notification_array['insert_array']['type'] = 'Cashier cancel bils';
+		$notification_array['insert_array']['role_id'] = WAITER;
+		$notification_array['insert_array']['to_user_id'] = $waiter_id;*/
+		
+		
+		
+		//$this->site->create_notification($notification_array);
+        /*echo $id;die;*/
+       
+        $order_item_array = array(
+            'order_item_cancel_id' => $user_id,
+            'order_item_cancel_note' => $cancel_remarks,
+            'order_item_cancel_status' => 1,
+        );
+
+        $order_array = array(
+            'order_cancel_id' => $user_id,
+            'order_cancel_note' => $cancel_remarks,
+            'order_cancel_status' => 1,
+            'payment_status' => 'Cancelled',
+        );
+ 	
+		//$this->db->update('bils', $bill_array, array('sales_id' => $sale_id));
+		/*$this->db->where_in('split_id', $split_id);
+		$this->db->update('orders',  $order_array);*/
+	    
+		$id2 =   explode(',',$id);
+		$this->db->where_in('sale_id', $id2);
+		$this->db->update('order_items',  $order_item_array);
+         $order_data=$this->db->get_where("orders",array("split_id"=>$split_table_id))->row();
+		
+		 $table_id=$order_data->table_id;
+		/*table status changed if only one orderd placed*/
+	       
+	   /*table status changed if only one orderd placed*/
+	   
+			
+		$this->db->where('split_id', $split_table_id);
+		if ($this->db->update('orders',  $order_array)) {
+		//	print_r($this->db->last_query());die;
+		 $this->db->select("table_id", FALSE);		
+			$this->db->where('table_id', $table_id);	
+             $order_status=array('Cancelled','Paid');
+			//$this->db->where_not_in('payment_status', $order_status);						
+			$this->db->where('payment_status is null');
+			$table = $this->db->get('orders'); 	
+			
+		        if ($table->num_rows() > 0) {
+		            
+		        }	else{
+					$this->db->update('restaurant_tables', array('current_order_status' => 0,'current_order_user' => 0), array('id' => $table_id));
+				}
+			return true;
+		}
+		//print_r($this->db->last_query());die;
+		return false;
+
+    }    
+	public function change_table_consolidate($change_split_id, $changed_table_id){
+
+        $order_array = array(
+            'table_id' => $changed_table_id,
+        );
+        $old_table_id = $this->db->get_where('orders',array('split_id'=>$change_split_id))->row('table_id');
+       // $this->site->updateTableStatus($old_table_id,0,$this->session->userdata('user_id'));
+        $this->site->updateTableStatus($changed_table_id,1,$this->session->userdata('user_id'));
+        $this->db->where('split_id', $change_split_id);
+        if ($this->db->update('orders',  $order_array)) {
+			/* $orders_id = "SELECT O.id 
+			FROM ".$this->db->dbprefix('orders')." AS O
+			WHERE O.split_id='".$change_split_id."' ";
+
+			$q = $this->db->query($orders_id);	 */	
+			$this->db->select("table_id", FALSE);		
+			$this->db->where('table_id', $old_table_id);	
+             $order_status=array('Cancelled','Paid');
+			//$this->db->where_not_in('payment_status', $order_status);						
+			$this->db->where('payment_status is null');
+			$table = $this->db->get('orders'); 	
+	        if ($table->num_rows() > 0) {
+		        }	else{
+					$this->db->update('restaurant_tables', array('current_order_status' => 0,'current_order_user' => 0), array('id' => $old_table_id));
+				}
+	            return TRUE;
+		}
+		return false;
+    }
+	public function CancelSale_consolidate($cancel_remarks, $sale_id, $user_id, $notification_array){
+
+    	$q = $this->db->select('sales_split_id, sales_table_id')->where('id', $sale_id)->get('sales');
+		if ($q->num_rows() > 0) {
+            $split_id =  $q->row('sales_split_id');
+			$table_id =  $q->row('sales_table_id');
+        }
+        /*echo $split_id;*/
+		
+		
+		$k = $this->db->select('id,GROUP_CONCAT(id SEPARATOR ",") as ordersid ')->where('split_id', $split_id)->get('orders');
+		if ($k->num_rows() > 0) {
+            $id =  $k->row('ordersid');
+        }
+
+        $bb = $this->db->select('split_id')->where('reference_no', $split_id)->get('bbq');
+		if ($k->num_rows() > 0) {
+		        $bbqupdate = array(
+					'cancel_status' => 1,
+					'cancel_msg' => 'BBQ Covers Cancel',
+					'status' => 'Cancelled',
+					'payment_status' => 'Cancelled',
+					'cancel_by' => $this->session->userdata('user_id')
+				);
+				$this->db->where('reference_no', $split_id);
+				$this->db->update('bbq', $bbqupdate);
+		}
+		// print_r($this->db->error());die;
+		$k = $this->db->select('waiter_id, chef_id')->where('sale_id', $id)->get('kitchen_orders');
+		if ($k->num_rows() > 0) {
+            $waiter_id =  $k->row('waiter_id');
+			$chef_id =  $k->row('chef_id');
+        }
+		
+		$notification_array['insert_array']['msg'] = 'Cashier has benn cancel this bil ('.$split_id.')';
+		$notification_array['insert_array']['table_id'] = $table_id;
+		$notification_array['insert_array']['type'] = 'Cashier cancel bils';
+		 $notification_array['insert_array']['role_id'] = WAITER;
+		 $notification_array['insert_array']['to_user_id'] = $waiter_id;
+		
+		
+		
+		$this->site->create_notification($notification_array);
+        /*echo $id;die;*/
+        $sale_aray = array(
+            'canceled_user_id' => $user_id,
+            'cancel_remarks' => $cancel_remarks,
+            'cancel_status' => 1,
+            'payment_status' => 'Cancelled',
+        );
+        $order_item_array = array(
+            'order_item_cancel_id' => $user_id,
+            'order_item_cancel_note' => $cancel_remarks,
+            'order_item_cancel_status' => 1,
+        );
+
+        $order_array = array(
+            'order_cancel_id' => $user_id,
+            'order_cancel_note' => $cancel_remarks,
+            'order_cancel_status' => 1,
+            'payment_status' => 'Cancelled',
+        );
+ 	
+         $bill_array = array(
+            'updated_by' => $user_id,
+            'updated_at' => date('Y-m-d H:i:s'),
+            'payment_status' => 'Cancelled',
+            'bil_status' => 'Cancelled',
+        );
+
+		$this->db->update('bils', $bill_array, array('sales_id' => $sale_id));
+		$this->db->where_in('split_id', $split_id);
+		$this->db->update('orders',  $order_array);
+	    /*$this->db->update('orders', $order_array, array('id' => $id));*/
+
+		// $this->db->update('order_items', $order_item_array, array('sale_id' => $id));
+		
+		$id2 =   explode(',',$id);
+		$this->db->where_in('sale_id', $id2);
+		$this->db->update('order_items',  $order_item_array);
+
+			
+		$this->db->where('id', $sale_id);
+		if ($this->db->update('sales',  $sale_aray)) {
+			// print_r($this->db->last_query());die;
+			/*if(!empty($id)){
+
+			}*/
+			
+		/* 	if($table_id != 0){
+				$this->site->updatepayment_TableStatus($table_id,0);
+			} */
+				
+			$this->db->select("table_id", FALSE);		
+			$this->db->where('table_id', $table_id);	
+             $order_status=array('Cancelled','Paid');
+			//$this->db->where_not_in('payment_status', $order_status);						
+			$this->db->where('payment_status is null');
+			$table = $this->db->get('orders'); 	
+	        if ($table->num_rows() > 0) {
+		        }	else{
+					$this->db->update('restaurant_tables', array('current_order_status' => 0,'current_order_user' => 0), array('id' => $table_id));
+				}
+	            return TRUE;
+		}
+		return false;
+
+    }
+	public function getBill_all($table_id, $split_id, $user_id,$bill_type){
+		$this->db->select('GROUP_CONCAT(' . $this->db->dbprefix('orders') . '.id SEPARATOR ",") as "order",GROUP_CONCAT(' . $this->db->dbprefix('kitchen_orders') . '.id SEPARATOR ",") as kitchen, "order_item" AS order_item');
+		$this->db->join('kitchen_orders', 'kitchen_orders.sale_id = orders.id');
+		if(!empty($table_id)){
+			$this->db->where('orders.table_id', $table_id);
+		}
+		$this->db->where('orders.split_id', $split_id);
+		$this->db->where('orders.order_cancel_status', 0);		
+		$q = $this->db->get('orders');
+		// print_r($this->db->last_query());die;
+		if ($q->num_rows() > 0) {
+            foreach ($q->result() as $row) {
+
+            	$order =  $q->row('order');
+				$order =   explode(',',$order);
+
+				$kitchen =  $q->row('kitchen');
+				$kitchen =   explode(',',$kitchen);
+		
+if($bill_type !=3){
+			  $this->db->select("order_items.id,order_items.recipe_id, order_items.recipe_code, order_items.recipe_name, order_items.recipe_type, order_items.option_id, order_items.net_unit_price, order_items.unit_price,SUM(srampos_order_items.quantity) quantity , order_items.warehouse_id, order_items.item_tax, order_items.tax_rate_id, order_items.tax, order_items.discount, order_items.item_discount, SUM(srampos_order_items.subtotal) subtotal, order_items.serial_no, order_items.real_unit_price, order_items.sale_item_id, order_items.recipe_unit_id, order_items.recipe_unit_code, order_items.unit_quantity, order_items.comment, order_items.gst, order_items.cgst, order_items.sgst, order_items.igst,order_items.recipe_variant_id,order_items.variant,order_items.manual_item_discount,order_items.manual_item_discount_val,order_items.addon_id,order_items.addon_qty,order_items.item_status", FALSE);
+}else{
+		  $this->db->select("order_items.id,order_items.recipe_id, order_items.recipe_code, order_items.recipe_name, order_items.recipe_type, order_items.option_id, order_items.net_unit_price, order_items.unit_price,srampos_order_items.quantity quantity , order_items.warehouse_id, order_items.item_tax, order_items.tax_rate_id, order_items.tax, order_items.discount, order_items.item_discount, srampos_order_items.subtotal subtotal, order_items.serial_no, order_items.real_unit_price, order_items.sale_item_id, order_items.recipe_unit_id, order_items.recipe_unit_code, order_items.unit_quantity, order_items.comment, order_items.gst, order_items.cgst, order_items.sgst, order_items.igst,order_items.recipe_variant_id,order_items.variant,order_items.manual_item_discount,order_items.manual_item_discount_val,order_items.addon_id,order_items.addon_qty,order_items.item_status", FALSE);
+}
+			  $this->db->order_by('order_items.recipe_name', 'ASC');
+			  
+				$this->db->where_in('order_items.sale_id', $order);
+				$this->db->where_in('order_items.kitchen_id', $kitchen);
+				$this->db->where('order_items.order_item_cancel_status', 0);
+				if($bill_type !=3){
+				$this->db->group_by('CASE WHEN srampos_order_items.manual_item_discount >= 0.00 THEN ' . $this->db->dbprefix('order_items') . '.recipe_id END,srampos_order_items.recipe_variant_id',FALSE);
+				}else{
+					//$this->db->group_by('CASE WHEN srampos_order_items.manual_item_discount >= 0.00 THEN ' . $this->db->dbprefix('order_items') . '.recipe_id END,srampos_order_items.recipe_variant_id',FALSE);
+				}
+				$this->db->group_by('srampos_order_items.parent_order_item_id');
+			  $i = $this->db->get('order_items'); 
+				if ($i->num_rows() > 0) {
+					foreach (($i->result()) as $iow) {
+						$item[$row->order][] = $iow;
+					}
+					$row->order_item = $item[$row->order];
+				}else{
+					$row->order_item = array();	
+				}
+				
+                $data['items'][] = $row->order_item;
+            }
+			
+			$this->db->select("orders.*");
+			if(!empty($table_id)){
+				$this->db->where('orders.table_id', $table_id);
+			}
+			$this->db->where('orders.split_id', $split_id);
+			$this->db->where('orders.order_cancel_status', 0);			
+			$this->db->group_by('orders.split_id');			
+			$o = $this->db->get('orders');
+			foreach (($o->result()) as $result) {
+				$data['order'][] = $result;
+				
+			}
+            return $data;
+        }
+        return FALSE;
+	}
+ public function InsertBill_all($order_data = array(), $order_item = array(), $billData = array(), $splitData = array(), $sales_total = NULL, $delivery_person = NULL,$timelog_array = NULL, $notification_array = array(),$order_item_id =array(), $split_id, $request_discount, $dine_in_discount,$birthday){	
+ $total_bills=!empty(count($billData))?count($billData):1;
+ 
+		if(empty($dine_in_discount)){
+			foreach ($request_discount as $request) {
+				$check = $this->db->select('*')->where('split_id', $split_id)->get('customer_request_discount');
+				if($check->num_rows() > 0){
+					$this->db->where('split_id', $split_id);
+					$q = $this->db->update('customer_request_discount', $request);
+				}else{
+					
+					$q = $this->db->insert('customer_request_discount', $request);
+				}				
+			}
+		}
+    	$sales_array = array(
+		            'grand_total' => $sales_total,
+					'delivery_person_id' => $delivery_person
+		        );
+			if($this->Settings->socket_enable !=0){
+				$this->site->create_notification($notification_array);
+			}
+    	     foreach ($timelog_array as $time) {
+              	$res = $this->db->insert('time_log', $time);
+              }
+        if ($this->db->insert('sales', $order_data)) {
+            $sale_id = $this->db->insert_id();
+	    /*********** seats count **************/
+		    $splitID = $order_data['sales_split_id'];
+		    $this->db->where(array('split_id'=>$splitID));
+		    $this->db->where('seats_id !=',0);
+		    $order_seats_query = $this->db->get('orders');
+		    $bill_seats = 0;
+		    if($order_seats_query->num_rows()>0){
+		       $bill_seats = $order_seats_query->row('seats_id');
+		    }
+	    /*********** seats count **************/
+        	if(!empty($birthday)){ 	$this->db->insert('birthday', $birthday); }
+            $this->db->update('sales', $sales_array, array('id' => $sale_id));
+	    
+            foreach ($billData as $key =>  $bills) {
+             	$bills['sales_id'] = $sale_id;
+				$bills['table_whitelisted'] = $this->isTableWhitelisted($order_data['sales_table_id']);
+				$bills['seats'] = $bill_seats;
+              	$this->db->insert('bils', $bills);
+				$bill_id = $this->db->insert_id();
+				
+				$this->db->update('bils', array('bill_sequence_number' => $bill_id), array('id' => $bill_id));
+				foreach ($splitData[$key]  as $bill_items) {
+					$bill_items['bil_id'] = $bill_id;
+					$this->db->insert('bil_items', $bill_items);
+							$bill_item_id = $this->db->insert_id();
+							$recipe_addon_item =[];
+							$addonid = explode(',',$bill_items['addon_id'] ); 
+							$addonqty = explode(',', $bill_items['addon_qty']);						
+							foreach ($addonid as $key => $addon) {
+							if($addon !='null') :
+								$AddonDetails = $this->site->getaddonitemid($addon);
+								$recipeDetails = $this->pos_model->getrecipeByID($AddonDetails->addon_item_id);
+								$recipe_addon_item[] = array(									
+									'bill_id'      => $bill_id,
+									'bill_item_id'      => $bill_item_id,
+									'sale_item_id'      => $recipeDetails->id,
+									'addon_id'      => $addon,
+									'price'      => $recipeDetails->price ? $recipeDetails->price/$total_bills : 0,
+									'qty'      => $addonqty[$key]/$total_bills,
+									'subtotal'      => ($addonqty[$key]/$total_bills * $recipeDetails->price/$total_bills),
+								);
+							endif;	
+							}								
+							foreach ($recipe_addon_item as $recipe_addon) {
+								$this->db->insert('addon_bill_items', $recipe_addon);
+							}
+										
+					/*addon array*/	
+				}
+            }
+
+            foreach ($order_item as $item) {
+                $this->db->insert('sale_items', $item);
+                // print_r($this->db->last_query());die;
+                $sale_item_id = $this->db->insert_id();
+                $this->db->update('sale_items', array('sale_id' =>  $sale_id), array('id' => $sale_item_id));
+
+            }
+			$kitchen_array = array(
+                      'item_status' => 'Closed',	    
+                      'time_end' => date('Y-m-d H:i:s'),	    
+			        );
+			if(!empty($order_item_id)){
+						foreach($order_item_id as $item_id){
+							$this->db->where('order_item_cancel_status', 0);
+							$this->db->where('order_item_cancel_status', 'Inprocess');
+							$this->db->where('id', $item_id);
+							$this->db->update('order_items',  $kitchen_array);
+						}						
+					}
+           
+            if ($order_data['sale_status'] == 'completed') {
+            }
+               //   print_r($this->db->error());die;
+             $this->site->updateTableStatus($order_data['sales_table_id'],4,$this->session->userdata('user_id')); 
+			 
+			
+            return true;
+        }//print_r($this->db->error());die;
+        return false;
+    } 
+	public function addKitchen_all($data = array(), $items = array(), $kitchen = array(), $notification_array = array(), $warehouse_id, $user_id)
+	{
+/*echo "<pre>";
+print_r($items);die;*/
+		if ($this->db->insert('orders', $data)){
+				$sale_id = $this->db->insert_id();
+				$this->site->create_notification($notification_array);
+				$msg = array();
+				$msg[] = 'Your order has been success';
+				$kitchen['sale_id'] = $sale_id;
+				$this->db->insert('restaurant_table_orders', array('order_id' => $sale_id, 'table_id' => $data['table_id']));
+				$this->db->insert('restaurant_table_sessions', array('table_id' => $data['table_id'],'order_id' => $sale_id, 'split_id' => $data['split_id'], 'customer_id' => $data['customer_id'], 'session_started' => date('Y-m-d H:i:s')));
+				$print_items =[]; 				
+				if($this->db->insert('kitchen_orders', $kitchen)){
+					$kitchen_id = $this->db->insert_id();					
+					foreach ($items as $item) {		
+
+						$item['sale_id'] = $sale_id;
+						$item['kitchen_id'] = $kitchen_id;						
+						$this->db->insert('order_items', $item);						
+						$order_item_id = $this->db->insert_id();						
+						$item['order_item_id'] = $order_item_id;
+
+						if($this->pos_settings->kot_print_lang_option ==1){  //if kot only for local language
+							$item['image_path'] = str_replace(' ', '-',$order_item_id).'.png';
+							$this->db->update('order_items', array('image_path' => str_replace(' ', '-',$order_item_id).'.png'), array('id' => $order_item_id));
+							$yesdrdayfolder = date('Ymd',strtotime("-1 days"));
+							if (file_exists('assets/language/'.$yesdrdayfolder)) {							
+								$path   = 'assets/language/'.$yesdrdayfolder; 	
+								delete_files($path, true , false, 1);												
+							}					
+							if($item['recipe_name_img'] != ''){
+								$kotimagefolder = date('Ymd');						
+								if (!file_exists('assets/language/'.$kotimagefolder)) {
+								    mkdir('assets/language/'.$kotimagefolder, 0777, true);
+								}
+								$filename = 'assets/language/'.$kotimagefolder.'/'.str_replace(' ', '-',$order_item_id).'.png';
+		            			$this->base64ToImage($item['recipe_name_img'],$filename);
+		            			$this->db->update('order_items', array('recipe_name_img' => ''), array('id' => $order_item_id));
+	            		   }
+	            		} 
+
+					if($item['addon_qty'] !='null' || $item['addon_qty'] !=''){
+							$recipe_addon_item =[];
+							$addonid = explode(',',$item['addon_id']); 
+							$addonqty = explode(',', $item['addon_qty']);	
+							if($item['addon_name_img'] != ''){
+								$addon_name_img = explode('sivan', $item['addon_name_img']);						
+							}else{
+								$addon_name_img ='';
+							}
+							
+							foreach ($addonid as $key => $addon) {	
+								
+							if($addon !='null' && $addonqty[$key] != 0) :
+								$AddonDetails = $this->site->getaddonitemid($addon);								
+								$recipeDetails = $this->pos_model->getrecipeByID($AddonDetails->addon_item_id);
+								$recipe_addon_item[] = array(
+									'split_id'      => $data['split_id'],
+									'order_id'      => $sale_id,
+									'sale_item_id'      => $recipeDetails->id,
+									'order_item_id'      => $order_item_id,
+									'addon_id'      => $addon,
+									'price'      => $recipeDetails->price ? $recipeDetails->price : 0,
+									'qty'      => $addonqty[$key],
+									'addon_name_img' => $addon_name_img[$key] ? $addon_name_img[$key] :'',
+									'subtotal'      => ($addonqty[$key] * $recipeDetails->price),
+								);
+							endif;	
+							}											
+							foreach ($recipe_addon_item as $recipe_addon) {
+								$this->db->insert('addon_sale_items', $recipe_addon);
+								$addon_sale_items_id  = $this->db->insert_id();
+								if($kit_item['addon_id'] !='null'){	
+									if($this->pos_settings->kot_print_lang_option ==1){  //if kot only for local language
+										$this->db->update('addon_sale_items', array('image_path' => str_replace(' ', '-',$order_item_id.$addon_sale_items_id).'.png'), array('id' => $addon_sale_items_id));
+
+										$filename = 'assets/language/'.$kotimagefolder.'/'.str_replace(' ', '-',$order_item_id.$addon_sale_items_id).'.png';								
+				            			$this->base64ToImage($recipe_addon['addon_name_img'],$filename);
+				            			$this->db->update('addon_sale_items', array('addon_name_img' => ''), array('id' => $addon_sale_items_id));
+				            		}	
+		            			}
+							}
+					}
+					/*addon array*/	
+						$cm = $this->db->get_where('category_mapping',array('product_id'=>$item['recipe_id'],'status'=>1))->row();
+						$cate['category_id'] = $cm->id;
+						$cate['category_id'] = $cm->category_id;
+						$cate['subcategory_id'] = $cm->subcategory_id;
+						$cate['brand_id'] = $cm->brand_id;
+						// $this->site->salestock_out($item['recipe_id'],$item['quantity'],$order_item_id,$item['quantity'],$cate);
+						/*echo "<pre>";
+						print_r($cate);die;*/
+						if($this->Settings->procurment == 1){
+							if($item['recipe_type'] =='standard' || $item['recipe_type'] =='production'){
+								//var_dump($item['recipe_variant_id']);die;
+								$this->site->updateStockMaster_new($item['recipe_id'],$item['recipe_variant_id'],$item['quantity'],$cate,$order_item_id);
+							}elseif($item['recipe_type'] =='quick_service'){
+								//echo '@@';
+								$this->siteprocurment->production_salestock_out($item['recipe_id'],$item['quantity'],$item['recipe_variant_id']);
+							}	
+						}
+						$print_items[] = $item;
+					}
+					$msg[] = 'Order sent to kitchen process. wait few mintues';					
+				}	//die;
+
+				$this->site->updateTableStatus($data['table_id'],1,$user_id);				 
+				$this->db->select('orders.*, restaurant_tables.name AS table_name');
+				$this->db->join('restaurant_tables', 'restaurant_tables.id = orders.table_id', 'left');		
+			   $this->db->where('orders.id', $sale_id);
+				$t = $this->db->get('orders');
+				$kit = array();
+				$consolid_kit = array();
+				if ($t->num_rows() > 0) {
+					$orders_details =  $t->row();
+					$kit['orders_details'] = $orders_details;
+					$consolid_kit['orders_details'] = $orders_details;
+					$consolidate_kitchens_kot['orders_details'] = $orders_details;
+				}	
+/*Consolidate kot for table area wise */ 
+if($this->pos_settings->kot_enable_disable == 1){
+	if($this->pos_settings->consolidated_kot_print_option == 0){
+			if($this->pos_settings->consolidated_kot_print != 0){
+				$table_id = $consolid_kit['orders_details']->table_id;
+				$consolid_kot_print_details = $this->db->select("printers.*")
+				->join('restaurant_areas', 'restaurant_areas.printer_id = printers.id','left')
+				->join('restaurant_tables', 'restaurant_tables.area_id = restaurant_areas.id','left')							
+				->where('restaurant_tables.id', $table_id)
+				->get('printers');
+				if ($consolid_kot_print_details->num_rows() > 0) {
+				  $consolid_kit['consolid_kot_print_details'][] =  $consolid_kot_print_details->row();
+				 }else{
+				 	$consolid_kit['consolid_kot_print_details'] =array();
+				 }
+
+				$consolid_kit_item =array();
+				foreach($print_items as $key => $kit_item){
+					// $printer_order_item_id = $this->site->get_printer_order_item_id($sale_id,$kit_item['recipe_id']);
+					if($kit_item['kitchen_type_id'] != 0) :
+						/*var_dump($kit_item['recipe_id']);*/
+						$addons = $this->site->getAddonByRecipe($kit_item['recipe_id'], $kit_item['addon_id']);
+						$get_item =  $this->site->getrecipeByID($kit_item['get_item']);								
+						$consolid_kit_item[$key]['recipe_id'] = $kit_item['recipe_id'];							
+						if($this->Settings->user_language == 'khmer' || true){
+							$khmer_name = $this->site->getrecipeKhmer($kit_item['recipe_id']);	
+
+							if($kit_item['recipe_variant_id']!= 0){
+								$khmer_image = $this->site->getitemvariantlocalnameimage($kit_item['recipe_id'],$kit_item['recipe_variant_id']);								
+							}else{
+								$khmer_image = $this->site->getrecipeKhmerimage($kit_item['recipe_id']);
+							}
+							
+							if(!empty($khmer_name)){
+								$consolid_kit_item[$key]['recipe_name'] = $kit_item['recipe_name'];;
+								
+							}else{
+								$consolid_kit_item[$key]['recipe_name'] = $kit_item['recipe_name'];
+							}
+						}else{
+								$consolid_kit_item[$key]['recipe_name'] = $kit_item['recipe_name'];
+						}
+						
+						$consolid_kit_item[$key]['en_recipe_name'] = $kit_item['recipe_name'];
+						$consolid_kit_item[$key]['comment'] = $kit_item['comment'];
+						$consolid_kit_item[$key]['en_variant_name'] = $kit_item['variant'] ? $kit_item['variant'] :'';
+
+						if($this->pos_settings->kot_print_lang_option ==1){
+							$kotimagefolder = date('Ymd');	
+							$consolid_kit_item[$key]['khmer_recipe_image'] = (!empty($kit_item['image_path']) && file_exists('assets/language/'.$kotimagefolder.'/'.$kit_item['image_path']))? (base_url().'assets/language/'.$kotimagefolder.'/'.$kit_item['image_path']) : '';
+						}else{
+							$consolid_kit_item[$key]['khmer_recipe_image'] =(!empty($khmer_image) && file_exists('assets/language/'.$khmer_image))? (base_url().'assets/language/'.$khmer_image) : '';
+						}
+
+						/*if($kit_item['recipe_variant_id']!= 0){
+							$consolid_kit_item[$key]['en_variant_name'] = $kit_item['variant'];
+							$variant_localname_image = $this->site->getitemvariantlocalnameimage($kit_item['recipe_id'],$kit_item['recipe_variant_id']);
+							$consolid_kit_item[$key]['khmer_recipe_image'] = (!empty($variant_localname_image) && file_exists('assets/language/'.$variant_localname_image))? (base_url().'assets/language/'.$variant_localname_image) : '';
+						}else{									
+							$consolid_kit_item[$key]['khmer_recipe_image'] = (!empty($khmer_image) && file_exists('assets/language/'.$khmer_image))? (base_url().'assets/language/'.$khmer_image) : '';
+						} 	*/											
+						$consolid_kit_item[$key]['quantity'] = $kit_item['quantity'];
+						$consolid_kit_item[$key]['get_item_name'] = $get_item->name;
+						$consolid_kit_item[$key]['total_get_quantity'] = $get_item->total_get_quantity;
+						$addondetails ='';
+						if($kit_item['addon_id'] !='null'){					
+								$addondetails = $this->site->getAddonByRecipeidAndOrderitemid_kot($kit_item['recipe_id'],$kit_item['order_item_id']);
+							}		
+										
+						$consolid_kit_item[$key]['addons'] = $addondetails;
+				   endif;		
+				}						
+				$consolid_kit['consolid_kitchens'] = $consolid_kit_item;
+		    }else{
+			$consolid_kit['consolid_kitchens'] = array();
+			}	
+			/*Consolidate kot for table area wise */ 
+	}else{
+		/*Consolidate kot only one single priter */		
+			$consolidate_kitchen_details = $this->db->select('restaurant_kitchens.id,restaurant_kitchens.kitchen_consolid_printer_id,  restaurant_kitchens.name')->get('restaurant_kitchens');				
+			if ($consolidate_kitchen_details->num_rows() > 0) {					
+				foreach (($consolidate_kitchen_details->result()) as $consolidate_kitchen_row) {						
+					$printers_details = $this->db->select('*')->where('id', $consolidate_kitchen_row->kitchen_consolid_printer_id)->get('printers');
+					if ($printers_details->num_rows() > 0) {
+						$consolidate_kitchen_row->printers_details =  $printers_details->row();
+					}
+					foreach($items as $key => $kit_item){
+						if($consolidate_kitchen_row->id == $kit_item['kitchen_type_id']){
+							$addons = $this->site->getAddonByRecipe($kit_item['recipe_id'], $kit_item['addon_id']);
+							$get_item =  $this->site->getrecipeByID($kit_item['get_item']);									
+							$consolidate_kitchen_row->kit_o[$key]['recipe_id'] = $kit_item['recipe_id'];								
+							if($this->Settings->user_language == 'khmer' || true){
+									$khmer_name = $this->site->getrecipeKhmer($kit_item['recipe_id']);	
+									if($kit_item['recipe_variant_id']!= 0){
+									   $khmer_image = $this->site->getitemvariantlocalnameimage($kit_item['recipe_id'],$kit_item['recipe_variant_id']);								   
+								   }else{
+								   			$khmer_image = $this->site->getrecipeKhmerimage($kit_item['recipe_id']);
+								   }
+								if(!empty($khmer_name)){
+									$consolidate_kitchen_row->kit_o[$key]['recipe_name'] = $khmer_name;
+								}else{
+									$consolidate_kitchen_row->kit_o[$key]['recipe_name'] = $kit_item['recipe_name'];
+								}
+							}else{
+								$consolidate_kitchen_row->kit_o[$key]['recipe_name'] = $kit_item['recipe_name'];
+							}
+							$consolidate_kitchen_row->kit_o[$key]['en_recipe_name'] = $kit_item['recipe_name'];
+							$consolidate_kitchen_row->kit_o[$key]['comment'] = $kit_item['comment'];
+
+							$consolidate_kitchen_row->kit_o[$key]['en_variant_name'] = $kit_item['variant'] ? $kit_item['variant'] :'';
+
+							if($this->pos_settings->kot_print_lang_option ==1){
+								$kotimagefolder = date('Ymd');	
+								$consolidate_kitchen_row->kit_o[$key]['khmer_recipe_image'] = (!empty($kit_item['image_path']) && file_exists('assets/language/'.$kotimagefolder.'/'.$kit_item['image_path']))? (base_url().'assets/language/'.$kotimagefolder.'/'.$kit_item['image_path']) : '';
+							}else{
+								$consolidate_kitchen_row->kit_o[$key]['khmer_recipe_image'] =(!empty($khmer_image) && file_exists('assets/language/'.$khmer_image))? (base_url().'assets/language/'.$khmer_image) : '';
+							}
+
+							/*if($kit_item['recipe_variant_id']!= 0){
+								$consolidate_kitchen_row->kit_o[$key]['en_variant_name'] = $kit_item['variant'];
+								$variant_localname_image = $this->site->getitemvariantlocalnameimage($kit_item['recipe_id'],$kit_item['recipe_variant_id']);
+								$consolidate_kitchen_row->kit_o[$key]['khmer_recipe_image'] = (!empty($variant_localname_image) && file_exists('assets/language/'.$variant_localname_image))? (base_url().'assets/language/'.$variant_localname_image) : '';
+							}else{									
+								$consolidate_kitchen_row->kit_o[$key]['khmer_recipe_image'] = (!empty($khmer_image) && file_exists('assets/language/'.$khmer_image))? (base_url().'assets/language/'.$khmer_image) : '';
+							} */
+							// $consolidate_kitchen_row->kit_o[$key]['khmer_recipe_image'] = (!empty($khmer_image) && file_exists('assets/language/'.$khmer_image))? (base_url().'assets/language/'.$khmer_image) : '';	
+							$consolidate_kitchen_row->kit_o[$key]['quantity'] = $kit_item['quantity'];
+							$consolidate_kitchen_row->kit_o[$key]['get_item_name'] = $get_item->name;
+							$consolidate_kitchen_row->kit_o[$key]['total_get_quantity'] = $get_item->total_get_quantity;	
+							$addondetails ='';
+							if($kit_item['addon_id'] !='null'){	
+								$addondetails = $this->site->getAddonByRecipeidAndOrderitemid_kot($kit_item['recipe_id'],$kit_item['order_item_id']);
+							}
+							$consolidate_kitchen_row->kit_o[$key]['addons'] = $addondetails;								
+						}
+					}
+					$consolidate_kitchens_kot['kitchens'][] = $consolidate_kitchen_row;
+				}					
+			}else{
+				$consolidate_kitchens_kot[] = '';	
+			}
+	}
+				
+/*Consolidate kot only one single priter */	
+/*items kot with mapped kichens its common for all clients*/
+				$kitchen_details = $this->db->select('restaurant_kitchens.id,restaurant_kitchens.printer_id,  restaurant_kitchens.name')->get('restaurant_kitchens');
+				if ($kitchen_details->num_rows() > 0) {					
+					foreach (($kitchen_details->result()) as $kitchen_row) {
+						
+						$printers_details = $this->db->select('*')->where('id', $kitchen_row->printer_id)->get('printers');	
+						if ($printers_details->num_rows() > 0) {
+							$kitchen_row->printers_details =  $printers_details->row();
+						}
+						
+						foreach($print_items as $key => $kit_item){
+							if($kitchen_row->id == $kit_item['kitchen_type_id']){
+								
+								// $addons = $this->site->getAddonByRecipe($kit_item['recipe_id'], $kit_item['addon_id']);
+								$get_item =  $this->site->getrecipeByID($kit_item['get_item']);									
+								$kitchen_row->kit_o[$key]['recipe_id'] = $kit_item['recipe_id'];								
+								if($this->Settings->user_language == 'khmer' || true){
+									$khmer_name = $this->site->getrecipeKhmer($kit_item['recipe_id']);	
+									if($kit_item['recipe_variant_id']!= 0){
+										$khmer_image = $this->site->getitemvariantlocalnameimage($kit_item['recipe_id'],$kit_item['recipe_variant_id']);
+									}else{
+										$khmer_image = $this->site->getrecipeKhmerimage($kit_item['recipe_id']);
+									}
+
+									if(!empty($khmer_name)){
+										$kitchen_row->kit_o[$key]['recipe_name'] = $kit_item['recipe_name'];;
+									}else{
+										$kitchen_row->kit_o[$key]['recipe_name'] = $kit_item['recipe_name'];
+									}
+								}else{
+									$kitchen_row->kit_o[$key]['recipe_name'] = $kit_item['recipe_name'];
+								}
+								$kitchen_row->kit_o[$key]['en_variant_name'] = $kit_item['variant'] ? $kit_item['variant'] :'';								
+								// $kitchen_row->kit_o[$key]['khmer_name'] = iconv(mb_detect_encoding($khmer_name, mb_detect_order(), true), "UTF-8", $khmer_name);
+								
+								/*if($kit_item['recipe_variant_id']!= 0){
+									$kitchen_row->kit_o[$key]['en_variant_name'] = $kit_item['variant'];
+									$variant_localname_image = $this->site->getitemvariantlocalnameimage($kit_item['recipe_id'],$kit_item['recipe_variant_id']);
+									$kitchen_row->kit_o[$key]['khmer_recipe_image'] = (!empty($variant_localname_image) && file_exists('assets/language/'.$variant_localname_image))? (base_url().'assets/language/'.$variant_localname_image) : '';
+								}else{									
+									$kitchen_row->kit_o[$key]['khmer_recipe_image'] = (!empty($khmer_image) && file_exists('assets/language/'.$khmer_image))? (base_url().'assets/language/'.$khmer_image) : '';
+								} */
+								/*echo "<pre>";
+								print_r($kit_item);die;*/
+								if($this->pos_settings->kot_print_lang_option ==1){
+									$kotimagefolder = date('Ymd');	
+									$kitchen_row->kit_o[$key]['khmer_recipe_image'] = (!empty($kit_item['image_path']) && file_exists('assets/language/'.$kotimagefolder.'/'.$kit_item['image_path']))? (base_url().'assets/language/'.$kotimagefolder.'/'.$kit_item['image_path']) : '';
+								}else{
+									$kitchen_row->kit_o[$key]['khmer_recipe_image'] =(!empty($khmer_image) && file_exists('assets/language/'.$khmer_image))? (base_url().'assets/language/'.$khmer_image) : '';
+								}
+
+								$kitchen_row->kit_o[$key]['en_recipe_name'] = $kit_item['recipe_name'];
+								$kitchen_row->kit_o[$key]['en_variant_name'] = $kit_item['variant'];
+								$kitchen_row->kit_o[$key]['comment'] = $kit_item['comment'];
+								$kitchen_row->kit_o[$key]['quantity'] = $kit_item['quantity'];
+								$kitchen_row->kit_o[$key]['get_item_name'] = $get_item->name;
+								$kitchen_row->kit_o[$key]['total_get_quantity'] = $get_item->total_get_quantity;
+								$addondetails ='';
+								if($kit_item['addon_id'] !='null'){					
+									$addondetails = $this->site->getAddonByRecipeidAndOrderitemid_kot($kit_item['recipe_id'],$kit_item['order_item_id']);
+								}        								
+								$kitchen_row->kit_o[$key]['addons'] = $addondetails;
+
+								$unwanted_ingredientsdetails ='';
+								if($kit_item['unwanted_ingredients'] !=''){					
+									$unwanted_ingredientsdetails = $this->site->getunwanted_ingredientfor_kot($kit_item['recipe_id'],$kit_item['order_item_id'],$kit_item['unwanted_ingredients']);
+								}                                
+								$kitchen_row->kit_o[$key]['unwanted_ingredients'] = $unwanted_ingredientsdetails;
+							}
+						}
+						$kit['kitchens'][] = $kitchen_row;
+					}
+					
+				}else{
+					$kit[] = '';	
+				}
+/*items kot with mapped kichens its common for all clients*/
+/*kitchen consolidate start */
+			$kitchen_details = $this->db->select('restaurant_kitchens.id,restaurant_kitchens.kitchen_consolid_printer_id,  restaurant_kitchens.name')->where('kitchen_consolid_printer_id !=', 0)->get('restaurant_kitchens');
+
+				if ($kitchen_details->num_rows() > 0) {					
+					foreach (($kitchen_details->result()) as $kitchen_row) {
+						
+						$printers_details = $this->db->select('*')->where('id', $kitchen_row->kitchen_consolid_printer_id)->get('printers');
+						
+						if ($printers_details->num_rows() > 0) {
+							$kitchen_row->printers_details =  $printers_details->row();
+						}						
+						foreach($print_items as $key => $kit_item){
+							if($kitchen_row->id == $kit_item['kitchen_type_id']){
+								
+								$addons = $this->site->getAddonByRecipe($kit_item['recipe_id'], $kit_item['addon_id']);
+								$get_item =  $this->site->getrecipeByID($kit_item['get_item']);
+									
+								$kitchen_row->kit_o[$key]['recipe_id'] = $kit_item['recipe_id'];
+								
+								if($this->Settings->user_language == 'khmer' || true){
+									$khmer_name = $this->site->getrecipeKhmer($kit_item['recipe_id']);	
+									if($kit_item['recipe_variant_id']!= 0){
+										$khmer_image = $this->site->getitemvariantlocalnameimage($kit_item['recipe_id'],$kit_item['recipe_variant_id']);
+									}else{
+										$khmer_image = $this->site->getrecipeKhmerimage($kit_item['recipe_id']);
+									}
+									
+									if(!empty($khmer_name)){
+										$kitchen_row->kit_o[$key]['recipe_name'] = $khmer_name;
+										
+									}else{
+										$kitchen_row->kit_o[$key]['recipe_name'] = $kit_item['recipe_name'];
+									}
+								}else{
+									$kitchen_row->kit_o[$key]['recipe_name'] = $kit_item['recipe_name'];
+								}
+
+								$kitchen_row->kit_o[$key]['en_variant_name'] = $kit_item['variant'] ? $kit_item['variant'] :'';
+
+								$kitchen_row->kit_o[$key]['en_recipe_name'] = $kit_item['recipe_name'];
+								// $kitchen_row->kit_o[$key]['khmer_name'] = iconv(mb_detect_encoding($khmer_name, mb_detect_order(), true), "UTF-8", $khmer_name);
+
+								$kitchen_row->kit_o[$key]['comment'] = $kit_item['comment'];
+								/*if($kit_item['recipe_variant_id']!= 0){
+									$kitchen_row->kit_o[$key]['en_variant_name'] = $kit_item['variant'];
+									$variant_localname_image = $this->site->getitemvariantlocalnameimage($kit_item['recipe_id'],$kit_item['recipe_variant_id']);
+									$kitchen_row->kit_o[$key]['khmer_recipe_image'] = (!empty($variant_localname_image) && file_exists('assets/language/'.$variant_localname_image))? (base_url().'assets/language/'.$variant_localname_image) : '';
+								}else{									
+									$kitchen_row->kit_o[$key]['khmer_recipe_image'] = (!empty($khmer_image) && file_exists('assets/language/'.$khmer_image))? (base_url().'assets/language/'.$khmer_image) : '';
+								} 	*/
+								if($this->pos_settings->kot_print_lang_option ==1){
+									$kotimagefolder = date('Ymd');	
+									$kitchen_row->kit_o[$key]['khmer_recipe_image'] = (!empty($kit_item['image_path']) && file_exists('assets/language/'.$kotimagefolder.'/'.$kit_item['image_path']))? (base_url().'assets/language/'.$kotimagefolder.'/'.$kit_item['image_path']) : '';
+								}else{
+									$kitchen_row->kit_o[$key]['khmer_recipe_image'] =(!empty($khmer_image) && file_exists('assets/language/'.$khmer_image))? (base_url().'assets/language/'.$khmer_image) : '';
+								}
+
+								$kitchen_row->kit_o[$key]['quantity'] = $kit_item['quantity'];
+								$kitchen_row->kit_o[$key]['get_item_name'] = $get_item->name;
+								$kitchen_row->kit_o[$key]['total_get_quantity'] = $get_item->total_get_quantity;
+								if($kit_item['addon_id'] !='null'){					
+									$addondetails = $this->site->getAddonByRecipeidAndOrderitemid_kot($kit_item['recipe_id'],$kit_item['order_item_id']);
+								}								
+								$kitchen_row->kit_o[$key]['addons'] = $addondetails ? $addondetails :'';
+								//$kitchen_row->kit_o[$kitchen_row->id][] = $kit_item['quantity'];
+							}
+						}
+						$consolidate_kitchens_kot['kitchens'][] = $kitchen_row;
+					}
+				}else{
+					$consolidate_kitchens_kot[] = '';	
+				}
+}
+/*
+$consolidate_kitchen_details = $this->db->select('restaurant_kitchens.id,restaurant_kitchens.kitchen_consolid_printer_id,  restaurant_kitchens.name')->get('restaurant_kitchens');
+				
+				if ($consolidate_kitchen_details->num_rows() > 0) {					
+					foreach (($consolidate_kitchen_details->result()) as $consolidate_kitchen_row) {						
+						$printers_details = $this->db->select('*')->where('id', $consolidate_kitchen_row->kitchen_consolid_printer_id)->get('printers');
+						if ($printers_details->num_rows() > 0) {
+							$consolidate_kitchen_row->printers_details =  $printers_details->row();
+						}
+						foreach($items as $key => $kit_item){
+							if($consolidate_kitchen_row->id == $kit_item['kitchen_type_id']){
+								$addons = $this->site->getAddonByRecipe($kit_item['recipe_id'], $kit_item['addon_id']);
+								$get_item =  $this->site->getrecipeByID($kit_item['get_item']);									
+								$consolidate_kitchen_row->kit_o[$key]['recipe_id'] = $kit_item['recipe_id'];								
+								if($this->Settings->user_language == 'khmer' || true){
+									$khmer_name = $this->site->getrecipeKhmer($kit_item['recipe_id']);	
+									$khmer_image = $this->site->getrecipeKhmerimage($kit_item['recipe_id']);
+									
+									if(!empty($khmer_name)){
+										$consolidate_kitchen_row->kit_o[$key]['recipe_name'] = $khmer_name;
+										
+									}else{
+										$consolidate_kitchen_row->kit_o[$key]['recipe_name'] = $kit_item['recipe_name'];
+									}
+								}else{
+									$consolidate_kitchen_row->kit_o[$key]['recipe_name'] = $kit_item['recipe_name'];
+								}
+								
+								$consolidate_kitchen_row->kit_o[$key]['en_recipe_name'] = $kit_item['recipe_name'];
+								$consolidate_kitchen_row->kit_o[$key]['comment'] = $kit_item['comment'];
+								$consolidate_kitchen_row->kit_o[$key]['khmer_recipe_image'] = (!empty($khmer_image) && file_exists('assets/language/'.$khmer_image))? (base_url().'assets/language/'.$khmer_image) : '';								
+								$consolidate_kitchen_row->kit_o[$key]['quantity'] = $kit_item['quantity'];								
+								$consolidate_kitchen_row->kit_o[$key]['get_item_name'] = $get_item->name;
+								$consolidate_kitchen_row->kit_o[$key]['total_get_quantity'] = $get_item->total_get_quantity;
+								foreach($addons as $addons_row){
+                                   		$addon_name = '<small class="text-danger">'.$addons_row->addon_name.' , '.'</small>';
+                                	}									
+								$consolidate_kitchen_row->kit_o[$key]['addons'] = $addon_name;								
+							}
+						}
+						$consolidate_kitchens_kot['kitchens'][] = $consolidate_kitchen_row;
+					}					
+				}else{
+					$consolidate_kitchens_kot[] = '';	
+				}*/
+				/*kitchen consolidate*/		
+				/*echo "<pre>";
+				print_r($kit);*/
+				// die;
+				// print_r($this->db->error());die;				
+				return array('sale_id' => $sale_id, 'message' => $msg, 'kitchen_data' => $kit, 'consolid_kitchen_data' => $consolid_kit, 'consolidate_kitchens_kot' => $consolidate_kitchens_kot);
+		}		
+		// print_r($this->db->error());die;
+		return false;
+	}
+	
+
 }

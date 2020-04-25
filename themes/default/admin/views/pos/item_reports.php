@@ -1,4 +1,5 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?><!DOCTYPE html>
+<?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
+<!DOCTYPE html>
 
 <html>
 <head>
@@ -216,10 +217,13 @@
                              $grand_qty+= $value->quantity;
                              $grand_total+= (((($value->subtotal-$value->item_discount)-$value->off_discount)-$value->input_discount-$value->manual_item_discount)+$value->tax+$value->service_charge_amount);                             
 
+
                              echo '<tbody>
                                 <tr>
                                 <td>'.$value->name.'</td>
+								
                                 <td>'.$value->variant.'</td>
+								
                                 <td class="text-right">'.$this->sma->formatQuantity($value->quantity).'</td>
                                 <td class="text-right">'.$this->sma->formatMoney((((($value->subtotal-$value->item_discount)-$value->off_discount)-$value->input_discount-$value->manual_item_discount))+$value->tax+$value->service_charge_amount).'</td></tr>';
                            }

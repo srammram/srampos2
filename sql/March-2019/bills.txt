@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_bils` ADD `action` TINYINT NOT NULL COMMENT '1-edited,2-deleted' AFTER `order_status`;

@@ -1,9 +1,8 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
   <link rel="stylesheet" href="<?= $assets ?>styles/jquery-ui.css">
   <script src="<?= $assets ?>js/jquery-ui.js"></script>
-<?php
-$wm = array('0' => lang('no'), '1' => lang('yes'));
-$ps = array('0' => lang("disable"), '1' => lang("enable"));
+<?php  $wm = array('0' => lang('no'), '1' => lang('yes'));
+	   $ps = array('0' => lang("disable"), '1' => lang("enable"));
 ?>
 
 <script>
@@ -644,18 +643,44 @@ $ps = array('0' => lang("disable"), '1' => lang("enable"));
                             <?= form_dropdown('rough_tender', $rough_tender_opt, $Settings->rough_tender, 'class="form-control tip" id="rough_tender" required="required"'); ?>
                         </div>
                     </div>
-                    
+			<!--		<div class="col-md-4">
+                        <div class="form-group">
+                            <label class="control-label" for="archival_days"><?= lang("archival_days"); ?></label>
+                            <?= form_input('archival_days', $Settings->archival_days, 'class="form-control tip" id="archival_days"'); ?>
+                        </div>
+                    </div>  -->
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="control-label" for="captcha"><?= lang("archival"); ?></label>
+                                    <div class="controls">
+                                        <?php
+                                        echo form_dropdown('archival', $ps, $Settings->archival, 'id="archival" class="form-control tip" required="required" style="width:100%;"');
+                                        ?>
+                                    </div>
+                                </div>
+                            </div>
+						   <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="control-label" for="captcha"><?= lang("archival_report"); ?></label>
+                                    <div class="controls">
+                                        <?php
+                                        echo form_dropdown('archival_report', $ps, $Settings->archival_report, 'id="archival_report" class="form-control tip" required="required" style="width:100%;"');
+                                        ?>
+                                    </div>
+                                </div>
+                            </div>
+							
+							 <div class="col-md-4">
+                        <div class="form-group">
+                            <?= lang('item_search', 'item_search'); ?>
+                            <?php $item_search = array(0 => lang('normal'), 1 => lang('second_name'));?>
+                            <?= form_dropdown('item_search', $item_search, $Settings->item_search, 'class="form-control tip" id="item_search" required="required"'); ?>
+                        </div>
+                    </div>
                     
                     <div class="clearfix"></div>
-                   
-                    
                     <div class="clearfix"></div>
                     <div class="col-md-4">
-                    
-                        
-                    
-                    
-                   
                     
                     </fieldset>
                     <fieldset class="scheduler-border">
@@ -860,6 +885,111 @@ $ps = array('0' => lang("disable"), '1' => lang("enable"));
                             </div>
                         </div>
                     
+                    </fieldset>
+                    <fieldset class="scheduler-border">
+                        <legend class="scheduler-border"><?= lang('shift_management') ?></legend>
+                            <div class="col-md-12">
+                                 <div class="col-md-4">                    
+                                    <div class="form-group">
+                                        <label class="control-label" for="open_til_enable" style="padding: 4px 7px 4px 0px;"><?= lang("open_til_enable"); ?></label>
+                                        <div class="switch-field">
+                                        
+                                        <input type="radio" value="0"  id="open_til_enable-switch-left" class="switch_left skip" name="open_til_enable" <?php echo ($Settings->open_til_enable==0) ? "checked" : ''; ?>>
+                                        <label for="open_til_enable-switch-left">OFF</label>
+                                        <input type="radio" value="1" id="open_til_enable-switch-right" class="switch_right skip" name="open_til_enable" <?php echo ($Settings->open_til_enable==1) ? "checked" : ''; ?>>
+                                        <label for="open_til_enable-switch-right">ON</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                
+                                 <div class="col-md-4">                    
+                                    <div class="form-group">
+                                        <label class="control-label" for="shift_enable" style="padding: 4px 7px 4px 0px;"><?= lang("shift_enable"); ?></label>
+                                        <div class="switch-field">
+                                        
+                                        <input type="radio" value="0"  id="shift_enable-switch-left" class="switch_left skip" name="shift_enable" <?php echo ($Settings->shift_enable==0) ? "checked" : ''; ?>>
+                                        <label for="shift_enable-switch-left">OFF</label>
+                                        <input type="radio" value="1" id="shift_enable-switch-right" class="switch_right skip" name="shift_enable" <?php echo ($Settings->shift_enable==1) ? "checked" : ''; ?>>
+                                        <label for="shift_enable-switch-right">ON</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+		                                
+                               
+                                
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <?= lang("shift_user_handling", "shift_user_handling"); ?>
+                                        <?php
+                                        $shift_user_handling = array(0 => lang('Allow all users for  sales in counters'), 1 => lang('Allow single user for sales in counter'));
+                                        echo form_dropdown('shift_user_handling', $shift_user_handling, (isset($_POST['shift_user_handling']) ? $_POST['shift_user_handling'] : $Settings->shift_user_handling), 'id="shift_user_handling" data-placeholder="' . lang("select") . ' ' . lang("shift_user_handling") . '" required="required" class="form-control input-tip select" style="width:100%;"');
+                                        ?>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">                    
+                                    <div class="form-group">
+                                        <label class="control-label" for="shift_opencash_next_days_continue" style="padding: 4px 7px 4px 0px;"><?= lang("shift_opencash_next_days_continue"); ?></label>
+                                        <div class="switch-field">
+                                        
+                                        <input type="radio" value="0"  id="shift_opencash_next_days_continue-switch-left" class="switch_left skip" name="shift_opencash_next_days_continue" <?php echo ($Settings->shift_opencash_next_days_continue==0) ? "checked" : ''; ?>>
+                                        <label for="shift_opencash_next_days_continue-switch-left">OFF</label>
+                                        <input type="radio" value="1" id="shift_opencash_next_days_continue-switch-right" class="switch_right skip" name="shift_opencash_next_days_continue" <?php echo ($Settings->shift_opencash_next_days_continue==1) ? "checked" : ''; ?>>
+                                        <label for="shift_opencash_next_days_continue-switch-right">ON</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">                    
+                                    <div class="form-group">
+                                        <label class="control-label" for="shift_opencash_setting_pos" style="padding: 4px 7px 4px 0px;"><?= lang("shift_opencash_setting_pos"); ?></label>
+                                        <div class="switch-field">
+                                        
+                                        <input type="radio" value="0"  id="shift_opencash_setting_pos-switch-left" class="switch_left skip" name="shift_opencash_setting_pos" <?php echo ($Settings->shift_opencash_setting_pos==0) ? "checked" : ''; ?>>
+                                        <label for="shift_opencash_setting_pos-switch-left">OFF</label>
+                                        <input type="radio" value="1" id="shift_opencash_setting_pos-switch-right" class="switch_right skip" name="shift_opencash_setting_pos" <?php echo ($Settings->shift_opencash_setting_pos==1) ? "checked" : ''; ?>>
+                                        <label for="shift_opencash_setting_pos-switch-right">ON</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                  <div class="col-md-4">
+                                    <div class="form-group">
+                                        <?= lang('opening_cash_type', 'opening_cash_type'); ?>
+                                        </br>
+                                        <input type="radio" value="0" id="opening_cash_type-0" class="checkbox opening_cash_type" name="opening_cash_type" <?php echo ($Settings->opening_cash_type=="0") ? "checked" : ''; ?>>
+                                        <label for="opening_cash_type-0" class="padding03"><?= lang('default') ?></label>   
+                                         <input type="radio" value="1" id="opening_cash_type-1" class="checkbox opening_cash_type" name="opening_cash_type" <?php echo ($Settings->opening_cash_type=="1") ? "checked" : ''; ?>>
+                                        <label for="opening_cash_type-1" class="padding03"><?= lang('carry forward') ?></label>
+                                        <input type="radio" value="2" id="opening_cash_type-2" class="checkbox opening_cash_type" name="opening_cash_type" <?php echo ($Settings->opening_cash_type=="2") ? "checked" : ''; ?>>
+                                        <label for="opening_cash_type-2" class="padding03"><?= lang('fixed opening') ?></label>   
+                                    </div>
+                                 </div>
+                                 
+                                 <div class="col-md-4">
+                                    <div class="form-group">
+                           
+                                        <label class="control-label" for="opening_cash_usd"><?= lang("opening_cash_usd")?></label>
+                                        <?= form_input('opening_cash_usd', ($Settings->opening_cash_usd!=0)?$Settings->opening_cash_usd:'0', 'class="form-control opening numberonly" id="opening_cash_usd"'); ?>
+                           
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                           
+                                        <label class="control-label" for="opening_cash_khmr"><?= lang("opening_cash_khmr")?> </label>
+                                        <?= form_input('opening_cash_khmr', ($Settings->opening_cash_khmr!=0)?$Settings->opening_cash_khmr:'0', 'class="form-control opening numberonly" id="opening_cash_khmr"'); ?>
+                           
+                                    </div>
+                                </div>
+                                
+                                 
+                                
+                                
+                            </div>
                     </fieldset>
                     <fieldset class="scheduler-border">
                         <legend class="scheduler-border"><?= lang('app_settings') ?></legend>
@@ -1850,5 +1980,16 @@ label[for="recipe_time_management"]{
         });
        
     });
+	
+	$(document).on('ifChecked', '.opening_cash_type', function(event) {
+		
+		if ($(this).val() == 2) {
+                $('.opening').attr('disabled', false);
+            } else {
+				$('.opening').val(0);
+                $('.opening').attr('disabled', true);
+            }
+		
+	});
 </script>
 

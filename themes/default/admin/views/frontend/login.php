@@ -61,7 +61,7 @@ if ($message) {
 <?php echo frontend_form_open("login", 'class="login" data-toggle="validator"'); ?>
 
 <div class="form-group">
-<input type="password" name="user_number" id="user_number" class="form-control kb-pad" placeholder="<?=lang('password')?>" required="required" maxLength="4">
+<input type="password" name="user_number" id="user_number" class="form-control kb-pad" placeholder="<?=lang('password')?>" required="required" autocomplete="off" maxLength="4">
 </div>
 <?php if($this->Settings->login_group_required) : ?>
 	<div class="form-group">

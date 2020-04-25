@@ -35,9 +35,17 @@ $route['translate_uri_dashes'] = TRUE;
 //$route['shop/(:any)/(:any)/(:any)'] = 'shop/shop/$1/$2/$3';
 
 // Auth routes
-$route['login'] = 'frontend/login';
-$route['logout'] = 'frontend/logout';
-$route['profile'] = 'frontend/profile';
+//$route['login'] = 'frontend/login';
+//$route['logout'] = 'frontend/logout';
+//$route['profile'] = 'frontend/profile';
+
+
+$route['login'] = 'pos/login';
+$route['logout'] = 'pos/login/logout';
+$route['profile'] = 'pos/login/profile';
+
+
+
 //$route['register'] = 'main/register';
 //$route['login/(:any)'] = 'main/login/$1';
 //$route['logout/(:any)'] = 'main/logout/$1';

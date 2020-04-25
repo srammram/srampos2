@@ -105,16 +105,20 @@
                                         
                                         <?php if ($Owner || $Admin) {
 											 echo '<tr><td>' . lang("tax amount") . '</td><td>' . $this->sma->formatMoney($recipe->tax_amount) . '</td></tr>';
+											 if(empty($category_mapping)){
                                             echo '<tr><td>' . lang("cost") . '</td><td>' . $this->sma->formatMoney($recipe->cost) . '</td></tr>';
+											 }
+											if(empty($category_mapping)){
                                             echo '<tr><td>' . lang("price") . '</td><td>' . $this->sma->formatMoney($recipe->price) . '</td></tr>';
+										    }
                                             if ($recipe->promotion) {
                                                 echo '<tr><td>' . lang("promotion") . '</td><td>' . $this->sma->formatMoney($recipe->promo_price) . ' ('.$this->sma->hrsd($recipe->start_date).' - '.$this->sma->hrsd($recipe->end_date).')</td></tr>';
                                             }
                                         } else {
-                                            if ($this->session->userdata('show_cost')) {
+                                            if ($this->session->userdata('show_cost') && empty($category_mapping)) {
                                                 echo '<tr><td>' . lang("cost") . '</td><td>' . $this->sma->formatMoney($recipe->cost) . '</td></tr>';
                                             }
-                                            if ($this->session->userdata('show_price')) {
+                                            if ($this->session->userdata('show_price') && empty($category_mapping)) {
                                                 echo '<tr><td>' . lang("price") . '</td><td>' . $this->sma->formatMoney($recipe->price) . '</td></tr>';
                                                 if ($recipe->promotion) {
                                                     echo '<tr><td>' . lang("promotion") . '</td><td>' . $this->sma->formatMoney($recipe->promo_price) . ' ('.$this->sma->hrsd($recipe->start_date).' - '.$this->sma->hrsd($recipe->start_date).')</td></tr>';
@@ -235,6 +239,42 @@
                                                 </table>
                                             </div>
                                         <?php } ?>
+										
+										
+										
+										
+										
+										 <?php if (!empty($category_mapping)) { ?>
+                                            <h3 class="bold"><?= lang('recipe_Price_list'); ?></h3>
+                                            <div class="table-responsive">
+                                                <table
+                                                    class="table table-bordered table-striped table-condensed dfTable">
+                                                    <thead>
+                                                    <tr>
+                                                        <th><?= lang('Category') ?></th>
+                                                        <th><?= lang('Sub Category'); ?></th>
+                                                        <th><?= lang('Brand') ; ?></th>
+                                                         <th><?= lang('cost'); ?></th>
+                                                        <th><?= lang('price') ; ?></th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+													
+                                                    <?php
+                                                    foreach ($category_mapping as $category) {
+                                                        echo "<tr><td>".$category->c."</td><td>".$category->sc."</td><td>".$category->b."</td><td>". $this->sma->formatMoney($category->purchase_cost)."</td><td>". $this->sma->formatMoney($category->selling_price)."</td></tr>";
+                                                        }
+
+                                                    
+                                                    ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        <?php } ?>
+										
+										
+										
+										
                                     </div>
                                 </div>
                             </div>

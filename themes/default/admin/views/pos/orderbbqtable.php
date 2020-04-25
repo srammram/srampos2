@@ -195,9 +195,7 @@
 $this->load->view($this->theme . 'pos/pos_footer');
 ?>
 <script>
-function ajaxData(table_id)
-{
-	
+function ajaxData(table_id){
 	$.ajax({
 	  url: "<?=admin_url('pos/ajaxorder_bbqtable');?>",
 	  type: "get",
@@ -211,9 +209,7 @@ function ajaxData(table_id)
 }
 $(document).ready(ajaxData(<?php echo $tableid; ?>));
 var ajaxDatatimeout = setInterval(ajaxData(<?php echo $tableid; ?>), 60000);
-
 $(document).on('click', '.cover_edit', function(){		
-
 	var bbqcode = $(this).attr('data-bbq');	
 	$.ajax({
 		type: "get",
@@ -221,7 +217,6 @@ $(document).on('click', '.cover_edit', function(){
 		data: {bbqcode: bbqcode},
 		dataType: "html",
 		success: function (data) {
-			
 			$('#BBQcode').html(data);
 			$('#coverModal').css('overflow-y', 'scroll');
 			$('#coverModal').appendTo("body").modal('show', {backdrop: 'static', keyboard: false}); 

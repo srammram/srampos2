@@ -10,7 +10,7 @@
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-2x">&times;</i>
             </button>
-            <h4 class="modal-title" id="myModalLabel"><?=lang('Production_items')?> <?=$q_request->reference_no?></h4>
+            <h4 class="modal-title" id="myModalLabel"><?=lang('Production_items')?> <?=$production->reference_no?></h4>
         </div>
       
       
@@ -26,7 +26,7 @@
                     
                     
                     <td colspan=2 ><?=lang('status')?>: </td>
-                    <td colspan=2  class="td-value"><?=$q_request->status?></td>
+                    <td colspan=2  class="td-value"><?=$production->status?></td>
                 </tr>
                
                 
@@ -36,12 +36,12 @@
                     <table id="ItemData" class="table table-bordered table-condensed table-hover table-striped">
                         <thead>
                         <tr>
-                                            <th ><?= lang('s.no'); ?></th>					    
-                                            <th ><?= lang("store_name"); ?></th>
-                                            <th><?= lang('code'); ?></th>
-                                            <th ><?= lang("product_name"); ?></th>
-                                            <th ><?= lang("qty"); ?></th>
-                                        </tr>
+                            <th ><?= lang('s.no'); ?></th>					    
+                            <th ><?= lang("store_name"); ?></th>
+                            <th><?= lang('code'); ?></th>
+                            <th ><?= lang("product_name"); ?></th>
+                            <th ><?= lang("qty"); ?></th>
+                        </tr>
                         </thead>
                         <tbody>
                         <?php $i =1; foreach($pro_items as $k => $row) : ?>
@@ -50,7 +50,7 @@
                             <td><?=$row['row']->store_name?></td>
                             <td><?=$row['row']->product_code?></td>
                             <td><?=$row['row']->product_name?></td>
-                            <td><?=$row['row']->quantity?></td>
+                            <td class="text-right"><?=$this->sma->formatDecimal($row['row']->quantity)?></td>
                         </tr>
                         <?php $i++;endforeach; ?>
                         </tbody>

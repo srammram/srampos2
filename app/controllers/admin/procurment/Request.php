@@ -1,10 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-class Request extends MY_Controller
-{
-
-    public function __construct()
-    {
+class Request extends MY_Controller{
+    public function __construct(){
         parent::__construct();
         if (!$this->loggedIn) {
             $this->session->set_userdata('requested_page', $this->uri->uri_string());
@@ -27,13 +24,8 @@ class Request extends MY_Controller
 		
     }
 
-    public function index($warehouse_id = null)
-    {
-
+    public function index($warehouse_id = null){
       $this->sma->checkPermissions();
-		
-		
-		
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         if ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) {
             $this->data['warehouses'] = $this->siteprocurment->getAllWarehouses();
@@ -44,33 +36,29 @@ class Request extends MY_Controller
             $this->data['warehouse_id'] = $this->session->userdata('warehouse_id');
             $this->data['warehouse'] = $this->session->userdata('warehouse_id') ? $this->siteprocurment->getWarehouseByID($this->session->userdata('warehouse_id')) : null;
         }
-
-		
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => '#', 'page' => lang('quotation_request')));
         $meta = array('page_title' => lang('quotation_request'), 'bc' => $bc);
         $this->page_construct('procurment/request/index', $meta, $this->data);
 
     }
 
-    public function getRequest($warehouse_id = null)
-    {
-		
+    public function getRequest($warehouse_id = null){
         ////$this->sma->checkPermissions('index');
 
         /*if ((!$this->Owner || !$this->Admin) && !$warehouse_id) {
             $user = $this->siteprocurment->getUser();
             $warehouse_id = $user->warehouse_id;
         }*/
-        $detail_link = anchor('admin/procurment/request/view/$1/', '<i class="fa fa-file-text-o"></i> ' . lang('quotation_request_details'));
+        // $detail_link = anchor('admin/procurment/request/view/$1/', '<i class="fa fa-file-text-o"></i> ' . lang('quotation_request_details'));
         $email_link = anchor('admin/procurment/request/email/$1', '<i class="fa fa-envelope"></i> ' . lang('email_request'), 'data-toggle="modal" data-target="#myModal"');
 		
-	$view_link = '<a href="'.admin_url('procurment/request/view/$1').'" data-toggle="modal" data-target="#myModal"><i class="fa fa-edit"></i>'.lang('view_quotes_request').'</a>';
+     	$view_link = '<a href="'.admin_url('procurment/request/view/$1').'" data-toggle="modal" data-target="#myModal"><i class="fa fa-edit"></i>'.lang('view_quotes_request').'</a>';
        
 		$edit_link = anchor('admin/procurment/request/edit/$1', '<i class="fa fa-edit"></i> ' . lang('edit_request'));
 		
        // $convert_link = anchor('admin/procurment/sales/add/$1', '<i class="fa fa-heart"></i> ' . lang('create_sale'));
        // $pc_link = anchor('admin/procurment/purchases/add/$1', '<i class="fa fa-star"></i> ' . lang('create_purchase'));
-        $pdf_link = anchor('admin/procurment/request/pdf/$1', '<i class="fa fa-file-pdf-o"></i> ' . lang('download_pdf'));
+        // $pdf_link = anchor('admin/procurment/request/pdf/$1', '<i class="fa fa-file-pdf-o"></i> ' . lang('download_pdf'));
         $delete_link = "<a href='#' class='po' title='<b>" . $this->lang->line("delete_request") . "</b>' data-content=\"<p>"
         . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete' href='" . admin_url('procurment/request/delete/$1') . "'>"
         . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i> "
@@ -93,7 +81,7 @@ class Request extends MY_Controller
         . lang('actions') . ' <span class="caret"></span></button>
                     <ul class="dropdown-menu pull-right" role="menu">
                         <li>' . $edit_link . '</li>
-			<li>' . $view_link . '</li>
+			             <li>' . $view_link . '</li>
                         <li>' . $delete_link . '</li>
 						<li>' . $detail_link . '</li>
 						<li>' . $pdf_link . '</li>
@@ -170,34 +158,28 @@ class Request extends MY_Controller
             }
 			
             $this->data['q_request_items'] = $pr;
-	    //echo '<pre>';print_R($this->data['q_request_items']);exit;
+            //echo '<pre>';print_R($this->data['q_request_items']);exit;
             $this->data['id'] = $id;
             //$this->data['currencies'] = $this->siteprocurment->getAllCurrencies();
             $this->data['billers'] = $this->siteprocurment->getAllCompanies('biller');
-	    $this->data['suppliers'] = $this->siteprocurment->getAllCompanies('supplier');
+            $this->data['suppliers'] = $this->siteprocurment->getAllCompanies('supplier');
             $this->data['currencies'] = $this->siteprocurment->getAllCurrencies();
-			
+
             $this->data['tax_rates'] = $this->siteprocurment->getAllTaxRates();
             $this->data['warehouses'] = ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) ? $this->siteprocurment->getAllWarehouses() : null;
 
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('procurment/request'), 'page' => lang('View Quotation Request')));
             $meta = array('page_title' => lang('Quotation_Request_view'), 'bc' => $bc);
-	$this->load->view($this->theme . 'procurment/request/view', $this->data);
+            $this->load->view($this->theme . 'procurment/request/view', $this->data);
 
     }
 
-    public function pdf($request_id = null, $view = null, $save_bufffer = null)
-    {
-        //$this->sma->checkPermissions();
-
+    public function pdf($request_id = null, $view = null, $save_bufffer = null){
         if ($this->input->get('id')) {
             $request_id = $this->input->get('id');
         }
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         $inv = $this->request_model->getRequestByID($request_id);
-        /*if (!$this->session->userdata('view_right')) {
-            $this->sma->view_rights($inv->created_by);
-        }*/
         $this->data['rows'] = $this->request_model->getAllRequestItems($request_id);
         $this->data['customer'] = $this->siteprocurment->getCompanyByID($inv->supplier_id);
         $this->data['biller'] = $this->siteprocurment->getCompanyByID($inv->biller_id);
@@ -206,8 +188,6 @@ class Request extends MY_Controller
         $this->data['inv'] = $inv;
         $name = $this->lang->line("request") . "_" . str_replace('/', '_', $inv->reference_no) . ".pdf";
         $html = $this->load->view($this->theme . 'procurment/request/pdf', $this->data, true);
-		//echo $html;
-		//die;
         if (! $this->Settings->barcode_img) {
             $html = preg_replace("'\<\?xml(.*)\?\>'", '', $html);
         }
@@ -220,12 +200,8 @@ class Request extends MY_Controller
         }
     }
 
-    public function combine_pdf($request_id)
-    {
-        //$this->sma->checkPermissions('pdf');
-
+    public function combine_pdf($request_id){
         foreach ($request_id as $request_id) {
-
             $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
             $inv = $this->request_model->getRequestByID($request_id);
             if (!$this->session->userdata('view_right')) {
@@ -249,10 +225,7 @@ class Request extends MY_Controller
 
     }
 
-    public function email($request_id = null)
-    {
-        //$this->sma->checkPermissions(false, true);
-
+    public function email($request_id = null){
         if ($this->input->get('id')) {
             $request_id = $this->input->get('id');
         }
@@ -341,20 +314,16 @@ class Request extends MY_Controller
         }
     }
 
-    public function add()
-    {
+    public function add(){
         $this->sma->checkPermissions();
-		
-        /*echo "<pre>";
-print_r($this->input->post());die;*/
-
-		
         $this->form_validation->set_message('is_natural_no_zero', $this->lang->line("no_zero_required"));
         $this->form_validation->set_rules('supplier[]', $this->lang->line("supplier"), 'required');
 
         // $this->form_validation->set_rules('supplier', $this->lang->line("supplier"), 'required');
 		
         if ($this->form_validation->run() == true) {
+        /*echo "<pre>";
+        print_r($_FILES);die;*/
 	    $n = $this->siteprocurment->lastidRequest();
 	    $reference = 'QR'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
             //$reference = $this->input->post('reference_no');  
@@ -365,11 +334,9 @@ print_r($this->input->post());die;*/
             $supplier_address = $this->input->post('supplier_address');
             $currency = $this->input->post('currency');
             $biller_id = $this->input->post('biller');
-            $status = $this->input->post('status');            
-            
+            $status = $this->input->post('status');        
             $biller_details = $this->siteprocurment->getCompanyByID($biller_id);
             $biller = $biller_details->company != '-' ? $biller_details->company : $biller_details->name;
-            
 
             $note = $this->sma->clear_tags($this->input->post('note'));
 
@@ -398,6 +365,23 @@ print_r($this->input->post());die;*/
 				} else {
 					$supplier = NULL;
 				}
+                if ($_FILES['document']['size'] > 0) {
+                    $this->load->library('upload');
+                    $config['upload_path'] = $this->digital_upload_path;
+                    $config['allowed_types'] = $this->digital_file_types;
+                    $config['max_size'] = $this->allowed_file_size;
+                    $config['overwrite'] = false;
+                    $config['encrypt_name'] = true;
+                    $this->upload->initialize($config);
+                    if (!$this->upload->do_upload('document')) {
+                        $error = $this->upload->display_errors();
+                        $this->session->set_flashdata('error', $error);
+                        redirect($_SERVER["HTTP_REFERER"]);
+                    }
+                    $photo = $this->upload->file_name;
+                    $attachment = $photo;
+                }
+
 				$data[] = array('date' => $date,
 					// 'store_id' => $store_request_id,
 					'store_request_ids' => implode(',', $store_request_id),
@@ -416,33 +400,20 @@ print_r($this->input->post());die;*/
 					'processed_by' => $this->session->userdata('user_id'),
 					'processed_on' => date('Y-m-d H:i:s'),
 					'is_create' => date('Y-m-d H:i:s'),
-					'hash' => hash('sha256', microtime() . mt_rand()),
+                    'hash' => hash('sha256', microtime() . mt_rand()),
+					'attachment' => $attachment ? $attachment:'',
 				);
 				if($status=="approved"){
 						$data['approved_by'] = $this->session->userdata('user_id');
 						$data['approved_on'] = date('Y-m-d H:i:s');
 				}
-				if ($_FILES['document']['size'] > 0) {
-					$this->load->library('upload');
-					$config['upload_path'] = $this->digital_upload_path;
-					$config['allowed_types'] = $this->digital_file_types;
-					$config['max_size'] = $this->allowed_file_size;
-					$config['overwrite'] = false;
-					$config['encrypt_name'] = true;
-					$this->upload->initialize($config);
-					if (!$this->upload->do_upload('document')) {
-						$error = $this->upload->display_errors();
-						$this->session->set_flashdata('error', $error);
-						redirect($_SERVER["HTTP_REFERER"]);
-					}
-					$photo = $this->upload->file_name;
-					$data['attachment'] = $photo;
-				}
+				
 			
 				$i = isset($_POST['product_code']) ? sizeof($_POST['product_code']) : 0;
 				for ($r = 0; $r < $i; $r++) {
 					$store_id = $_POST['store_id'][$r];
-					$item_id = $_POST['product_id'][$r];
+                    $item_id = $_POST['product_id'][$r];
+					$variant_id = $_POST['variant_id'][$r];
 					$item_type = $_POST['product_type'][$r];
 					$item_code = $_POST['product_code'][$r];
 					$item_name = $_POST['product_name'][$r];
@@ -458,21 +429,25 @@ print_r($this->input->post());die;*/
 					$subcategory_name = $_POST['subcategory_name'][$r];
 					$brand_id = $_POST['brand_id'][$r];
 					$brand_name = $_POST['brand_name'][$r];
+					$unit = $this->site->getUnitByID($_POST['product_unit'][$r]);
+				    $product_unit_code=$unit->code;
 
 				   if (!empty($item_code)) {
 						$product_details = $item_type != 'manual' ? $this->request_model->getProductByCode($item_code) : null;
 						
 						$products[$p][] = array(
 							'store_id' => $store_id,
-							'product_id' => $item_id,
+                            'product_id' => $item_id,
+							'variant_id' => $variant_id,
 							'product_code' => $item_code,
 							'product_name' => $item_name,
 							'cost_price' => $cost_price,
 							'selling_price' => $selling_price,
 							'product_type' => $item_type,
-							'quantity' => $item_quantity,
+							'quantity' => $item_unit_quantity,
 							'unit_quantity' => $item_quantity,
-							'product_unit_id' => $item_unit,                       
+							'product_unit_id' => $item_unit,
+							'product_unit_code' => $product_unit_code,							                 
 							'warehouse_id' => $warehouse_id,
 							'category_id' => $category_id,
 							'category_name' => $category_name,
@@ -503,7 +478,6 @@ print_r($this->input->post());die;*/
             $this->session->set_flashdata('message', $this->lang->line("request_added"));
             admin_redirect('procurment/request');
         } else {
-
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
             $this->data['billers'] = $this->siteprocurment->getAllCompanies('biller');
 			$this->data['suppliers'] = $this->siteprocurment->getAllCompanies('supplier');
@@ -526,31 +500,23 @@ print_r($this->input->post());die;*/
 		echo json_encode($res);exit;
 		
 	}
-    public function edit($id = null)
-    {
+	
+	
+    public function edit($id = null){
         $this->sma->checkPermissions();
-
         if ($this->input->get('id')) {
             $id = $this->input->get('id');
-        }
-		
-        $inv = $this->request_model->getRequestByID($id);
-		
-				
-		
+        }		
+        $inv = $this->request_model->getRequestByID($id);				
 		if ($inv->status == 'approved' || $inv->status == 'completed') {
 			$this->session->set_flashdata('error', lang("Do not allowed edit option"));
 			admin_redirect("procurment/request");
-		}	
-		
-        
+		}			
         $this->form_validation->set_message('is_natural_no_zero', $this->lang->line("no_zero_required"));
         $this->form_validation->set_rules('supplier', $this->lang->line("supplier"), 'required');
         //$this->form_validation->set_rules('note', $this->lang->line("note"), 'xss_clean');
 
-        if ($this->form_validation->run() == true) {
-
-            
+        if ($this->form_validation->run() == true) {            
             $warehouse_id = $this->input->post('warehouse');
             $biller_id = $this->input->post('biller');
             $supplier_id = $this->input->post('supplier');
@@ -567,7 +533,6 @@ print_r($this->input->post());die;*/
                 $supplier = NULL;
             }
             $note = $this->sma->clear_tags($this->input->post('note'));
-
             $total = 0;
             $product_tax = 0;
             $product_discount = 0;
@@ -575,9 +540,9 @@ print_r($this->input->post());die;*/
             $total_cgst = $total_sgst = $total_igst = 0;
             $i = isset($_POST['product_code']) ? sizeof($_POST['product_code']) : 0;
            	for ($r = 0; $r < $i; $r++) {
-		    
                 $store_id = $_POST['store_id'][$r];
                 $item_id = $_POST['product_id'][$r];
+                $variant_id = $_POST['variant_id'][$r];
                 $item_type = $_POST['product_type'][$r];
                 $item_code = $_POST['product_code'][$r];
                 $item_name = $_POST['product_name'][$r];
@@ -586,19 +551,24 @@ print_r($this->input->post());die;*/
                 //$item_option = isset($_POST['product_option'][$r]) && $_POST['product_option'][$r] != 'false' ? $_POST['product_option'][$r] : null;
                 //$real_unit_price = $this->sma->formatDecimal($_POST['real_unit_price'][$r]);
                // $unit_price = $this->sma->formatDecimal($_POST['unit_price'][$r]);
-               $item_unit_quantity = $_POST['quantity'][$r];
+                $item_unit_quantity = $_POST['quantity'][$r];
+				
                // $item_tax_rate = isset($_POST['product_tax'][$r]) ? $_POST['product_tax'][$r] : null;
                // $item_discount = isset($_POST['product_discount'][$r]) ? $_POST['product_discount'][$r] : null;
+			   
                 $item_unit = $_POST['product_unit'][$r];
                 $item_quantity = $_POST['product_base_quantity'][$r];
-		$category_id = $_POST['category_id'][$r];
+                $category_id = $_POST['category_id'][$r];
                 $category_name = $_POST['category_name'][$r];
-		$subcategory_id = $_POST['subcategory_id'][$r];
+                $subcategory_id = $_POST['subcategory_id'][$r];
                 $subcategory_name = $_POST['subcategory_name'][$r];
-		$brand_id = $_POST['brand_id'][$r];
+                $brand_id = $_POST['brand_id'][$r];
                 $brand_name = $_POST['brand_name'][$r];
-               if (!empty($item_code)) {
-                    $product_details = $item_type != 'manual' ? $this->request_model->getProductByCode($item_code) : null;
+			    $unit = $this->site->getUnitByID($_POST['product_unit'][$r]);
+				$product_unit_code=$unit->code;
+                if (!empty($item_code)) {
+                $product_details = $item_type != 'manual' ? $this->request_model->getProductByCode($item_code) : null;
+				
                     // $unit_price = $real_unit_price;
                    // $pr_discount = $this->siteprocurment->calculateDiscount($item_discount, $unit_price);
                   //  $unit_price = $this->sma->formatDecimal($unit_price - $pr_discount);
@@ -606,32 +576,30 @@ print_r($this->input->post());die;*/
                   //  $pr_item_discount = $this->sma->formatDecimal($pr_discount * $item_unit_quantity);
                   //  $product_discount += $pr_item_discount;
                   //  $pr_item_tax = $item_tax = 0;
-                  //  $tax = "";
-
-                   
+                  //  $tax = "";                 
 
                     $products[] = array(
-			'store_id' => $store_id,
+                        'store_id' => $store_id,
                         'product_id' => $item_id,
+                        'variant_id' => $variant_id,
                         'product_code' => $item_code,
                         'product_name' => $item_name,
-						'cost_price' => $cost_price,
-						'selling_price' => $selling_price,
+                        'cost_price' => $cost_price,
+                        'selling_price' => $selling_price,
                         'product_type' => $item_type,
-                        'quantity' => $item_quantity,
-						'unit_quantity' => $item_quantity,
+                        'quantity' => $item_unit_quantity,
+                        'unit_quantity' => $item_quantity,
                         'product_unit_id' => $item_unit,
+						'product_unit_code' => $product_unit_code,		
                         //'product_unit_code' => $unit->code,
                         'warehouse_id' => $warehouse_id,
-			'category_id' => $category_id,
+                        'category_id' => $category_id,
                         'category_name' => $category_name,
-			'subcategory_id' => $subcategory_id,
+                        'subcategory_id' => $subcategory_id,
                         'subcategory_name' => $subcategory_name,
-			'brand_id' => $brand_id,
-                        'brand_name' => $brand_name,
-			
+                        'brand_id' => $brand_id,
+                        'brand_name' => $brand_name,			
                     );
-
                 }
             }
             if (empty($products)) {
@@ -651,10 +619,10 @@ print_r($this->input->post());die;*/
                 'note' => $note,
                 'status' => $status,
                 'updated_by' => $this->session->userdata('user_id'),
-		'is_update' => date('Y-m-d H:i:s'),
+                'is_update' => date('Y-m-d H:i:s'),
                 'hash' => hash('sha256', microtime() . mt_rand()),
-		'processed_by' => $this->session->userdata('user_id'),
-		'processed_on' => date('Y-m-d H:i:s'),
+                'processed_by' => $this->session->userdata('user_id'),
+                'processed_on' => date('Y-m-d H:i:s'),
             );
 	    if($status=="approved"){
 		$data['approved_by'] = $this->session->userdata('user_id');
@@ -729,17 +697,19 @@ print_r($this->input->post());die;*/
                         $row->quantity += $pi->quantity_balance;
                     }
                 }
-                $row->id = $item->product_id;
-				$row->cost_price = $item->cost_price;
-				$row->selling_price = $item->selling_price;
+                $row->id               = $item->product_id;
+                $row->variant_id       = $item->variant_id;
+				$row->cost_price       = $item->cost_price;
+				$row->selling_price    = $item->selling_price;
                 $row->code = $item->product_code;
                 $row->name = $item->product_name;
                 $row->type = $item->product_type;
-                $row->base_quantity = $item->quantity;
+                $row->base_quantity    = $item->unit_quantity;
                 $row->base_unit = $row->unit ? $row->unit : $item->product_unit_id;
                 $row->base_unit_price = $row->price ? $row->price : $item->unit_price;
                 $row->unit = $item->product_unit_id;
-                $row->qty = $item->unit_quantity;
+                $row->unit_name = $item->unit_name;
+                $row->qty = $item->quantity;
                 $row->discount = $item->discount ? $item->discount : '0';
                 $row->price = $this->sma->formatDecimal($item->net_unit_price + $this->sma->formatDecimal($item->item_discount / $item->quantity));
                 $row->unit_price = $row->tax_method ? $item->unit_price + $this->sma->formatDecimal($item->item_discount / $item->quantity) + $this->sma->formatDecimal($item->item_tax / $item->quantity) : $item->unit_price + ($item->item_discount / $item->quantity);
@@ -747,14 +717,15 @@ print_r($this->input->post());die;*/
                 $row->tax_rate = $item->tax_rate_id;
                 $row->option = $item->option_id;
 		
-		$row->category_id = $item->category_id;
+                $row->category_id = $item->category_id;
                 $row->category_name = $item->category_name;
-		$row->subcategory_id = $item->subcategory_id;
+                $row->subcategory_id = $item->subcategory_id;
                 $row->subcategory_name = $item->subcategory_name;
-		$row->brand_id = $item->brand_id;
+                $row->brand_id = $item->brand_id;
                 $row->brand_name = $item->brand_name;
-		$row->purchase_cost = $item->cost_price;
-                $row->cost = $item->selling_price;
+                $row->purchase_cost = $item->cost_price;
+                $row->cost = $item->cost_price;
+                $row->price = $item->selling_price;
                 $options = $this->request_model->getProductOptions($row->id, $item->warehouse_id);
 
                 if ($options) {
@@ -782,13 +753,14 @@ print_r($this->input->post());die;*/
                 $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
                 $tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
                 $ri = $row->id;
-				$item_key = $ri.'_'.$item->store_id.'_'.$item->category_id.'_'.$item->subcategory_id.'_'.$item->brand_id;
+				$item_key = $ri.'_'.$item->store_id.'_'.$item->category_id.'_'.$item->subcategory_id.'_'.$item->brand_id.'_'.$item->variant_id;
                 $pr[$item_key] = array('id' => $c, 'store_id'=>$item->store_id,'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")", 'row' => $row, 'combo_items' => $combo_items, 'tax_rate' => $tax_rate, 'units' => $units, 'options' => $options);
                 $c++;
             }
-			
+			 
 			
             $this->data['inv_items'] = json_encode($pr);
+
             $this->data['id'] = $id;
             //$this->data['currencies'] = $this->siteprocurment->getAllCurrencies();
             $this->data['billers'] = $this->siteprocurment->getAllCompanies('biller');
@@ -804,25 +776,25 @@ print_r($this->input->post());die;*/
         }
     }
 
-    public function delete($id = null)
-    {
-        //$this->sma->checkPermissions(NULL, true);
-
+    public function delete($id = null){
         if ($this->input->get('id')) {
             $id = $this->input->get('id');
         }        
-
-        if ($this->request_model->deleteRequest($id)) {
-            if ($this->input->is_ajax_request()) {
-                $this->sma->send_json(array('error' => 0, 'msg' => lang("request_deleted")));
+        $delete_check = $this->request_model->checkrequeststatus($id);
+        if($delete_check == FALSE){
+            if ($this->request_model->deleteRequest($id)) {
+                if ($this->input->is_ajax_request()) {
+                    $this->sma->send_json(array('error' => 0, 'msg' => lang("request_deleted")));
+                }
+                $this->session->set_flashdata('message', lang('quotation_request_deleted'));
+                admin_redirect('procurment/welcome');
             }
-            $this->session->set_flashdata('message', lang('quotation_request_deleted'));
-            admin_redirect('procurment/welcome');
+        }else{
+          $this->sma->send_json(array('error' => 1, 'msg' => lang("could_not_be_delete_this_request")));  
         }
     }
 
-    public function suggestions()
-    {
+    public function suggestions(){
         $term = $this->input->get('term', true);
         $warehouse_id = $this->input->get('warehouse_id', true);
         $supplier_id = $this->input->get('supplier_id', true);
@@ -830,15 +802,11 @@ print_r($this->input->post());die;*/
         if (strlen($term) < 1 || !$term) {
             die("<script type='text/javascript'>setTimeout(function(){ window.top.location.href = '" . admin_url('procurment/welcome') . "'; }, 10);</script>");
         }
-
         $analyzed = $this->sma->analyze_term($term);
         $sr = $analyzed['term'];
         $option_id = $analyzed['option_id'];
         $warehouse = $this->siteprocurment->getWarehouseByID($warehouse_id);
-       // $customer = $this->siteprocurment->getCompanyByID($customer_id);
-       // $customer_group = $this->siteprocurment->getCustomerGroupByID($customer->customer_group_id);
         $rows = $this->siteprocurment->getProductNames($sr);
-	
         if ($rows) {
             $c = str_replace(".", "", microtime(true));
             $r = 0;
@@ -896,35 +864,31 @@ print_r($this->input->post());die;*/
                 $row->real_unit_price = $row->price;
                 $row->base_quantity = 1;
                 $row->base_unit = $row->unit;
+                $row->variant_id = $row->variant_id;
                 $row->base_unit_price = $row->price;
-                $row->unit = $row->sale_unit ? $row->sale_unit : $row->unit;
+                $row->unit = $row->purchase_unit ? $row->purchase_unit : $row->unit;
                 $combo_items = false;
                 if ($row->type == 'combo') {
                     $combo_items = $this->request_model->getProductComboItems($row->id, $warehouse_id);
                 }
                 $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
                 $tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
-				
 				if($row->category_name != ''){
 					$cat = ' CAT - ' .$row->category_name;
 				}else{
 					$cat = '';
 				}
-				
 				if($row->subcategory_name != ''){
 					$sub_cat = ' | SUBCAT - ' .$row->subcategory_name;
 				}else{
 					$sub_cat = '';
 				}
-				
 				if($row->brand_name != ''){
 					$brand = ' | BRAND - ' .$row->brand_name;
 				}else{
 					$brand = '';
 				}
-				
 				$label = $row->name . " (" . $row->code . ")". $cat.$sub_cat.$brand;
-		
                 $pr[] = array('id' => ($c + $r), 'item_id' => $row->id, 'label' => $label, 'category' => $row->category_id,
                     'row' => $row, 'combo_items' => $combo_items, 'tax_rate' => $tax_rate, 'units' => $units, 'options' => $options);
                 $r++;
@@ -935,20 +899,15 @@ print_r($this->input->post());die;*/
         }
     }
 
-    public function request_actions()
-    {
+    public function request_actions(){
         if (!$this->Owner && !$this->GP['bulk_actions']) {
             $this->session->set_flashdata('warning', lang('access_denied'));
             redirect($_SERVER["HTTP_REFERER"]);
         }
-
         $this->form_validation->set_rules('form_action', lang("form_action"), 'required');
-
         if ($this->form_validation->run() == true) {
-
             if (!empty($_POST['val'])) {
                 if ($this->input->post('form_action') == 'delete') {
-
                     //$this->sma->checkPermissions('delete');
                     foreach ($_POST['val'] as $id) {
                         $this->request_model->deleteRequest($id);
@@ -957,11 +916,8 @@ print_r($this->input->post());die;*/
                     redirect($_SERVER["HTTP_REFERER"]);
 
                 } elseif ($this->input->post('form_action') == 'combine') {
-
                     $html = $this->combine_pdf($_POST['val']);
-
                 } elseif ($this->input->post('form_action') == 'export_excel') {
-
                     $this->load->library('excel');
                     $this->excel->setActiveSheetIndex(0);
                     $this->excel->getActiveSheet()->setTitle(lang('quotation_request'));
@@ -971,7 +927,6 @@ print_r($this->input->post());die;*/
                     $this->excel->getActiveSheet()->SetCellValue('D1', lang('customer'));
                     $this->excel->getActiveSheet()->SetCellValue('E1', lang('total'));
                     $this->excel->getActiveSheet()->SetCellValue('F1', lang('status'));
-
                     $row = 2;
                     foreach ($_POST['val'] as $id) {
                         $qu = $this->request_model->getRequestByID($id);
@@ -1001,9 +956,7 @@ print_r($this->input->post());die;*/
         }
     }
 
-    public function update_status($id)
-    {
-
+    public function update_status($id){
         $this->form_validation->set_rules('status', lang("status"), 'required');
 
         if ($this->form_validation->run() == true) {
@@ -1034,22 +987,19 @@ print_r($this->input->post());die;*/
         $c = rand(100000, 9999999);
 	$pr = array();
         foreach ($inv_items as $item) {
-            
             $row = $this->siteprocurment->getRecipeByID($item->product_id);
             $row->expiry = (($item->expiry && $item->expiry != '0000-00-00') ? $this->sma->hrsd($item->expiry) : '');
             $row->mfg = (($item->mfg && $item->mfg != '0000-00-00') ? $this->sma->hrsd($item->mfg) : '');
-            
             $row->batch_no = $item->batch_no ? $item->batch_no : '';
-                        
             $row->base_quantity = $item->quantity;
             $row->base_unit = $row->unit ? $row->unit : $item->product_unit_id;
             $row->base_unit_cost = $row->cost ? $row->cost : $item->unit_cost;
             $row->unit = $item->product_unit_id;
-	    if(isset($pr[$row->id.'_'.$item->store_id])){
-		$row->qty = $pr[$row->id.'_'.$item->store_id]['row']->qty + $item->unit_quantity;
-	    }else{
-		$row->qty = $item->unit_quantity;
-	    }
+	        if(isset($pr[$row->id.'_'.$item->store_id])){
+		     $row->qty = $pr[$row->id.'_'.$item->store_id]['row']->qty + $item->unit_quantity;
+	         }else{
+		     $row->qty = $item->unit_quantity;
+	        }
             
             $row->oqty = $item->quantity;
             $row->code = $item->product_code;
@@ -1061,15 +1011,15 @@ print_r($this->input->post());die;*/
             $row->discount = $item->discount ? $item->discount : '0';
             $options = $this->request_model->getProductOptions($row->id);
             $row->option = $item->option_id;
-                $row->real_unit_cost = $item->real_unit_price;
-                $row->cost = $this->sma->formatDecimal($item->net_unit_price + ($item->item_discount / $item->quantity));
+            $row->real_unit_cost = $item->real_unit_price;
+            $row->cost = $this->sma->formatDecimal($item->net_unit_price + ($item->item_discount / $item->quantity));
                 
-                $row->tax_rate = $item->tax_rate_id;
-                 $row->tax_method = $item->item_tax_method;
-                unset($row->details, $row->product_details, $row->price, $row->file, $row->product_group_id);
-                $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
-                $tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
-                $ri = $row->id.'_'.$item->store_id;//$this->Settings->item_addition ? $row->id : $row->id;             
+            $row->tax_rate = $item->tax_rate_id;
+            $row->tax_method = $item->item_tax_method;
+            unset($row->details, $row->product_details, $row->price, $row->file, $row->product_group_id);
+            $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
+            $tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
+            $ri = $row->id.'_'.$item->store_id;//$this->Settings->item_addition ? $row->id : $row->id;             
             $pr[$ri] = array('store_id'=>$item->store_id,'id' => $c, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
                 'row' => $row, 'tax_rate' => $row->tax_rate, 'units' => $units, 'options' => $options);
             $c++;

@@ -1,5 +1,4 @@
 $(document).ready(function() {
-
     $('input[type="checkbox"],[type="radio"]').not('.skip').iCheck({
         checkboxClass: 'icheckbox_square-blue',
         radioClass: 'iradio_square-blue',
@@ -468,7 +467,7 @@ $('#posdiscount').focus(function () {
      * Edit Row Modal Hanlder
      ----------------------- */
     $(document).on('click', '.edit', function () {
-		
+		//alert('test');
         var row = $(this).closest('tr');
         var row_id = row.attr('id');
 		
@@ -660,8 +659,6 @@ $('#posdiscount').focus(function () {
                  addon_tr_html += '<td><input type="text" maxlength="2" class="form-control addon_quantity numberonly add_kb-pad addon_quantity_'+this.recipe_id +this.variant_id+'"  name="addon_quantity[]" value="'+$addonenteredqty+'"  '+$readonly+' ><span style="color: red;"></span>';
 
                  // addon_tr_html += '<canvas id="addon_myCanvas' +$addname+ '" width="550" height="60" style="display: ;"></canvas><input type="hidden" name="addon_name_img[]" class="addon-name-img1' + this.recipe_id +this.variant_id+ '" id="addon-name-img1' + this.recipe_id +this.variant_id+ '" value=""></td>';
-
-
                  addon_tr_html += '<td><input type="text" class="form-control addon_price kb-pad" name="addon_price[]" value="'+formatDecimal(this.price)+'" readonly></td></tr>';
                 
                 $('.addon_price').select2("readonly", true);
@@ -1433,9 +1430,14 @@ $('#posdiscount').focus(function () {
     var manualdistext = 0;
     $(document).on("focus", '.manual_dis_text', function () {
         manualdistext = $(this).val();
+/* 	if($(this).val() <=0){
+			$(this).val('');
+		} 
+     */
     }).on("change", '.manual_dis_text', function () {
         var row = $(this).closest('tr');
-        manualdistext = manualdistext ? manualdistext : 0;
+		//$("#posTable").val('');
+        manualdistext = manualdistext ? manualdistext :'';
        item_id = row.attr('data-item-id');
         positems[item_id].row.manual_item_ds_val = manualdistext;        
         localStorage.setItem('positems', JSON.stringify(positems));        
@@ -1462,9 +1464,13 @@ $('#posdiscount').focus(function () {
     var element = $(this)[0];
     var len = $(this).val().length * 2;
         element.setSelectionRange(len, len);
+		
     }).on("click", '.manual_dis_text', function (e) {
         $(this).val($(this).val());
         $(this).focus();
+		//$("#dis").val('');
+				//var value = $("#dis").val();
+				//$('#dis').attr('value', '');
         // element.scrollTop = 9999;
     });
     /*manual discount end*/
@@ -1583,7 +1589,7 @@ function loadItems() {
             unit_price = item_price;
 
 
-            var ds = item_ds ? item_ds : '0';
+            var ds = item_ds ? item_ds : '';
             if (ds.indexOf("%") !== -1) {
                 var pds = ds.split("%");
                 if (!isNaN(pds[0])) {
@@ -1598,8 +1604,11 @@ function loadItems() {
             var manualds = manual_item_ds_val;
             
             if(manualds != 0){
-            if (manualds.indexOf("%") !== -1) {
+                 if (manualds.indexOf("%") !== -1) {
                 var manualpds = manualds.split("%");
+				//$("#dis").val('');
+				//var value = $("#dis").val();
+				//$('#dis').attr('value', '');
                 if (!isNaN(manualpds[0])) {
                     manual_item_ds = formatDecimal((parseFloat(((unit_price) * parseFloat(manualpds[0])) / 100)), 4);
                 } else {
@@ -1966,7 +1975,6 @@ function printLine(str) {
  ---------------------------- */
 
  function add_invoice_item_old(item) {
-
     if (count == 1) {
         positems = {};
         if ($('#poswarehouse').val() && $('#poscustomer').val()) {
@@ -1982,8 +1990,6 @@ function printLine(str) {
     }
     if (item == null)
         return;
-
-
     var item_id = item.item_id;
     if (positems[item_id]) {
 
@@ -2013,7 +2019,6 @@ function printLine(str) {
  }
 
   function add_invoice_item(item) {
-    
     if (count == 1) {
         positems = {};
         if ($('#poswarehouse').val() && $('#poscustomer').val()) {
@@ -2063,7 +2068,6 @@ function printLine(str) {
  }
 
  function display_keyboards() {
-
     $('.kb-text').keyboard({
         autoAccept: true,
         alwaysOpen: false,
@@ -2129,6 +2133,7 @@ function printLine(str) {
         }
     });
     $('.kb-pad-qty').keyboard({
+		
         restrictInput: true,
 	css: {
 		container: 'number-keyboard'

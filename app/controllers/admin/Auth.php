@@ -94,9 +94,7 @@ class Auth extends MY_Controller
         echo $this->datatables->generate();
     }
 
-    function delete_avatar($id = NULL, $avatar = NULL)
-    {
-
+    function delete_avatar($id = NULL, $avatar = NULL){
         if (!$this->ion_auth->logged_in() || !$this->ion_auth->in_group('owner') && $id != $this->session->userdata('user_id')) {
             $this->session->set_flashdata('warning', lang("access_denied"));
             die("<script type='text/javascript'>setTimeout(function(){ window.top.location.href = '" . $_SERVER["HTTP_REFERER"] . "'; }, 0);</script>");
@@ -114,8 +112,7 @@ class Auth extends MY_Controller
         }
     }
 
-    function profile($id = NULL)
-    {
+    function profile($id = NULL){
         if (!$this->ion_auth->logged_in() || !$this->ion_auth->in_group('owner') && $id != $this->session->userdata('user_id')) {
             $this->session->set_flashdata('warning', lang("access_denied"));
             redirect(isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : 'admin');
@@ -123,9 +120,7 @@ class Auth extends MY_Controller
         if (!$id || empty($id)) {
             admin_redirect('auth');
         }
-
         $this->data['title'] = lang('profile');
-
         $user = $this->ion_auth->user($id)->row();
         $groups = $this->ion_auth->groups()->result_array();
         $this->data['csrf'] = $this->_get_csrf_nonce();
@@ -133,7 +128,8 @@ class Auth extends MY_Controller
         $this->data['groups'] = $groups;
         $this->data['billers'] = $this->site->getAllCompanies('biller');
         $this->data['warehouses'] = $this->site->getAllWarehouses_Stores();
-	$this->data['assigned_stores'] = $this->site->getAssignedStores($id);
+		$this->data['assigned_stores'] = $this->site->getAssignedStores($id);
+		$this->data['areas'] = $this->site->getAllAreas();
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         $this->data['password'] = array(
             'name' => 'password',
@@ -184,11 +180,9 @@ class Auth extends MY_Controller
         $this->page_construct('auth/profile', $meta, $this->data);
     }
 
-    public function captcha_check($cap)
-    {
+    public function captcha_check($cap){
         $expiration = time() - 300; // 5 minutes limit
         $this->db->delete('captcha', array('captcha_time <' => $expiration));
-
         $this->db->select('COUNT(*) AS count')
             ->where('word', $cap)
             ->where('ip_address', $this->input->ip_address())
@@ -203,34 +197,25 @@ class Auth extends MY_Controller
     }
 
 
-    function login($m = NULL)
-    {
-        
+    function login($m = NULL){
         $date_now = date('Y-m-d');
         $site_expiry_date    = $this->Settings->site_expiry_date;
-
         if($site_expiry_date != '0000-00-00'){
            if ($date_now > $site_expiry_date) {
                $this->load->view($this->theme . 'auth/expiry_date');
                return false;
             } 
         } 
-
-       
         if ($this->loggedIn) {
             $this->session->set_flashdata('error', $this->session->flashdata('error'));
             admin_redirect('welcome');
         }
         $this->data['title'] = lang('login');
-
         if ($this->Settings->captcha) {
             $this->form_validation->set_rules('captcha', lang('captcha'), 'required|callback_captcha_check');
         }
-
         if ($this->form_validation->run() == true) {
-
             $remember = (bool)$this->input->post('remember');
-
             if ($this->ion_auth->login($this->input->post('identity'), $this->input->post('password'), $remember)) {
                 if ($this->Settings->mmode) {
                     if (!$this->ion_auth->in_group('owner')) {
@@ -248,16 +233,11 @@ class Auth extends MY_Controller
                 }
                 $this->session->set_flashdata('message', $this->ion_auth->messages());
                 $referrer = ($this->session->userdata('requested_page') && $this->session->userdata('requested_page') != 'admin') ? $this->session->userdata('requested_page') : 'welcome';
-		
-		$this->data['user_stores'] = $this->site->getUserAssignedStores($this->session->userdata('user_id'));
-		
-		
-		
+		     $this->data['user_stores'] = $this->site->getUserAssignedStores($this->session->userdata('user_id'));
 		//if($this->ion_auth->in_group('owner') || $this->ion_auth->in_group('admin')){
 		//    admin_redirect($referrer);
 		//}else
 		if($this->data['user_stores'] && count($this->data['user_stores'])==1){
-		  
 		   $warehouse_id = $this->data['user_stores'][0]->id;
 		   //$sessionData['assigned_stores'] = $this->data['user_stores'];
 		   $this->session->set_userdata('warehouse_id',$warehouse_id); 
@@ -274,14 +254,12 @@ class Auth extends MY_Controller
 		    $this->session->set_flashdata('error', $this->ion_auth->errors());
 		    admin_redirect('login?no_store');
 		}
-		
-            } else {                
+        } else {                
                 $this->session->set_flashdata('error', $this->ion_auth->errors());
                 admin_redirect('login');
             }
         } else {
-
-            $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
+        $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
 	    if(isset($_GET['no_store'])){
 		$this->data['error'] = lang('no_store_access');
 	    }
@@ -580,20 +558,16 @@ class Auth extends MY_Controller
             //redirect($_SERVER["HTTP_REFERER"]);
         }
         $this->sma->checkPermissions();
-
         $this->data['title'] = "Create User";
         $this->form_validation->set_rules('username', lang("username"), 'trim|is_unique[users.username]');
         $this->form_validation->set_rules('email', lang("email"), 'trim|is_unique[users.email]');
         $this->form_validation->set_rules('status', lang("status"), 'trim|required');
         $this->form_validation->set_rules('group', lang("group"), 'trim|required');
-
         if ($this->form_validation->run() == true) {
-
             $username = strtolower($this->input->post('username'));
             $email = strtolower($this->input->post('email'));
             $password = $this->input->post('password');
             $notify = $this->input->post('notify');
-
             $additional_data = array(
                 'first_name' => $this->input->post('first_name'),
                 'last_name' => $this->input->post('last_name'),
@@ -602,15 +576,13 @@ class Auth extends MY_Controller
                 'gender' => $this->input->post('gender'),
                 'group_id' => $this->input->post('group') ? $this->input->post('group') : '3',
                 'biller_id' => $this->input->post('biller'),
-		
                 'view_right' => $this->input->post('view_right'),
                 'edit_right' => $this->input->post('edit_right'),
                 'allow_discount' => $this->input->post('allow_discount'),
+				'area_id' => implode(',', $this->input->post('area_id')) ? implode(',', $this->input->post('area_id')) : ''
                 //'max_discount_percent' => $this->input->post('max_discount_percent'),
             );
-	    
 	    $stores_access = array();
-	    
 	    if(isset($_POST['warehouse'])){
 		$stores_access = $_POST['warehouse'];
 	    }
@@ -626,6 +598,7 @@ class Auth extends MY_Controller
             $this->data['error'] = (validation_errors() ? validation_errors() : ($this->ion_auth->errors() ? $this->ion_auth->errors() : $this->session->flashdata('error')));
             $this->data['groups'] = $this->ion_auth->groups()->result_array();
             $this->data['billers'] = $this->site->getAllCompanies('biller');
+			$this->data['areas'] = $this->site->getAllAreas();
             $this->data['warehouses'] = $this->site->getAllWarehouses_Stores();
             $bc = array(array('link' => admin_url('home'), 'page' => lang('home')), array('link' => admin_url('auth/users'), 'page' => lang('users')), array('link' => '#', 'page' => lang('create_user')));
             $meta = array('page_title' => lang('users'), 'bc' => $bc);
@@ -633,30 +606,23 @@ class Auth extends MY_Controller
         }
     }
 
-    function edit_user($id = NULL)
-    {
-
+    function edit_user($id = NULL){
         if ($this->input->post('id')) {
             $id = $this->input->post('id');
         }
         $this->data['title'] = lang("edit_user");
-
         if (!$this->loggedIn || !$this->Owner && $id != $this->session->userdata('user_id')) {
             $this->session->set_flashdata('warning', lang("access_denied"));
             redirect($_SERVER["HTTP_REFERER"]);
         }
-
         $user = $this->ion_auth->user($id)->row();
-
         if ($user->username != $this->input->post('username')) {
             $this->form_validation->set_rules('username', lang("username"), 'trim|is_unique[users.username]');
         }
         if ($user->email != $this->input->post('email')) {
             $this->form_validation->set_rules('email', lang("email"), 'trim|is_unique[users.email]');
         }
-
         if ($this->form_validation->run() === TRUE) {
-
             if ($this->Owner) {
                 if ($id == $this->session->userdata('user_id')) {
                     $data = array(
@@ -691,6 +657,7 @@ class Auth extends MY_Controller
                         'view_right' => $this->input->post('view_right'),
                         'edit_right' => $this->input->post('edit_right'),
                         'allow_discount' => $this->input->post('allow_discount'),
+						'area_id' => implode(',', $this->input->post('area_id')) ? implode(',', $this->input->post('area_id')) : ''
                         //'max_discount_percent' => $this->input->post('max_discount_percent'),
                     );
                 }
@@ -723,14 +690,12 @@ class Auth extends MY_Controller
                     }
                     $this->form_validation->set_rules('password', lang('edit_user_validation_password_label'), 'required|min_length[8]|max_length[25]|matches[password_confirm]');
                     $this->form_validation->set_rules('password_confirm', lang('edit_user_validation_password_confirm_label'), 'required');
-
                     $data['password'] = $this->input->post('password');
                 }
             }
             //$this->sma->print_arrays($data);
 	    
 	    $stores_access = array();
-	    
 	    if(isset($_POST['warehouse'])){
 		$stores_access = $_POST['warehouse'];
 	    }

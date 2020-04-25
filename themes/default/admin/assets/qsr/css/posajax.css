@@ -223,8 +223,8 @@ box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(172,140,101,.6);}
 }
 #pos #leftdiv {
     min-width: 400px;
-    width: 33%;
-    max-width: 33%;
+    width: 43%;
+    max-width: 50%;
     padding:10px 10px 5px 10px;
     background-color: #efeff0;
     float:left;
@@ -352,7 +352,7 @@ box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(172,140,101,.6);}
 .quick-cash .badge { position: absolute; top: 2px; right: 2px; font-size: 0.6em; padding: 1px 4px; border-radius: 0; }
 
 
-#cp{width: 67%;position: relative;float: left;padding-left: 3%;}
+#cp{width: 50%;position: relative;float: left;padding-left: 3%;}
 
 #category-list{border-bottom: 1px solid #939393;margin: 10px 0px 10px;padding: 0px 0px;}
 #category-list .btn-prni{height: 40px;

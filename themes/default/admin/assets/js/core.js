@@ -851,7 +851,7 @@ $(document).ready(function() {
     $(document).on('click', '.sname', function(e) {
         var row = $(this).closest('tr');
         var itemid = row.find('.rid').val();
-        $('#myModal').modal({remote: site.base_url + 'products/modal_view/' + itemid});
+        $('#myModal').modal({remote: site.base_url + 'recipe/modal_view/' + itemid});
         $('#myModal').modal('show');
     });
 });
@@ -1206,11 +1206,29 @@ function user_status(x) {
     '<a href="'+site.base_url+'auth/activate/'+ y[1] +'"><span class="label label-danger"><i class="fa fa-times"></i> '+lang['inactive']+'</span><a/>';
 }
 
-function recipe_status(x) {
+/* function recipe_status(x) {
     var y = x.split("__");
     return y[0] == 1 ?
     '<a href="'+site.base_url+'recipe/deactivate/'+ y[1] +'" data-toggle="modal" data-target="#myModal"><span class="label label-success"><i class="fa fa-check"></i> '+lang['active']+'</span></a>' :
     '<a href="'+site.base_url+'recipe/activate/'+ y[1] +'" data-toggle="modal" data-target="#myModal"><span class="label label-danger"><i class="fa fa-times"></i> '+lang['inactive']+'</span><a/>';
+} */
+function recipe_status(x) {
+    var y = x.split("__");
+	var status_='';
+	
+	switch(y[0]) {
+  case '0':
+  
+    status_='<a href="'+site.base_url+'recipe/activate/'+ y[1] +'" data-toggle="modal" data-target="#myModal"><span class="label label-danger"><i class="fa fa-times"></i> '+lang['inactive']+'</span><a/>';
+    break;
+  case '1':
+    status_='<a href="'+site.base_url+'recipe/deactivate/'+ y[1] +'" data-toggle="modal" data-target="#myModal"><span class="label label-success"><i class="fa fa-check"></i> '+lang['active']+'</span></a>';
+    break;
+	case '2':
+    status_='<a href="'+site.base_url+'recipe/deactivate/'+ y[1] +'" data-toggle="modal" data-target="#myModal"><span class="label label-warning"><i class="fa fa-check"></i> Non Transaction</span></a>';
+    break;
+}
+return status_;
 }
 
 function product_status(x) {    
@@ -1608,6 +1626,13 @@ $(document).ready(function() {
     return y[0] == 1 ?
     '<a href="'+site.base_url+'system_settings/discount_deactivate/'+ y[1] +'"><span class="label label-success"><i class="fa fa-check"></i> '+lang['active']+'</span></a>' :
     '<a href="'+site.base_url+'system_settings/discount_activate/'+ y[1] +'"><span class="label label-danger"><i class="fa fa-times"></i> '+lang['inactive']+'</span><a/>';
+}
+
+ function wallets_status(x) {
+    var y = x.split("__");
+    return y[0] == 1 ?
+    '<div class="text-center"><span class="payment_status label label-success">Active</span></div>' :
+     '<div class="text-center"><span class="payment_status label label-warning">InActive</span></div>';
 }
 
  function bbq_discount_status(x) {

@@ -1,10 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Production extends MY_Controller
-{
-
-    function __construct()
-    {
+class Production extends MY_Controller{
+    function __construct(){
         parent::__construct();
         if (!$this->loggedIn) {
             $this->session->set_userdata('requested_page', $this->uri->uri_string());
@@ -23,10 +20,8 @@ class Production extends MY_Controller
         $this->popup_attributes = array('width' => '900', 'height' => '600', 'window_name' => 'sma_popup', 'menubar' => 'yes', 'scrollbars' => 'yes', 'status' => 'no', 'resizable' => 'yes', 'screenx' => '0', 'screeny' => '0');
     }
 
-    function index($warehouse_id = NULL)
-    {
+    function index($warehouse_id = NULL){
         $this->sma->checkPermissions();
-
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         if ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) {
             $this->data['warehouses'] = $this->site->getAllWarehouses();
@@ -147,20 +142,13 @@ class Production extends MY_Controller
     }
 	
     /* ------------------------------------------------------- */
-	function add($id = NULL)
-    {
-		
+	function add($id = NULL){
         $this->sma->checkPermissions();
         $this->load->helper('security');
         $warehouses = $this->site->getAllWarehouses();
-        
-        
         $this->form_validation->set_rules('warehouse_id', lang("warehouse_id"), 'required');
 		$this->form_validation->set_rules('production_date', lang("production_date"), 'required');
-		
-		
         if ($this->form_validation->run() == true) {
-			
 			$production_array = array(
 				'warehouse_id' => $this->input->post('warehouse_id'),
 				'production_date' => $this->input->post('production_date'),
@@ -193,9 +181,6 @@ class Production extends MY_Controller
 			}
            
         }
-		
-		
-		
         if ($this->form_validation->run() == true && $this->production_model->addproduction_new($production_array, $purchases_item)) 			{
 			
             $this->session->set_flashdata('message', lang("production_added"));
@@ -213,20 +198,13 @@ class Production extends MY_Controller
 	
 	
 	
-    function add_old($id = NULL)
-    {
-		
+    function add_old($id = NULL){
         $this->sma->checkPermissions();
         $this->load->helper('security');
         $warehouses = $this->site->getAllWarehouses();
-        
-        
         $this->form_validation->set_rules('warehouse_id', lang("warehouse_id"), 'required');
 		$this->form_validation->set_rules('production_date', lang("production_date"), 'required');
-		
-		
         if ($this->form_validation->run() == true) {
-			
 			$production_array = array(
 				'warehouse_id' => $this->input->post('warehouse_id'),
 				'production_date' => $this->input->post('production_date'),

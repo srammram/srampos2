@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_pro_production_items` ADD `variant_id` INT(20) NOT NULL AFTER `production_id`;

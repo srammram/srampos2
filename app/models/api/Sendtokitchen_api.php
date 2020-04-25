@@ -250,9 +250,17 @@ if($this->pos_settings->kot_enable_disable == 1){
 							}
 						}*/
 						
-						if($this->Settings->procurment == 1){
+						/*if($this->Settings->procurment == 1){
 							if($item['recipe_type'] =='standard' || $item['recipe_type'] =='production'){
 								$this->site->updateStockMaster_new($item['recipe_id'],$item['quantity'],$cate);
+							}elseif($item['recipe_type'] =='quick_service'){
+								$this->siteprocurment->production_salestock_out($item['recipe_id'],$item['quantity'],$kit_item['recipe_variant_id']);
+							}	
+						}*/
+
+						if($this->Settings->procurment == 1){
+							if($item['recipe_type'] =='standard' || $item['recipe_type'] =='production'){
+								$this->site->updateStockMaster_new($item['recipe_id'],$item['quantity'],$cate,$order_item_id);
 							}elseif($item['recipe_type'] =='quick_service'){
 								$this->siteprocurment->production_salestock_out($item['recipe_id'],$item['quantity'],$kit_item['recipe_variant_id']);
 							}	

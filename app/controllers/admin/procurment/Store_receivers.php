@@ -1,10 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-class Store_receivers extends MY_Controller
-{
-
-    public function __construct()
-    {
+class Store_receivers extends MY_Controller{
+    public function __construct(){
         parent::__construct();
         if (!$this->loggedIn) {
             $this->session->set_userdata('requested_page', $this->uri->uri_string());

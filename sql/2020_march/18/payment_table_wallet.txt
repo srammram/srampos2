@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_payments` ADD `wallet_id` INT NULL DEFAULT NULL AFTER `warehouse_id`, ADD `wallet_name` VARCHAR(30) NULL DEFAULT NULL AFTER `wallet_id`;

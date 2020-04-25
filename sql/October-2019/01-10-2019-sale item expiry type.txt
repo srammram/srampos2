@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_recipe` CHANGE `type_expiry` `type_expiry` VARCHAR(10) NOT NULL;

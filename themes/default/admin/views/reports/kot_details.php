@@ -275,11 +275,11 @@ function GetData($url){
                                 $('.dataTables_paginate').html(data.pagination);
                                 if(kot == 'kot_cancel')
                                 {                                      
-                                    $('#KOTData > thead').append('<tr><th><?= lang("s.no"); ?></th><th><?= lang("kot_no"); ?></th><th><?= lang("kot_date"); ?></th><th><?= lang("user"); ?></th><th><?= lang("recipe"); ?></th><th><?= lang("variant"); ?></th><th><?= lang("table"); ?></th><th><?= lang("status"); ?></th></tr>');
+                                    $('#KOTData > thead').append('<tr><th><?= lang("s.no"); ?></th><th><?= lang("kot_no"); ?></th><th><?= lang("kot_date"); ?></th><th><?= lang("user"); ?></th><th><?= lang("recipe"); ?></th><th><?= lang("Quantity"); ?></th><th><?= lang("variant"); ?></th><th><?= lang("table"); ?></th><th><?= lang("Cancel_type"); ?></th><th><?= lang("status"); ?></th></tr>');
                                     $('#KOTData > tbody').empty(); 
                                     $.each(data.kotdetails, function (a,b) 
                                     {   
-                                        $('#KOTData > tbody').append('<tr class="text-center"><td>'+$row_index+'</td><td>'+b.id+'</td><td>'+b.date+'</td>><td>'+b.username+'</td><td>'+b.recipename+'</td><td>'+b.variant+'</td><td>'+b.table_name+'</td><td>'+b.order_item_cancel_note+'</td></tr>');
+                                        $('#KOTData > tbody').append('<tr class="text-center"><td>'+$row_index+'</td><td>'+b.id+'</td><td>'+b.date+'</td>><td>'+b.username+'</td><td>'+b.recipename+'</td><td>'+b.quantity+'</td><td>'+b.variant+'</td><td>'+b.table_name+'</td><td>'+b.item_cancel_type+'</td><td>'+b.order_item_cancel_note+'</td></tr>');
                                     $row_index++;
                                     });
                                 }

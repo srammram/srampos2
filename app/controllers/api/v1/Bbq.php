@@ -27,6 +27,8 @@ class Bbq extends REST_Controller {
 		$split_id = $this->input->get('split_id');
 		$sales_type = 4;
 		$sales_type  = $this->bbq_api->getBBQLobsterSaletype($split_id);
+		
+		$sales_type = 1;
 		if(!empty($sales_type)){
 			$sales_type =$sales_type;
 		}		

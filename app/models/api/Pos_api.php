@@ -283,7 +283,8 @@ class Pos_api extends CI_Model
 			" . $this->db->dbprefix('recipe_categories') . " AS RC
 			JOIN " . $this->db->dbprefix('sale_items_mapping_details') . " AS IMDT ON IMDT.recipe_subgroup_id = RC.id 
 			JOIN " . $this->db->dbprefix('sale_items_mapping_head') . " AS IMHD ON IMHD.id = IMDT.sales_map_hd_id 
-			  ".$where."  AND IMHD.days= '".$today."' AND  IMHD.sale_type= ".$order_type."  AND RC.status=1 ");
+			  ".$where."  AND IMHD.days= '".$today."' AND  IMHD.sale_type= ".$order_type."  AND RC.status=1  order by RC.name  asc");
+			
         if ($query->num_rows() > 0) {
            foreach ($query->result() as $row) {
 			   if(!empty($row->khmer_name)){
@@ -308,7 +309,7 @@ public function GetAllsubcategory($category_id,$order_type){
 			$where = " WHERE parent_id = ".$category_id." AND status=1";
 		}
 		$query = $this->db->query("SELECT RC.id, RC.name, RC.khmer_name, CASE WHEN RC.image !='' THEN CONCAT('".$default_url."', RC.image) ELSE '$default_image' END AS image, CASE WHEN RC.image !='' THEN CONCAT('".$default_thumb_url."', RC.image) ELSE '$default_image' END AS thumbnail  FROM 
-			" . $this->db->dbprefix('recipe_categories') . " AS RC ".$where." ");
+			" . $this->db->dbprefix('recipe_categories') . " AS RC ".$where." order by RC.name  asc ");
 		// print_r($this->db->last_query());die;
         if ($query->num_rows() > 0) {
            foreach ($query->result() as $row) {
@@ -329,12 +330,13 @@ public function GetAllsubcategory($category_id,$order_type){
 		$default_thumb_url = site_url('assets/uploads/thumbs/');
 		$today =$this->today; 
 		$where_in = ("'standard'".','."'production'".','."'quick_service'".','."'combo'");
-		$query = $this->db->query("SELECT r.id, r.code, r.type,  r.name, r.khmer_name, r.price, r.currency_type, r.slug, r.category_id, r.subcategory_id, r.kitchens_id, CASE WHEN r.image !='' THEN CONCAT('".$default_url."', r.image) ELSE '$default_image' END AS image, CASE WHEN r.image !='' THEN CONCAT('".$default_thumb_url."', r.image) ELSE '$default_image' END AS thumbnail, w.warehouse_id  FROM " . $this->db->dbprefix('recipe') . " AS r 
+		$query = $this->db->query("SELECT r.id, r.code,r.active, r.type,  r.name, r.khmer_name, r.price, r.currency_type, r.slug, r.category_id, r.subcategory_id, r.kitchens_id, CASE WHEN r.image !='' THEN CONCAT('".$default_url."', r.image) ELSE '$default_image' END AS image, CASE WHEN r.image !='' THEN CONCAT('".$default_thumb_url."', r.image) ELSE '$default_image' END AS thumbnail, w.warehouse_id  FROM " . $this->db->dbprefix('recipe') . " AS r 
 			LEFT JOIN " . $this->db->dbprefix('warehouses_recipe') . " AS w ON w.recipe_id = r.id 
 			JOIN " . $this->db->dbprefix('recipe_categories') . " AS RC ON RC.id = r.category_id 
 			JOIN " . $this->db->dbprefix('sale_items_mapping_details') . " AS IMDT ON IMDT.recipe_subgroup_id = r.subcategory_id
 			JOIN " . $this->db->dbprefix('sale_items_mapping_head') . " AS IMHD ON IMHD.id = IMDT.sales_map_hd_id 
-			 WHERE r.subcategory_id = ".$subcategory_id." AND r.active = 1 AND w.warehouse_id = ".$warehouse_id."  AND IMHD.days= '".$today."' AND  IMHD.sale_type= ".$order_type." AND FIND_IN_SET(r.id,IMDT.recipe_id) !=0 AND r.type in (".$where_in.") order by RC.id asc");
+			 WHERE r.subcategory_id = ".$subcategory_id." AND r.active in (1,2) AND w.warehouse_id = ".$warehouse_id."  AND IMHD.days= '".$today."' AND  IMHD.sale_type= ".$order_type." AND FIND_IN_SET(r.id,IMDT.recipe_id) !=0 AND r.type in (".$where_in.") order by r.name asc");
+			 
         if ($query->num_rows() > 0) {
            foreach ($query->result() as $row) {	    
 			//// variants ///
@@ -344,7 +346,9 @@ public function GetAllsubcategory($category_id,$order_type){
 			$variant_query = $this->db->get('recipe_variants_values');
 			$row->variants = 0;
 			$row->addon = 0;
-			$row->customizable = 0;
+			$row->customizable = 0; 
+			($row->active ==2)?$row->non_transaction=1:$row->non_transaction=0;
+		
 			if($variant_query->num_rows()>0){
 			    $row->variants = 1;
 			}
@@ -356,6 +360,7 @@ public function GetAllsubcategory($category_id,$order_type){
 			   }
 			   
 			  $row->comment_active = 0;
+			  
 			  if($row->variants == 1){
 
 			  	$this->db->select("recipe_addon_details.*, recipe.name AS addon, recipe.price")
@@ -414,12 +419,13 @@ public function GetAllsubcategory($category_id,$order_type){
 		$default_thumb_url = site_url('assets/uploads/thumbs/');
 		$today =$this->today; 
 		$where_in = ("'standard'".','."'production'".','."'quick_service'".','."'combo'");
-		$query = $this->db->query("SELECT r.id, r.code, r.type,  r.name, r.khmer_name, r.price, r.currency_type, r.slug, r.category_id, r.subcategory_id, r.kitchens_id, CASE WHEN r.image !='' THEN CONCAT('".$default_url."', r.image) ELSE '$default_image' END AS image, CASE WHEN r.image !='' THEN CONCAT('".$default_thumb_url."', r.image) ELSE '$default_image' END AS thumbnail, w.warehouse_id  FROM " . $this->db->dbprefix('recipe') . " AS r 
+		$query = $this->db->query("SELECT r.id, r.code, r.type,  r.name, r.khmer_name, r.price, r.currency_type, r.slug, r.category_id, r.subcategory_id, r.kitchens_id, CASE WHEN r.image !='' THEN CONCAT('".$default_url."', r.image) ELSE '$default_image' END AS image, CASE WHEN r.image !='' THEN CONCAT('".$default_thumb_url."', r.image) ELSE '$default_image' END AS thumbnail, w.warehouse_id,r.active  FROM " . $this->db->dbprefix('recipe') . " AS r 
 			LEFT JOIN " . $this->db->dbprefix('warehouses_recipe') . " AS w ON w.recipe_id = r.id 
 			JOIN " . $this->db->dbprefix('recipe_categories') . " AS RC ON RC.id = r.category_id 
 			
-			 WHERE r.recipe_standard != 2 AND r.subcategory_id = ".$subcategory_id." AND r.active = 1 AND w.warehouse_id = ".$warehouse_id." AND r.type in (".$where_in.") order by RC.id asc");
-		// print_r($this->db->last_query());die;
+			 WHERE r.recipe_standard != 2 AND r.subcategory_id = ".$subcategory_id." AND  w.warehouse_id = ".//$warehouse_id." AND r.type in (".$where_in.") order by RC.id asc");
+			 $warehouse_id." AND r.type in (".$where_in.") and r.active in (1,2)order by r.name asc");
+		//print_r($this->db->last_query());die;
 		
         if ($query->num_rows() > 0) {
            foreach ($query->result() as $row) {
@@ -442,6 +448,10 @@ public function GetAllsubcategory($category_id,$order_type){
 			   }
 			   
 			  $row->comment_active = 0;
+			 ($row->active ==2)?$row->non_transaction=1:$row->non_transaction=0;
+				  
+			
+				  
 			  if($row->variants == 1){
 			  	$this->db->select("recipe_addon_details.*, recipe.name AS addon, recipe.price")
 		      	->join('recipe_addon_details', 'recipe_addon_details.addon_head_id = recipe_addon.id')
@@ -633,7 +643,7 @@ public function GetAllsubcategory($category_id,$order_type){
 	
 	public function DineGetAlltables($area_id, $warehouse_id, $user_id){
 		$this->db->select('id, name, area_id, warehouse_id,sale_type AS type');
-		$this->db->order_by('name', 'ASC');
+		$this->db->order_by('id', 'ASC');
 		$query = $this->db->get_where('restaurant_tables', array('area_id' => $area_id,'warehouse_id' => $warehouse_id));
 
 		// $query = $this->db->get_where('restaurant_tables', array('area_id' => $area_id,'warehouse_id' => $warehouse_id,'sale_type' => 'alacarte'));

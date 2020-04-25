@@ -141,7 +141,7 @@ class Quotes_model extends CI_Model
     {
         $this->db->select('pro_request_items.*, recipe.unit, recipe.details as details, recipe_variants.name as variant, recipe.hsn_code as hsn_code')
             ->join('recipe', 'recipe.id=pro_request_items.product_id', 'left')
-            ->join('recipe_variants', 'recipe_variants.id=pro_request_items.option_id', 'left')
+            ->join('recipe_variants', 'recipe_variants.id=pro_request_items.variant_id', 'left')
             // ->join('tax_rates', 'tax_rates.id=pro_request_items.tax_rate_id', 'left')
             ->group_by('pro_request_items.id')
             ->order_by('id', 'asc');
@@ -156,15 +156,17 @@ class Quotes_model extends CI_Model
     }
 	
     public function getAllQuotesItems($quotes_id)
-    {
-        $this->db->select('pro_quote_items.*, products.unit, products.details as details, product_variants.name as variant, products.hsn_code as hsn_code')
-            ->join('products', 'products.id=pro_quote_items.product_id', 'left')
-            ->join('product_variants', 'product_variants.id=pro_quote_items.option_id', 'left')
+    {        
+        $this->db->select('pro_quote_items.*, recipe.unit, recipe.details as details, recipe_variants.name as variant, recipe.hsn_code as hsn_code,u.name as unit_name')
+            ->join('recipe', 'recipe.id=pro_quote_items.product_id', 'left')
+            ->join('recipe_variants', 'recipe_variants.id=pro_quote_items.option_id', 'left')
+            ->join('units u','u.id=recipe.unit','left')
+            // ->join('product_variants', 'product_variants.id=pro_quote_items.option_id', 'left')
             // ->join('tax_rates', 'tax_rates.id=pro_quote_items.tax_rate_id', 'left')
-            ->group_by('pro_quote_items.id')
+            ->group_by('pro_quote_items.id,pro_quote_items.variant_id')
             ->order_by('id', 'asc');
-        $q = $this->db->get_where('pro_quote_items', array('quote_id' => $quotes_id));
-        // print_r($this->db->last_query());die;
+        $q = $this->db->get_where('pro_quote_items', array('pro_quote_items.quote_id' => $quotes_id));
+      //  print_r($this->db->last_query());die;
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -272,15 +274,10 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 
-    public function addQuotes($data, $items, $quotes, $order_id)
-    {
-		
-		// echo "123";die;
+    public function addQuotes($data, $items, $quotes, $order_id){
         if ($this->db->insert('pro_quotes', $data)) {
              $quotes_id = $this->db->insert_id();
-			
-			$this->db->update('pro_request', $quotes, array('id' => $order_id));
-			
+			 $this->db->update('pro_request', $quotes, array('id' => $order_id));
             foreach ($items as $item) {
                 $item['quote_id'] = $quotes_id;
                 $this->db->insert('pro_quote_items', $item);
@@ -292,26 +289,21 @@ class Quotes_model extends CI_Model
         return false;
     }
 
-    public function updateQuotes($id, $data, $items = array())
-    {
-		
+    public function updateQuotes($id, $data, $items = array()){
         if ($this->db->update('pro_quotes', $data, array('id' => $id)) && $this->db->delete('pro_quote_items', array('quote_id' => $id))) {
             $quotes_id = $id;
             foreach ($items as $item) {
                 $item['quote_id'] = $id;
                 $this->db->insert('pro_quote_items', $item);
             }
-         
             return true;
         }
-
         return false;
     }
 
-    public function updateStatus($id, $status, $note)
-    {
+    public function updateStatus($id, $status, $note){
         // $purchase = $this->getQuotesByID($id);
-        $items = $this->siteprocurment->getAllQuotesItems($id);
+        $items = $this->getAllQuotesItems($id);
 
         if ($this->db->update('pro_quote_items', array('status' => $status, 'note' => $note), array('id' => $id))) {
             foreach ($items as $item) {
@@ -327,10 +319,10 @@ class Quotes_model extends CI_Model
     }
 
     public function deleteQuotes($id)
-    {
+    { //var_dump($id);die;
         $purchase = $this->getQuotesByID($id);
-        $purchase_items = $this->siteprocurment->getAllQuotesItems($id);
-        if ($this->db->delete('pro_quote_items', array('quotes_id' => $id)) && $this->db->delete('pro_quotes', array('id' => $id))) {
+        $purchase_items = $this->getAllQuotesItems($id);
+        if ($this->db->delete('pro_quote_items', array('quote_id' => $id)) && $this->db->delete('pro_quotes', array('id' => $id))) {
             // $this->db->delete('payments', array('quote_id' => $id));
             // if ($purchase->status == 'received' || $purchase->status == 'partial') {
             //     foreach ($purchase_items as $oitem) {
@@ -342,7 +334,7 @@ class Quotes_model extends CI_Model
             //         }
             //     }
             // }
-            $this->siteprocurment->syncQuantity(NULL, NULL, $purchase_items);
+            //$this->siteprocurment->syncQuantity(NULL, NULL, $purchase_items);
             return true;
         }
         return FALSE;
@@ -520,7 +512,7 @@ class Quotes_model extends CI_Model
     public function returnPurchase($data = array(), $items = array())
     {
 
-        $purchase_items = $this->siteprocurment->getAllQuotesItems($data['quotes_id']);
+        $purchase_items = $this->getAllQuotesItems($data['quotes_id']);
 
         if ($this->db->insert('return_quotes', $data)) {
             $return_id = $this->db->insert_id();
@@ -653,4 +645,13 @@ class Quotes_model extends CI_Model
         }
     }
 
+    public function checkquotetatus($id){
+        $this->db->where('status', 'process');             
+        $this->db->where('pro_quotes.id', $id);
+        $q = $this->db->get('pro_quotes');
+        if ($q->num_rows() > 0) {
+            return FALSE;
+        }
+        return TRUE;
+    }   
 }

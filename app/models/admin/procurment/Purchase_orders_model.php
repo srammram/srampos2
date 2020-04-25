@@ -1,15 +1,12 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Purchase_orders_model extends CI_Model
-{
-
+class Purchase_orders_model extends CI_Model{
     public function __construct()
     {
         parent::__construct();
     }
 
-    public function getProductNames($term, $limit = 10)
-    {
+    public function getProductNames($term, $limit = 10){
         $type = array('standard','raw');
         $this->db->select('r.*,t.rate as purchase_tax_rate');
         $this->db->from('recipe r');
@@ -28,8 +25,7 @@ class Purchase_orders_model extends CI_Model
             return FALSE;
     }
 	
-	public function getReqBYID($id)
-    {
+	public function getReqBYID($id){
         $q = $this->db->get_where('pro_quotes', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -41,12 +37,10 @@ class Purchase_orders_model extends CI_Model
 		$this->db->where('product_id', $product_id);
 		$this->db->delete('delivery_store');
 		if($this->db->insert_batch('delivery_store', $data)){
-			
 			return true;
 		}
 		return false;
 	}
-	
 	public function productQuotesID($product_id, $quote_id){
 		$this->db->where('quote_id', $quote_id);
 		$this->db->where('product_id', $product_id);
@@ -190,11 +184,12 @@ class Purchase_orders_model extends CI_Model
 	
 	public function getAllRequestItems($purchase_orders_id)
     {
-        $this->db->select('pro_quote_items.*, recipe.unit, recipe.details as details, recipe_variants.name as variant, recipe.hsn_code as hsn_code')
+        $this->db->select('pro_quote_items.*, recipe.unit, recipe.details as details, recipe_variants.name as variant, recipe.hsn_code as hsn_code,u.name as unit_name')
             ->join('recipe', 'recipe.id=pro_quote_items.product_id', 'left')
-            ->join('recipe_variants', 'recipe_variants.id=pro_quote_items.option_id', 'left')
+            ->join('recipe_variants', 'recipe_variants.id=pro_quote_items.variant_id', 'left')
+            ->join('units u','u.id=recipe.unit','left')
             // ->join('tax_rates', 'tax_rates.id=pro_quote_items.tax_rate_id', 'left')
-            ->group_by('pro_quote_items.id')
+            ->group_by('pro_quote_items.id,pro_quote_items.variant_id')
             ->order_by('id', 'asc');
         $q = $this->db->get_where('pro_quote_items', array('quote_id' => $purchase_orders_id));
 		// print_r($this->db->last_query());die;
@@ -209,11 +204,12 @@ class Purchase_orders_model extends CI_Model
 	
     public function getAllPurchase_ordersItems($purchase_orders_id)
     {
-        $this->db->select('pro_purchase_order_items.*')
+        $this->db->select('pro_purchase_order_items.*,u.name as unit_name')
             ->join('recipe', 'recipe.id=pro_purchase_order_items.product_id', 'left')
-            ->join('recipe_variants', 'recipe_variants.id=pro_purchase_order_items.option_id', 'left')
+            ->join('recipe_variants', 'recipe_variants.id=pro_purchase_order_items.variant_id', 'left')
             ->join('tax_rates', 'tax_rates.id=pro_purchase_order_items.item_tax_method', 'left')
-            ->group_by('pro_purchase_order_items.id')
+            ->join('units u','u.id=recipe.unit','left')
+            ->group_by('pro_purchase_order_items.id,pro_purchase_order_items.variant_id')
             ->order_by('id', 'asc');
         $q = $this->db->get_where('pro_purchase_order_items', array('purchase_order_id' => $purchase_orders_id));
         if ($q->num_rows() > 0) {
@@ -412,6 +408,15 @@ class Purchase_orders_model extends CI_Model
         return false;
     }
 
+    public function checkpurchase_ordersstatus($id){
+        $this->db->where('status', 'process');             
+        $this->db->where('pro_purchase_orders.id', $id);
+        $q = $this->db->get('pro_purchase_orders');
+        if ($q->num_rows() > 0) {
+            return FALSE;
+        }
+        return TRUE;
+    } 
     public function deletePurchase_orders($id)
     {
         

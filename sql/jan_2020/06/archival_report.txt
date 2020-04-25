@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_settings` ADD `archival_report` TINYINT(2) NOT NULL DEFAULT '0' AFTER `opening_cash_khmr`;

@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_payments` ADD `nc_kot_type` INT NULL DEFAULT NULL AFTER `wallet_name`, ADD `nc_kot_details` VARCHAR(255) NULL DEFAULT NULL AFTER `nc_kot_type`;

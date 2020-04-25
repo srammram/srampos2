@@ -1,0 +1,2 @@
+ALTER TABLE `srampos_notiy` ADD `stop` TINYINT NOT NULL AFTER `task_completed`;
+ALTER TABLE `srampos_settings` ADD `notification_start_interval` INT NOT NULL AFTER `notification_time_interval`;

@@ -348,6 +348,7 @@ $('.sortable_table tbody').sortable({
     });
 
     $(document).on('click', '.cancel_bill', function(e) {
+		alert(1);
         e.preventDefault();
         var cancel_id = $(this).siblings('.cancel_sale_id').val();
         bootbox.confirm(lang.r_u_sure, function(result) {

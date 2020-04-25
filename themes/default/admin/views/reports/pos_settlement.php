@@ -2,9 +2,7 @@
   <link rel="stylesheet" href="<?= $assets ?>styles/jquery-ui.css">
   <script src="<?= $assets ?>js/jquery-ui.js"></script>
 <?php
-
 $v = "";
-
 if ($this->input->post('start_date')) {
     $v .= "&start_date=" . $this->input->post('start_date');
 }
@@ -196,6 +194,8 @@ if ($this->input->post('end_date')) {
                             <th><?= lang("cash"); ?></th>
                             <th><?= lang("credit_card"); ?></th>
                             <th><?= lang("credit"); ?></th>
+							 <th><?= lang("Nc_Kot"); ?></th>
+							  <th><?= lang("Wallet"); ?></th>
                             <th><?= lang("foreign_exchange"); ?></th>
                             <!-- <th><?= lang("usd"); ?></th> -->
                             <th><?= lang("return_balance"); ?></th>
@@ -289,13 +289,14 @@ function GetData($url){
                                 var total_cash  = 0;
                                 var total_cc = 0;
                                 var total_credit = 0;
+								var total_nc_kot = 0;
+								var total_wallet = 0;
                                 var total_foreign = 0;
                                 var toforusd = 0;
                                 var total_amt = 0;
                                 var total_bal = 0;
 
-                                $.each(data.settlements, function (a,b) 
-                                {
+                                $.each(data.settlements, function (a,b) {
                                     var cash  = 0;
                                     var cc = 0;
                                     var credit = 0;
@@ -303,14 +304,17 @@ function GetData($url){
                                     var forusd = 0;
                                     var amt = 0;
                                     var bal = 0;
+									var nc_kot = 0;
+									var wallet = 0;
                                     var $row_index = 1;
-                                     $.each(b.user, function (c,d) 
-                                     {  
+                                     $.each(b.user, function (c,d) {  
                                         cash  += parseFloat(d.Cash);
                                         cc  += parseFloat(d.Credit_Card);
                                         credit  += parseFloat(d.credit);
                                         foreign += parseFloat(d.ForEx);
                                         forusd+= parseFloat(d.For_Ex);
+										nc_kot+= parseFloat(d.NC_Kot);
+										wallet+= parseFloat(d.wallet);
                                         /*usd += parseFloat(d.USD);*/
                                         //amt += (parseFloat(d.Credit_Card) + parseFloat(d.Cash) + parseFloat(d.For_Ex) -parseFloat(d.return_balance));
 										amt += (parseFloat(d.Credit_Card) + parseFloat(d.Cash) + parseFloat(d.credit) + parseFloat(d.For_Ex)-parseFloat(d.return_balance));
@@ -320,6 +324,8 @@ function GetData($url){
                                         total_cc  += parseFloat(d.Credit_Card);
                                         total_credit  += parseFloat(d.credit);
                                         total_foreign += parseFloat(d.ForEx);
+										total_nc_kot  +=parseFloat(d.NC_Kot);
+										total_wallet +=parseFloat(d.wallet);;
 
                                         toforusd +=parseFloat(d.For_Ex);
                                         
@@ -328,12 +334,12 @@ function GetData($url){
                                         total_bal += parseFloat(d.return_balance);                                          
                                         $("#from_date").text(date_format_conversion(start_date));
                                         $("#to_date").text(date_format_conversion(end_date));
-                                        $('#SlRData > tbody').append('<tr class="text-right"><td>'+$row_index+'</td><td class="text-center">'+d.bill_date+'</td><td class="text-center">'+d.table_name+'</td><td class="text-center">'+d.seats+'</td><td class="text-center">'+d.username+'</td><td class="text-center">'+d.warehouse+'</td><td class="text-center">'+d.Bill_No+'</td><td class="text-center">'+d.bill_type+'</td><td class="text-center">'+d.bill_time+'</td><td>'+formatMoney(d.Cash)+'</td><td>'+formatMoney(d.Credit_Card)+'</td><td>'+formatMoney(d.credit)+'</td><td>'+formatMoney(d.ForEx,for_currency)+'</td><td>'+formatMoney(d.return_balance)+'</td><td>'+formatMoney((parseFloat(d.Credit_Card) + parseFloat(d.Cash) + parseFloat(d.For_Ex)- parseFloat(d.return_balance )))+'</td></tr>');                     $row_index++;
+                                        $('#SlRData > tbody').append('<tr class="text-right"><td>'+$row_index+'</td><td class="text-center">'+d.bill_date+'</td><td class="text-center">'+d.table_name+'</td><td class="text-center">'+d.seats+'</td><td class="text-center">'+d.username+'</td><td class="text-center">'+d.warehouse+'</td><td class="text-center">'+d.Bill_No+'</td><td class="text-center">'+d.bill_type+'</td><td class="text-center">'+d.bill_time+'</td><td>'+formatMoney(d.Cash)+'</td><td>'+formatMoney(d.Credit_Card)+'</td><td>'+formatMoney(d.credit)+'</td><td>'+formatMoney(d.NC_Kot)+'</td><td>'+formatMoney(d.wallet)+'</td><td>'+formatMoney(d.ForEx,for_currency)+'</td><td>'+formatMoney(d.return_balance)+'</td><td>'+formatMoney((parseFloat(d.Credit_Card) + parseFloat(d.Cash) + parseFloat(d.For_Ex)- parseFloat(d.return_balance )))+'</td></tr>');                     $row_index++;
                                      });  
-                                      $('#SlRData > tbody').append('<tr style="font-weight:bold" class="text-right"><td colspan="9" class="text-center">User Total: </td><td >'+formatMoney(cash)+'</td><td>'+formatMoney(cc)+'</td><td>'+formatMoney(credit)+'</td><td>'+formatMoney(foreign,for_currency)+'('+formatMoney(forusd)+')</td><td>'+formatMoney(bal)+'</td><td>'+formatMoney(amt)+'</td></tr>');             
+                                      $('#SlRData > tbody').append('<tr style="font-weight:bold" class="text-right"><td colspan="9" class="text-center">User Total: </td><td >'+formatMoney(cash)+'</td><td>'+formatMoney(cc)+'</td><td>'+formatMoney(credit)+'</td><td>'+formatMoney(nc_kot)+'</td><td>'+formatMoney(wallet)+'</td><td>'+formatMoney(foreign,for_currency)+'('+formatMoney(forusd)+')</td><td>'+formatMoney(bal)+'</td><td>'+formatMoney(amt)+'</td></tr>');             
                                 });
 
-                                 $('#SlRData > tbody').append('<tr style="font-weight:bold" class="text-right"><td colspan="9" class="text-center">Grand Total: </td><td>'+formatMoney(total_cash)+'</td><td>'+formatMoney(total_cc)+'</td><td>'+formatMoney(total_credit)+'</td><td>'+formatMoney(total_foreign,for_currency)+'('+formatMoney(toforusd)+')</td><td>'+formatMoney(total_bal)+'</td><td>'+formatMoney(total_amt)+'</td></tr>');
+                                 $('#SlRData > tbody').append('<tr style="font-weight:bold" class="text-right"><td colspan="9" class="text-center">Grand Total: </td><td>'+formatMoney(total_cash)+'</td><td>'+formatMoney(total_cc)+'</td><td>'+formatMoney(total_credit)+'</td><td>'+formatMoney(total_nc_kot)+'</td><td>'+formatMoney(total_wallet)+'</td><td>'+formatMoney(total_foreign,for_currency)+'('+formatMoney(toforusd)+')</td><td>'+formatMoney(total_bal)+'</td><td>'+formatMoney(total_amt)+'</td></tr>');
                             }
                         }
                     });  

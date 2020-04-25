@@ -1,15 +1,9 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
-
-class Recipe_model extends CI_Model
-{
-
-    public function __construct()
-    {
+class Recipe_model extends CI_Model{
+    public function __construct(){
         parent::__construct();
     }
-
-    public function getAllrecipe()
-    {
+    public function getAllrecipe(){
         $q = $this->db->get('recipe');
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -20,8 +14,7 @@ class Recipe_model extends CI_Model
         return FALSE;
     }
 
-    public function getrecipeWithoutADDon()
-    {
+    public function getrecipeWithoutADDon(){
         $this->db->where_in('type',array('standard','production','quick_service'));
         $q = $this->db->get('recipe');
         if ($q->num_rows() > 0) {
@@ -32,11 +25,7 @@ class Recipe_model extends CI_Model
         }
         return FALSE;
     }
-
-    
-
-    public function getCategoryrecipe($category_id)
-    {
+    public function getCategoryrecipe($category_id){
         $q = $this->db->get_where('recipe', array('category_id' => $category_id));
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -47,8 +36,7 @@ class Recipe_model extends CI_Model
         return FALSE;
     }
 
-    public function getSubCategoryrecipe($subcategory_id)
-    {
+    public function getSubCategoryrecipe($subcategory_id){
         $q = $this->db->get_where('recipe', array('subcategory_id' => $subcategory_id));
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -59,8 +47,7 @@ class Recipe_model extends CI_Model
         return FALSE;
     }
 
-    public function getrecipeOptions($pid)
-    {
+    public function getrecipeOptions($pid){
         $q = $this->db->get_where('recipe_variants', array('recipe_id' => $pid));
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -71,8 +58,7 @@ class Recipe_model extends CI_Model
         return FALSE;
     }
 
-    public function getrecipeAddon($pid)
-    {
+    public function getrecipeAddon($pid){
         $q = $this->db->get_where('recipe_addon', array('recipe_id' => $pid));
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -85,8 +71,7 @@ class Recipe_model extends CI_Model
 
 
 
-    public function getrecipeOptionsWithWH($pid)
-    {
+    public function getrecipeOptionsWithWH($pid){
         $this->db->select($this->db->dbprefix('recipe_variants') . '.*, ' . $this->db->dbprefix('warehouses') . '.name as wh_name, ' . $this->db->dbprefix('warehouses') . '.id as warehouse_id, ' . $this->db->dbprefix('warehouses_recipe_variants') . '.quantity as wh_qty')
             ->join('warehouses_recipe_variants', 'warehouses_recipe_variants.option_id=recipe_variants.id', 'left')
             ->join('warehouses', 'warehouses.id=warehouses_recipe_variants.warehouse_id', 'left')
@@ -157,8 +142,7 @@ class Recipe_model extends CI_Model
         return FALSE;
     }
 
-    public function getrecipeDetail($id)
-    {
+    public function getrecipeDetail($id){
         $this->db->select($this->db->dbprefix('recipe') . '.*, ' . $this->db->dbprefix('tax_rates') . '.name as tax_rate_name, '.$this->db->dbprefix('tax_rates') . '.code as tax_rate_code, c.code as category_code, sc.code as subcategory_code', FALSE)
             ->join('tax_rates', 'tax_rates.id=recipe.tax_rate', 'left')
             ->join('recipe_categories c', 'c.id=recipe.category_id', 'left')
@@ -272,7 +256,7 @@ class Recipe_model extends CI_Model
         LEFT JOIN " . $this->db->dbprefix('recipe_variants_values') . " AS RVV ON R.id = RVV.recipe_id
         LEFT JOIN " . $this->db->dbprefix('recipe_variants') . " AS RV ON RV.id = RVV.attr_id 
         WHERE ING.id =".$id." GROUP BY ING.id ";
-        // echo $sql;;die;
+         // echo $sql;die;
         $q = $this->db->query($sql);       
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -286,9 +270,9 @@ class Recipe_model extends CI_Model
 public function getProductWithRecipe($recipe_id)
     {
         $this->db->select('rp.*, units.name AS units_name, r.name AS recipe_name,r.code,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,category_mapping.category_id,category_mapping.subcategory_id,category_mapping.brand_id,category_mapping.id as cm_id,r.item_customizable as r_item_customizable')
-            ->join('recipe_products as rp', 'rp.cm_id=category_mapping.id','left')
-            ->join('ingrediend_head as ING', 'ING.id=rp.ingrediends_hd_id')
             ->join('recipe as r', 'r.id=category_mapping.product_id','left')
+            ->join('recipe_products as rp', 'rp.product_id=r.id','left')
+            ->join('ingrediend_head as ING', 'ING.id=rp.ingrediends_hd_id')            
             ->join('recipe_categories as rc', 'rc.id=category_mapping.category_id', 'left')
             ->join('recipe_categories as rsc', 'rsc.id=category_mapping.subcategory_id', 'left')
             ->join('units', 'units.id=rp.unit_id', 'left')
@@ -296,7 +280,7 @@ public function getProductWithRecipe($recipe_id)
             ->where('ING.id', $recipe_id)
             ->group_by('rp.id');       
             $q = $this->db->get('category_mapping');   
-            // print_r($this->db->last_query());die;                     
+             //print_r($this->db->last_query());die;                     
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -565,41 +549,47 @@ public function getProductWithRecipe($recipe_id)
 
     }
 	
-	public function addrecipe_new($data, $warehouse_qty, $recipe_pro,  $items, $photos,$cat_mapping_data)
-    {	
+	public function addrecipe_new($data, $warehouse_qty, $recipe_pro,  $items, $photos,$cat_mapping_data){	
         $this->db->insert('recipe', $data);
         $recipe_id = $this->db->insert_id();
 
 	if ($recipe_id) {
-    
     	foreach($cat_mapping_data as $k => $row){
     	    $row['product_id'] = $recipe_id;
-			
 			/* echo '<pre>';
 		 	print_r($row);  */
-			
 			$row['status'] = 1;
     	    $this->db->insert('category_mapping', $row);	
 			$cm_id = $this->db->insert_id();
-    	    $stock_data['store_id'] = $this->session->userdata('warehouse_id');
-    	    $stock_data['product_id'] = $recipe_id;	    
-    	    $stock_data['category_id'] = $row['category_id'];
+			$store_id                     =$this->session->userdata('warehouse_id');
+    	    $stock_data['store_id']       = $store_id;
+    	    $stock_data['product_id']     = $recipe_id;	    
+    	    $stock_data['category_id']    = $row['category_id'];
     	    $stock_data['subcategory_id'] = $row['subcategory_id'];
-			$stock_data['brand_id'] = $row['brand_id']; // $row['brand']
-    	    $stock_data['selling_price'] = $row['selling_price'];
-    	    $stock_data['cost_price'] = $row['purchase_cost'];	    
-    	    $stock_data['stock_in'] = $row['stock'];
+			$stock_data['brand_id']       = $row['brand_id']; // $row['brand']
+    	    $stock_data['selling_price']  = $row['selling_price'];
+    	    $stock_data['cost_price']     = $row['purchase_cost'];	    
+    	    $stock_data['stock_in']       = $row['stock'];
 			$stock_data['stock_in_piece'] = $row['stock'] * $data['piece'];
-    	    $stock_data['stock_out'] = 0;
-    	    $stock_data['cm_id'] = $cm_id;
-			
+    	    $stock_data['stock_out']      = 0;
+    	    $stock_data['cm_id']          = $cm_id;
 		/* 	echo '<pre>';
 		 	print_r($stock_data);
 			die;  */
-			if($row['stock'] != 0){
-                $this->site->addStockMaster($stock_data);
-            }
-			
+			//if($row['stock'] != 0){
+               // $this->site->addStockMaster($stock_data);
+            //}
+			$cp              = str_replace('.','_',$row['purchase_cost']);
+			$category_id     = $row['category_id']  ;
+			$subcategory_id  = $row['subcategory_id'];
+			$brand_id        = $row['brand_id'];
+			$batch            ='';
+			$supplier        =0;
+			$invoice_id      =0;
+			 $stock_data['unique_id']=$store_id.$recipe_id.$batch.$category_id.$subcategory_id.$brand_id.$cp.$supplier.$invoice_id;
+			if($data['type'] !='quick_service'){
+				 $this->site->addStockMaster($stock_data);
+			}
     	}
 		   if($warehouse_qty && !empty($warehouse_qty)) {
 				foreach ($warehouse_qty as $wh_qty) {
@@ -930,12 +920,11 @@ public function getProductWithRecipe($recipe_id)
         }
     }
 	
-	public function updaterecipe_new($id, $data, $warehouse_qty, $recipe_pro,  $items, $photos,$cat_mapping_data)
-    {		
+	public function updaterecipe_new($id, $data, $warehouse_qty, $recipe_pro,  $items, $photos,$cat_mapping_data){		
      /*echo "<pre>";
      print_r($cat_mapping_data);die;*/
         if ($this->db->update('recipe', $data, array('id' => $id))) {		
-			$this->db->delete('recipe_products', array('recipe_id' => $id));               
+			//$this->db->delete('recipe_products', array('recipe_id' => $id));               
 			$this->db->delete('warehouses_recipe', array('recipe_id' => $id));
 			$this->db->delete('recipe_combo_items', array('recipe_id' => $id));
 			$this->db->delete('recipe_addon', array('recipe_id' => $id));			
@@ -945,20 +934,40 @@ public function getProductWithRecipe($recipe_id)
 			/* echo $this->db->last_query();
 			die; */			
 			foreach($cat_mapping_data as $k => $row){
-			    $cm = $this->db->get_where('category_mapping',array('product_id'=>$id,'category_id'=>$row['category_id'],'subcategory_id'=>$row['subcategory_id'],'brand_id'=>$row['brand_id']));
+                if(!empty($row['variant_id'])){
+                    //echo "1";die;
+                    $cm = $this->db->get_where('category_mapping',array('product_id'=>$id,'category_id'=>$row['category_id'],'subcategory_id'=>$row['subcategory_id'],'brand_id'=>$row['brand_id'],'variant_id'=>$row['variant_id']));
+                }else{
+                   // echo "2";die;
+                    $cm = $this->db->get_where('category_mapping',array('product_id'=>$id,'category_id'=>$row['category_id'],'subcategory_id'=>$row['subcategory_id'],'brand_id'=>$row['brand_id']));
+                }
+			    
 				// print_r($cm->result());				
 			    if($cm->num_rows()>0){
                     // echo "1";die;
 					$urow['purchase_cost'] = $row['purchase_cost'];
 					$urow['selling_price'] = $row['selling_price'];
+					$urow['stock'] = $row['stock'];
 					$urow['status'] = 1;
-					$this->db->where('product_id',$cm->row('product_id')); // $cm->row('id')
+                    if(!empty($row['variant_id'])){
+                         $this->db->where('variant_id',$cm->row('variant_id'));
+                         $this->db->where('product_id',$cm->row('product_id'));
+                    }else{
+                        $this->db->where('product_id',$cm->row('product_id'));
+                    }
+                    $this->db->where('brand_id',$cm->row('brand_id'));
+					
 					$this->db->update('category_mapping', $urow);
 			    }else{
                     // echo "11";die;
 					$row['product_id'] = $id;
 					$row['status'] = 1;
 					$cm_id = $this->db->insert('category_mapping', $row);					
+				
+					/* echo 'test';
+					die; */			
+			    }		
+
 					$stock_data['store_id'] = $this->session->userdata('warehouse_id');
 					$stock_data['product_id'] = $id;	    
 					$stock_data['category_id'] = $row['category_id'];
@@ -969,10 +978,17 @@ public function getProductWithRecipe($recipe_id)
 					$stock_data['stock_in'] = $row['stock'];
 					$stock_data['stock_out'] = 0;					
 					$stock_data['cm_id'] = $cm_id;
-					$this->site->addStockMaster($stock_data);
-					/* echo 'test';
-					die; */			
-			    }				
+					$cp              = str_replace('.','_',floatval($row['purchase_cost']));
+					$category_id     = $row['category_id']  ;
+					$subcategory_id  = $row['subcategory_id'];
+					$brand_id        = $row['brand_id'];
+					$batch            ='';
+					$supplier        =0;
+					$invoice_id      =0;
+					$recipe_id=$id;
+					$store_id=$this->session->userdata('warehouse_id');
+					$stock_data['unique_id']=$store_id.$recipe_id.$batch.$category_id.$subcategory_id.$brand_id.$cp.$supplier.$invoice_id;
+					$this->site->addStockMaster($stock_data);				
 			}	//die;
 			if ($warehouse_qty && !empty($warehouse_qty)) {
 					foreach ($warehouse_qty as $wh_qty) {
@@ -1551,16 +1567,13 @@ public function deactivate($id = NULL)
         return FALSE;
     }   
 
-    public function activate($id = NULL)
-    {
+    public function activate($id = NULL){
         if (($id)) {        
-
             $data = array(
                 'active' => 1
             );
 
         $return = $this->db->update('recipe', $data, array('id' => $id));
-
         return $return;
 
         }
@@ -1577,14 +1590,12 @@ public function deactivate($id = NULL)
     }
     
     function getCategoryNsubByName($category,$subcategory,$kitchenid){
-    $q = $this->db->get_where('recipe_categories', array('name' => $category), 1);
-    $return = array();
+       $q = $this->db->get_where('recipe_categories', array('name' => $category), 1);
+        $return = array();
         if ($q->num_rows() > 0) {
         $return = array();
         $cate = $q->row();
         $category_id = $cate->id;
-        
-        
         $s = $this->db->get_where('recipe_categories', array('name' => $subcategory,'parent_id'=>$category_id), 1);
         if ($s->num_rows() > 0) {
         $subcate = $s->row('id');
@@ -1594,7 +1605,6 @@ public function deactivate($id = NULL)
         $insertData['name'] = $subcategory;
         $insertData['parent_id'] = $category_id;
         $insertData['kitchens_id'] = $cate->kitchens_id;
-        $insertData['status'] = 1;
         $this->db->insert('recipe_categories',$insertData);
         $subcategoryid =$this->db->insert_id();
         }
@@ -1606,19 +1616,14 @@ public function deactivate($id = NULL)
         $insertData['name'] = $category;
         $insertData['kitchens_id'] = $kitchenid;
         $insertData['parent_id'] = 0;
-        $insertData['status'] = 1;
         $this->db->insert('recipe_categories',$insertData);
         $category_id =$this->db->insert_id();
-        
         $insertData['code'] = $this->generateCode();
         $insertData['name'] = $subcategory;
         $insertData['parent_id'] = $category_id;
-
         $insertData['kitchens_id'] = $kitchenid;
         $this->db->insert('recipe_categories',$insertData);
         $subcategoryid =$this->db->insert_id();
-        
-        
         $return['cat_id'] = $category_id;
         $return['subcat_id'] = $subcategoryid;
     }
@@ -1636,13 +1641,41 @@ public function deactivate($id = NULL)
        return $no;
     }    
 
-    function import_recipe($items){
-     foreach ($items as $item) {
+    function import_recipe($items,$cat_mapping_data){
+     foreach ($items as $key=>$item) {
         $warehouse = explode(',',$item['warehouse']);
         unset($item['warehouse']);
-        $this->db->insert('recipe', $item);//print_R($this->db->error());exit;
-        $id = $this->db->insert_id();
-        
+           $this->db->insert('recipe', $item);//print_R($this->db->error());exit;
+           $id = $this->db->insert_id();
+		 if(!empty($cat_mapping_data[$key])){
+			$cat_mapping_data[$key]['product_id']=$id;
+			$cat_mapping_data[$key]['status'] = 1;
+    	    $this->db->insert('category_mapping', $cat_mapping_data[$key]);	
+			$cm_id = $this->db->insert_id();
+			$store_id                     =$this->session->userdata('warehouse_id');
+    	    $stock_data['store_id']       = $store_id;
+    	    $stock_data['product_id']     = $id;	    
+    	    $stock_data['category_id']    = $cat_mapping_data[$key]['category_id'];
+    	    $stock_data['subcategory_id'] = $cat_mapping_data[$key]['subcategory_id'];
+    	    $stock_data['selling_price']  = $cat_mapping_data[$key]['purchase_cost'];
+    	    $stock_data['cost_price']     = $cat_mapping_data[$key]['selling_price'];
+    	    $stock_data['stock_in']       = $cat_mapping_data[$key]['stock'];
+			$stock_data['brand_id']       = $cat_mapping_data[$key]['brand_id'];
+			
+    	    $stock_data['stock_out']      = 0;
+    	    $stock_data['cm_id']          = $cm_id;
+			$cp              = str_replace('.','_',$cat_mapping_data[$key]['purchase_cost']);
+			$category_id     = $cat_mapping_data[$key]['category_id'];
+			$subcategory_id  = $cat_mapping_data[$key]['subcategory_id'];
+			$brand_id        = $cat_mapping_data[$key]['brand_id'];
+			$batch            ='';
+			$supplier        =0;
+			$invoice_id      =0;
+			 $stock_data['unique_id']=$store_id.$id.$batch.$category_id.$subcategory_id.$brand_id.$cp.$supplier.$invoice_id;
+			if($data['type'] !='quick_service'){
+				 $this->site->addStockMaster($stock_data);
+			}
+    	}
         foreach ($warehouse as $w_id) {
         $this->db->insert('warehouses_recipe', array('recipe_id' => $id, 'warehouse_id' => $w_id));
         }
@@ -1674,7 +1707,6 @@ public function deactivate($id = NULL)
     function getVarients($term,$existing){
     $this->db->select();
     $this->db->where(" (name LIKE '%" . $term . "%' OR native_name LIKE '%" . $term . "%') ");
-    
     $this->db->where_not_in('id',$existing);
     $q = $this->db->get('recipe_variants');
     return $q->result();
@@ -1685,13 +1717,11 @@ public function deactivate($id = NULL)
     $this->db->from('recipe_variants_values r');
     $this->db->join('recipe_variants v','v.id=r.attr_id');
     $this->db->where(array('r.recipe_id'=>$id));
-    //echo $this->db->get_compiled_select();
     $q = $this->db->get();//print_R($q->result());exit;
     if($q->num_rows()>0){
         return $q->result();
     }
     return false;
-    
     }
     function deleteRecipeVariant($id){
     $this->db->where('id',$id);
@@ -1711,8 +1741,7 @@ public function deactivate($id = NULL)
             $update_varient['attr_id'] = $varients['id'][$i];
             $update_varient['status'] = $varients['status_'.$id];
             $update_varient['recipe_id'] = $recipe_id;
-            if($varients['id'][$i] == $varients['preferred'][0])
-            {
+            if($varients['id'][$i] == $varients['preferred'][0]){
                 $update_varient['preferred'] = $varients['preferred'][0];
             }else{
                 $update_varient['preferred'] = 0;
@@ -1724,8 +1753,7 @@ public function deactivate($id = NULL)
             $add_varient['status'] = $varients['status'][$i];
             $add_varient['attr_id'] = $varients['id'][$i];
             $add_varient['recipe_id'] = $recipe_id;
-            if($varients['id'][$i] == $varients['preferred'][0])
-            {
+            if($varients['id'][$i] == $varients['preferred'][0]){
                 $add_varient['preferred'] = $varients['preferred'][0];
             } else{
                 $add_varient['preferred'] = 0;   
@@ -1736,8 +1764,8 @@ public function deactivate($id = NULL)
             if($cnt != 0){
                 $this->db->update('recipe', array('variants' => 1), array('id' => $recipe_id));          
             }     
-    }
-    return true;
+       }
+         return true;
     }
     function getVariantbyID($id){
     $this->db->select('*');
@@ -1745,10 +1773,10 @@ public function deactivate($id = NULL)
     $this->db->where(array('id'=>$id));
     //echo $this->db->get_compiled_select();
     $q = $this->db->get();//print_R($q->result());exit;
-    if($q->num_rows()>0){
+      if($q->num_rows()>0){
         return $q->row();
-    }
-    return false;
+      }
+        return false;
     }
 
     function getItemVariantbyID($id){
@@ -1759,36 +1787,35 @@ public function deactivate($id = NULL)
     $this->db->where('rvv.id',$id);
     $q = $this->db->get();//print_R($q->result());exit;
     // print_r($this->db->last_query());die;
-    if($q->num_rows()>0){
+      if($q->num_rows()>0){
         return $q->row();
-    }
-    return false;
+       }
+      return false;
     }
 
     function update_varient($id,$data){
-    $this->db->where('id',$id);
-    $this->db->update('recipe_variants',$data); 
-    return true;
+     $this->db->where('id',$id);
+     $this->db->update('recipe_variants',$data); 
+     return true;
     }
 
     function update_recipe_variants_values($id,$data){
-    $this->db->where('id',$id);
-    $this->db->update('recipe_variants_values',$data); 
-    return true;
+     $this->db->where('id',$id);
+     $this->db->update('recipe_variants_values',$data); 
+     return true;
     }
 /*variant end */
 
     
     function getPurchase_items($term,$existing,$type,$limit=10){
-
 	$this->db->select("p.id, (CASE WHEN p.code = '-' THEN p.name ELSE CONCAT(p.code, ' - ', p.name, ' ') END) as name,p.cost,u.id as unit_id,u.name as unit,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,cm.category_id,cm.subcategory_id,cm.brand_id,cm.id as cm_id", FALSE);
-        $this->db->from('recipe p');
+    $this->db->from('recipe p');
 	$this->db->join('category_mapping as cm','cm.product_id=p.id AND cm.status=1','left');
 	$this->db->join('recipe_categories as rc','rc.id=cm.category_id','left');
 	$this->db->join('recipe_categories rsc','rsc.id=cm.subcategory_id','left');	
 	$this->db->join('brands b','b.id=cm.brand_id','left');
 	$this->db->where(" (p.id LIKE '%" . $term . "%' OR p.name LIKE '%" . $term . "%' OR p.code LIKE '%" . $term . "%') ");
-        $this->db->where_not_in('p.id',$existing);
+    $this->db->where_not_in('p.id',$existing);
 	$this->db->where_in('p.type',array('raw','standard','semi_finished'));
 	$this->db->join('units u','u.id=p.unit');
 	//echo $this->db->get_compiled_select();exit;
@@ -1798,132 +1825,94 @@ public function deactivate($id = NULL)
             foreach (($q->result()) as $row) {
                 $data[] = $row;
             }
-			
-			
-
             return $data;
         }
         return '';
     }
 	
 	function getPurchase_items_new($term,$existing,$type,$limit=10){
-		
 		$this->db->select('r.*,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,cm.category_id,cm.subcategory_id,cm.brand_id,cm.purchase_cost,cm.selling_price as cost, cm.id as cm_id,u.name as unit_name');
 		$this->db->from('recipe r');
 		$this->db->join('category_mapping as cm','cm.product_id=r.id','left');
-		$this->db->join('recipe_categories as rc','rc.id=cm.category_id','left');
-		$this->db->join('recipe_categories rsc','rsc.id=cm.subcategory_id','left');	
+		$this->db->join('recipe_categories as rc','rc.id=cm.category_id');
+		$this->db->join('recipe_categories rsc','rsc.id=cm.subcategory_id');	
 		$this->db->join('brands b','b.id=cm.brand_id','left');
         $this->db->join('units u','u.id=r.unit');
+		if($this->Settings->item_search ==1){
 		$this->db->where("(r.name LIKE '%" . $term . "%' OR r.code LIKE '%" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '%" . $term . "%')");
+		}else{
+			$this->db->where("(r.name LIKE '" . $term . "%' OR r.code LIKE '" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '" . $term . "%')");
+		}
 		$this->db->where_not_in('cm.id',$existing);
-		$this->db->where_in('r.type',array('raw','semi_finished')); //'standard',
-        // $this->db->group_by('r.id');
+		$this->db->where_in('r.type',array('raw','semi_finished')); 
 		// echo $this->db->get_compiled_select();exit;
 		$this->db->limit($limit);
 		$q = $this->db->get(); 
-	
-		/* $this->db->select("p.id, (CASE WHEN p.code = '-' THEN p.name ELSE CONCAT(p.code, ' - ', p.name, ' ') END) as name,p.cost,u.id as unit_id,u.name as unit,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,cm.category_id,cm.subcategory_id,cm.brand_id,cm.id as cm_id", FALSE);
-		$this->db->from('recipe p');
-		$this->db->join('category_mapping as cm','cm.product_id=p.id AND cm.status=1','left');
-		$this->db->join('recipe_categories as rc','rc.id=cm.category_id','left');
-		$this->db->join('recipe_categories rsc','rsc.id=cm.subcategory_id','left');	
-		$this->db->join('brands b','b.id=cm.brand_id','left');
-		$this->db->where(" (p.id LIKE '%" . $term . "%' OR p.name LIKE '%" . $term . "%' OR p.code LIKE '%" . $term . "%') "); */
-		
-		
-		
 			if ($q->num_rows() > 0) {
 				foreach (($q->result()) as $row) {
+					$row->units=$this->site->getUnitsByBUID($row->unit);
 					$data[] = $row;
 				}
-				
 				return $data;
 			}
 			return '';
     }
 	
 	function getIngredientsMapping($id){
-		
-		
 		$this->db->select("*");
 		$this->db->from('recipe_products'); // SELECT * FROM `srampos_recipe_products` WHERE `recipe_id` = '518'
 		$this->db->where('recipe_id', $id);
-		//$this->db->join('category_mapping as cm','cm.product_id=p.id AND cm.status=1','left');
-		//$this->db->join('recipe_categories as rc','rc.id=cm.category_id','left');
-		//$this->db->join('recipe_categories rsc','rsc.id=cm.subcategory_id','left');	
-		//$this->db->join('brands b','b.id=cm.brand_id','left');
-		//$this->db->where(" (p.id LIKE '%" . $term . "%' OR p.name LIKE '%" . $term . "%' OR p.code LIKE '%" . $term . "%') ");
-		//	$this->db->where_not_in('p.id',$existing);
-		//$this->db->where_in('p.type',array('raw','semi_finished')); //'standard',
-		//$this->db->join('units u','u.id=p.unit');
-		//echo $this->db->get_compiled_select();exit;
-		//$this->db->limit($limit);
 		$q = $this->db->get(); 
-		
 		//echo $this->db->last_query();
-		
 			if ($q->num_rows() > 0) {
 				foreach (($q->result()) as $row) {
 					$data[] = $row;
 				}
-				
 				return $data;
 			}
 			return '';
 	}
 	
     function delete_purchase_item($id){
-	$this->db->where('id',$id);
-	$this->db->delete('recipe_products');
+	  $this->db->where('id',$id);
+	  $this->db->delete('recipe_products');
     }
     function recipe_stock($id){
 	$this->db->select();
 	$this->db->from('pro_stock_master');
 	$this->db->where('product_id',$id);
-	$q = $this->db->get();
-	return $q->result();
+	  $q = $this->db->get();
+	  return $q->result();
     }
+
+function getTotalStock($productID){
+    $this->db
+    ->select("SUM(stock_in-stock_out) as total_stock")
+    ->from('pro_stock_master')      
+    // ->join('warehouses','warehouses.id=pro_stock_master.store_id')
+    ->where('pro_stock_master.product_id',$productID)
+    ->where('pro_stock_master.store_id',$this->store_id);
+    $q = $this->db->get();
+     if($q->num_rows()>0){
+        return $q->row('total_stock');
+     }
+    return false;
+}
 
     public function getingrediends($id) {
         $q = $this->db->get_where('ingrediend_head', array('id' => $id), 1);
-
         if ($q->num_rows() > 0) {
             return $q->row();
         }
         return FALSE;
     }
-
 	public function getrecipeItemName($type) {
-		
-       /*  $this->db->select('id, name')
-		$this->db->from('srampos_recipe');
-        ->where('type', $type)
-		->where();
-		->order_by('name');
-		$q = $this->db->get();	*/
-		
-		/* $sql = "SELECT srampos_recipe.id, srampos_recipe.name, srampos_recipe.name FROM srampos_recipe  WHERE type ='".$type."' and srampos_recipe.id NOT IN (SELECT recipe_id FROM srampos_recipe_products) ORDER BY `srampos_recipe`.`id` DESC"; */
-		
-		/*$sql = "SELECT srampos_recipe.id, srampos_recipe.name, srampos_recipe_variants_values.attr_id, srampos_recipe_variants.name as varient_name FROM srampos_recipe LEFT JOIN srampos_recipe_variants_values ON srampos_recipe.id = srampos_recipe_variants_values.recipe_id LEFT JOIN srampos_recipe_variants ON srampos_recipe_variants.id = srampos_recipe_variants_values.attr_id WHERE type ='".$type."' and srampos_recipe.id NOT IN (SELECT recipe_id FROM srampos_recipe_products) ORDER BY `srampos_recipe`.`id` DESC";*/
-
-        /*21-08-2019 sivan variant added in this concept, So new query integrated
-
-         $sql = "SELECT R.id, R.name,R.price as recipe_price,RVV.attr_id, RV.name as varient_name,RVV.price as variant_price FROM srampos_recipe R 
-                LEFT JOIN srampos_recipe_variants_values AS RVV ON r.id = RVV.recipe_id
-                LEFT JOIN srampos_recipe_variants RV ON RV.id = RVV.attr_id 
-                WHERE type ='".$type."' and R.id NOT IN (SELECT recipe_id FROM srampos_recipe_products) ORDER BY R.id DESC"; 
-
-        21-08-2019*/
-
         $sql = "SELECT R.id, R.name,R.price as recipe_price,IFNULL(RVV.attr_id,0) as attr_id, IFNULL(RV.name,'') as varient_name,IFNULL(RVV.price,0) as variant_price FROM srampos_recipe R 
-        LEFT JOIN srampos_recipe_variants_values AS RVV ON r.id = RVV.recipe_id
+        LEFT JOIN srampos_recipe_variants_values AS RVV ON R.id = RVV.recipe_id
         LEFT JOIN srampos_recipe_variants RV ON RV.id = RVV.attr_id 
         WHERE type ='".$type."' AND (CASE WHEN R.variants = 0 THEN R.id NOT IN (SELECT recipe_id FROM srampos_recipe_products) 
         ELSE (R.id,RV.id) NOT IN ( SELECT recipe_id,variant_id FROM srampos_recipe_products)  END)  ORDER BY R.id DESC";    
 		$q = $this->db->query($sql);
-       
-		// echo $this->db->last_query();
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -1934,8 +1923,7 @@ public function deactivate($id = NULL)
         return false;
     }
 	
-	public function ingredients_mapping($recipe_pro,$ingrediends_head) //$production_array,
-    {
+	public function ingredients_mapping($recipe_pro,$ingrediends_head) {	
        if ($this->db->insert('ingrediend_head', $ingrediends_head)) {		
             $ingrediends_hd_id = $this->db->insert_id();	
 			if ($recipe_pro && !empty($recipe_pro)) {
@@ -1963,6 +1951,15 @@ public function deactivate($id = NULL)
             // print_r($this->db->error());die;
         return false;
     }
+
+      function delete_ingredient($id){
+        $this->db->where('ingrediends_hd_id',$id);
+        $this->db->delete('recipe_products'); 
+        $this->db->where('id',$id);
+        $this->db->delete('ingrediend_head'); 
+        return true;
+    }
+
     public  function getRecipeVariantsbyrecipeid($id){
     $this->db->select('v.id,v.name');
     $this->db->from('recipe_variants_values r');
@@ -1972,7 +1969,7 @@ public function deactivate($id = NULL)
     if($q->num_rows()>0){
         return $q->result();
     }
-    return false;
+      return false;
     
     }
 
@@ -1989,8 +1986,7 @@ public function deactivate($id = NULL)
         return false;
     
     }
-    public function getrecipeAddonDetails($term, $limit = 10)
-    {
+    public function getrecipeAddonDetails($term, $limit = 10){
         $this->db->select('*')
             ->where('type', 'addon')
             ->where("name LIKE '%" . $term . "%' ");
@@ -2005,10 +2001,8 @@ public function deactivate($id = NULL)
         return false;
     }
         
-    public function recipe_variant_addoninsert($add_on, $addon_items)
-    {
+    public function recipe_variant_addoninsert($add_on, $addon_items){
         if ($this->db->insert('recipe_addon', $add_on)) {
-            
             $addon_head_id = $this->db->insert_id();
             if ($addon_items && !empty($addon_items)) {
                 foreach ($addon_items as $item) {
@@ -2020,9 +2014,7 @@ public function deactivate($id = NULL)
         }
         return false;
     }
-        public function updaterecipe_variant_addon($id, $add_on, $addon_items)
-    {
-        
+    public function updaterecipe_variant_addon($id, $add_on, $addon_items){
         if ($this->db->update('recipe_addon', $add_on, array('id' => $id))) {
             $this->db->delete('recipe_addon_details', array('addon_head_id' => $id));
             if ($addon_items && !empty($addon_items)) {
@@ -2072,20 +2064,96 @@ public function getrecipevariantaddondetails($id){
      }
      return false;
 }
-/*public function getrecipeAddonDetails($term, $limit = 10)
-    {
-        $this->db->select("id,name,code", FALSE);
-        $this->db->where(" type = 'addon' AND (id LIKE '%" . $term . "%' OR name LIKE '%" . $term . "%' OR code LIKE '%" . $term . "%') ");
-        $q = $this->db->get('recipe', '', $limit);    
-        // print_r($this->db->last_query())    ;die;
-        if ($q->num_rows() > 0) {
-            foreach (($q->result()) as $row) {
-                $data[] = $row;
-            }
 
-            return $data;
-        }
-         return '';
-    }*/
-
+  function   get_ingredient_productlist($ingrediends_id){
+	  $this->db->select("recipe_id,variant_id,recipe.type");
+	  $this->db->join("recipe","recipe.id=recipe_products.recipe_id","left");
+	  $this->db->where("ingrediends_hd_id",$ingrediends_id);
+	  $this->db->group_by("ingrediends_hd_id");
+	  $q=$this->db->get("recipe_products");
+	  if($q->num_rows()>0){
+		$q=$q->row();
+		$sql = "SELECT R.id, R.name,R.price as recipe_price,IFNULL(RVV.attr_id,0) as attr_id, IFNULL(RV.name,'') as varient_name,IFNULL(RVV.price,0) as variant_price FROM srampos_recipe R 
+        LEFT JOIN srampos_recipe_variants_values AS RVV ON R.id = RVV.recipe_id
+        LEFT JOIN srampos_recipe_variants RV ON RV.id = RVV.attr_id 
+        WHERE type ='".$q->type."'    ORDER BY R.id DESC";    
+		$s = $this->db->query($sql);
+		if($s->num_rows()>0){
+			foreach($s->result() as $row){
+				$data[]=$row;
+			}
+			return $data;
+		}
+		return false;
+	  }
+	  return false;
+  }
+  
+  function get_ingredientHead($id){
+	  $this->db->select("*");
+	  $this->db->where("id",$id);
+	  $q=$this->db->get("ingrediend_head");
+	  if($q->num_rows()>0){
+		  return $q->row();
+	  }
+	 return false;
+  }
+  function   get_ingredient_product($ingrediends_id){
+	  $this->db->select("recipe_id,variant_id,recipe.type");
+	  $this->db->join("recipe","recipe.id=recipe_products.recipe_id","left");
+	  $this->db->where("ingrediends_hd_id",$ingrediends_id);
+	  $this->db->group_by("ingrediends_hd_id");
+	  $q=$this->db->get("recipe_products");
+	  if($q->num_rows()>0){
+		 if($q->num_rows()>0){
+		$q=$q->row();
+		$sql = "SELECT R.id, R.name,R.price as recipe_price,IFNULL(RVV.attr_id,0) as attr_id, IFNULL(RV.name,'') as varient_name,IFNULL(RVV.price,0) as variant_price FROM srampos_recipe R 
+        LEFT JOIN srampos_recipe_variants_values AS RVV ON R.id = RVV.recipe_id
+        LEFT JOIN srampos_recipe_variants RV ON RV.id = RVV.attr_id 
+        WHERE  RVV.attr_id='".$q->variant_id."' AND RVV.recipe_id='".$q->recipe_id."' "; 
+		$s = $this->db->query($sql);
+		if($s->num_rows()>0){
+			$data=$s->row();
+			$data->type=$q->type;
+		return $data;
+		}
+	  }
+	  return false;
+  }
+  }
+  function getRecipe_categoryMapping($recipe_id){
+	  $sql="SELECT rc.name as c,rsc.name as sc,b.name as b, cm.purchase_cost,  cm.selling_price 
+	        FROM `srampos_recipe` `r`
+			LEFT JOIN `srampos_category_mapping` AS `cm` ON `cm`.`product_id`=`r`.`id`
+			LEFT JOIN `srampos_recipe_categories` AS `rc` ON `rc`.`id`=`cm`.`category_id`
+			LEFT JOIN `srampos_recipe_categories` `rsc` ON `rsc`.`id`=`cm`.`subcategory_id`
+			LEFT JOIN `srampos_brands` `b` ON `b`.`id`=`cm`.`brand_id`
+			LEFT JOIN `srampos_tax_rates` `t` ON `r`.`purchase_tax`=`t`.`id`
+			LEFT JOIN `srampos_units` `u` ON `u`.`id`=`r`.`unit`  
+			WHERE r.id=".$recipe_id."";
+			$s = $this->db->query($sql);
+			if($s->num_rows()>0){
+			foreach($s->result() as $row){
+				$data[]=$row;
+			}
+			return $data;
+		}
+		 return false;
+	  }
+	 function recent_ingrediend_head($id){
+		 $this->db->where("id",$id);
+		 $this->db->update("ingrediend_head",array("created_on"=>date('Y-m-d H:i:s')));
+		 return true;
+	 }
+	 function getBrand($name){
+		 $q=$this->db->get_where("brands",array("name"=>$name));
+		 if($q->num_rows()>0){
+			 return $q->row('id');
+		 }else{
+			 $this->db->insert("",array("code"=>$name,"name"=>$name));
+			 return $this->db->insert_id();
+		 }
+		 return false;
+	 }
+	
 }

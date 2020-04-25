@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html> 
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Srampos Api Details</title>	
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">    
+        <link rel="stylesheet" href="http://demo.callmycab.in/assets/adminlte/bootstrap/css/bootstrap.min.css">
+    </head>
+    <body>
+        
+        <h3>Bill Print from steward</h3> <span>Done by Tharani</span>
+        <pre>
+            <b>To list bills for reprint
+            **************************</b>
+            
+                API - pos/reprint
+                Method :GET
+                Parameters :
+                    api-key
+                    devices_key
+                    user_id
+                    group_id
+                    warehouse_id
+                    date [format - yyyy-mm-dd]
+                    bill_no[optional]
+                    type [all, 0, 1] [0-print,1-dont print]
+        
+        </pre>
+        <pre>
+            <b>Reprint single bill using bill id - sends to printer
+            ***************************************************</b>
+                API: pos/reprint_bill [reprint single bill using bill id - sends to printer]
+                Method: GET
+                Parameters:
+                    api-key
+                    devices_key
+                    user_id
+                    group_id
+                    warehouse_id
+                    bill_id
+                
+        </pre>
+        <pre>
+            <b>Before payment bill print - sends to printer
+            ********************************************</b>
+                API: pos/bill_print
+                Method: GET
+                Parameters:
+                    api-key
+                    devices_key
+                    user_id
+                    group_id
+                    warehouse_id
+                    bill_id
+        </pre>
+    </body>
+</html>
+    
+    
+    
+
+

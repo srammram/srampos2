@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_pos_settings` ADD `table_size` TINYINT NOT NULL AFTER `table_change`;

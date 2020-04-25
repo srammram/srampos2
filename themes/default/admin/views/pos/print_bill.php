@@ -56,10 +56,10 @@ $biller = $this->site->getCompanyOrderByID($bill_items['biller_id']); ?>
 
 <div id="bill-total-table">
 <table class="table table-striped table-condensed" style="font-size:14px!important;">
-                    <tr>
-                        <th colspan="2"><?=lang("description");?></th>
+                    <tr >
+                        <th colspan="2" style="background-color:red;"><?=lang("description");?></th>
                         <th><?=lang("price");?></th>
-                        <th><?=lang("qty");?></th>
+                        <th class="text-center"><?=lang("qty");?></th>
                         <?php 
                         $cols="4";
                         if($manual_discount_amount != 0){
@@ -72,7 +72,7 @@ $biller = $this->site->getCompanyOrderByID($bill_items['biller_id']); ?>
                         ?>
                                 <th><?=lang($dis);?></th>
                            <?php } ?>
-                        <th class="text-center"><?=lang("sub_total");?></th>
+                        <th class="text-right"><?=lang("sub_total");?></th>
                     </tr>
                     <tr>
                         <?php
@@ -115,7 +115,11 @@ $biller = $this->site->getCompanyOrderByID($bill_items['biller_id']); ?>
                                 $underline ='underline';
                            }else{
                                 $underline ='none';
-                           }							
+                           }
+						   //for complimentary
+						if($bill['recipe_price'] ==0){
+							$underline ='underline';
+						}
                             echo '<tr><td colspan="2" style="display: table-cell;text-align: -webkit-match-parent;text-decoration:'.$underline.'"  class="no-border">' . ($star)  . ($recipe_name) . ($recipe_variant ? ' ' . $recipe_variant . '' : ''); 
 
                             $addondetails = $this->site->getAddonByRecipeidAndOrderitemid($bill['recipe_id'],$bill['order_item_id']);
@@ -246,7 +250,7 @@ $biller = $this->site->getCompanyOrderByID($bill_items['biller_id']); ?>
                                 echo '<tr><th colspan="5" class="text-left"><small>Underlined Items are manually Discount is applied.</small></th></tr>';
                             }
                         }    
-
+ // echo '<tr><th colspan="5" class="text-left"><small>Underlined Items are complimentary Items.</small></th></tr>';
                         ?>
 
                       <!--   <tr>

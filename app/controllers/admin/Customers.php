@@ -20,8 +20,7 @@ class Customers extends MY_Controller
         $this->load->admin_model('companies_model');
     }
 
-    function index($action = NULL)
-    {
+    function index($action = NULL){
         $this->sma->checkPermissions();
 
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
@@ -628,6 +627,19 @@ function suggestions_new($term = NULL, $limit = NULL)
             }
         $this->sma->send_json($pr);
         
+    }
+	function suggestions_with_discount_card($term = NULL, $limit = NULL)
+    {
+        // $this->sma->checkPermissions('index');
+        if ($this->input->get('term')) {
+            $term = $this->input->get('term', TRUE);
+        }
+        if (strlen($term) < 1) {
+            return FALSE;
+        }
+        $limit = $this->input->get('limit', TRUE);
+        $rows['results'] = $this->companies_model->getCustomerSuggestions_with_discount_card($term, $limit);
+        $this->sma->send_json($rows);
     }
     function getCustomer($id = NULL)
     {

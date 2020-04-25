@@ -1,17 +1,12 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class system_settings extends MY_Controller
-{
-
-    function __construct()
-    {
+class system_settings extends MY_Controller{
+    function __construct(){
         parent::__construct();
-
         if (!$this->loggedIn) {
             $this->session->set_userdata('requested_page', $this->uri->uri_string());
             $this->sma->md('login');
         }
-
         if (!$this->Owner) {
             //$this->session->set_flashdata('warning', lang('access_denied'));
             //redirect('admin');
@@ -26,8 +21,7 @@ class system_settings extends MY_Controller
         $this->allowed_file_size = '1024';
     }
 
-    function index()
-    {
+    function index(){
         $this->load->library('gst');
         $this->form_validation->set_rules('site_name', lang('site_name'), 'trim|required');
         $this->form_validation->set_rules('dateformat', lang('dateformat'), 'trim|required');
@@ -225,17 +219,30 @@ class system_settings extends MY_Controller
 		'bill_request_notify_no_of_times' => $this->input->post('bill_request_notify_no_of_times'),
 		'financial_yr_from'=>$this->input->post('financial_yr_from'),
 		'financial_yr_to' => $this->input->post('financial_yr_to'),
-                'supply_chain' => $this->input->post('supply_chain'),
+        'supply_chain' => $this->input->post('supply_chain'),
 		'transaction_date' => $this->input->post('transaction_date'),
         'special_item_enable' => $this->input->post('special_item_enable'),
-	'store_type' => $this->input->post('store_type'),
+	    'store_type' => $this->input->post('store_type'),
 	
 	'login_warehouse_required' => $this->input->post('login_warehouse_required'),
 	'login_group_required' => $this->input->post('login_group_required'),
 	'notification_start_interval' => $this->input->post('notification_start_interval'),
-	'rough_tender' => $this->input->post('rough_tender')
+	'rough_tender' => $this->input->post('rough_tender'),
+	'archival' => $this->input->post('archival'),
+	'archival_report' => $this->input->post('archival_report'),
+	'shift_enable' => $this->input->post('shift_enable'),
+	'open_til_enable' => $this->input->post('open_til_enable'),
+	'shift_user_handling' => $this->input->post('shift_user_handling'),
+	'shift_opencash_next_days_continue' => $this->input->post('shift_opencash_next_days_continue'),
+	'shift_opencash_setting_pos' => $this->input->post('shift_opencash_setting_pos'),
+	'opening_cash_type' => $this->input->post('opening_cash_type'),
+	'opening_cash_usd' => $this->input->post('opening_cash_usd'),
+	'opening_cash_khmr' => $this->input->post('opening_cash_khmr'),
+	'item_search' => $this->input->post('item_search'),
+//	'archival_days' => $this->input->post('archival_days')
 		
 		);
+	
             file_put_contents('themes\default\admin\assets\js\socket\socket_configuration.js','var socket_port='.$data['socket_port'].';var socket_host="'.$data['socket_host'].'";var socket_enable="'.$data['socket_enable'].'";');
             if ($this->input->post('smtp_pass')) {
                 $data['smtp_pass'] = $this->input->post('smtp_pass');
@@ -1659,6 +1666,8 @@ public function view_bbq_daywise_discount($id = null)
 				 'pos-orders' => $this->input->post('pos-orders'),
 				 'pos-kitchens' => $this->input->post('pos-kitchens'),
 				 'pos-billing' => $this->input->post('pos-billing'),
+				 'pos-qsr' => $this->input->post('pos-qsr'),
+				 'pos-bbq' => $this->input->post('pos-bbq'),
 				 'pos-table_view' => $this->input->post('pos-table_view'),
 				 'pos-table_add' => $this->input->post('pos-table_add'),
 				 'pos-table_edit' => $this->input->post('pos-table_edit'),
@@ -1701,6 +1710,8 @@ public function view_bbq_daywise_discount($id = null)
                  'pos-cancel_sales' => $this->input->post('pos-cancel_sales'),
                  'pos-resettle_sales' => $this->input->post('pos-resettle_sales'),
                  'pos-qsr_bill_print' => $this->input->post('pos-qsr_bill_print'),
+				  'pos-change_customer' => $this->input->post('pos-change_customer'),
+				    'pos-resettlement' => $this->input->post('pos-resettlement'),
 				/*'pos-waiter' => $this->input->post('pos-waiter'),
 				'pos-kitchen' => $this->input->post('pos-kitchen'),
 				'pos-cashier' => $this->input->post('pos-cashier'),
@@ -1842,6 +1853,7 @@ public function view_bbq_daywise_discount($id = null)
                 'billers-excel' => $this->input->post('billers-excel'),
                 'pos-cancel_order_remarks' => $this->input->post('pos-cancel_order_remarks'),
                 'pos-view_allusers_orders' => $this->input->post('pos-view_allusers_orders'),
+				 'pos-member_discount' => $this->input->post('pos-member_discount'),
                 'pos-add_printer'=>$this->input->post('pos-add_printer'),
 		'pos-edit_printer'=>$this->input->post('pos-edit_printer'),
 		'pos-printers'=>$this->input->post('pos-printers'),
@@ -2003,6 +2015,15 @@ public function view_bbq_daywise_discount($id = null)
         'include_reports_view_access' => $this->input->post('include_reports_view_access'),
         'exclude_reports_view_access' => $this->input->post('exclude_reports_view_access'),
         'bbq_daywise_discount_edit_permission' => $this->input->post('bbq_daywise_discount_edit_permission'),
+		
+		'shiftmaster-index' => $this->input->post('shiftmaster-index'),
+		'shiftmaster-add' => $this->input->post('shiftmaster-add'),
+		'shiftmaster-edit' => $this->input->post('shiftmaster-edit'),
+		'shiftmaster-delete' => $this->input->post('shiftmaster-delete'),
+		'pos-shift_create' => $this->input->post('pos-shift_create'),
+		'pos-shift_settlement' => $this->input->post('pos-shift_settlement'),
+		'pos-shift_view' => $this->input->post('pos-shift_view'),
+		'pos-shift_reprint' => $this->input->post('pos-shift_reprint'),
             );
 
             if (POS) {
@@ -2251,11 +2272,9 @@ public function view_bbq_daywise_discount($id = null)
     }
 	
 
-    function getCategories()
-    {
-	$this->sma->checkPermissions('categories');
+    function getCategories(){
+	    $this->sma->checkPermissions('categories');
         $print_barcode = anchor('admin/products/print_barcodes/?category=$1', '<i class="fa fa-print"></i>', 'title="'.lang('print_barcodes').'" class="tip"');
-
         $this->load->library('datatables');
         $this->datatables
             ->select("'sno',{$this->db->dbprefix('recipe_categories')}.id as id, {$this->db->dbprefix('recipe_categories')}.image, {$this->db->dbprefix('recipe_categories')}.code, {$this->db->dbprefix('recipe_categories')}.name,  c.name as parent", FALSE)
@@ -2264,20 +2283,17 @@ public function view_bbq_daywise_discount($id = null)
             ->group_by('recipe_categories.id')
 	    ->where('recipe_categories.type',1)
             ->add_column("Actions", "<div class=\"text-center\">".$print_barcode." <a href='" . admin_url('system_settings/edit_category/$1') . "' data-toggle='modal' data-target='#myModal' class='tip' title='" . lang("edit_category") . "'><i class=\"fa fa-edit\"></i></a> <a href='#' class='tip po' title='<b>" . lang("delete_category") . "</b>' data-content=\"<p>" . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete' href='" . admin_url('system_settings/delete_category/$1') . "'>" . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i></a></div>", "id");
-
-        echo $this->datatables->generate();
+			echo $this->datatables->generate();
     }
 	
-    function add_category()
-    {
-	$this->sma->checkPermissions();
+    function add_category(){
+	    $this->sma->checkPermissions();
         $this->load->helper('security');
-	$pid = $this->input->post('parent');
+	    $pid = $this->input->post('parent');
         $this->form_validation->set_rules('code', lang("category_code"), 'trim|is_unique[categories.code]|required');
         $this->form_validation->set_rules('name', lang("name"), 'required|min_length[3]|callback_is_unique_category['.$pid.']');
        // $this->form_validation->set_rules('slug', lang("slug"), 'required|is_unique[categories.slug]|alpha_dash');
         $this->form_validation->set_rules('userfile', lang("category_image"), 'xss_clean');
-
         if ($this->form_validation->run() == true) {
             $data = array(
                 'name' => $this->input->post('name'),
@@ -2288,7 +2304,6 @@ public function view_bbq_daywise_discount($id = null)
                 'type'=>1,
 		        'status'=>1
                 );
-
             if ($_FILES['userfile']['size'] > 0) {
                 $this->load->library('upload');
                 $config['upload_path'] = $this->upload_path;
@@ -2348,8 +2363,7 @@ public function view_bbq_daywise_discount($id = null)
             $error = validation_errors();
             $response['error'] = $error;
             echo json_encode($response);exit;
-            //$this->session->set_flashdata('error', validation_errors());
-            //admin_redirect("system_settings/categories");
+            
         }
 
         if ($this->form_validation->run() == true && $sid = $this->settings_model->addCategory($data)) {
@@ -2362,15 +2376,13 @@ public function view_bbq_daywise_discount($id = null)
             echo json_encode($response);exit;
             //admin_redirect("system_settings/categories");
         } else {
-
             $this->data['error'] = validation_errors() ? validation_errors() : $this->session->flashdata('error');
             $this->data['categories'] = $this->settings_model->getParentCategories();
             $this->data['modal_js'] = $this->site->modal_js();
-          
 	//    if(isset($_GET['sub'])){
 	//	$this->load->view($this->theme . 'settings/add_subcategory', $this->data);
 	//    }else{
-		$this->load->view($this->theme . 'settings/add_category', $this->data);
+		  $this->load->view($this->theme . 'settings/add_category', $this->data);
 	    //}
 
         }
@@ -3701,34 +3713,41 @@ public function view_bbq_daywise_discount($id = null)
     /*********************** customer discount end *********************/
     
     
-    function buy_get()
-    {
+    function buy_get(){
 	$this->sma->checkPermissions();
         $this->data['error'] = validation_errors() ? validation_errors() : $this->session->flashdata('error');
-
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('system_settings'), 'page' => lang('system_settings')), array('link' => '#', 'page' => lang('Buy & Get')));
         $meta = array('page_title' => lang('Buy & Get'), 'bc' => $bc);
         $this->page_construct('settings/buy', $meta, $this->data);
     }
-	
-	
-	function getBuy()
-    {
+	function getBuy(){
 	$this->sma->checkPermissions('buy_get');
         $this->load->library('datatables');
         $this->datatables
             ->select("'sno',id, name, buy_method, start_date, end_date, start_time, end_time, status")
             ->from("buy_get")
-            ->add_column("Actions", "<div class=\"text-center\"><a href='" . admin_url('system_settings/edit_buy/$1') . "' class='tip' title='" . lang("edit_buy & get") . "' ><i class=\"fa fa-edit\"></i></a> <a href='#' class='tip po' title='<b>" . lang("delete_buy & get") . "</b>' data-content=\"<p>" . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete' href='" . admin_url('system_settings/delete_buy/$1') . "'>" . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i></a></div>", "id");
+            ->add_column("Actions", "<div class=\"text-center\"><a href='" . admin_url('system_settings/view_buy_get/$1') . "' class='btn-primary btn-xs tip' title='" . lang("view_buy_get") . "' data-toggle='modal' data-target='#myModal'><i class=\"fa fa-eye\"></i></a><a style='margin-left:2px;' href='" . admin_url('system_settings/edit_buy/$1') . "' class='tip' title='" . lang("edit_buy & get") . "' ><i class=\"fa fa-edit\"></i></a> <a href='#' class='tip po' title='<b>" . lang("delete_buy & get") . "</b>' data-content=\"<p>" . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete' href='" . admin_url('system_settings/delete_buy/$1') . "'>" . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i></a></div>", "id")
+			 ->edit_column('status', '$1__$2', 'status, id');
         //->unset_column('id');
-
         echo $this->datatables->generate();
     }
+	 public function view_buy_get($id = null){
+         $this->data['page_title'] = lang('View_buy_get');        
+         $this->data['buy'] = $this->settings_model->getBuyByID($id); 
+		 $this->data['recipe'] = $this->site->getAllRecipes();
+         $this->data['recipe_category'] = $this->site->getAllrecipeCategories();
+		 $this->data['item_row'] =$item= $this->settings_model->getBuyItems($id);   
+		 $this->data['buy_variants'] = $this->settings_model->get_recipe_variant($item->buy_item);
+		 $this->data['get_variants'] = $this->settings_model->get_recipe_variant($item->get_item);	
+         $this->data['id'] = $id;
+         $this->data['modal_js'] = $this->site->modal_js();
+         $this->load->view($this->theme . 'settings/view_buy', $this->data);
+    }   
 	
-	function add_buy()
-    {
-	$this->sma->checkPermissions();
-        $this->form_validation->set_rules('name', lang("name"), 'trim|is_unique[buy_get.name]|required');
+	function add_buy(){
+		$this->sma->checkPermissions();
+       // $this->form_validation->set_rules('name', lang("name"), 'trim|is_unique[buy_get.name]|required');
+		$this->form_validation->set_rules('name', lang("name"), 'required');
         $this->form_validation->set_rules('buy_method', lang("buy_method"), 'required');
 		$this->form_validation->set_rules('start_date', lang("start_date"), 'required');
 		$this->form_validation->set_rules('end_date', lang("end_date"), 'required');
@@ -3736,11 +3755,7 @@ public function view_bbq_daywise_discount($id = null)
 		$this->form_validation->set_rules('end_time', lang("end_time"), 'required');
 		$this->form_validation->set_rules('buy_quantity', lang("buy_quantity"), 'required');
 		$this->form_validation->set_rules('get_quantity', lang("get_quantity"), 'required');
-
-			
         if ($this->form_validation->run() == true) {
-
-						
             $buy_array = array('name' => $this->input->post('name'),
                 'buy_method' => $this->input->post('buy_method'),
                 'start_date' => date('Y-m-d', strtotime($this->input->post('start_date'))),
@@ -3751,33 +3766,26 @@ public function view_bbq_daywise_discount($id = null)
 				'get_quantity' => $this->input->post('get_quantity'),
 				'status' => 'Open',
                 'created_on' =>date('Y-m-d-H-i-s'),
+				'week_days' => implode(',', $this->input->post('weekdays')) ? implode(',', $this->input->post('weekdays')) : ''  
             );
-			
-			for($i=0; $i<count($this->input->post('buy_type')); $i++){
-				$item_array[] = array(
-					'buy_type' => $_POST['buy_type'][$i],
-					'buy_item' => $_POST['buy_item'][$i],
-					'get_item' => $_POST['get_item'][$i],
+				$item_array = array(
+					'buy_type' => $_POST['buy_type'],
+					'buy_item' => $_POST['buy_item'],
+					'get_item' => $_POST['get_item'],
+					'buy_variant_id'=>$_POST['buy_variant_id'],
+					'get_variant_id'=>$_POST['get_variant_id']				
 				);
-			}
-			
-           // $this->sma->print_arrays($buy_array, $item_array);
-			//die;
         } elseif ($this->input->post('add_buy')) {
             $this->session->set_flashdata('error', validation_errors());
             admin_redirect("system_settings/buy_get");
         }
-		
         if ($this->form_validation->run() == true && $this->settings_model->addBuy($buy_array, $item_array)) {
             $this->session->set_flashdata('message', lang("buy & get_added"));
             admin_redirect("system_settings/buy_get");
         } else {
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-			
 			$this->data['recipe'] = $this->site->getAllRecipes();
 			$this->data['recipe_category'] = $this->site->getAllrecipeCategories();
-			
-
 			$bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('system_settings'), 'page' => lang('system_settings')), array('link' => '#', 'page' => lang('Buy & get')));
         	$meta = array('page_title' => lang('Add Buy & get'), 'bc' => $bc);
 			$this->page_construct('settings/add_buy', $meta, $this->data);
@@ -3785,16 +3793,14 @@ public function view_bbq_daywise_discount($id = null)
     }
     
 	
-	function edit_buy($id = NULL)
-	{
+	function edit_buy($id = NULL){
 	    $this->sma->checkPermissions();
 		$this->form_validation->set_rules('name', lang("name"), 'trim|required');
         $buy_details = $this->settings_model->getBuyByID($id); 
-		
         if ($this->input->post('name') != $buy_details->name) {
-            $this->form_validation->set_rules('name', lang("name"), 'required|is_unique[buy_get.name]');
+         //   $this->form_validation->set_rules('name', lang("name"), 'required|is_unique[buy_get.name]');
+		    $this->form_validation->set_rules('name', lang("name"), 'required');
         }
-		
         $this->form_validation->set_rules('buy_method', lang("buy_method"), 'required');
 		$this->form_validation->set_rules('start_date', lang("start_date"), 'required');
 		$this->form_validation->set_rules('end_date', lang("end_date"), 'required');
@@ -3802,10 +3808,7 @@ public function view_bbq_daywise_discount($id = null)
 		$this->form_validation->set_rules('end_time', lang("end_time"), 'required');
 		$this->form_validation->set_rules('buy_quantity', lang("buy_quantity"), 'required');
 		$this->form_validation->set_rules('get_quantity', lang("get_quantity"), 'required');
-
         if ($this->form_validation->run() == true) {
-			
-						
             $buy_array = array('name' => $this->input->post('name'),
                 'buy_method' => $this->input->post('buy_method'),
                 'start_date' => date('Y-m-d', strtotime($this->input->post('start_date'))),
@@ -3815,61 +3818,54 @@ public function view_bbq_daywise_discount($id = null)
 				'buy_quantity' => $this->input->post('buy_quantity'),
 				'get_quantity' => $this->input->post('get_quantity'),
                 'created_on' =>date('Y-m-d-H-i-s'),
+				'week_days' => implode(',', $this->input->post('weekdays')) ? implode(',', $this->input->post('weekdays')) : ''
             );
-			for($i=0; $i<count($this->input->post('buy_type')); $i++){
-				$item_array[] = array(
-					'buy_type' => $_POST['buy_type'][$i],
-					'buy_item' => $_POST['buy_item'][$i],
-					'get_item' => $_POST['get_item'][$i],
-				);
-			}
 			
-           
+				$item_array = array(
+					'buy_type' => $_POST['buy_type'],
+					'buy_item' => $_POST['buy_item'],
+					'get_item' => $_POST['get_item'],
+					'buy_variant_id'=>$_POST['buy_variant_id'],
+					'get_variant_id'=>$_POST['get_variant_id']				
+				);
         } elseif ($this->input->post('edit_buy')) {
             $this->session->set_flashdata('error', validation_errors());
             admin_redirect("system_settings/buy_get");
         }
-
-        if ($this->form_validation->run() == true && $this->settings_model->editDiscount($buy_array, $item_array, $id)) {
-
-            $this->session->set_flashdata('message', lang("discount_edited"));
+        if ($this->form_validation->run() == true && $this->settings_model->editBuy($buy_array, $item_array, $id)) {
+            $this->session->set_flashdata('message', lang("buy_Get_edited"));
             admin_redirect("system_settings/buy_get");
         } else {
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
+			$this->data['recipe'] =$recipe=$this->site->getAllRecipes();
 			
-			$this->data['recipe'] = $this->site->getAllRecipes();
 			$this->data['recipe_category'] = $this->site->getAllrecipeCategories();
-			
             //$this->data['modal_js'] = $this->site->modal_js();
 			$bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('system_settings'), 'page' => lang('system_settings')), array('link' => '#', 'page' => lang('Buy & Get')));
         	$meta = array('page_title' => lang('Edit Buy & Get'), 'bc' => $bc);
 			$this->data['id'] = $id;
 			$this->data['buy'] = $buy_details;
-			$this->data['item'] = $this->settings_model->getBuyItems($id);
-			
+			//$this->data['variants'] = $this->site->getAllRecipes($recipe->);
+			$this->data['item'] =$item= $this->settings_model->getBuyItems($id);
+			$this->data['buy_variants'] = $this->settings_model->get_recipe_variant($item->buy_item);
+			$this->data['get_variants'] = $this->settings_model->get_recipe_variant($item->get_item);
 			$this->page_construct('settings/edit_buy', $meta, $this->data);
             //$this->load->view($this->theme . 'settings/add_discount', $this->data);
-			
         }
     }
 
    
 	
-	function delete_buy($id = NULL)
-    {
+	function delete_buy($id = NULL){
 	$this->sma->checkPermissions();
-        if ($this->settings_model->deleteDiscount($id)) {
+        if ($this->settings_model->delete_buy_x_get_x($id)) {
             $this->sma->send_json(array('error' => 0, 'msg' => lang("discount_deleted")));
         }
     }
 
-    function tax_actions()
-    {
-
+    function tax_actions(){
         $this->form_validation->set_rules('form_action', lang("form_action"), 'required');
-
         if ($this->form_validation->run() == true) {
-
             if (!empty($_POST['val'])) {
                 if ($this->input->post('form_action') == 'delete') {
                     foreach ($_POST['val'] as $id) {
@@ -4199,6 +4195,7 @@ public function view_bbq_daywise_discount($id = null)
                 'phone' => $this->input->post('phone'),
                 'email' => $this->input->post('email'),
                 'address' => $this->input->post('address'),
+				'vat_number' => $this->input->post('vat_number'),
                 'parent_warehouses'=>(isset($_POST['parent_warehouses']))?implode(',',$_POST['parent_warehouses']):'',
                 'map' => $map,
             );
@@ -4236,6 +4233,7 @@ public function view_bbq_daywise_discount($id = null)
                 'phone' => $this->input->post('phone'),
                 'email' => $this->input->post('email'),
                 'address' => $this->input->post('address'),
+				'vat_number' => $this->input->post('vat_number'),
                 'parent_warehouses'=>(isset($_POST['parent_warehouses']))?implode(',',$_POST['parent_warehouses']):'',
 		'map' => $map,
             );
@@ -4518,6 +4516,96 @@ $this->sma->checkPermissions('sales_type');
     {$this->sma->checkPermissions();
         if ($this->settings_model->deleteSales_type($id)) {
             $this->sma->send_json(array('error' => 0, 'msg' => lang("sales_type_deleted")));
+        }
+    }
+	
+	function tills()
+    {
+
+        $this->data['error'] = validation_errors() ? validation_errors() : $this->session->flashdata('error');
+
+        $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('system_settings'), 'page' => lang('system_settings')), array('link' => '#', 'page' => lang('tills')));
+        $meta = array('page_title' => lang('tills'), 'bc' => $bc);
+        $this->page_construct('settings/tills', $meta, $this->data);
+    }
+
+    function getTills()
+    {
+
+        $this->load->library('datatables');
+        $this->datatables
+            ->select("'sno',id, system_name,system_ip, till_name")
+            ->from("tills")
+            ->add_column("Actions", "<div class=\"text-center\"><a href='" . admin_url('system_settings/edit_tills/$1') . "' class='tip' title='" . lang("edit_tills") . "' data-toggle='modal' data-target='#myModal'><i class=\"fa fa-edit\"></i></a> <a href='#' class='tip po' title='<b>" . lang("delete_tills") . "</b>' data-content=\"<p>" . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete' href='" . admin_url('system_settings/delete_tills/$1') . "'>" . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i></a></div>", "id");
+        //->unset_column('id');
+        echo $this->datatables->generate();
+    }
+
+    function add_tills()
+    {
+       
+        $this->form_validation->set_rules('system_ip', lang("system_ip"), 'trim|is_unique[tills.system_ip]|required');
+
+        if ($this->form_validation->run() == true) {
+             $data = array(
+                'system_name' => $this->input->post('system_name'),
+                'system_ip' => $this->input->post('system_ip'),
+				'warehouse_id' => $this->input->post('warehouse_id'),
+				'till_name' => $this->input->post('till_name')
+           ); 
+        } elseif ($this->input->post('add_tills')) {
+            $this->session->set_flashdata('error', validation_errors());
+            admin_redirect("system_settings/tills");
+        }
+
+        if ($this->form_validation->run() == true && $this->settings_model->addTills($data)) {
+            $this->session->set_flashdata('message', lang("tills_added"));
+            admin_redirect("system_settings/tills");
+        } else {
+            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
+            $this->data['modal_js'] = $this->site->modal_js();
+			$this->data['warehouses'] = $this->settings_model->getAllWarehouses();
+            $this->load->view($this->theme . 'settings/add_tills', $this->data);
+        }
+    }
+
+    function edit_tills($id = NULL)
+    {
+       
+        $this->form_validation->set_rules('system_ip', lang("system_ip"), 'trim|required');
+        $tills_details = $this->settings_model->getTillsByID($id);
+        if ($this->input->post('system_ip') != $tills_details->system_ip) {
+            $this->form_validation->set_rules('system_ip', lang("system_ip"), 'required|is_unique[tills.system_ip]');
+        }
+
+        if ($this->form_validation->run() == true) {
+            $data = array(
+                'system_name' => $this->input->post('system_name'),
+                'system_ip' => $this->input->post('system_ip'),
+				'warehouse_id' => $this->input->post('warehouse_id'),
+				'till_name' => $this->input->post('till_name')
+           ); 
+        } elseif ($this->input->post('edit_tills')) {
+            $this->session->set_flashdata('error', validation_errors());
+            admin_redirect("system_settings/tills");
+        }
+
+        if ($this->form_validation->run() == true && $this->settings_model->updateTills($id, $data)) {
+            $this->session->set_flashdata('message', lang("tills_updated"));
+            admin_redirect("system_settings/tills");
+        } else {
+            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
+            $this->data['tills'] = $tills_details;
+			$this->data['warehouses'] = $this->settings_model->getAllWarehouses();
+            $this->data['modal_js'] = $this->site->modal_js();
+            $this->load->view($this->theme . 'settings/edit_tills', $this->data);
+        }
+    }
+
+    function delete_tills($id = NULL)
+    {
+        if ($this->settings_model->deleteTills($id)) {
+            $this->sma->send_json(array('error' => 0, 'msg' => lang("tills_deleted")));
         }
     }
 
@@ -6517,38 +6605,172 @@ function stores()
     function gb(){
 	echo $this->site->generate_bill_number(false);
     }
-
-
-/*Sales Syn 14-10-2019*/
-    public function sync_tables()
-    {
-        if(isset($_POST['sync_tables'])){
-            //echo '<pre>';print_R($_POST);
-            $this->settings_model->update_sync_tables($_POST['data']);
-            $this->session->set_flashdata('message', lang("tables_enabled_to_sync"));
-            admin_redirect("system_settings/sync_tables");
+  function buy_x_get_x_deactivate($id,$status){
+		$this->settings_model->update_buy_x_status($id,$status);
+		redirect($_SERVER["HTTP_REFERER"]);
+    }
+	function recipe_variant(){
+		if ($this->input->post('recipe_id')) {
+            $recipe_id = $this->input->post('recipe_id', TRUE);
         }
-        $this->data['enabled_tables'] = $this->settings_model->getSyncEnabledTables();
-        $this->data['denied_tables'] = $this->settings_model->getSyncDeniedTables();
-        $this->data['center_db_tables'] = $this->site->getAllCenterTables();
-        $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('system_settings'), 'page' => lang('system_settings')), array('link' => '#', 'page' => lang('sync_tables')));
-        $meta = array('page_title' => lang('sync_tables'), 'bc' => $bc);
-        $this->page_construct('settings/sync_settings', $meta, $this->data);
-        
+		$rows= $this->settings_model->get_recipe_variant($recipe_id);
+       echo json_encode($rows);
+	}
+	
+	function wallets(){
+        $this->data['error'] = validation_errors() ? validation_errors() : $this->session->flashdata('error');
+        $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('system_settings'), 'page' => lang('system_settings')), array('link' => '#', 'page' => lang('wallets')));
+        $meta = array('page_title' => lang('wallets'), 'bc' => $bc);
+        $this->page_construct('settings/wallets', $meta, $this->data);
+    }
+	
+	function getWallets(){    
+        $this->load->library('datatables');
+        $this->datatables
+            ->select("'sno',id, name  ,  displayname,  active")
+            ->from("wallet_master")
+			->where("active",1)
+            ->add_column("Actions", "<div class=\"text-center\"><a href='" . admin_url('system_settings/edit_wallets/$1') . "' class='tip' title='" . lang("edit_wallets") . "' data-toggle='modal' data-target='#myModal'><i class=\"fa fa-edit\"></i></a> <a href='#' class='tip po' title='<b>" . lang("delete_wallets") . "</b>' data-content=\"<p>" . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete' href='" . admin_url('system_settings/delete_wallets/$1') . "'>" . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i></a></div>", "id")
+			 ->edit_column('status', '$1__$2', 'status, id');
+        echo $this->datatables->generate();
     }
 
-    public function sync()
-    {
-        if(isset($_GET['sync']) && $this->isStore){
-            $sync_now = true;
-                 $this->site->start_sync($sync_now);
-                $this->session->set_flashdata('message', lang("sync_in_progress"));
-                admin_redirect("system_settings/sync");
+    function add_wallets(){
+        $this->form_validation->set_rules('name', lang("name"), 'required');
+        if ($this->form_validation->run() == true) {
+		
+             $data = array(
+                'name' => $this->input->post('name'),        
+                'displayname' => $this->input->post('display_name'),
+				'active' => !empty($this->input->post('status'))?$this->input->post('status'):0,
+				
+           ); 
+        } elseif ($this->input->post('add_wallets')) {
+            $this->session->set_flashdata('error', validation_errors());
+            admin_redirect("system_settings/wallets");
         }
-        $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('system_settings'), 'page' => lang('system_settings')), array('link' => '#', 'page' => lang('sync_tables')));
-        $meta = array('page_title' => lang('sync_tables'), 'bc' => $bc);
-        $this->page_construct('settings/sync', $meta, $this->data);
-        
-    }    
-/*Sales Syn*/
+        if ($this->form_validation->run() == true && $this->settings_model->addWallets($data)) {
+            $this->session->set_flashdata('message', lang("wallets_added"));
+            admin_redirect("system_settings/wallets");
+        } else {
+            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
+            $this->data['modal_js'] = $this->site->modal_js();
+            $this->load->view($this->theme . 'settings/add_wallets', $this->data);
+        }
+    }
+
+    function edit_wallets($id = NULL){
+        $this->form_validation->set_rules('name', lang("name"), 'trim|required');
+        if ($this->form_validation->run() == true) {
+		   $id= $this->input->post('id');
+           $data = array(
+                'name' => $this->input->post('name'),        
+                'displayname' => $this->input->post('display_name'),
+				'active' => !empty($this->input->post('status'))?$this->input->post('status'):0,
+				
+           ); 
+        } elseif ($this->input->post('edit_wallets')) {
+            $this->session->set_flashdata('error', validation_errors());
+            admin_redirect("system_settings/wallets");
+        }
+        if ($this->form_validation->run() == true && $this->settings_model->updateWallets($id, $data)) {
+            $this->session->set_flashdata('message', lang("wallets_updated"));
+            admin_redirect("system_settings/wallets");
+        } else {
+            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
+            $this->data['wallets'] = $this->settings_model->getWalletsByID($id);
+            $this->data['modal_js'] = $this->site->modal_js();
+            $this->load->view($this->theme . 'settings/edit_wallets', $this->data);
+        }
+    }
+
+    function delete_wallets($id = NULL){
+        if ($this->settings_model->deleteWallets($id)) {
+            $this->sma->send_json(array('error' => 0, 'msg' => lang("wallets_deleted")));
+        }
+    }
+	
+	
+	
+	
+	
+	function ncKotMaster(){
+        $this->data['error'] = validation_errors() ? validation_errors() : $this->session->flashdata('error');
+        $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('system_settings'), 'page' => lang('system_settings')), array('link' => '#', 'page' => lang('NC_Kot_Master')));
+        $meta = array('page_title' => lang('NC_Kot_Master'), 'bc' => $bc);
+        $this->page_construct('settings/nc_kot', $meta, $this->data);
+    }
+	
+	function getNCKotMaster(){    
+        $this->load->library('datatables');
+        $this->datatables
+            ->select("'sno',id, name  ,  display_name,  active")
+            ->from("nc_kot_type_master")
+			->where("active",1)
+            ->add_column("Actions", "<div class=\"text-center\"><a href='" . admin_url('system_settings/edit_NCKotMaster/$1') . "' class='tip' title='" . lang("edit_NC_Kot_master") . "' data-toggle='modal' data-target='#myModal'><i class=\"fa fa-edit\"></i></a> <a href='#' class='tip po' title='<b>" . lang("delete_NC_Kot_Master") . "</b>' data-content=\"<p>" . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete' href='" . admin_url('system_settings/delete_NCKotMaster/$1') . "'>" . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i></a></div>", "id")
+			 ->edit_column('status', '$1__$2', 'status, id');
+        echo $this->datatables->generate();
+    }
+
+    function add_NCKotMaster(){
+        $this->form_validation->set_rules('name', lang("name"), 'required');
+        if ($this->form_validation->run() == true) {
+             $data = array(
+                'name' => $this->input->post('name'),        
+                'display_name' => $this->input->post('display_name'),
+				'active' => !empty($this->input->post('status'))?$this->input->post('status'):0,
+				'no_of_select_box' => !empty($this->input->post('no_of_selectbox'))?$this->input->post('no_of_selectbox'):0,
+                'no_of_input_box' => !empty($this->input->post('no_of_inputbox'))?$this->input->post('no_of_inputbox'):0,
+				'select_box_master' => !empty($this->input->post('selectType'))? json_encode($this->input->post('selectType')):'',
+     
+
+           ); 
+        } elseif ($this->input->post('addncKotmaster')) {
+            $this->session->set_flashdata('error', validation_errors());
+            admin_redirect("system_settings/NC_Kot_Master");
+        }
+        if ($this->form_validation->run() == true && $this->settings_model->addNCKotMater($data)) {
+            $this->session->set_flashdata('message', lang("NC_KOT_Master_added"));
+            admin_redirect("system_settings/ncKotMaster");
+        } else {
+            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
+            $this->data['modal_js'] = $this->site->modal_js();
+            $this->load->view($this->theme . 'settings/add_nc_kotMaster', $this->data);
+        }
+    }
+
+    function edit_NCKotMaster($id = NULL){
+        $this->form_validation->set_rules('name', lang("name"), 'trim|required');
+        if ($this->form_validation->run() == true) {
+		   $id= $this->input->post('id');
+           $data = array(
+                'name' => $this->input->post('name'),        
+                'display_name' => $this->input->post('display_name'),
+				'active' => !empty($this->input->post('status'))?$this->input->post('status'):0,
+				'no_of_select_box' => !empty($this->input->post('no_of_selectbox'))?$this->input->post('no_of_selectbox'):0,
+                'no_of_input_box' => !empty($this->input->post('no_of_inputbox'))?$this->input->post('no_of_inputbox'):0,
+				'select_box_master' => !empty($this->input->post('selectType'))? json_encode($this->input->post('selectType')):'',
+     
+
+           ); 
+        } elseif ($this->input->post('edit_NCKotMaster')) {
+            $this->session->set_flashdata('error', validation_errors());
+            admin_redirect("system_settings/NC_Kot_Master");
+        }
+        if ($this->form_validation->run() == true && $this->settings_model->updateNCKotMaster($id, $data)) {
+            $this->session->set_flashdata('message', lang("NC_KOT_Master_Updated"));
+            admin_redirect("system_settings/ncKotMaster");
+        } else {
+            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
+            $this->data['kot_master'] = $this->settings_model->getNCKotMasterByID($id);
+            $this->data['modal_js'] = $this->site->modal_js();
+            $this->load->view($this->theme . 'settings/edit_nc_kotMaster', $this->data);
+        }
+    }
+
+    function delete_NCKotMaster($id = NULL){
+        if ($this->settings_model->deleteNCKotMaster($id)) {
+            $this->sma->send_json(array('error' => 0, 'msg' => lang("NC_KOT_Master_deleted")));
+        }
+    }
 }

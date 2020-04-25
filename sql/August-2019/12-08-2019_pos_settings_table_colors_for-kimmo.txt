@@ -1,0 +1,12 @@
+ALTER TABLE `srampos_pos_settings` ADD `table_display_option` TINYINT NOT NULL AFTER `table_size`;
+
+ALTER TABLE `srampos_pos_settings` ADD `table_available_color` VARCHAR(100) NOT NULL AFTER `table_display_option`, ADD `table_kitchen_color` VARCHAR(100) NOT NULL AFTER `table_available_color`, ADD `table_pending_color` VARCHAR(100) NOT NULL AFTER `table_kitchen_color`;
+
+ALTER TABLE `srampos_pos_settings` ADD `pos_types_display_option` TINYINT NOT NULL AFTER `table_display_option`;
+
+ALTER TABLE `srampos_pos_settings` ADD `pos_header` TINYINT NOT NULL AFTER `default_biller`;
+
+ALTER TABLE `srampos_pos_settings` ADD `variant_display_option` TINYINT NOT NULL AFTER `pos_types_display_option`;
+
+
+

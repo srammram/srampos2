@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_recipe_variants` ADD `variant_localname_image` TEXT NOT NULL AFTER `variant_code`;

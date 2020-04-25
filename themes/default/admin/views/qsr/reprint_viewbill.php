@@ -96,7 +96,8 @@
                     </div>
                     <?php
                 }
-                echo "<span style='font-size:15px;font-weight:bold'>" .lang("bill_no") . ": " . $inv->bill_number . "</span>";
+                echo "<span style='font-size:15px;font-weight:bold'>" .lang("bill_no") . ": " . $inv->bill_number . "</span>" ;
+				echo "<br>" ;
                 
                 if($this->Settings->time_format == 12){
                     $date = new DateTime($inv->created_on);
@@ -177,7 +178,8 @@
                                 $category = $row->recipe_id;
                                 echo '<tr><td class="no-border"><strong>'.$row->recipe_name.'</strong></td>';
                             }*/
-                            echo '<tr><td colspan="2" class="no-border">' . $r . ': &nbsp;&nbsp;' . ($row->recipe_name) . ($row->variant ? ' (' . $row->variant . ')' : '') . '<span class="pull-right">' . ($row->tax_code ? '*'.$row->tax_code : '') . '</span></td>'; 
+                            echo '<tr><td colspan="2" class="no-border">' . $r . ': &nbsp;&nbsp;' . ($row->recipe_name) . ($row->recipe_variant ? ' (' . $row->recipe_variant
+							. ')' : '') . '<span class="pull-right">' . ($row->tax_code ? '*'.$row->tax_code : '') . '</span></td>'; 
 
                             echo '<td class="no-border">'.$row->quantity.'</td>';
                             echo '<td  class="no-border">'.$this->sma->formatMoney($row->unit_price).'</td>';
@@ -215,9 +217,9 @@
                         </tr>
                         <?php
                         $dis = $this->site->getDiscountsAmt($inv->id);
-
+	if($inv->total_discount !=0){
                         echo '<tr><th colspan="4" class="text-right">' . lang("discount") . '</th><th class="text-right">' . $this->sma->formatMoney($inv->total_discount) . '</th></tr>';                    
-
+	}
         
 
                         if ($inv->shipping != 0) {
@@ -244,7 +246,13 @@
                                 echo '<tr><td colspan="4">' . lang('igst') .'</td><td class="text-right">' . ( $Settings->format_gst ? $this->sma->formatMoney($igst) : $igst) . '</td></tr>';
                             }
                         }
-
+	 
+						if ($inv->tax_rate != 0) {
+							($inv->tax_rate != 0)?  $taxname = 'Exclusive': $taxname = 'Inclusive';
+                            echo '<tr><th colspan="4" class="text-right">' . lang("tax ".$taxname." (".$inv->tax_name.")") . '</th><th class="text-right">' . $this->sma->formatMoney($return_sale ? ($inv->order_tax+$return_sale->order_tax) : $inv->total_tax) . '</th></tr>';
+							
+                        }
+						
                         if ($pos_settings->rounding || $inv->rounding != 0) {
 
                              if ($inv->tax_type == 0)
@@ -266,6 +274,7 @@
                                 <th colspan="4" class="text-right"><?=lang("grand_total");?></th>
                                 <th class="text-right"><?=$this->sma->formatMoney($grandtotal);?></th>
                             </tr>
+						
                             <?php
                         } else {
 

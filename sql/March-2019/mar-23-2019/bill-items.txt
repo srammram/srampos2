@@ -1,0 +1,2 @@
+ALTER TABLE `srampos_bil_items` ADD `customer_discount_val` VARCHAR(40) NOT NULL AFTER `recipe_variant_id`;
+ALTER TABLE `srampos_bil_items` CHANGE `customer_discount_val` `customer_discount_val` VARCHAR(40) CHARACTER SET utf8 COLLATE utf8_general_ci NULL;

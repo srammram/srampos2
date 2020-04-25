@@ -152,19 +152,13 @@
             <div class="row">
             <ul class="col-xs-12">
                 <?php
-
-               /* echo "<pre>";
-                print_r($table->split_order);die;*/
                 foreach($splitorder as $split_order){
-					
                     if($this->site->splitCheckSalestable($split_order->split_id) == FALSE){
-						
                         $count_item = $this->site->splitCountcheck($split_order->split_id);
 						$dineinbbqboth = $this->site->dineinbbqbothCheck($split_order->split_id);
                         
                 ?>
                 <div class="row">
-
                     <li class="col-xs-6 text-left split">
                        <h2> 
                        <?php if($this->sma->actionPermissions('change_multiple_status')){ ?>
@@ -309,6 +303,8 @@
                              <hr>
                              <?php
                              $split_order_items = $this->site->GetALlSplitsOrderItems($order->id);
+                            // echo "<pre>";
+                            // print_r($split_order_items);die;
                              if(!empty($split_order_items)){
                              ?>
                              <div class="row">
@@ -340,11 +336,11 @@
 											?>
 
                                             <?php $variant = '';
-                                            if($item->variant!='' && $item->variant!=0) :
-                                            /*$vari = explode('|',$item->variant);*/
-                                            $vari = $item->variant;
-                                            $variant = '[<span class="pos-variant-name">'.$vari.'</span>]';
-                                            endif; ?>
+                                            if(!empty($item->variant) || ($item->variant!=0)) {
+                                                /*$vari = explode('|',$item->variant);*/
+                                                $vari = $item->variant;
+                                                $variant = '[<span class="pos-variant-name">'.$vari.'</span>]';
+                                            } ?>
                                             <?php echo $recipe_name.$variant; ?> <span>( x <?php echo $item->quantity; ?>)</span>
 					     </h3>
 					</div>

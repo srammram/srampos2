@@ -17,13 +17,10 @@ class Login extends REST_Controller {
 		$this->lang->admin_load('engliah_khmer','english');
 	}
 	
-	public function index_post()
-	{				
+	public function index_post(){				
 		$api_key = $this->input->post('api-key');
 		$devices_key = $this->input->post('devices_key');
-		
 		$user_number = $this->input->post('user_number');
-		
 		$this->form_validation->set_rules('user_number', $this->lang->line("user_number"), 'required');
 		$this->form_validation->set_rules('devices_key', $this->lang->line("devices_key"), 'required');		
 		if ($this->form_validation->run() == true) {

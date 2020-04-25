@@ -165,6 +165,17 @@
 
                          <div class="col-md-4">
                             <div class="form-group">
+                                <?= lang("discount_status", "Discount_status"); ?>
+                                <select class="form-control col-sm-2" name="dis_status" id="dis_status">
+                                <option value="">All</option>
+                                <option value="1">Complimentary</option>
+                                <option value="2">Paid</option>
+                            </select>    
+                                
+                            </div>
+                        </div>  
+						 <div class="col-md-4">
+                            <div class="form-group">
                                 <?= lang("sale_items", "sale_items"); ?>
                                 <?php
                                 $res['0'] = lang('all');                                     
@@ -213,6 +224,7 @@
                             <th><?= lang("qty"); ?></th>
                             <th><?= lang("rate"); ?></th>
                             <th><?= lang("discount"); ?></th>
+							 <th><?= lang("discount_status"); ?></th>
                             <?php if($this->pos_settings->default_service_charge !=0 && $this->pos_settings->service_charge_option !=0) { ?>
                             <th><?= lang("service_charge"); ?></th>
                             <?php } ?>
@@ -285,13 +297,14 @@ function GetData($url) {
             var subcategory_id = $('#subcategory_id').val();
             var subcategory_id = $("#subcategory_id option:selected").val();
             var recipe_id = $("#recipe_id option:selected").val();
-            var pagelimit = $('#pagelimit').val();     
+            var pagelimit = $('#pagelimit').val();  
+			var dis_status = $('#dis_status').val();  			
             if (start_date !='' && end_date !='' ) {
                  $('#start_date,#end_date').css('border-color', '#ccc'); 
                   $.ajax({
                         type: 'POST',
                         url: $url,                    
-                        data: {start_date: start_date, end_date: end_date, warehouse_id: warehouse_id,varient_id: varient_id,pagelimit:pagelimit,category_id:category_id,subcategory_id:subcategory_id,recipe_id:recipe_id},
+                        data: {start_date: start_date, end_date: end_date, warehouse_id: warehouse_id,varient_id: varient_id,pagelimit:pagelimit,category_id:category_id,subcategory_id:subcategory_id,recipe_id:recipe_id,dis_status:dis_status},
                         dataType: "json",
                         success: function (data) {
                             $('#SlRData > tbody').empty(); 
@@ -390,19 +403,19 @@ function GetData($url) {
                                                /*var rate = (parseFloat(f.subtotal) - (parseFloat(f.item_discount) + parseFloat(f.off_discount) + parseFloat(f.input_discount))+(parseFloat(f.tax)));*/
                                     
                                                var dis = (parseFloat(f.item_discount) + parseFloat(f.off_discount) + parseFloat(f.input_discount));
-                                                $('#SlRData > tbody').append('<tr  class="text-right"><td class="text-center">'+f.name+'</td><td class="text-center">'+f.variant+'</td><td>'+f.warehouse+'</td><td>'+formatQuantity(f.quantity)+'</td><td>'+formatMoney(f.rate)+'</td><td>'+formatMoney(dis)+'</td><td style="display:<?php echo $display; ?>">'+formatMoney(f.service_charge_amount)+'</td><td>'+formatMoney(f.tax)+'</td><td>'+formatMoney(f.amt)+'</td></tr>');
+                                                $('#SlRData > tbody').append('<tr  class="text-right"><td class="text-center">'+f.name+'</td><td class="text-center">'+f.variant+'</td><td>'+f.warehouse+'</td><td>'+formatQuantity(f.quantity)+'</td><td>'+formatMoney(f.rate)+'</td><td>'+formatMoney(dis)+'</td><td>'+f.item_saled_type+'</td><td style="display:<?php echo $display; ?>">'+formatMoney(f.service_charge_amount)+'</td><td>'+formatMoney(f.tax)+'</td><td>'+formatMoney(f.amt)+'</td></tr>');
                                             }); 
-                                             $('#SlRData > tbody').append('<tr style="font-weight:bold" class="text-right"><td class="text-left">Sub Total:</td><td>&nbsp;</td><td>&nbsp;</td><td>'+formatQuantity(sub_qty)+'</td><td>'+formatMoney(sub_rate)+'</td><td>'+formatMoney(sub_discount)+'</td><td style="display:<?php echo $display; ?>">'+formatMoney(sub_service_charge)+'</td><td>'+formatMoney(sub_tax)+'</td><td>'+formatMoney(sub_total)+'</td></tr>');
+                                             $('#SlRData > tbody').append('<tr style="font-weight:bold" class="text-right"><td class="text-left">Sub Total:</td><td>&nbsp;</td><td>&nbsp;</td><td>'+formatQuantity(sub_qty)+'</td><td>'+formatMoney(sub_rate)+'</td><td>'+formatMoney(sub_discount)+'</td><td></td><td style="display:<?php echo $display; ?>">'+formatMoney(sub_service_charge)+'</td><td>'+formatMoney(sub_tax)+'</td><td>'+formatMoney(sub_total)+'</td></tr>');
                                        });
 
-                                        $('#SlRData > tbody').append('<tr style="font-weight:bold" class="text-right"><td class="text-left">Group Total:</td><td>&nbsp;</td><td>&nbsp;</td><td>'+formatQuantity(grp_qty)+'</td><td>'+formatMoney(grp_rate+grp_discount)+'</td><td>'+formatMoney(grp_discount)+'</td><td style="display:<?php echo $display; ?>">'+formatMoney(grp_service_charge)+'</td><td>'+formatMoney(grp_tax)+'</td><td>'+formatMoney(grp_total)+'</td></tr>');
+                                        $('#SlRData > tbody').append('<tr style="font-weight:bold" class="text-right"><td class="text-left">Group Total:</td><td>&nbsp;</td><td>&nbsp;</td><td>'+formatQuantity(grp_qty)+'</td><td>'+formatMoney(grp_rate+grp_discount)+'</td><td>'+formatMoney(grp_discount)+'</td><td></td><td style="display:<?php echo $display; ?>">'+formatMoney(grp_service_charge)+'</td><td>'+formatMoney(grp_tax)+'</td><td>'+formatMoney(grp_total)+'</td></tr>');
                                 });
                                /* if(round != 0){
 
                                   $('#SlRData > tbody').append('<tr style="font-weight:bold"  class="text-right"><td class="text-left" colspan="5">Round :</td><td>&nbsp;</td><td>'+formatMoney(round)+'</td></tr>');
                                 }    */
 
-                                  $('#SlRData > tbody').append('<tr style="font-weight:bold"  class="text-right"><td class="text-left">Grand Total:</td><td>&nbsp;</td><td>&nbsp;</td><td>'+formatQuantity(grand_qty)+'</td><td>'+formatMoney(grand_rate+grand_discount)+'</td><td>'+formatMoney(grand_discount)+'</td><td style="display:<?php echo $display; ?>">'+formatMoney(grand_service_charge)+'</td><td>'+formatMoney(grand_tax)+'</td><td>'+formatMoney((grand_total))+'</td></tr>');
+                                  $('#SlRData > tbody').append('<tr style="font-weight:bold"  class="text-right"><td class="text-left">Grand Total:</td><td>&nbsp;</td><td>&nbsp;</td><td>'+formatQuantity(grand_qty)+'</td><td>'+formatMoney(grand_rate+grand_discount)+'</td><td>'+formatMoney(grand_discount)+'</td><td></td><td style="display:<?php echo $display; ?>">'+formatMoney(grand_service_charge)+'</td><td>'+formatMoney(grand_tax)+'</td><td>'+formatMoney((grand_total))+'</td></tr>');
                             }
                         }
                     });  

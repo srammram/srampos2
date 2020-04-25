@@ -1,0 +1,2 @@
+ALTER TABLE `srampos_buy_get` ADD `variant_id` INT NOT NULL AFTER `created_on`;
+ALTER TABLE `srampos_buy_get_items` ADD `variant_id` INT NOT NULL AFTER `get_item`;

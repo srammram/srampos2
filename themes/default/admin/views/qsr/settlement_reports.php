@@ -211,8 +211,12 @@
                <span class="pull-right col-xs-12">
                     <?php
                      echo '<button id="print_days" class="btn btn-block btn-primary">'.lang("print").'</button>';
+					// echo  '<button id="#" class="btn btn-block btn-primary">'.lang("QSR").'</button>';
                     ?>
                 </span>
+				
+				
+              
             <div style="clear:both;"></div>
         </div>
     </div>

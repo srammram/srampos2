@@ -1,0 +1,4 @@
+ALTER TABLE `srampos_pos_settings` ADD `consolidated_kot_print_option` TINYINT NOT NULL AFTER `consolidated_reprint_print`;
+
+ALTER TABLE `srampos_pos_settings` ADD `kot_font_size` TINYINT NOT NULL AFTER `kot_print_lang_option`;
+

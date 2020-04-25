@@ -90,9 +90,7 @@
                                 <input class="checkbox checkft" type="checkbox" name="check"/>
                             </th>
                             <th><?= lang("date"); ?></th>
-                            <th><?= lang("reference_no"); ?></th>
-                            
-                           
+                            <th><?= lang("reference_no"); ?></th>                           
                             <th><?= lang("status"); ?></th>
                             <th style="min-width:30px; width: 30px; text-align: center;"><i class="fa fa-chain"></i></th>
                             <th style="width:115px; text-align:center;"><?= lang("actions"); ?></th>

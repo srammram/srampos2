@@ -2155,6 +2155,24 @@ label{font-weight: normal;font-size: 14px;font-family: 'open_sansregular';}
 .dataTable tr th, .dataTable tr td { 
     border: none!important;
  }
+ .ad12 thead tr th{background-color:#543816!important;color:#fff;border-color:#543816!important;}
+ /* .n1 {
+	 
+width:100%;
+height:auto;
+ 
+ }
+  */
+  
+  .n1 thead tr th{font-size:20px!important; background-color:#543816!important;color:#fff;border-color:#543816!important;}
+ .ad12 thead tr th{background-color:#543816!important;color:#fff;border-color:#543816!important;}
+
+ .n1{width:100%;}
+ .n1 tbody tr.recipe-varient{height:auto;}
+ .n1 tbody tr.recipe-varient td{border-radius:0px;}
+ .n1 tbody tr.recipe-varient td .price_strong{font-size:18px!important;}
+ .n1 tbody tr.recipe-varient td .name_strong{font-size:18px!important;}
+ 
 .dataTable thead .primary{height: 45px;}
 .dataTables_wrapper .table-bordered {border: none!important;}
 .dataTable tbody tr td div{text-align: center!important;}
@@ -2859,7 +2877,17 @@ border:1px solid #ccc ;
 	.table_list .item_list h3 span{font-size:16px;font-weight:bold;color: #343434;}
 	.table_list .item_list .value_padd img{width:60px;height:auto;}
 }
-@media (max-width: 1360px) and (min-width: 1300px){}
+@media (max-width: 1360px) and (min-width: 1300px){
+	#reset, #sent_to_kitchen{height: 45px!important;font-size: 16px;font-weight: bold;}
+	#left-top .select2-container,#ui #add_item,#left-top .select2-container .select2-choice,#seats_id{height: 25px;line-height: 25px;font-size: 12px;font-weight: 500;}
+	#posTable .sname{font-size: 13px;}
+	.ui-sortable i{font-size: 12px;}
+	#item-list .btn-group-justified .pos-tip{height: 50px;line-height: 50px;}
+	#pos .form-group .input-group-addon{padding: 0px 8px!important;font-size: 10px;}
+	.table_list .item_list h3{font-size:18px;font-weight:bold;}
+	.table_list .item_list h3 span{font-size:16px;font-weight:bold;color: #343434;}
+	.table_list .item_list .value_padd img{width:60px;height:auto;}
+}
 @media (max-width: 1280px) and (min-width: 1200px){
     .qty_number {
     text-align: center;
@@ -3050,9 +3078,9 @@ border:1px solid #ccc ;
 */
 .recipe-varient{
     height: 70px;
-    background-color: #f5690ab0;
+    background-color: #fff;
     margin: 0px 0px 15px 15px;
-    border: 1px solid #f35408e0;
+    border: 1px solid #ccc;
     border-radius: 4px;
     min-width: 100px;
 }
@@ -3191,7 +3219,7 @@ body #myVaraintModal .modal-dialog {
 	text-align: left;
 	width: 100%;
 }
-#myVaraintModal .recipe-varient{height: 28px;border: 1px solid #ccc;}
+#myVaraintModal .recipe-varient{border: 1px solid #f5690ab0;background-color:#f5690ab0;color:#333;}
 .pos_header .custom_details ul li p{text-align: left;padding:3px 7px;margin-bottom: 0px;}
 .pos_header .custom_details ul .dropdown-menu li p{text-align: left;padding:3px 10px;margin-bottom: 0px;}
 .pos_header .custom_details ul .dropdown-menu li a p{text-align: left;margin-bottom: 0px;padding: 0px;}

@@ -1,0 +1,17 @@
+CREATE TABLE `srampos_member_discounts` (
+  `id` bigint(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `created_dt` datetime NOT NULL,
+  `updated_dt` datetime NOT NULL,
+  `status` tinyint(4) NOT NULL,
+  `apply_all` tinyint(4) NOT NULL,
+  `from_date` datetime NOT NULL,
+  `to_date` datetime NOT NULL,
+  `from_time` time NOT NULL,
+  `to_time` time NOT NULL,
+  `week_days` varchar(200) NOT NULL,
+  `days_check` tinyint(4) NOT NULL,
+  `discount` decimal(12,2) DEFAULT NULL,
+  `discount_type` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;

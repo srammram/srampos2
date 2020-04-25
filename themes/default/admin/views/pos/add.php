@@ -25,6 +25,8 @@
     <script type="text/javascript" src="<?= $assets ?>js/flipclock.min.js"></script>
     <script type="text/javascript" src="<?= $assets ?>js/jquery.scannerdetection.js"></script>
 
+
+
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script> -->
     <script src="https://files.codepedia.info/files/uploads/iScripts/html2canvas.js"></script>
 
@@ -1569,6 +1571,10 @@ var lang = {
 
         /*$(document).on('click', '.recipe', function (e) {*/
         $(document).on('click', '.recipe:not(".has-varients")', function (e) {
+			if($(this).hasClass("non_transaction")){
+			 bootbox.alert('ITEM IS NOT AVAILABLE');
+			 return false;
+			}
             $('#modal-loading').show();
             code = $(this).val(),
 			
@@ -1595,7 +1601,10 @@ var lang = {
         });
 
     $(document).on('click', '.recipe-varient', function (e) {
-            
+            if($(this).hasClass("non_transaction")){
+			bootbox.alert('ITEM IS NOT AVAILABLE');
+			 return false;
+			}
             code = $(this).val(),
         $('#myVaraintModal').modal('hide');$('#modal-loading').show();
                 wh = $('#poswarehouse').val(),

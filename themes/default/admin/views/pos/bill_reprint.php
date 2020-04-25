@@ -252,10 +252,11 @@
                             </div>
 
                           <div class="col-xs-12" style="padding: 0;">
-                            <div class="btn-group-vertical btn-block">                                 
+                            <div class="btn-group-vertical btn-block" style="width:85%;">                                 
                                  <button type="button" class="btn btn-primary btn-block request_bil" 
-                                 data-bil="req_<?=$k; ?>" style="height:40px;" id="" <?php if($this->sma->actionPermissions('bil_print')){ echo ''; }else{  echo 'disabled'; }  ?>>
+                                 data-bil="req_<?=$k; ?> " style="height:40px;"  id=""  <?php if($this->sma->actionPermissions('bil_print')){ echo ''; }else{  echo 'disabled'; }  ?>>
                                 <i class="fa fa-print" ></i><?=lang('bill_reprint');?> 
+								
                                 </button>
                                 
                                 <input type="hidden"  class="billid_req" value="<?php echo $split_order->id; ?>">

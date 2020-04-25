@@ -1,23 +1,14 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Frontend_model extends CI_Model
-{
-
-    public function __construct()
-    {
+class Frontend_model extends CI_Model{
+    public function __construct(){
         parent::__construct();
-		
     }
-
 	public function getUsers($user_number){
 		$query = $this->db->select('user_number, username, email, id, password, active, last_login, last_ip_address, avatar, gender, group_id, warehouse_id, biller_id, company_id, view_right, edit_right, allow_discount, show_cost, show_price')
             ->where('user_number', $user_number)
             ->limit(1)
             ->get('users');
-		
-		
-		
-			
 		if ($query->num_rows() === 1) {
             $user = $query->row();
 			return $user;	
@@ -70,8 +61,28 @@ class Frontend_model extends CI_Model
 		
 		return FALSE;
 	}*/
-	public function login($user_number,$store_id){
+	
+	function check_counter($user_number){
 		
+		$query = $this->db->select('users.id')		
+		->join('groups','groups.id = users.group_id')
+		->where('user_number', $user_number)
+        ->limit(1)
+        ->get('users');					
+		if ($query->num_rows() === 1) {
+            $user = $query->row();
+			if($this->Settings->shift_user_handling == 1){
+				if($this->isShiftCreated == 1){
+					if($this->exitShift->user_id != $user->id){
+						return TRUE;	
+					}			
+				}
+			}
+		}
+		return false;
+	}
+	
+	public function login($user_number,$store_id){
 		$query = $this->db->select('users.user_number, users.username, users.email, users.id, users.password, users.active, users.last_login, users.last_ip_address, users.avatar, users.gender,users.group_id, users.warehouse_id, users.biller_id, users.company_id, users.view_right, users.edit_right, users.allow_discount, users.show_cost,users.show_price,users.first_name,users.last_name,groups.name as group_name')		
 		->join('groups','groups.id = users.group_id')
 		->join('user_store_access','user_store_access.user_id = users.id') 
@@ -109,9 +120,7 @@ class Frontend_model extends CI_Model
 
 		return FALSE;
 	}
-	public function set_session($user)
-    {
-
+	public function set_session($user){
         $session_data = array(
 			'identity' => $user->user_number,
 			'user_number' => $user->user_number,
@@ -149,17 +158,28 @@ class Frontend_model extends CI_Model
         return $this->db->affected_rows() == 1;
     }
 
-    public function update_last_login_ip($id)
-    {
-
+    public function update_last_login_ip($id){
         $this->db->update('users', array('last_ip_address' => $this->input->ip_address()), array('id' => $id));
-
         return $this->db->affected_rows() == 1;
     }
-    public function set_error($error)
-    {
+    public function set_error($error){
         $this->errors[] = $error;
-
         return $error;
     }
+	public function group_check($user_number,$group){
+		$q=$this->db->get_where("users",array("user_number"=>$user_number,"group_id"=>$group));
+		if($q->num_rows()>0){
+			return  1;
+		}else{
+			return 0;
+		}
+	}
+	public function password_check($user_number){
+		$q=$this->db->get_where("users",array("user_number"=>$user_number));
+		if($q->num_rows()>0){
+			return  1;
+		}else{
+			return 0;
+		}
+	}
 }

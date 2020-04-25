@@ -1,8 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Siteprocurment extends CI_Model
-{
-	
+class Siteprocurment extends CI_Model{
     public function __construct() {
         parent::__construct();
     }
@@ -198,7 +196,16 @@ class Siteprocurment extends CI_Model
         }
         return FALSE;
     }
-	
+	public function getVariantByID($id) {
+    $this->db->select('name');
+    $this->db->from('recipe_variants');
+    $this->db->where('id',$id);
+        $q = $this->db->get();
+        if ($q->num_rows() > 0) {
+            return $q->row();
+        }
+        return FALSE;
+    }
 	
 	public function getALLCustomer() {
         $q = $this->db->get('customer');
@@ -2155,10 +2162,11 @@ class Siteprocurment extends CI_Model
         return FALSE;
  }
     
-    public function getProductNames($term, $limit = 10)
-    {
+    public function getProductNames($term, $limit = 10){
 	$type = array('standard','raw');
-	$this->db->select('r.*,t.rate as purchase_tax_rate,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,cm.category_id,cm.subcategory_id,cm.brand_id,cm.purchase_cost,cm.selling_price as cost,u.name as unit_name');
+
+    $this->db->select('r.*,t.rate as purchase_tax_rate,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,cm.category_id,cm.subcategory_id,cm.id as cm_id,cm.brand_id,cm.purchase_cost as cost,cm.selling_price as price,u.name as unit_name,us.name as purchase_unitName,COALESCE(rv.id,0) as variant_id,(CASE WHEN r.variants = 1 THEN CONCAT(r.name,"-",rv.name) ELSE r.name END) AS name,cm.selling_price AS price,cm.purchase_cost AS cost');
+
 	$this->db->from('recipe r');
 	$this->db->join('category_mapping as cm','cm.product_id=r.id','left'); // 
     // $this->db->join('category_mapping as cm','cm.product_id=r.id and cm.status=1','left'); // 
@@ -2167,14 +2175,24 @@ class Siteprocurment extends CI_Model
 	$this->db->join('brands b','b.id=cm.brand_id','left');
 	$this->db->join('tax_rates t','r.purchase_tax=t.id','left');
     $this->db->join('units u','u.id=r.unit','left');
-	
-	$this->db->where("(r.name LIKE '" . $term . "%' OR r.code LIKE '" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '" . $term . "%')");
+	$this->db->join('units us','us.id=r.purchase_unit','left');
+    
+    $this->db->join('recipe_variants_values rvv','rvv.recipe_id=r.id','left');
+    $this->db->join('recipe_variants rv','rv.id=rvv.attr_id','left');
+     if($this->Settings->item_search ==0){
+	 $this->db->where("(r.name LIKE '" . $term . "%' OR r.code LIKE '" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '" . $term . "%')");
+	 }else{
+		$this->db->where("(r.name LIKE '%" . $term . "%' OR r.code LIKE '%" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '%" . $term . "%')"); 
+	 }
 	//$this->db->where('cm.category_id IS NOT NULL OR cm.subcategory_id IS NOT NULL OR cm.brand_id  IS NOT NULL');
 	$this->db->where_in('r.type',$type);
+	
+    //$this->db->group_by('r.id,rv.id');
+	
 	$this->db->limit($limit);
 	//echo $this->db->get_compiled_select();
         $q = $this->db->get();
-        // echo $this->db->last_query();
+     //   echo $this->db->last_query();die;
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {		
                 $data[] = $row;
@@ -2280,43 +2298,29 @@ class Siteprocurment extends CI_Model
 
     }
 
-/*stock In Out Sivan Code*/    
-/*25-07-2019*/    
+   
 
-    function production_salestock_out($product_id,$stock_out_qty,$variant_id){   
-    
+    function production_salestock_out($product_id,$stock_out_qty,$variant_id){
+		// ingredient stock
         $item = $this->getrecipedeatilsByID($product_id);  
-        /*echo "<pre>";  
-        print_r($item);die;*/
-        if($item->type=="production" || $item->type=="quick_service"){
+        if($item->type=="production" || $item->type=="quick_service" || $item->type=="semi_finished"){
            $q = $this->get_recipe_products($product_id,$variant_id); 
-           /*echo "<pre>"; 
-           print_r($q->result());die;*/
             if($q->num_rows()>0){
                 foreach($q->result() as $k => $row){
                     $cate['category_id'] = $row->category_id;
                     $cate['subcategory_id'] = $row->subcategory_id;
                     $cate['brand_id'] = $row->brand_id;
                     $cate['cm_id'] = $row->cm_id;
-                    $operator = $row->operator;
-                    $operation_value = $row->operation_value;
-                    $quantity = $row->quantity;
-                    if($operator !=''){//GM->gram, ML->milli Litter
-                        $ingredi_stock_out = (($stock_out_qty*$quantity) / $operation_value);
-                    }else{//No ->Numbers
-                        $ingredi_stock_out = $stock_out_qty*$quantity;
-                    }
-                    // $mapped_item_qty = $stock_out_qty * $row->quantity;
-                    $updated_stock = $this->productionupdateStockMaster($row->product_id,$ingredi_stock_out,$cm_id,$cate);
+					$ingredi_stock_out=$this->site->unitToBaseQty($row->quantity,$row->operator,$row->operation_value);
+                    $updated_stock = $this->productionupdateStockMaster($row->product_id,$variant_id,$ingredi_stock_out,$cate);
                 }
             }
-        }  //  die;    
+        }   // die;    
     }
 
-    function productionupdateStockMaster($product_id,$stock_out,$cm_id,$cate){     
-        $piece = $this->db->get_where('recipe', array('id' =>$product_id))->row('piece');
+    function productionupdateStockMaster($product_id,$variant_id,$stock_out,$cate){   
         $store_id = $this->data['pos_store'];
-        $rawstock =$this->getrawstock($product_id,$cate['category_id'],$cate['subcategory_id'],$cate['brand_id']);          
+        $rawstock =$this->getrawstock($product_id,$variant_id,$cate['category_id'],$cate['subcategory_id'],$cate['brand_id']); 
         $stock_overflow =0;
         if(!empty($rawstock)){
             foreach($rawstock as $row){     
@@ -2326,15 +2330,17 @@ class Siteprocurment extends CI_Model
                     $tobedetect =$stock_overflow; 
                 }                 
                  $stock = $row->stock_in - $row->stock_out;                 
-                if ($stock > $tobedetect)
-                {  
-                 
+                if ($stock > $tobedetect){
                     $stock_overflow = $stock-$tobedetect;  
                     $stock_qty_taken = $tobedetect-$stock;
                     if($stock_overflow >= 0){                        
                        $query = 'update srampos_pro_stock_master set  stock_out = stock_out + '.$tobedetect.' where id='.$row->id;
                       // echo $query;
-                        $this->db->query($query);                         
+                      $this->db->query($query);  
+                      $stock_id = $row->id;
+                      $date =date('Y-m-d h:m:s');
+                      $ledger_query ='insert into srampos_pro_stock_ledger(stock_id,store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, transaction_identify,transaction_type,transaction_qty,date)values('.$stock_id.','.$store_id.','.$product_id.','.$variant_id.', '.$cate['cm_id'].', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', "Sales","O",'.$tobedetect.',"'.$date.'")';
+                       $this->db->query($ledger_query);   
                     }   
                       if($stock_qty_taken <= 0){                        
                         break;
@@ -2349,7 +2355,12 @@ class Siteprocurment extends CI_Model
                     }                    
                     $query = 'update srampos_pro_stock_master set  stock_out = stock_out + '.$stock.'  '.$cloased.'  where id='.$row->id;
                     //echo $query;
-                    $this->db->query($query);                     
+                    $this->db->query($query);   
+                    $stock_id = $row->id;
+                    $date =date('Y-m-d h:m:s');
+                    $ledger_query ='insert into srampos_pro_stock_ledger(stock_id,store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, transaction_identify,transaction_type,transaction_qty,date)values('.$stock_id.','.$store_id.','.$product_id.','.$variant_id.', '.$cate['cm_id'].', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', "Sales","O",'.$stock.',"'.$date.'")';   
+                     $this->db->query($ledger_query);
+					
                     if($stock_overflow <= 0){
                         break;
                     }
@@ -2357,6 +2368,24 @@ class Siteprocurment extends CI_Model
             }
         }
             
+    }
+
+function production_salestock_in($product_id,$stock_out_qty,$variant_id){
+		// ingredient stock
+        $item = $this->getrecipedeatilsByID($product_id);  
+        if($item->type=="production" || $item->type=="quick_service" || $item->type=="semi_finished"){
+           $q = $this->get_recipe_products($product_id,$variant_id); 
+            if($q->num_rows()>0){
+                foreach($q->result() as $k => $row){
+                    $cate['category_id'] = $row->category_id;
+                    $cate['subcategory_id'] = $row->subcategory_id;
+                    $cate['brand_id'] = $row->brand_id;
+                    $cate['cm_id'] = $row->cm_id;
+					$ingredi_stock_out=$this->site->unitToBaseQty($row->quantity,$row->operator,$row->operation_value);
+                    $updated_stock = $this->productionStockMaster_in($row->product_id,$variant_id,$ingredi_stock_out,$cate);
+                }
+            }
+        }   // die;    
     }
 
     function productionupdateStockMaster_old($product_id,$stock_out,$cm_id,$cate){     
@@ -2392,9 +2421,8 @@ class Siteprocurment extends CI_Model
             }
         }    
     }
-public function getrawstock($product_id,$category_id,$subcategory_id,$brand_id){
-
-       $this->db->select('pro_stock_master.*');
+public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id,$brand_id){
+        $this->db->select('pro_stock_master.*');
         $this->db->from('pro_stock_master');
         if($category_id !=''){
             $this->db->where('category_id',$category_id);
@@ -2406,6 +2434,10 @@ public function getrawstock($product_id,$category_id,$subcategory_id,$brand_id){
             $this->db->where('brand_id',$brand_id);
         }
         $this->db->where('product_id',$product_id);
+		//if($variant_id !='0'){
+            //$this->db->where('variant_id',$variant_id);
+        //}
+        //$this->db->where('variant_id',$variant_id);
         $this->db->where_not_in('stock_status','closed');
         $this->db->group_by('id');
         $this->db->order_by('id', 'asc');
@@ -2441,12 +2473,65 @@ public function getrawstock($product_id,$category_id,$subcategory_id,$brand_id){
         $this->db->join('units as u','u.id=recipe_products.unit_id','left');
         $this->db->where('recipe_id',$product_id);
         if($variant_id != 0){
-            $this->db->where('variant_id',$variant_id);
+            $this->db->where('recipe_products.variant_id',$variant_id);
         }
         $q = $this->db->get();            
         return $q;
     }        
-/*25-07-2019*/
 
+
+
+
+   function productionStockMaster_in($product_id,$variant_id,$stock_out,$cate){   
+        $store_id = $this->data['pos_store'];
+        $rawstock =$this->getrawstock($product_id,$variant_id,$cate['category_id'],$cate['subcategory_id'],$cate['brand_id']); 
+        $stock_overflow =0;
+        if(!empty($rawstock)){
+            foreach($rawstock as $row){     
+                if($stock_overflow == 0)     {
+                    $tobedetect = $stock_out; 
+                }else{
+                    $tobedetect =$stock_overflow; 
+                }                 
+                 $stock = $row->stock_in + $row->stock_out;                 
+                if ($stock > $tobedetect){
+                    $stock_overflow = $stock+$tobedetect;  
+                    $stock_qty_taken = $tobedetect-$stock;
+                    if($stock_overflow >= 0){                        
+                       $query = 'update srampos_pro_stock_master set  stock_out = stock_out - '.$tobedetect.' where id='.$row->id;
+                      // echo $query;
+                      $this->db->query($query);  
+                      $stock_id = $row->id;
+                      $date =date('Y-m-d h:m:s');
+                      $ledger_query ='insert into srampos_pro_stock_ledger(stock_id,store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, transaction_identify,transaction_type,transaction_qty,date)values('.$stock_id.','.$store_id.','.$product_id.','.$variant_id.', '.$cate['cm_id'].', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', "Sales","O",'.$tobedetect.',"'.$date.'")';
+                       $this->db->query($ledger_query);   
+                    }   
+                      if($stock_qty_taken <= 0){                        
+                        break;
+                    }
+                }else{                    
+                    $stock = $row->stock_in + $row->stock_out;
+                    $stock_overflow = $tobedetect -$stock;
+                    $out = $stock + $tobedetect;                    
+                    $cloased='';
+                    if($out > 0){
+                        $closed=', stock_status =  "available"';
+                    }                    
+                    $query = 'update srampos_pro_stock_master set  stock_out = stock_out - '.$stock.'  '.$closed.'  where id='.$row->id;
+                    //echo $query;
+                    $this->db->query($query);   
+                    $stock_id = $row->id;
+                    $date =date('Y-m-d h:m:s');
+                    $ledger_query ='insert into srampos_pro_stock_ledger(stock_id,store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, transaction_identify,transaction_type,transaction_qty,date)values('.$stock_id.','.$store_id.','.$product_id.','.$variant_id.', '.$cate['cm_id'].', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', "Sales","O",'.$stock.',"'.$date.'")';   
+                     $this->db->query($ledger_query);
+					
+                    if($stock_overflow <= 0){
+                        break;
+                    }
+                }
+            }
+        }
+            
+    }
     
 }

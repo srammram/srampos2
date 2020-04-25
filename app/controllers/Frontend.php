@@ -136,6 +136,11 @@ class Frontend extends MY_Controller
 	       $details = $this->frontend_model->getUsers($user_number);
 		   if($this->Settings->login_group_required){
 		    $user_group = $this->input->post('user_group');
+			 $groupcheck = $this->frontend_model->group_check($user_number,$user_group);
+			 if($groupcheck==0){
+				  	$this->session->set_flashdata('message', 'Invalid Group Selected.');	
+					redirect('frontend/login');
+			 }
 		   }
 		   if($this->Settings->login_warehouse_required){
 		    $user_warehouse = $this->input->post('user_warehouse');
@@ -226,5 +231,103 @@ class Frontend extends MY_Controller
         set_cookie('shop_use_cookie', $val, 31536000);
         redirect($_SERVER["HTTP_REFERER"]);
     }*/
+ function Pos_login() {		
+		//echo '<pre>';print_R($_POST);exit;
+        $date_now = date('Y-m-d');
+        $site_expiry_date    = $this->Settings->site_expiry_date;
+
+        if($site_expiry_date != '0000-00-00'){
+           if ($date_now > $site_expiry_date) {
+               $this->load->view($this->theme . 'auth/expiry_date');
+               return false;
+            } 
+        } 
+		$this->form_validation->set_rules('user_number', $this->lang->line("passcode"), 'required');
+		if($this->Settings->login_group_required){
+		    $this->form_validation->set_rules('user_group', $this->lang->line("group"), 'required');
+		}
+		if($this->Settings->login_warehouse_required){
+		    $this->form_validation->set_rules('user_warehouse', $this->lang->line("warehouse"), 'required');
+		}		
+        if ($this->form_validation->run() == true) {
+           $user_number = $this->input->post('user_number');
+	       $details = $this->frontend_model->getUsers($user_number);
+		   if($this->Settings->login_group_required){
+		    $user_group = $this->input->post('user_group');
+			 $groupcheck = $this->frontend_model->group_check($user_number,$user_group);
+			 if($groupcheck==0){
+				  	$this->session->set_flashdata('message', 'Invalid Group Selected.');	
+					redirect('frontend/login');
+			 }
+		   }
+		   if($this->Settings->login_warehouse_required){
+		    $user_warehouse = $this->input->post('user_warehouse');
+		   }else{
+		     $user_warehouse = $this->site->getUserStore_singleStore($user_number);
+		   }
+	   
+           if (!empty($user_number))  {			  
+		       $check_audit = $this->site->getPreviousDayNightAudit($user_warehouse);
+               if($this->Settings->night_audit_rights == 1){
+                    if(!$check_audit) {
+                        $this->session->set_flashdata('message', 'Night audit not complete.');  
+                        $this->session->set_flashdata('nightaudit_alert', 'There are some pending orders. Please close the orders and do Night audit to enable further orders');
+    		    $login = $this->frontend_model->login($user_number,$user_warehouse);
+                        //redirect('frontend/login');   
+                    }else{
+                     $login = $this->frontend_model->login($user_number,$user_warehouse);
+                 }
+               }
+               else{
+                    $login = $this->frontend_model->login($user_number,$user_warehouse);
+               }			
+			   if($login == TRUE){					
+					$this->session->set_flashdata('message', 'Success');
+					if($this->Settings->qsr){
+						redirect('admin/qsr');
+					}else{
+						redirect('admin/pos');						
+					}
+				}else{
+					$this->session->set_flashdata('message', 'Your details is not exit.');	
+					redirect('frontend/login');
+				}
+            } else {
+                $this->session->set_flashdata('error', 'All feild empty');
+                redirect('frontend/login');
+            }
+
+        } else {
+			$this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
+			$this->data['message'] = $this->session->flashdata('message') ? $this->session->flashdata('message') : '';
+			$this->data['warehouses'] = $this->site->getAllStores();
+			$this->data['groups'] = $this->site->getAllGroups(true);
+            $this->load->view($this->theme . 'frontend/pos_login', $this->data);
+        }
+    }
+	function test1() {	
+            $this->load->view($this->theme . 'frontend/home', $this->data);
+      
+    }
+	function test2() {		
+            $this->load->view($this->theme . 'frontend/order', $this->data);
+      
+    }
+	function test6() {		
+            $this->load->view($this->theme . 'frontend/qsr', $this->data);
+      
+    }
+	function test3() {	
+            $this->load->view($this->theme . 'frontend/invoice', $this->data);
+      
+    }
+	function test4() {	
+            $this->load->view($this->theme . 'frontend/bill', $this->data);
+      
+    }
+	function test5() {	
+            $this->load->view($this->theme . 'frontend/menu', $this->data);
+      
+    }
 
 }

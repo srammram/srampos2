@@ -73,6 +73,10 @@
                 <label class="control-label" for="email"><?php echo $this->lang->line("email"); ?></label>
                 <?php echo form_email('email', '', 'class="form-control" id="email" '); ?>
             </div>
+			<div class="form-group">
+                <label class="control-label" for="name"><?php echo $this->lang->line("Vat_number"); ?></label>
+                <?php echo form_input('vat_number', '', 'class="form-control" id="vatname" required="required"'); ?>
+            </div>
             <div class="form-group">
                 <label class="control-label" for="address"><?php echo $this->lang->line("address"); ?></label>
                 <?php echo form_textarea('address', '', 'class="form-control" id="address" required="required"'); ?>

@@ -2,7 +2,7 @@
 
 <style type="text/css">
     .modal-lg {
-    width: 1023px !important;
+    width: 1323px !important;
 }
 </style>
 <script>
@@ -50,7 +50,8 @@
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-2x">&times;</i>
             </button>
-            <h4 class="modal-title" id="myModalLabel"><?=$recipe->code.' - '.$recipe->name?> - <?php echo lang('stock_details'); ?></h4>
+            <h4 class="modal-title" id="myModalLabel"><?=$recipe->code.' - '.$recipe->name?> - <?php echo lang('stock_details'); ?>
+            <label style="float:right;margin-right:13px;"> <span>Total Stock : </span><?=@$total_stock?></label></h4>
         </div>
       
       
@@ -78,7 +79,7 @@
                         </thead>
                         <tbody>
                         <tr>
-                            <td colspan="11" class="dataTables_empty"><?= lang('loading_data_from_server'); ?></td>
+                            <td colspan="13" class="dataTables_empty"><?= lang('loading_data_from_server'); ?></td>
                         </tr>
                         </tbody>
 
@@ -96,6 +97,8 @@
                             <!-- <th></th>
                             <th></th> -->
 							<th></th>
+                            <th></th>
+                            <th></th>
 							<th></th>
                         </tr>
                         </tfoot>

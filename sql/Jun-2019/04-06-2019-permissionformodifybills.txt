@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_permissions` ADD `reports-modify_bills` TINYINT NOT NULL AFTER `reports-postpaid_bills`, ADD `reports-restore_bills` TINYINT NOT NULL AFTER `reports-modify_bills`, ADD `reports-auto_modify_bills` TINYINT NOT NULL AFTER `reports-restore_bills`, ADD `reports-items_mapping_for_modify_bills` TINYINT NOT NULL AFTER `reports-auto_modify_bills`;

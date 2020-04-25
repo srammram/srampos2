@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_pos_settings` ADD `categories_list_by` TINYINT NOT NULL AFTER `sales_item_in_pos`;

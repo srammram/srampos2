@@ -229,7 +229,7 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
                     
                         <th colspan="2"><?=lang("description");?></th>
                         <th><?=lang("price");?></th>
-                        <th><?=lang("qty");?></th>
+                        <th class="text-center"><?=lang("qty");?></th>
                         <?php 
                         $cols="4";
                         if($inv->manual_item_discount != 0){

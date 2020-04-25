@@ -409,6 +409,7 @@ $currency = $this->site->getAllCurrencies();
                                             <td rowspan="4" class="balance_paytd" style="width: 50%!important;text-align: center">&nbsp;<?=lang('balance_pay')?></td> 
                                         </tr>
                                          <?php
+										 
                                             foreach($currency as $currency_row) { ?>
                                                <tr><td class="balance_paytd" style="text-align: left;"><?php echo $currency_row->code; ?>&nbsp;:&nbsp;&nbsp;<span id="balance_<?php echo $currency_row->code; ?>">0.00</span>
                                                    <input type="hidden" id="balance_amt_<?php echo $currency_row->code; ?>"></td></tr>
@@ -1834,7 +1835,7 @@ var pre_printed = '<?=$pos_settings->pre_printed_format?>';
 							  bill_head += '<p>'+'<?= lang('phone'); ?>'+': '+data.delivery_person.phone+'</p>';
 							 }
 
-                        bill_totals += '<table class="table table-striped table-condensed" style="margin-top: -10px;font-size:14px!important;"><th colspan="2">'+'<?=lang("description");?>'+'</th><th>'+'<?=lang("price");?>'+'</th><th>'+'<?=lang("qty");?>'+'</th>';
+                        bill_totals += '<table class="table table-striped table-condensed" style="margin-top: -10px;font-size:14px!important;"><th colspan="2">'+'<?=lang("description");?>'+'</th><th>'+'<?=lang("price");?>'+'</th><th class="text-center">'+'<?=lang("qty");?>'+'</th>';
 			    if (site.pos_settings.bill_print_format==2) {
 				bill_totals += '<th class="no-border text-center" style="margin-top: -10px">'+'<?=lang("dis(%)");?>'+'</th>';
 			    }else{

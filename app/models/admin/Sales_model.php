@@ -10,6 +10,7 @@ class Sales_model extends CI_Model
 
     public function getProductNames($term, $warehouse_id, $recipe_standard)
     {        
+	
 		$limit = 5;
         $this->db->select('recipe.*,CONCAT('.$this->db->dbprefix("recipe").'.name," ",IFNULL('.$this->db->dbprefix("recipe_variants").'.name,"")) as recipe_name, recipe_categories.id as category_id, recipe_categories.name as category_name,recipe_variants.name as variant_name,recipe_variants.id as variant_id,recipe_variants.native_name as variant_khmer_name, recipe_variants_values.price as variant_price', FALSE)
           
@@ -20,12 +21,20 @@ class Sales_model extends CI_Model
             $this->db->where('recipe.active', 1);
             // $this->db->where('recipe.recipe_standard', $recipe_standard);
             // $this->db->or_where('recipe.recipe_standard', 0);
-            $this->db->where("recipe.name LIKE '%" . $term . "%' OR recipe.code LIKE '%" . $term . "%'");
-        
+          //  $this->db->where("recipe.name LIKE '%" . $term . "%' OR recipe.code LIKE '%" . $term . "%'");
+		  if($this->pos_settings->item_search ==1){
+			$this->db->where(" recipe.code LIKE '" . $term . "%'");
+		  }
+		  if($this->pos_settings->item_search ==2){
+			$this->db->where("recipe.name LIKE '" . $term . "%' ");
+		  }
+		   if($this->pos_settings->item_search ==0){
+			$this->db->where("recipe.name LIKE '%" . $term . "%' OR recipe.code LIKE '%" . $term . "%'");
+		   }
         // $this->db->order_by('products.name ASC');
         $this->db->limit($limit);
         $q = $this->db->get('recipe');
-        // print_r($this->db->last_query());die;
+         //print_r($this->db->last_query());die;
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -35,6 +44,7 @@ class Sales_model extends CI_Model
     }
      public function getProductNames_new($term, $warehouse_id,$recipe_standard,$sale_type=1)
     {
+		
         $limit = 5;
         $mydate=getdate(date("U"));
         $today = "$mydate[weekday]";
@@ -55,7 +65,16 @@ class Sales_model extends CI_Model
         // $this->db->limit($limit, $start);
         // $this->db->group_by("recipe.id");
 
-            $this->db->where("recipe.name LIKE '%" . $term . "%' OR recipe.code LIKE '%" . $term . "%' ");
+           // $this->db->where("recipe.name LIKE '%" . $term . "%' OR recipe.code LIKE '%" . $term . "%' ");
+		     if($this->pos_settings->item_search ==1){
+			$this->db->where(" recipe.code LIKE '" . $term . "%'");
+		  }
+		  if($this->pos_settings->item_search ==2){
+			$this->db->where("recipe.name LIKE '" . $term . "%' ");
+		  }
+		   if($this->pos_settings->item_search ==0){
+			$this->db->where("recipe.name LIKE '%" . $term . "%' OR recipe.code LIKE '%" . $term . "%'");
+		   }
         
           
       $this->db->group_by('recipe.name, recipe_variants.id');

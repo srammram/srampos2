@@ -35,10 +35,11 @@ function isFullScreen() {
    <div class="pos_header">
     <div class="container-fluid">
         <div class="row">
-            <div class="col-lg-3 col-md-2 col-sm-2 col-xs-12 pos_logo_front">
-                 <?php if ($this->Settings->logo3) { ?>
-                <img src="<?=base_url()?>assets/uploads/logos/<?=$this->Settings->logo3?>" alt="<?=$this->Settings->site_name?>" class="sram_table_logo" />
-                <?php   } ?>
+           <div class="col-lg-2 col-md-2 col-sm-2 col-xs-12 pos_logo_front">
+             <?php if ($this->Settings->logo3) { ?>
+                <a href="<?php echo site_url().'admin/qsr'; ?>"><img src="<?=base_url()?>assets/uploads/logos/<?=$this->Settings->logo3?>" alt="<?=$this->Settings->site_name?>" class="sram_table_logo" /></a>
+           <?php   } ?>
+
 
                 <!-- <a href="<?php echo site_url().'admin/qsr'; ?>"><img src="<?=$assets?>images/front_logo.png" alt="Pos_logo" title="Pos-logo"></a> -->
             </div>

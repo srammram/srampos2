@@ -21,6 +21,8 @@
     <script type="text/javascript" src="<?=$assets?>js/jquery-2.0.3.min.js"></script>
     <script type="text/javascript" src="<?=$assets?>js/jquery-migrate-1.2.1.min.js"></script>
     <script type="text/javascript" src="<?= $assets ?>js/jquery.scannerdetection.js"></script>
+	<style>
+	</style>
     <script type="text/javascript">
 var site = <?=json_encode(array('url' => base_url(), 'base_url' => admin_url('/'), 'assets' => $assets, 'settings' => $Settings, 'dateFormats' => $dateFormats))?>, pos_settings = <?=json_encode($pos_settings);?>;
 var lang = {
@@ -309,8 +311,8 @@ $currency = $this->site->getAllCurrencies();
                                             <td >
                                                  
                                                 <a href="#" id="ppdiscount">
-                                                    <button type="button" class="btn btn-warning btn-block btn-flat"
-                                                id="ppdiscount" >  <?=lang('discount'); ?>  </button>
+                                                    <button type="button" class="btn btn-warning btn-block btn-flat ppdiscount1"
+                                                id="ppdiscount"  >  <?=lang('discount'); ?>  </button>
                                                  </a>
                                                <!--  <input type="hidden" name="suspend_id" value="0">
                                                     <?=lang('discount'); ?> -->
@@ -440,7 +442,7 @@ $currency = $this->site->getAllCurrencies();
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                <button type="button" id="reset2" class="close" data-dismiss="modal" aria-hidden="true" onClick="window.location.reload();" >
                     <i class="fa fa-2x">&times;</i>
                 </button>
                 <h4 class="modal-title" id="dsModalLabel"><?=lang('edit_order_discount');?></h4>
@@ -460,15 +462,15 @@ $currency = $this->site->getAllCurrencies();
                         ?>
                     </select>
                 <?php elseif($Settings->customer_discount=='manual') : ?>
-                    <div class="form-group">
+                    <div for="dcode" class="form-group">
                         <?=lang("order_discount", "order_discount_input");?>
-                        <?php echo form_input('order_discount_input', '0', 'class="form-control kb-pad order_discount_input" id="order_discount_input"'); ?>
+                        <?php echo form_input('order_discount_input', '0', 'class="form-control kb-pad order_discount_input dcode" id="order_discount_input"'); ?>
                     </div>
                <?php endif; ?>
             </div>
 
-            <div class="modal-footer">
-                <button type="button" id="updateOrderDiscount" class="btn btn-primary"><?=lang('update')?></button>
+            <div class="modal-footer reset2">
+                <button type="button"  id="updateOrderDiscount" class="btn btn-primary " ><?=lang('update')?></button>
             </div>
         </div>
     </div>
@@ -1138,7 +1140,7 @@ $this->load->view($this->theme . 'qsr/qsr_footer');
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onClick="window.location.reload();"><i
                         class="fa fa-2x">&times;</i></button>
                 <h4 class="modal-title" id="susModalLabel"><?=lang('suspend_sale');?></h4>
             </div>
@@ -1169,21 +1171,123 @@ $this->load->view($this->theme . 'qsr/qsr_footer');
 ?>
 <div id="bill_print" style="display: none">
 	<div class="text-center">
-        <?= '<img src="'.base_url('assets/uploads/logos/'.$biller->logo).'" alt="">'; ?>
-        <h3 style="text-transform:uppercase;"><?=$biller->company != '-' ? $biller->company : $biller->name;?></h3>
-        <?php echo "<p>" . $biller->address . " " . $biller->city . " " . $biller->postal_code . " " . $biller->state . " " . $biller->country .
-        "<br>" . lang("tel") . ": " . $biller->phone.'</p>';?>
+                    <?= !empty($biller->logo) ? '<img src="'.base_url('assets/uploads/logos/'.$biller->logo).'" alt="">' : ''; ?>
+                    <h3 style="text-transform:uppercase;"><?=$biller->company != '-' ? $biller->company : $biller->name;?></h3>
+                    <?php
+                    echo "<p>" . $biller->address . " " . $biller->city . " " . $biller->postal_code . " " . $biller->state . " " . $biller->country .
+                    "<br>" . lang("tel") . ": " . $biller->phone;
+
+                    // comment or remove these extra info if you don't need
+                    if (!empty($biller->cf1) && $biller->cf1 != "-") {
+                        echo "<br>" . lang("bcf1") . ": " . $biller->cf1;
+                    }
+                    if (!empty($biller->cf2) && $biller->cf2 != "-") {
+                        echo "<br>" . lang("bcf2") . ": " . $biller->cf2;
+                    }
+                    if (!empty($biller->cf3) && $biller->cf3 != "-") {
+                        echo "<br>" . lang("bcf3") . ": " . $biller->cf3;
+                    }
+                    if (!empty($biller->cf4) && $biller->cf4 != "-") {
+                        echo "<br>" . lang("bcf4") . ": " . $biller->cf4;
+                    }
+                    if (!empty($biller->cf5) && $biller->cf5 != "-") {
+                        echo "<br>" . lang("bcf5") . ": " . $biller->cf5;
+                    }
+                    if (!empty($biller->cf6) && $biller->cf6 != "-") {
+                        echo "<br>" . lang("bcf6") . ": " . $biller->cf6;
+                    }
+                    // end of the customer fields
+
+                    echo "<br>";
+                    if ($pos_settings->cf_title1 != "" && $pos_settings->cf_value1 != "") {
+                        echo $pos_settings->cf_title1 . ": " . $pos_settings->cf_value1 . "<br>";
+                    }
+                    if ($pos_settings->cf_title2 != "" && $pos_settings->cf_value2 != "") {
+                        echo $pos_settings->cf_title2 . ": " . $pos_settings->cf_value2 . "<br>";
+                    }
+                    echo '</p>';
+                    ?>
+                </div>
+                <?php
+                if ($Settings->invoice_view == 1 || $Settings->indian_gst) {
+                    ?>
+                    <div class="col-sm-12 text-center">
+                        <h4 style="font-weight:bold;"><?=lang('tax_invoice');?></h4>
+                    </div>
+                    <?php
+                }
+                //echo "<span style='font-size:15px;font-weight:bold'>" .lang("bill_no") . ": " . $inv->bill_number . "</span>";
+                 if($this->Settings->time_format == 12){
+                    $date = new DateTime($inv->created_on);
+                    $created_on = $date->format('Y-m-d h:iA');
+                    }else{
+                        $created_on =  $inv->created_on;
+                } echo  "<br>";
+                echo lang("date") . ": " . $created_on . "<br>";
+                if($pos_settings->order_no_display == 1){
+                    echo lang("sale_no_ref") . ": " . $inv->reference_no . "<br>";
+                }
+                if (!empty($inv->return_sale_ref)) {
+                    echo '<p>'.lang("return_ref").': '.$inv->return_sale_ref;
+                    if ($inv->return_id) {
+                        echo ' <a data-target="#myModal2" data-toggle="modal" href="'.admin_url('sales/modal_view/'.$inv->return_id).'"><i class="fa fa-external-link no-print"></i></a><br>';
+                    } else {
+                        echo '</p>';
+                    }
+                }
+                echo lang("sales_person") . ": " . $created_by." ".$created_by. "</p>";
+                echo "<p>";
+                echo lang("customer") . ": " . ($customer->company && $customer->company != '-' ? $customer->company : $customer->name) . "<br>";
+				if(!empty($delivery_person)){
+					echo 'Delivery Address <br>';
+					
+					
+                    echo $customer->address . "<br>";
+                    echo $customer->city ." ".$customer->state." ".$customer->country ."<br>";
+					echo lang("tel") . ": " . $customer->phone . "<br><br>";
+					echo "Delivery Person : " .$delivery_person->first_name.' '.$delivery_person->last_name.' ('.$delivery_person->user_number.')';
+					echo "<br>Phone : ".$delivery_person->phone ;
+				}
+                /*if ($pos_settings->customer_details) {
+                    if ($customer->vat_no != "-" && $customer->vat_no != "") {
+                        echo "<br>" . lang("vat_no") . ": " . $customer->vat_no;
+                    }
+                    echo lang("tel") . ": " . $customer->phone . "<br>";
+                    echo lang("address") . ": " . $customer->address . "<br>";
+                    echo $customer->city ." ".$customer->state." ".$customer->country ."<br>";
+                    if (!empty($customer->cf1) && $customer->cf1 != "-") {
+                        echo "<br>" . lang("ccf1") . ": " . $customer->cf1;
+                    }
+                    if (!empty($customer->cf2) && $customer->cf2 != "-") {
+                        echo "<br>" . lang("ccf2") . ": " . $customer->cf2;
+                    }
+                    if (!empty($customer->cf3) && $customer->cf3 != "-") {
+                        echo "<br>" . lang("ccf3") . ": " . $customer->cf3;
+                    }
+                    if (!empty($customer->cf4) && $customer->cf4 != "-") {
+                        echo "<br>" . lang("ccf4") . ": " . $customer->cf4;
+                    }
+                    if (!empty($customer->cf5) && $customer->cf5 != "-") {
+                        echo "<br>" . lang("ccf5") . ": " . $customer->cf5;
+                    }
+                    if (!empty($customer->cf6) && $customer->cf6 != "-") {
+                        echo "<br>" . lang("ccf6") . ": " . $customer->cf6;
+                    }
+                }*/
+                echo "</p>";
+                ?>
+		
         <table id="bill-table_head" width="100%" class="table table-striped" style="margin-bottom:0;"></table> 
         <table id="bill-table" width="100%" class=" table table-striped" style="margin-bottom:0;"></table>
         <table id="bill-total-table" class="prT table" style="margin-bottom:0;" width="100%"></table>
         <!-- <span id="bill_footer"></span> -->
     </div>
 </div>
-<!-- <div id="bill_tbl"><span id="bill_span"></span>
+ <div id="bill_tbl"><span id="bill_span"></span>
     <table id="bill-table" width="100%" class="prT table table-striped" style="margin-bottom:0;"></table>
     <table id="bill-total-table" class="prT table" style="margin-bottom:0;" width="100%"></table>
     <span id="bill_footer"></span>
-</div> -->
+</div> 
 <div class="modal fade in" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true"></div>
 <div class="modal fade in" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2"
@@ -2188,7 +2292,10 @@ function widthFunctions(e) {
         $('select, .select').select2({minimumResultsForSearch: 7});
         /*$(document).on('click', '.recipe', function (e) {*/
         $(document).on('click', '.recipe:not(".has-varients")', function (e) {
-
+if($(this).hasClass("non_transaction")){
+			 bootbox.alert('ITEM IS NOT AVAILABLE');
+			 return false;
+			}
             $('#modal-loading').show();
             code = $(this).val(),            
                 wh = $('#poswarehouse').val(),
@@ -2213,7 +2320,11 @@ function widthFunctions(e) {
             });
         });
 
-    $(document).on('click', '.recipe-varient', function (e) {            
+    $(document).on('click', '.recipe-varient', function (e) {   
+if($(this).hasClass("non_transaction")){
+			 bootbox.alert('ITEM IS NOT AVAILABLE');
+			 return false;
+			}
             code = $(this).val(),
         $('#myVaraintModal').modal('hide');$('#modal-loading').show();
                 wh = $('#poswarehouse').val(),
@@ -2428,6 +2539,27 @@ function widthFunctions(e) {
                 $('#susModal').modal();
             }
         });
+		
+		$('.ppdiscount').click(function () {
+            if (count <= 1) {
+                bootbox.alert('<?=lang('Please Add Product Before Discount. Thank You!');?>');
+                return false;
+            } else {
+                $('#dsModal').modal();
+            }
+        });
+		
+		$(document).ready(function() {
+    $("#susModal").modal({
+        show: false,
+        backdrop: 'static'
+    });
+    
+  /*   $("#ppdiscount").click(function() {
+       $("#dsModal").modal("show");             
+    }); */
+});
+
         $('#suspend_sale').click(function () {
             ref = $('#reference_note').val();
             if (!ref || ref == '') {
@@ -2463,11 +2595,13 @@ function widthFunctions(e) {
             <?php } ?>
         });
         $('#print_bill').click(function () {
+			
             if (count == 1) {
                 bootbox.alert('<?=lang('x_total');?>');
                 return false;
             }
             <?php if ($pos_settings->remote_printing != 1) { ?>
+			
                 printBill();
             <?php } else { ?>
             	
@@ -2557,6 +2691,7 @@ if ( ! $pos_settings->remote_printing) {
         }
 
         function printBill() {
+			
             var socket_data = {
                 'printer': <?= json_encode($printer); ?>,
                 'logo': (biller && biller.logo ? biller.logo : ''),
@@ -2762,8 +2897,7 @@ function getTotalDiscount(){
         /*alert(ds);*/
         input_discount = 0;
     if (ds.indexOf("%") !== -1) {  
-            var pds = ds.split("%");          
-        
+            var pds = ds.split("%");       
         if (!isNaN(pds[0])) {
 
              /*$.ajax({
@@ -2865,12 +2999,12 @@ $('.sortable_table tbody').sortable({
 
 
 <div class="modal fade in" id="myVaraintModal" tabindex="-1" role="dialog" aria-labelledby="VariantModalLabel"
-     aria-hidden="true" style="z-index:9999">
+     aria-hidden="true" style="z-index:9999" >
     <div class="modal-dialog modal-md">
     <div class="modal-content">
         
         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-2x">×</i>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onClick="window.location.reload();"><i class="fa fa-2x">×</i>
             </button>
             <h4 class="modal-title" id="customerModalLabel">Variants</h4>
         </div>
@@ -3001,6 +3135,9 @@ $('#reference_note').focus(function() {
     alert('<?php echo $sid; ?>');
 
 }*/
+$(document).on('click', '.reset2', function () {    
+	$("#updateOrderDiscount").val('');
+});
 
 function suspend_cancel(){
 

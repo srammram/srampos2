@@ -576,7 +576,7 @@
                                         <?= lang("bill_disc", "bill_disc") ?>
                                     </td>
                                     <td class="text-right">
-                                        <input  name="bill_disc" id="bill_disc_val" value="<?=$inv->bill_disc_val?>" readonly tabindex=-1 class="form-control text-right bill_disc_val">
+                                        <input  id="bill_disc_val" value="<?=$inv->bill_disc_val?>" readonly tabindex=-1 class="form-control text-right bill_disc_val">
                                     </td>
                                 </tr>
                                  <tr>                                    
@@ -766,7 +766,7 @@
 </div>
 
 <script>
-$(document).ready(function(e) {
+$(document).ready(function(e) {        
     //console.log(localStorage.getItem('round_off'))
     //$round_off = localStorage.getItem('round_off');
     //$freight = localStorage.getItem('freight');
@@ -801,10 +801,11 @@ $(document).ready(function(e) {
     localStorage.setItem('inv_bill_disc',$bill_disc);    
     }
 
- $bill_disc_val = $('.inv_bill_disc_val').val();
+     $bill_disc_val = $('.bill_disc_val').val();
     if ($bill_disc_val!=0) {        
     localStorage.setItem('inv_bill_disc_val',$bill_disc_val);    
     }
+
     
     var supplierid = localStorage.getItem('pi_supplier');
     //$('#pi_supplier').val(supplierid);
@@ -822,7 +823,7 @@ $(document).ready(function(e) {
 				//$('#supplier_address').val(data.supplier_address);
 				$('#supplier_email').val(data.supplier_email);
 				$('#supplier_phno').val(data.supplier_phno);
-				
+		        $('#add_item').focus();
 			}
 		});
 	}

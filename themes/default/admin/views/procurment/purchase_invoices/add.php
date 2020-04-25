@@ -24,14 +24,12 @@
         tax_rates = <?php echo json_encode($tax_rates); ?>, pi_items = {},
         audio_success = new Audio('<?= $assets ?>sounds/sound2.mp3'),
         audio_error = new Audio('<?= $assets ?>sounds/sound3.mp3');
-    $(document).ready(function () {
+     $(document).ready(function () {
         <?php if($this->input->get('supplier')) { ?>
         if (!localStorage.getItem('pi_items')) {
             //localStorage.setItem('pi_supplier', <?=$this->input->get('supplier');?>);
         }
         <?php } ?>
-		
-		
         <?php //if ($Owner || $Admin) { ?>
         if (!localStorage.getItem('pi_date')) {
            /* $("#pi_date").datetimepicker({
@@ -71,7 +69,6 @@
 
 	}
 	$("#pi_requestdate").val(localStorage.getItem('pi_requestdate'));
-		
 		if (!localStorage.getItem('iodate')) {
             $("#iodate").datetimepicker({
                 format: site.dateFormats.js_ldate,
@@ -142,8 +139,7 @@
             },
             select: function (event, ui) {
                 event.preventDefault();
-                if (ui.item.id !== 0) {   
-		    console.log(ui.item);
+                if (ui.item.id !== 0) {  
                     var row = add_purchase_invoices_item(ui.item);
                     if (row)
                         $(this).val('');
@@ -155,7 +151,6 @@
         });
 
         $(document).on('click', '#addItemManually', function (e) {
-			
             if (!$('#mcode').val()) {
                 $('#mError').text('<?= lang('product_code_is_required') ?>');
                 $('#mError-con').show();
@@ -241,7 +236,7 @@
                 echo admin_form_open_multipart("procurment/purchase_invoices/add", $attrib)
                 ?>
                 <div class="row">
-		    
+		        <input type="hidden" name="warehouse" id="po_warehouse" value="<?php echo $Settings->default_warehouse ?>"> 
                     <div class="col-lg-12" style="background:#b1d7fd; padding:15px 15px;">
 			<?php echo form_submit('add_purchase_invoices', $this->lang->line("save"), 'id="add_purchase_orders" class="btn col-lg-1 btn-sm btn-primary pull-right"'); ?>
                                 <button type="button" class="btn col-lg-1 btn-sm btn-danger pull-right" style="margin-right:15px;height:30px!important;font-size: 12px!important" id="reset"><?= lang('reset') ?></button>
@@ -585,7 +580,7 @@
                                         <?= lang("bill_disc", "bill_disc") ?>
                                     </td>
                                     <td class="text-right">
-                                        <input  name="bill_disc" id="bill_disc_val" readonly tabindex=-1 class="form-control text-right bill_disc_val">
+                                        <input id="bill_disc" readonly tabindex=-1 class="form-control text-right bill_disc_val">
                                     </td>
                                 </tr>
                                  <tr>                                    
@@ -778,9 +773,10 @@ $(document).ready(function(e) {
     console.log(localStorage.getItem('round_off'))
     $round_off = localStorage.getItem('round_off');
     $freight = localStorage.getItem('freight');
+    $pi_note = localStorage.getItem('pi_note');    
     $('#round_off,#round_off_amt').val($round_off);
     $('#freight,#feright_chargers_shipping').val($freight);
-    $('#pi_note').val(localStorage.getItem('pi_note'));
+    $('#pi_note').val($pi_note);
     $('#invoice_amt').val(localStorage.getItem('invoice_amt'));
     
     if (localStorage.getItem('currency')==null) {
@@ -831,7 +827,6 @@ function get_supplier_details(supplierid){
 
 $(document).on('change', '#pi_supplier', function(){
 	var pi_supplier = $(this).val();
-    
 	$.ajax({
 		type: 'get',
 		url: '<?= admin_url('procurment/purchase_invoices/supplier'); ?>',
@@ -847,6 +842,7 @@ $(document).on('change', '#pi_supplier', function(){
 			$('#supplier_address').val(data.supplier_address);
 			$('#supplier_email').val(data.supplier_email);
 			$('#supplier_phno').val(data.supplier_phno);
+			$('#add_item').focus();
 		}
 	});
 });
@@ -948,7 +944,8 @@ $(document).on('change', '#pi_requestnumber', function(){
 			localStorage.setItem('bill_disc', purchase_invoices_value["bill_disc"]);
 			localStorage.setItem('bill_disc_percentage', purchase_invoices_value["bill_disc_val"]);
 			localStorage.setItem('round_off', purchase_invoices_value["round_off"]);
-			$('#round_off_amt').val(localStorage.getItem('round_off'));
+            $('#round_off_amt').val(localStorage.getItem('round_off'));
+			$('#pi_note').val(localStorage.getItem('pi_note'));
 			localStorage.setItem('freight', purchase_invoices_value["shipping"]);
 			$('#feright_chargers_shipping').val(localStorage.getItem('freight'));
 			$('#pi_supplier').val(localStorage.getItem('pi_supplier'));

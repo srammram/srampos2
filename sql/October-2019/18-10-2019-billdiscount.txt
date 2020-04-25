@@ -1,0 +1,3 @@
+ALTER TABLE `srampos_pro_purchase_invoices` CHANGE `bill_disc` `bill_disc` VARCHAR(25) NOT NULL; 
+
+ALTER TABLE `srampos_pro_purchase_orders` CHANGE `bill_disc` `bill_disc` VARCHAR(25) NOT NULL; 

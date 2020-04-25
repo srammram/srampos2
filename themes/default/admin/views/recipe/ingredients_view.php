@@ -17,27 +17,29 @@
                         <td width="100px">
                             <?= lang("item_type", "type") ?>
                         </td>
-                        <td width="350px">
-                            <?php                                           
-                            $opts = array('0' => lang('select'), 'production' => lang('production'),'quick_service' => lang('quick_service'), 'semi_finished' => lang('semi_finished'));
-                            echo form_dropdown('type', $opts, (isset($_POST['type']) ? $_POST['type'] : ($recipe ? $recipe->type : '')), 'class="form-control" id="type" required="required" disabled');                            
-                            ?>
-                        </td>
-                        <td width="100px">
-                            <?= lang("item_name", "item_name"); ?>
-                        </td>
-                        <td width="350px">
-                            <select name="item_name" id="item_name" class="form-control" disabled>                                
-                                <?php
-                                $variant ='';
-                                if($recipe->varient_name != ''){
-                                    $variant =' - '.$recipe->varient_name;
-                                }?>
-                                <option value="<?php echo  $recipe->id ?>" <?php if($recipe->name == $_POST['item_name']) { ?>   selected= selected  <?php  } ?> ><?php echo  $recipe->name. $variant; ?></option>
-                                
-                            </select>  
-                            <input type="hidden" name="item_name" value="<?php echo  $recipe->id ?>" >
-                        </td>                        
+                     <td width="350px">
+							<?php		
+							$opts = array('0' => lang('select'), 'production' => lang('production'),'quick_service' => lang('quick_service'), 'semi_finished' => lang('semi_finished'), 'addon' => lang('addon'));
+							echo form_dropdown('type', $opts, (isset($_POST['type']) ? $_POST['type'] : ($product_recipe_master ? $product_recipe_master->type : '')), 'class="form-control" id="type" required="required" disabled');							
+							?>
+						</td>
+						<td width="100px">
+							<?= lang("item_name", "item_name");  ?>
+						</td>
+						<td width="350px">
+							<select name="item_name" id="item_name" class="form-control"  disabled>
+								<?php  if(!empty($productlist)){
+									$product_name =$product_recipe_master->recipe_id;
+									$rv=!empty($product_recipe_master->varient_name)?$product_recipe_master->varient_name:"";
+									$product_name=$product_name.$rv;
+								foreach($productlist as $row){ 
+								$variant=!empty($row->varient_name)?$row->varient_name:""; 
+									   $product_lst_name=$row->id .$variant; ?>
+								<option value="<?php echo  $row->id ?>" <?php  echo  ($product_lst_name == $product_name)?"selected":"";     ?>><?php  echo $row->name .$variant  ?></option>
+								<?php  }  }  ?>
+							</select>  
+							<input type="hidden" name="item_name" value="<?php echo  $recipe->id ?>" >
+						</td>
                     </tr>                  
                     </tbody>
                 </table>

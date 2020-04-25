@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS `srampos_memberdiscountcards`;
+
+CREATE TABLE `srampos_memberdiscountcards` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `card_details_id` int(11) NOT NULL,
+  `created_store` int(11) DEFAULT NULL,
+  `store_id` int(11) DEFAULT NULL,
+  `card_no` varchar(200) NOT NULL,
+  `created_on` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;

@@ -285,7 +285,7 @@ class Notify extends CI_Controller
 	file_put_contents('themes/default/admin/assets/js/socket/socket_configuration.js','var socket_port='.$setting->socket_port.';var socket_host="'.$setting->socket_host.'";var socket_enable="'.$setting->socket_enable.'";');
 	file_put_contents('themes\default\admin\assets\js\socket\socket_configuration.js','var socket_port='.$setting->socket_port.';var socket_host="'.$setting->socket_host.'";var socket_enable="'.$setting->socket_enable.'";');
     }
-    
+  
 
 
 }

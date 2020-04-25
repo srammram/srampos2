@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_archive_bil_items` ADD `customer_discount_val` VARCHAR(40) NULL AFTER `recipe_variant_id`;

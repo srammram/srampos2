@@ -100,7 +100,7 @@ class Sendtokitchen extends REST_Controller {
 						'kitchen_type_id' => $_POST['kitchen_type'][$i],
 						'recipe_id' => $_POST['recipe_id'][$i],
 						'recipe_variant_id' => $_POST['variant_id'][$i] ? $_POST['variant_id'][$i] :0,						
-						'variant' => $variantname->name ? $variantname->name:0,	
+						'variant' => $variantname->name ? $variantname->name:Null,	
 						'recipe_code' => $_POST['recipe_code'][$i],
 						'recipe_name' => $_POST['recipe_name'][$i],
 						'recipe_type' => $_POST['recipe_type'][$i],
@@ -112,7 +112,7 @@ class Sendtokitchen extends REST_Controller {
 						'subtotal' => $this->sma->formatDecimal($_POST['subtotal'][$i]),
 						'real_unit_price' => $_POST['subtotal'][$i],
 						'comment' => $_POST['comment'][$i],
-						'addon_id' => $_POST['addon'][$i] ? $_POST['addon'][$i] : 0,
+						'addon_id' => $_POST['addon'][$i] ? $_POST['addon'][$i] : Null,
 						'time_started' => date('Y-m-d H:i:s'),
 						'created_on' => date('Y-m-d H:i:s'),
 					);

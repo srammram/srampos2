@@ -1,10 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Purchase_returns_model extends CI_Model
-{
-
-    public function __construct()
-    {
+class Purchase_returns_model extends CI_Model{
+    public function __construct(){
         parent::__construct();
     }
 
@@ -46,8 +43,7 @@ class Purchase_returns_model extends CI_Model
 		return false;
 	}
 	
-    public function getProductNames($term, $limit = 10)
-    {
+    public function getProductNames($term, $limit = 10){
 	$type = array('standard','raw');
 	$this->db->select('r.*,t.rate as purchase_tax_rate');
 	$this->db->from('recipe r');
@@ -202,7 +198,7 @@ class Purchase_returns_model extends CI_Model
             ->order_by('id', 'asc');
 	    
         $q = $this->db->get_where('pro_purchase_return_items', array('return_id' => $purchase_return_id));
-		//echo '<pre>';print_R($q->result());exit;
+		// echo '<pre>';print_R($this->db->last_query());exit;
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -250,7 +246,7 @@ GROUP BY `ST`.`id`
 ORDER BY srampos_pro_purchase_invoice_items.`id` ASC*/
 
 	$store_id = $this->data['pos_store'];
-    $this->db->select('PII.id,PII.invoice_id,PII.batch_no,PII.expiry,PII.po_qty,PII.item_disc,PII.item_disc_amt,PII.subtotal,PII.item_bill_disc_amt,PII.item_tax_method,PII.tax_rate,PII.tax_rate_id,PII.tax,PII.landing_cost,PII.selling_price,PII.margin,PII.net_amt,PII.warehouse_id,PII.store_id,PII.cost,PII.gross,PII.item_dis_type,PII.total,PII.option_id,PII.product_unit_id,PII.expiry_type,PII.category_id,PII.category_name,PII.subcategory_id,PII.subcategory_name,PII.brand_id,PII.brand_name,ST.id as stock_id,ST.stock_in,ST.stock_out,R.id as product_id,R.code as product_code,R.name as product_name');
+    $this->db->select('PII.id,PII.invoice_id,PII.batch_no,PII.expiry,PII.po_qty,PII.item_disc,PII.item_disc_amt,PII.subtotal,PII.item_bill_disc_amt,PII.item_tax_method,PII.tax_rate,PII.tax_rate_id,PII.tax,PII.landing_cost,PII.selling_price,PII.margin,PII.net_amt,PII.warehouse_id,PII.store_id,PII.cost,PII.gross,PII.item_dis_type,PII.total,PII.option_id,PII.product_unit_id,PII.expiry_type,PII.category_id,PII.category_name,PII.subcategory_id,PII.subcategory_name,PII.brand_id,PII.brand_name,ST.id as stock_id,ST.stock_in,ST.stock_out,PII.product_id,PII.product_code,PII. product_name,PII.quantity,PII.unit_quantity');
 
     /* $this->db->select('PII.id,PII.invoice_id,PII.batch_no,PII.expiry,PII.po_qty,PII.item_disc,PII.item_disc_amt,PII.subtotal,PII.item_bill_disc_amt,PII.item_tax_method,PII.tax_rate,PII.tax_rate_id,PII.tax,PII.landing_cost,PII.selling_price,PII.margin,PII.net_amt,PII.warehouse_id,PII.store_id,PII.cost,PII.gross,PII.item_dis_type,PII.total,PII.option_id,PII.product_unit_id,PII.expiry_type,PII.category_id,PII.category_name,PII.subcategory_id,PII.subcategory_name,PII.brand_id,PII.brand_name,ST.id as stock_id,ST.stock_in,ST.stock_out,R.id as product_id,R.code as product_code,R.name as product_name');*/
     $this->db->from('pro_purchase_invoice_items  as PII');
@@ -262,9 +258,9 @@ ORDER BY srampos_pro_purchase_invoice_items.`id` ASC*/
     $this->db->where_not_in('ST.stock_status','closed');
     $this->db->where('PII.store_id',$store_id);
     $this->db->where('PII.invoice_id', $purchase_invoices_id);
-    $this->db->group_by('ST.id');
+    $this->db->group_by('PII.product_id');
     $this->db->order_by('PII.id', 'asc');
-    $q = $this->db->get();        
+    $q = $this->db->get();    
 
     /*$this->db->select('pro_purchase_invoice_items.*,ST.stock_in,ST.stock_out')
         ->join('pro_purchase_invoices', 'pro_purchase_invoices.id=pro_purchase_invoice_items.invoice_id')
@@ -280,7 +276,7 @@ ORDER BY srampos_pro_purchase_invoice_items.`id` ASC*/
 		// echo '<pre>';print_r($this->db->last_query());exit;
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
-                $row->quantity = $row->stock_in - $row->stock_out;
+               // $row->quantity = $row->stock_in - $row->stock_out;
                 $data[] = $row;
             }
            /* echo "<pre>";
@@ -385,9 +381,7 @@ ORDER BY srampos_pro_purchase_invoice_items.`id` ASC*/
         return FALSE;
     }
 
-    public function addPurchase_returns($data, $items,$pi_array)
-    {
-	
+    public function addPurchase_returns($data, $items,$pi_array){
 	$this->db->insert('pro_purchase_returns', $data);//file_put_contents('return.txt',$this->db->error(),FILE_APPEND);
 	$id = $this->db->insert_id();
         if ($id) {	   
@@ -406,7 +400,7 @@ ORDER BY srampos_pro_purchase_invoice_items.`id` ASC*/
                 $stock_update['subcategory_id'] = $item['subcategory_id'];
                 $stock_update['brand_id'] = $item['brand_id'];
                 $stock_update['stock_in'] = 0;
-                $stock_update['stock_out'] = $item['quantity'];		    
+                $stock_update['stock_out'] = $item['unit_quantity'];		    
                 $stock_update['invoice_id'] = $data['invoice_id'];
                 $stock_update['batch'] = $item['batch_no'];
                 $stock_update['expiry'] = $item['expiry'];
@@ -437,19 +431,15 @@ ORDER BY srampos_pro_purchase_invoice_items.`id` ASC*/
                 /*** insert invoice items **/
                 $item['return_id'] = $id;
                 $this->db->insert('pro_purchase_return_items', $item); 
-                //print_r($this->db->error());die;//file_put_contents('return_item.txt',$this->db->error(),FILE_APPEND);
             }	
-            // echo "4";		die;
             return true;
         }
-        // echo "5";        die;
         return false;
     }
 
-    public function updatePurchase_returns($id, $data, $items,$pi_array)
-    {
-
-        if ($this->db->update('pro_purchase_returns', $data, array('id' => $id)) && $this->db->delete('pro_purchase_return_items', array('invoice_id' => $id))) {
+    public function updatePurchase_returns($id, $data, $items,$pi_array){
+		
+        if ($this->db->update('pro_purchase_returns', $data, array('id' => $id)) && $this->db->delete('pro_purchase_return_items', array('return_id' => $id))) {
 	    if($data['invoice_id']!=''){
 	    $this->db->update('pro_purchase_invoices', $pi_array, array('id' => $data['invoice_id']));
 	    }
@@ -474,7 +464,7 @@ ORDER BY srampos_pro_purchase_invoice_items.`id` ASC*/
 			$stock_update['subcategory_id'] = $item['subcategory_id'];
 			$stock_update['brand_id'] = $item['brand_id'];
 			$stock_update['stock_in'] = 0;
-			$stock_update['stock_out'] = $item['quantity'];
+			$stock_update['stock_out'] = $item['unit_quantity'];
 			$stock_update['cost_price'] = $item['cost'];
 			$stock_update['selling_price'] = $item['selling_price'];
 			$stock_update['landing_cost'] = $item['landing_cost'];
@@ -505,18 +495,15 @@ ORDER BY srampos_pro_purchase_invoice_items.`id` ASC*/
 			$this->siteprocurment->product_stockOut($item['product_id'],$stock_update['stock_out'],$cate);
 		    }
 		}
-		unset($item['last_updated_quantity']);
-				$this->db->insert('pro_purchase_return_items', $item);//file_put_contents('invoice_insert.txt',json_encode($this->db->error()),FILE_APPEND);
-				
-                	
-            }       
+		  unset($item['last_updated_quantity']);
+		  $this->db->insert('pro_purchase_return_items', $item);//file_put_contents('invoice_insert.txt',json_encode($this->db->error()),FILE_APPEND);                	
+        }      
             return true;
         }
         return false;
     }
 
-    public function updateStatus($id, $status, $note)
-    {
+    public function updateStatus($id, $status, $note){
         // $purchase = $this->getPurchase_invoicesByID($id);
         $items = $this->siteprocurment->getAllPurchase_invoicesItems($id);
 
@@ -533,11 +520,23 @@ ORDER BY srampos_pro_purchase_invoice_items.`id` ASC*/
         return false;
     }
 
-    public function deletePurchase_invoices($id)
-    {
+
+    public function checkpurchase_return_status($id){
+        $this->db->where('status', 'process');             
+        $this->db->where('pro_purchase_returns.id', $id);
+        $q = $this->db->get('pro_purchase_returns');       
+        if ($q->num_rows() > 0) {
+            return FALSE;
+        }
+        return TRUE;
+    } 
+
+    public function deletePurchase_invoices($id){
         $purchase = $this->getPurchase_invoicesByID($id);
-        $purchase_items = $this->siteprocurment->getAllPurchase_invoicesItems($id);
-        if ($this->db->delete('pro_purchase_return_items', array('purchase_invoices_id' => $id)) && $this->db->delete('pro_purchase_returns', array('id' => $id))) {
+        $purchase_items = $this->getAllPurchase_invoicesItems($id);
+        /*echo "<pre>";
+        print_r($purchase_items);die;*/
+        if ($this->db->delete('pro_purchase_return_items', array('return_id' => $id)) && $this->db->delete('pro_purchase_returns', array('id' => $id))) {
             // $this->db->delete('payments', array('purchase_order_id' => $id));
             // if ($purchase->status == 'received' || $purchase->status == 'partial') {
             //     foreach ($purchase_items as $oitem) {
@@ -549,14 +548,14 @@ ORDER BY srampos_pro_purchase_invoice_items.`id` ASC*/
             //         }
             //     }
             // }
-            $this->siteprocurment->syncQuantity(NULL, NULL, $purchase_items);
+            //$this->siteprocurment->syncQuantity(NULL, NULL, $purchase_items);
+            //print_r($this->db->error());die;
             return true;
-        }
+        } //print_r($this->db->error());die;
         return FALSE;
     }
 
-    public function getWarehouseProductQuantity($warehouse_id, $product_id)
-    {
+    public function getWarehouseProductQuantity($warehouse_id, $product_id){
         $q = $this->db->get_where('warehouses_products', array('warehouse_id' => $warehouse_id, 'product_id' => $product_id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -564,8 +563,7 @@ ORDER BY srampos_pro_purchase_invoice_items.`id` ASC*/
         return FALSE;
     }
 
-    public function getPurchasePayments($purchase_order_id)
-    {
+    public function getPurchasePayments($purchase_order_id){
         $this->db->order_by('id', 'asc');
         $q = $this->db->get_where('payments', array('purchase_order_id' => $purchase_order_id));
         if ($q->num_rows() > 0) {
@@ -873,6 +871,7 @@ ORDER BY srampos_pro_purchase_invoice_items.`id` ASC*/
 	return $q->num_rows();
 
     }
+    
     
     
     public function getPurchase_ordersByID($id)

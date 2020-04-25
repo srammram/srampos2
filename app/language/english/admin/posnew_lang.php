@@ -72,7 +72,10 @@ $lang['cancel_bill']						= "Cancel Bill ";
 $lang['bill_no']							= "Bill No ";
 $lang['sale_bill']							= "Bill Print";
 $lang['no_record_found']					= "No Record Found! ";
+$lang['no_bill']					        = "Bill Not Generated ! ";
+$lang['order Not Placed Yet']					        = "Order Not Placed Yet";
 $lang['bil_generator_msg']					= "Bill generator is complete. Payment processing still now ";
+$lang['bil_generator_success_msg']					= "Bill generator is complete. ";
 $lang['total_payable_in']					= "Total Payable In ";
 $lang['balance']							= "Balance ";
 

@@ -1,0 +1,6 @@
+ALTER TABLE `srampos_order_items` CHANGE `addon_id` `addon_id` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+ALTER TABLE `srampos_order_items_archival` CHANGE `addon_id` `addon_id` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+ALTER TABLE `srampos_order_items` CHANGE `variant` `variant` VARCHAR(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+ALTER TABLE `srampos_order_items_archival` CHANGE `variant` `variant` VARCHAR(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL;
+
+

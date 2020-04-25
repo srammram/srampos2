@@ -1,0 +1,2 @@
+ALTER TABLE `srampos_pro_production_items` ADD `uom` INT(11) NULL DEFAULT NULL AFTER `quantity`;
+ALTER TABLE `srampos_pro_production_items` ADD `base_quantity` DECIMAL(12,6) NOT NULL DEFAULT '0.00' AFTER `quantity`;

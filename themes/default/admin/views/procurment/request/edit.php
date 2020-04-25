@@ -238,6 +238,8 @@
                                     <td>
                                     	<input id="document" type="file" data-browse-label="" name="document" data-show-upload="false"
                                        data-show-preview="false" class="form-control file">
+                                        <a href="<?= base_url('assets/uploads/procurment/quotes_request/'.$inv->attachment) ?>"><i class="fa fa-download"></i> </a> <p><?= $inv->attachment;?></p>
+
                                     </td>
                                 </tr>
                             </tbody>
@@ -279,7 +281,8 @@
                                             <th class="col-md-2"><?= lang("Category"); ?></th>
                                             <th class="col-md-2"><?= lang("Subcategory"); ?></th>
                                             <th class="col-md-2"><?= lang("Brand"); ?></th>
-                                            <th class="col-md-2"><?= lang("qantity"); ?></th>
+                                            <th class="col-md-2"><?= lang("quantity"); ?></th>
+                                            <th class="col-md-2"><?= lang("uom"); ?></th>
                                             <th class="col-md-2"><?= lang("Cost.Price"); ?></th>
                                             <th class="col-md-2"><?= lang("Selling.Price"); ?></th>
                                            <th class="col-md-1" style="text-align: center;"><i

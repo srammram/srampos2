@@ -300,6 +300,25 @@
 					</ul>
 				    </td>
 				 </tr>
+                 <tr>
+                                    <td><?= lang("shiftmaster"); ?></td>
+                                    <td class="text-center">
+                                        <input type="checkbox" value="1" class="checkbox" name="shiftmaster-index" <?php echo $p->{'shiftmaster-index'} ? "checked" : ''; ?>>
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="checkbox" value="1" class="checkbox" name="shiftmaster-add" <?php echo $p->{'shiftmaster-add'} ? "checked" : ''; ?>>
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="checkbox" value="1" class="checkbox" name="shiftmaster-edit" <?php echo $p->{'shiftmaster-edit'} ? "checked" : ''; ?>>
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="checkbox" value="1" class="checkbox" name="shiftmaster-delete" <?php echo $p->{'shiftmaster-delete'} ? "checked" : ''; ?>>
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                </tr>
+                                
 				 <tr>
                                     <td><?= lang("gift_cards"); ?></td>
                                     <td class="text-center">
@@ -966,6 +985,46 @@
                                             name="pos-billing" <?php echo $p->{'pos-billing'} ? "checked" : ''; ?>>
                                             <label for="pos-billing" class="padding05"><?= lang('billing') ?></label>
                                         </span>
+										
+										 <span style="inline-block">
+                                            <input type="checkbox" value="1" class="checkbox" id="pos-qsr"
+                                            name="pos-qsr" <?php echo $p->{'pos-qsr'} ? "checked" : ''; ?>>
+                                            <label for="pos-qsr" class="padding05"><?= lang('qsr') ?></label>
+                                        </span>
+										 <span style="inline-block">
+                                            <input type="checkbox" value="1" class="checkbox" id="pos-bbq"
+                                            name="pos-bbq" <?php echo $p->{'pos-bbq'} ? "checked" : ''; ?>>
+                                            <label for="pos-bbq" class="padding05"><?= lang('bbq') ?></label>
+                                        </span>
+										
+                                    </td>
+                                </tr>
+                                
+                                <tr>
+                                    <td><?= lang("shift"); ?></td>
+                                    <td colspan="5">
+                                        <span style="inline-block">
+                                        
+                                            <input type="checkbox" value="1" class="checkbox" id="pos-shift_create"
+                                            name="pos-shift_create" <?php echo $p->{'pos-shift_create'} ? "checked" : ''; ?>>
+                                            <label for="pos-shift_create" class="padding05"><?= lang('shift_create') ?></label>
+                                        </span>
+                                        <span style="inline-block">
+                                            <input type="checkbox" value="1" class="checkbox" id="pos-shift_settlement"
+                                            name="pos-shift_settlement" <?php echo $p->{'pos-shift_settlement'} ? "checked" : ''; ?>>
+                                            <label for="pos-shift_settlement" class="padding05"><?= lang('shift_settlement') ?></label>
+                                        </span>
+                                        <span style="inline-block">
+                                            <input type="checkbox" value="1" class="checkbox" id="pos-shift_view"
+                                            name="pos-shift_view" <?php echo $p->{'pos-shift_view'} ? "checked" : ''; ?>>
+                                            <label for="pos-shift_view" class="padding05"><?= lang('shift_view') ?></label>
+                                        </span>
+                                        <span style="inline-block">
+                                            <input type="checkbox" value="1" class="checkbox" id="pos-shift_reprint"
+                                            name="pos-shift_reprint" <?php echo $p->{'pos-shift_reprint'} ? "checked" : ''; ?>>
+                                            <label for="pos-shift_reprint" class="padding05"><?= lang('shift_reprint') ?></label>
+                                        </span>
+                                        
                                     </td>
                                 </tr>
                                 
@@ -1108,6 +1167,13 @@
 									<input type="checkbox" value="1" class="checkbox" id="pos-view_allusers_orders"
 									name="pos-view_allusers_orders" <?php echo $p->{'pos-view_allusers_orders'} ? "checked" : ''; ?>>
 									<label for="pos-view_allusers_orders" class="padding05"><?= lang('view_allusers_orders') ?></label>
+									</span>
+									</li>
+									<li>
+									<span style="inline-block">
+									<input type="checkbox" value="1" class="checkbox" id="pos-member_discount"
+									name="pos-member_discount" <?php echo $p->{'pos-member_discount'} ? "checked" : ''; ?>>
+									<label for="pos-member_discount" class="padding05"><?= lang('member_discount') ?></label>
 									</span>
 									</li>
 									</ul>
@@ -1282,7 +1348,20 @@
 					                            name="pos-qsr_bill_print" <?php echo $p->{'pos-qsr_bill_print'} ? "checked" : ''; ?>>
 					                            <label for="pos-qsr_bill_print" class="padding05"><?= lang('qsr_bill_print') ?></label>
 					                        </span>
-										</li>																																						
+										</li>			<li>
+					                        <span style="inline-block">
+					                            <input type="checkbox" value="1" class="checkbox" id="pos-change_customer"
+					                            name="pos-change_customer" <?php echo $p->{'pos-change_customer'} ? "checked" : ''; ?>>
+					                            <label for="pos-change_customer" class="padding05"><?= lang('Change_customer') ?></label>
+					                        </span>
+										</li>
+												<li>
+					                        <span style="inline-block">
+					                            <input type="checkbox" value="1" class="checkbox" id="pos-resettlement"
+					                            name="pos-resettlement" <?php echo $p->{'pos-resettlement'} ? "checked" : ''; ?>>
+					                            <label for="pos-resettlement" class="padding05"><?= lang('resettlement') ?></label>
+					                        </span>
+										</li>										
 					                </ul>                    
 				                </td>
 				            </tr>

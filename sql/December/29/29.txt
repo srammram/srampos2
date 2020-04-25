@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_restaurant_tables` ADD `last_order_placed_time` DATETIME NULL DEFAULT NULL AFTER `current_order_user`;

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html> 
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Srampos Api Details</title>	
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">    
+     <link rel="stylesheet" href="http://demo.callmycab.in/assets/adminlte/bootstrap/css/bootstrap.min.css">
+	<script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/05E4F6D9-BF77-374D-852B-008748778808/main.js" charset="UTF-8"></script></head>
+    <body>
+<h3>ALACARTE API's</h3>    
+    <pre>
+    <b>Category list</b>
+    *****************
+    new parameter added(order_type)
+    url : http://13.233.76.77/srampos/api/v1/pos/category
+    method : get
+    parameter : api-key,devices_key,user_id, group_id, warehouse_id, order_type
+	</pre>	
+    <pre>
+    <b>Sub category  list</b>
+    ********************
+    new parameter added(order_type)
+    url : http://13.233.76.77/srampos/api/v1/pos/subcategory
+    method : post
+    parameter : api-key,devices_key,user_id, group_id, warehouse_id, category_id,order_type
+    </pre>  
+    <pre>
+    <b>Sale Item list</b>
+    *****************
+    new parameter added(order_type)
+    new value added for run time discount apply
+     value name =item_run_time_discount_option (1 for apply permission enable to give run time discount 0 not allow to give runtime discount no need to show texbox )
+   <strong>url : http://13.233.76.77/srampos/api/v1/pos/recipe</strong>
+    method : post
+    parameter : api-key,devices_key,user_id, group_id, warehouse_id, subcategory_id,order_type    
+    (21-04-2019 new paramennter added for addon and variant);
+    (09-09-2019 new paramennter added for item customizable);
+       new parametters
+           1.variants
+           2.addon
+           (09-09-2019 new paramennter)
+           3.customizable
+     Description:
+     *************  
+         1.if both each parametter value have 1 menas it have variants and addon. 
+           if it's return  to 0 (zero) it not have addon or variant. 
+         For ex;
+         ******
+          A).variants =1;->its have variant in this items
+          B).addon =1;->its have addon in this items
+          C).customizable =1;->its have customizable in this items
+
+    </pre>  
+    <pre>
+    <b>Get Variant List from item_id (recipe_id)</b>
+    *****************
+    Its new Api function for get Variant details,
+    And varaint  ADD ON counts added
+    forex:
+    if variant have any ADD ON addon =1,
+    if zero menas addon:0
+    Api Added Date:07-05-2019
+    Developer : Sivan D
+    url : http://13.233.76.77/srampos/api/v1/pos/get_variants_from_recipe
+    method : post
+    parameter : api-key,devices_key,recipe_id
+    </pre>  
+
+    <pre>
+    <b>Get Add ON List from item or item Varaint </b>
+    *****************
+    Its new Api function for add on feature
+    Api Added Date:22-04-2019
+    Developer : Sivan D
+    url : http://13.233.76.77/srampos/api/v1/pos/get_addon_from_recipe_or_varaint
+    method : post
+    parameter : api-key,devices_key,recipe_id, variant_id
+     FYI:(variant_id is not requried)
+        A).if you sent recipe_id,variant_id both parametter responce will return variant ADD ON list only;
+        B).if you sent recipe_id parametter only responce will return item ADD ON list only.
+
+    </pre>  
+
+    <pre>
+    <b>Get Customizable List from item or item Varaint </b>
+    *****************
+    Its new Api function for customizable feature
+    Api Added Date:09-09-2019
+    Developer : Sivan D
+    url : http://13.233.76.77/srampos/api/v1/pos/get_customized_from_recipe_or_varaint_post
+    method : post
+    parameter : api-key,devices_key,recipe_id, variant_id
+     FYI:(variant_id is not requried)
+        A).if you sent recipe_id,variant_id both parametter responce will return variant <b>Customizable</b> list only;
+        B).if you sent recipe_id parametter only responce will return item <b>Customizable</b> list only.
+
+    </pre>      
+
+    <pre>
+    <b>Sent To Kitchen Add ON List from item or item Varaint</b>
+    *****************
+    Here some new parametter Added  add on  and varaint feature
+    
+    url : http://13.233.76.77/srampos/api/v1/sendtokitchen
+    method : post
+    old parameter : api-key,devices_key,table_id, user_id,warehouse_id,customer_id,biller_id,order_type,
+                   total_items,total,
+    remove this parametter addon_id 
+    recipe details parametter array :(new parametter variant_id[0], and addon[0] )
+    ************************ kitchen_type[0],recipe_id[0],variant_id[0],recipe_code[0],recipe_name[0],
+                             recipe_type[0],warehouse[0],unit_price[0],
+                             quantity[0],subtotal[0],comment[0],
+                               addon[0] =[{"addon_id":"9","addon_qty":"5"},{"addon_id":"2","addon_qty":"2"},{"addon_id":"6","addon_qty":"3"}]                     
+
+    </pre>  
+
+    <pre>
+    <b>Get Ordered items list for  Generate the bill for Dine And BBQ</b>
+    ************************
+    Here some new parametter Added  ADD ON and varaint feature.
+    url : http://13.233.76.77/srampos/api/v1/orders/consolidated
+    method : post
+    parameter : devices_key,user_id,group_id,warehouse_id,split                   
+    Changes Description:
+                      ADD ON and Variant Details Added.and service charge Details also availble added.  
+                      item_comment_price_option
+                      new values details;
+                      ********** 
+
+                       "variant": "Frappe",
+                      "recipe_variant_id": "3",
+                      And ADD ON responce ex; 
+                      *********  
+                      "addon": [
+                            {
+                                "id": "4",
+                                "order_id": "2",
+                                "order_item_id": "2",
+                                "sale_item_id": "79",
+                                "split_id": "SPILT20190423095152003",
+                                "addon_id": "9",
+                                "price": "3.00",
+                                "qty": "5",
+                                "subtotal": "15.00",
+                                "addon_name": "Add on one"
+                            }
+                            Service Charge:
+                            *************
+                            service_charge_option = 1 means need add service charge amount
+                            service_charge_data = if its not empty take service charge id, rate,name,etc.
+
+                            Item Comment Price Option 
+                            ******************
+                            item_comment_price_option = 1  if 0(zero) comment_price in 0(zero) in bill generated screen
+    </pre> 
+ 
+    <pre>
+    <b>Get Ordered items list for  Generate the bill  Takeway</b>
+    ************************
+    Here some new parametter Added  ADD ON and varaint feature.
+    url : http://13.233.76.77/srampos/api/v1/orders/takeawaysplit
+    method : post
+    parameter : devices_key,user_id,group_id,warehouse_id,split,order_type,                  
+    Change Description:
+                      ADD ON and Variant Details Added.
+                      new values;
+                      **********
+                      for ex; 
+                       "variant": "Frappe",
+                      "recipe_variant_id": "3",
+                      And ADD ON responce ex; 
+                      *********  
+                      "addon": [
+                            {
+                                "id": "4",
+                                "order_id": "2",
+                                "order_item_id": "2",
+                                "sale_item_id": "79",
+                                "split_id": "SPILT20190423095152003",
+                                "addon_id": "9",
+                                "price": "3.00",
+                                "qty": "5",
+                                "subtotal": "15.00",
+                                "addon_name": "Add on one"
+                            }
+    </pre> 
+    <pre>
+    <b>Get Ordered items list for  Generate the bill  Delivery</b>
+    ************************
+    Here some new parametter Added  ADD ON and varaint feature.
+    url : http://13.233.76.77/srampos/api/v1/orders/doordeliverysplit
+    method : post
+    parameter : devices_key,user_id,group_id,warehouse_id,split,order_type,                  
+    Change Description:
+                      ADD ON and Variant Details Added.
+                      new values;
+                      **********
+                      for ex; 
+                       "variant": "Frappe",
+                      "recipe_variant_id": "3",
+                      And ADD ON responce ex; 
+                      *********  
+                      "addon": [
+                            {
+                                "id": "4",
+                                "order_id": "2",
+                                "order_item_id": "2",
+                                "sale_item_id": "79",
+                                "split_id": "SPILT20190423095152003",
+                                "addon_id": "9",
+                                "price": "3.00",
+                                "qty": "5",
+                                "subtotal": "15.00",
+                                "addon_name": "Add on one"
+                            }
+    </pre> 
+
+    <pre>
+    <b>Billing DATA Fro BBQ and DINE DATA AND TAKE AWAY AND DOOR DELIVERY</b>
+    ************************    
+    url : http://13.233.76.77/srampos/api/v1/orders/billing
+    method : post
+    parameter : api-key,devices_key,user_id,group_id,warehouse_id,split_id    
+    Change Description: Added new parametter inside bbq_covers(array Object): bbq_daywise_discount_edit_permission and adult_daywise_discount,child_daywise_discount,kids_daywise_discount.    
+    </pre> 
+<pre>
+    <b>Bill Generated (DINE-IN AND BQQ) from pos reference single bill Generation Screen</b>
+    ************************
+    Here some new parametter Added(Varaint,Addon(json array),Service Charge).
+    url : http://13.233.76.77/srampos/api/v1/orders/billingadd
+    method : post
+    parameter : api-key,devices_key,user_id,group_id,warehouse_id,bbq_order,dine_order,customer_type_val,
+               customer_discount_val,bbq_type_val,bbq_discount_val,table_id,split_id,service_charge_id ,service_charge_amount                  
+    Change Description: Added new parametter: Varaint,Addon,service  Charge,comment price.    
+                       recipe details parametter array :(new parametter variant[0],variant_id[0], and addon[0])
+    DINE IN 
+    ******* 
+    BILL DATA= split[0][itemdiscounts],split[0][order_discount_input],split[0][total_item],
+               split[0][discount_amount],split[0][tot_dis_value],split[0][tot_dis1]
+               ,split[0][ptax],split[0][tax_type],split[0][reference_no],split[0][customer_id] 
+               ,split[0][customer],split[0][biller],split[0][biller_id],split[0][total_price]                
+              ,split[0][tax_amount] ,split[0][ptax] ,split[0][itemdiscounts] ,split[0][offer_dis] 
+               ,split[0][discount_amount] ,split[0][off_discount] ,split[0][grand_total] ,split[0][round_total] ,split[0][tot_dis_id] ,split[0][service_charge_id], split[0][service_charge_amount], 
+
+
+    BILL DETAILS=[split][0]['recipe_id'][0],[split][0]['kitchen_type'][0],[split][0]['variant_id'][0]
+                ,[split][0]['recipe_code'][0],[split][0]['recipe_name'][0],[split][0]['recipe_type'][0],[split][0]['unit_price'][0],[split][0]['quantity'][0],[split][0]['subtotal'][0],[split][0]['comment'][0],
+                 [split][0]['comment_price'][0],[split][0]['item_discount'][0],[split][0]['item_dis'][0],[split][0]['addon'][0] =[{"addon_id":"9","addon_qty":"5"},{"addon_id":"2","addon_qty":"2"},{"addon_id":"6","addon_qty":"3"}]
+
+
+     BBQ
+    ******* 
+    BILL DATA= number_of_covers,bbq_discount_amount,tax_amount,total_amount,gtotal,adult_price,number_of_adult,
+              adult_subprice,child_price,number_of_child,child_subprice,kids_price,number_of_kids,kids_subprice
+              ,adult_discount_cover,child_discount_cover,kids_discount_cover,bbq_type_val,bbq_discount,default_tax,adult_days,adult_buyx,adult_getx,child_days,child_buyx,child_getx,kids_days,kids_buyx,kids_getx,service_charge_id,service_charge_amount,adult_daywise_discount,child_daywise_discount,kids_daywise_discount
+    </pre> 
+
+<h3>BBQ API's</h3>    
+
+ <pre>
+    <b>ADDED  in BBQ MENU LIST</b>
+    ***********************
+    change made(27-04-2019).
+    new api for bbq  menu list for feture multiple manu.
+
+    url : http://13.233.76.77/srampos/api/v1/bbq/bbq_menu
+    method : get
+    parameter : api-key,devices_key,user_id, group_id, warehouse_id
+    </pre>
+
+    <pre>
+    <b>Changes in BBQ insert</b>
+    ***********************
+    change made(04-04-2019).
+    new parametter need to add in this api is that selected  bbq manu's(bbq_menu_id).
+    if single menu is there send that bbq_menu_id.
+
+    url : http://13.233.76.77/srampos/api/v1/bbq/bbqinsert
+    method : post
+    parameter : api-key,devices_key,user_id, group_id, warehouse_id,user_id,table_id,name,phone,email_address,
+                    number_of_adult,number_of_child,number_of_kids,adult_price,child_price,kids_price,bbq_menu_id    
+    </pre>
+
+    <pre>
+    <b>Get BBQ Category</b>
+    ***********************    
+    new parameter added(split_id).for getting sale type from bbq oreder table.using by split_id.
+    url : http://13.233.76.77/srampos/api/v1/bbq/category
+    method : get
+    parameter : api-key,devices_key,user_id, group_id, warehouse_id,split_id    
+    </pre>
+
+    <pre>
+    <b>Get BBQ Sub Category</b>
+    ***********************    
+    new parameter added(split_id).for getting sale type from bbq oreder table.using by split_id. 
+    url : http://13.233.76.77/srampos/api/v1/bbq/subcategory
+    method : get
+    parameter : api-key,devices_key,user_id, group_id, warehouse_id,category_id,split_id.  
+    </pre>
+    <pre>
+
+    <b>Get BBQ Sale Items</b>
+    ***********************    
+    new parameter added(split_id).for getting sale type from bbq oreder table.using by split_id. 
+    url : http://13.233.76.77/srampos/api/v1/bbq/bbqrecipe
+    method : get
+    parameter : api-key,devices_key,user_id, group_id, warehouse_id,subcategory_id,split_id.  
+    </pre>
+	
+	<h2>28-09-2019</h2>
+	<pre>
+
+    <b>Emit Stop - Function</b>
+    ***********************    
+    1. BBQ Cover validation :
+		emit name : bbq_cover_validation_stop
+		parameter : user_id, group_id, table_id, warehouse_id, bbq_code, stop_count
+	2. BBQ Return Request :
+		emit name : bbq_return_request_stop
+		parameter : user_id, group_id, table_id, warehouse_id, bbq_code, stop_count
+	3. Bil Request :
+		emit name : bill_request_stop
+		parameter : split_id, stop_count
+	
+	Note : stop value passing 1 - stop action working
+    </pre>
+	<h2>30-09-2019</h2>
+	<pre>
+
+    <b>Emit Stop - Function Changes</b>
+    ***********************    
+    1. BBQ Cover validation :
+		emit name : bbq_cover_validation_stop
+		parameter : bbq_code, stop_count
+	2. BBQ Return Request :
+		emit name : bbq_return_request_stop
+		parameter : bbq_code, stop_count
+	3. Bil Request :
+		emit name : bill_request_stop
+		parameter : split_id, stop_count
+	
+	Note : stop value passing 1 - stop action working
+    </pre>
+    </body>
+</html>

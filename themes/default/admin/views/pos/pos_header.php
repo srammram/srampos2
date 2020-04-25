@@ -75,6 +75,9 @@ function isFullScreen() {
                             <?php if($this->sma->actionPermissions('door_delivery')){ ?>
                             <li><a href="<?php if(!$isNightauditDone) {?> javascript:void(0)<?php } else { echo  admin_url('pos/?order=3'); }?>" <?php if(!$isNightauditDone) {echo 'class="disabled" title="do Nightaudit to enable further orders"';} ?>><?php echo lang("door_delivery") ?></a></li>
                             <?php } ?>
+							<?php if($this->sma->actionPermissions('billing')){ ?>
+                            <li><a href="<?php if(!$isNightauditDone) {?> javascript:void(0)<?php } else { echo  base_url('admin/pos/consolidate'); }?>" <?php if(!$isNightauditDone) {echo 'class="disabled" title="do Nightaudit to enable further orders"';} ?>><?php echo lang("consol") ?></a></li>
+                            <?php } ?>
                             <?php if($this->Settings->bbq_enable){ ?>
                             <li><a href="<?php if(!$isNightauditDone) {?> javascript:void(0)<?php } else { echo  admin_url('pos/bbq_tables?order=4'); }?>" <?php if(!$isNightauditDone) {echo 'class="disabled" title="do Nightaudit to enable further orders"';} ?>><?php echo lang("BBQ") ?></a></li>
                             <?php } ?>
@@ -251,7 +254,10 @@ function isFullScreen() {
             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-12 log_out">
                <ul>
                	<li> <a class="req_status pos_head_req btn btn-default" href="<?= admin_url('pos/order_biller/?type=1'); ?>" data-notify-type="notice"><?=lang('request_bil')?></a><input type="hidden" name="rep_count" id="rep_count" value=""><span class="req_sound">&nbsp;</span></li>
+                
                	<li><a href="<?php echo site_url('frontend/logout'); ?>" onClick=" localStorage.clear();"><button type="button" class="btn btn-default" title="Log Out"><i class="fa fa-sign-out" aria-hidden="true"></i> <?=lang('logout')?></button></a></li>
+                
+                
                </ul>
             </div>
         </div>

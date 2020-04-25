@@ -1,0 +1,4 @@
+ALTER TABLE `srampos_pro_stock_master` CHANGE `stock_out` `stock_out` DECIMAL(25,3) NOT NULL;
+
+ALTER TABLE `srampos_pro_stock_master` CHANGE `stock_in` `stock_in` DECIMAL(10,3) NOT NULL;
+

@@ -103,15 +103,16 @@
                     <table id="SlRData" class="table table-bordered table-hover table-striped table-condensed reports-table">
                         <thead>
                         <tr>
-                            <th><?= lang("s_no"); ?></th>
-                            <th><?= lang("quotation_no"); ?></th>
-			    <th><?= lang("quotation_request"); ?></th>
-                            <th><?= lang("store_intend_request"); ?></th>
-			    <th><?= lang("supplier"); ?></th>
-                            <th><?= lang("product_code"); ?></th>
-                            <th><?= lang("product_name"); ?></th>
-                            <th><?= lang("quantity"); ?></th>
-                            <th><?= lang("cost"); ?></th> 
+                        <th><?= lang("s_no"); ?></th>
+                        <th><?= lang("quotation_no"); ?></th>
+                        <th><?= lang("date"); ?></th>
+                        <th><?= lang("quotation_request"); ?></th>
+                        <th><?= lang("store_intend_request"); ?></th>
+                        <th><?= lang("supplier"); ?></th>
+                        <th><?= lang("product_code"); ?></th>
+                        <th><?= lang("product_name"); ?></th>
+                        <th><?= lang("quantity"); ?></th>
+                        <th><?= lang("cost"); ?></th> 
                         </tr>
                         </thead>
                         <tbody>
@@ -193,7 +194,7 @@ function GetData($url) {
                              
                             if(data.report =='empty'){ 
                                  $('#SlRData > tbody').empty();  
-                                $('#SlRData > tbody').append('<tr><td colspan="8" class="dataTables_empty"><?= lang('sEmptyTable') ?></td></tr>');
+                                $('#SlRData > tbody').append('<tr><td colspan="9" class="dataTables_empty"><?= lang('sEmptyTable') ?></td></tr>');
                                 
                             }
                             else if(data.report == 'error'){
@@ -219,11 +220,11 @@ function GetData($url) {
 
                                         // profit += (parseFloat(b.profit));
 
-                                         $('#SlRData > tbody').append('<tr><td>'+$row_index+'</td><td class="text-center">'+b.reference_no+'</td><td class="text-center">'+b.quote_request+'</td><td class="text-center">'+b.store_request+'</td><td class="text-center">'+b.supplier+'</td><td class="text-center">'+b.product_code+'</td><td class="text-center">'+b.product_name+'</td><td class="text-center">'+b.quantity+'</td><td class="text-center">'+b.cost+'</td></tr>');
+                                         $('#SlRData > tbody').append('<tr><td>'+$row_index+'</td><td class="text-center">'+b.reference_no+'</td><td class="text-center">'+b.date+'</td><td class="text-center">'+b.quote_request+'</td><td class="text-center">'+b.store_request+'</td><td class="text-center">'+b.supplier+'</td><td class="text-center">'+b.product_code+'</td><td class="text-center">'+b.product_name+'</td><td class="text-center">'+b.quantity+'</td><td class="text-center">'+b.cost+'</td></tr>');
                                         $row_index++;
                                     });
 
-                                  $('#SlRData > tbody').append('<tr style="font-weight:bold"><td colspan="7" >Total: </td><td class="text-right">'+formatDecimal(quantity)+'</td><td class="text-right">'+formatMoney(cost_price)+'</td></tr>');
+                                  $('#SlRData > tbody').append('<tr style="font-weight:bold"><td colspan="8" >Total: </td><td class="text-right">'+formatDecimal(quantity)+'</td><td class="text-right">'+formatMoney(cost_price)+'</td></tr>');
                                 
                                 
                             }

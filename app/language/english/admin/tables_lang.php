@@ -376,3 +376,6 @@ $lang['indian_gst']                      = "Indian GST";
 $lang['biz_state']                       = "Business State";
 $lang['max_seats']                       = "Max Seats";
 $lang['default']                         = "Default";
+$lang['bil_generator_msg1']              = "Bill Generator Is Complete. Payment Pending";
+$lang['au_pr_name_tip'] 				= "";
+$lang['consol']							= "Consolidate";

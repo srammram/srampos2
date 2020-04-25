@@ -27,11 +27,15 @@
             localStorage.setItem('qu_supplier', <?=$this->input->get('supplier');?>);
         }
         <?php } ?>
+        $("#qu_date").prop('disabled', true);
         <?php //if ($Owner || $Admin) { ?>
-        if (!localStorage.getItem('qu_date')) {
+        if (!localStorage.getItem('qu_date')) {            
             $("#qu_date").datetimepicker({
                 format: site.dateFormats.js_ldate,
                 fontAwesome: true,
+                pickDate: false, 
+                ignoreReadonly: true,
+                enableOnReadonly: false,
                 language: 'common',
                 weekStart: 1,
                 todayBtn: 1,
@@ -317,12 +321,12 @@
                                        data-show-preview="false" class="form-control file">
                                     </td>
                                 </tr>
-                                <tr>
+                                <!-- <tr>
                                     <td> <?= lang("store_request_no", "store_request_no");?></td>
                                     <td>
                                          <input type="text" name="store_request_no" id="store_request_no"  readonly="" class="form-control">
                                     </td>
-                                </tr>
+                                </tr> -->
                             </tbody>
                         </table>
                     </div>
@@ -365,6 +369,7 @@
                                             <th class="col-md-2"><?= lang("Brand"); ?></th>
                                             <th class="col-md-2"><?= lang("Cost.Price"); ?></th>
                                             <th class="col-md-2"><?= lang("Quantity"); ?></th>
+                                            <th class="col-md-2"><?= lang("uom"); ?></th>
                                             <th class="col-md-2"><?= lang("Selling.Price"); ?></th>
                                             <th class="col-md-1" style="text-align: center;">
                                               <i class="fa fa-trash-o" style="opacity:0.5; filter:alpha(opacity=50);"></i>

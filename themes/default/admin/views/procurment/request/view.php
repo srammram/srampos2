@@ -56,6 +56,7 @@
                                             <th><?= lang('code'); ?></th>
                                             <th ><?= lang("product_name"); ?></th>
                                             <th ><?= lang("qty"); ?></th>
+                                            <th ><?= lang("uom"); ?></th>
                                             <th ><?= lang("cost_price"); ?></th>
                                             <th ><?= lang("selling_price"); ?></th>
                                         </tr>
@@ -68,6 +69,7 @@
                             <td><?=$row['row']->product_code?></td>
                             <td><?=$row['row']->product_name?></td>
 							<td class="text-right"><?php echo number_format((float)$row['row']->quantity, 2, '.', ''); ?></td>
+                            <td><?=$row['row']->unit_name?></td>
 							<td class="text-right"><?php echo number_format((float)$row['row']->cost_price, 2, '.', ''); ?></td>
                             <td class="text-right"><?php echo number_format((float)$row['row']->selling_price, 2, '.', ''); ?></td>
 							

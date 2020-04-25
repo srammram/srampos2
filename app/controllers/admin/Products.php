@@ -1,10 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Products extends MY_Controller
-{
-
-    function __construct()
-    {
+class Products extends MY_Controller{
+    function __construct(){
         parent::__construct();
         if (!$this->loggedIn) {
             $this->session->set_userdata('requested_page', $this->uri->uri_string());
@@ -22,8 +19,7 @@ class Products extends MY_Controller
         $this->popup_attributes = array('width' => '900', 'height' => '600', 'window_name' => 'sma_popup', 'menubar' => 'yes', 'scrollbars' => 'yes', 'status' => 'no', 'resizable' => 'yes', 'screenx' => '0', 'screeny' => '0');
     }
 
-	function raw_suggestions($term = NULL, $limit = NULL)
-    {
+	function raw_suggestions($term = NULL, $limit = NULL){
         // $this->sma->checkPermissions('index');
         if ($this->input->get('term')) {
             $term = $this->input->get('term', TRUE);
@@ -33,8 +29,7 @@ class Products extends MY_Controller
         $this->sma->send_json($rows);
     }
 	
-	function raw_units($term = NULL)
-    {
+	function raw_units($term = NULL){
         // $this->sma->checkPermissions('index');
         if ($this->input->get('term')) {
             $term = $this->input->get('term', TRUE);
@@ -44,10 +39,8 @@ class Products extends MY_Controller
         $this->sma->send_json($rows);
     }
 	
-    function index($warehouse_id = NULL)
-    {
+    function index($warehouse_id = NULL){
         $this->sma->checkPermissions();
-
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         if ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) {
             $this->data['warehouses'] = $this->site->getAllWarehouses();

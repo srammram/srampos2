@@ -1,0 +1,3 @@
+ALTER TABLE `srampos_bils` ADD `customer_discount_amt` DECIMAL(25,2) NOT NULL AFTER `customer_discount_id`;
+
+ALTER TABLE `srampos_archive_bils` ADD `customer_discount_amt` DECIMAL(25,2) NOT NULL AFTER `customer_discount_id`

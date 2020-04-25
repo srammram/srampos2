@@ -1,0 +1,1 @@
+ALTER TABLE `srampos_pos_settings` ADD `consolidated_reprint_print` TINYINT(1) NOT NULL AFTER `tax_caption`;
