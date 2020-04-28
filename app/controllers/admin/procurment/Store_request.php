@@ -1,10 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-class Store_request extends MY_Controller
-{
-
-    public function __construct()
-    {
+class Store_request extends MY_Controller{
+    public function __construct(){
         parent::__construct();
         if (!$this->loggedIn) {
             $this->session->set_userdata('requested_page', $this->uri->uri_string());
@@ -24,14 +21,11 @@ class Store_request extends MY_Controller
 		mkdir($this->digital_upload_path, 0777, true);
 	}
         $this->data['logo'] = true;
-		
 		$this->Muser_id = $this->session->userdata('user_id');
 		$this->Maccess_id = 8;
-
     }
 
-    public function index($warehouse_id = null)
-    {
+    public function index($warehouse_id = null){
         $this->sma->checkPermissions();
 
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
@@ -51,15 +45,14 @@ class Store_request extends MY_Controller
 
     }
 
-    public function getStore_request($warehouse_id = null)
-    {
+    public function getStore_request($warehouse_id = null){
         //$this->sma->checkPermissions('index');
 
         if ((!$this->Owner || !$this->Admin) && !$warehouse_id) {
             $user = $this->siteprocurment->getUser();
             $warehouse_id = $user->warehouse_id;
         }
-	$view_link = '<a href="'.admin_url('procurment/store_request/view/$1').'" data-toggle="modal" data-target="#myModal"><i class="fa fa-edit"></i>'.lang('view_store_request').'</a>';
+	    $view_link = '<a href="'.admin_url('procurment/store_request/view/$1').'" data-toggle="modal" data-target="#myModal"><i class="fa fa-edit"></i>'.lang('view_store_request').'</a>';
        
         $detail_link = anchor('admin/procurment/store_request/view/$1/', '<i class="fa fa-file-text-o"></i> ' . lang('store_request_details'));
         $email_link = anchor('admin/procurment/store_request/email/$1', '<i class="fa fa-envelope"></i> ' . lang('email_store_request'), 'data-toggle="modal" data-target="#myModal"');
@@ -121,8 +114,7 @@ class Store_request extends MY_Controller
         echo $this->datatables->generate();
     }
 
-    public function modal_view($store_request_id = null)
-    {
+    public function modal_view($store_request_id = null){
         //$this->sma->checkPermissions('index', true);
 
         if ($this->input->get('id')) {
@@ -140,13 +132,10 @@ class Store_request extends MY_Controller
         $this->data['updated_by'] = $inv->updated_by ? $this->siteprocurment->getUser($inv->updated_by) : null;
         $this->data['warehouse'] = $this->siteprocurment->getWarehouseByID($inv->warehouse_id);
         $this->data['inv'] = $inv;
-
         $this->load->view($this->theme . 'store_request/modal_view', $this->data);
-
     }
 
-    public function view($store_request_id = null)
-    {
+    public function view($store_request_id = null){
 	$this->sma->checkPermissions();
 	$id = $store_request_id;
 	$this->data['store_req'] = $this->store_request_model->getStore_requestByID($id);
@@ -218,8 +207,8 @@ class Store_request extends MY_Controller
             }
             $this->data['store_req_items'] = $pr;
             $this->data['id'] = $id;
-	    $this->data['stores'] = $this->siteprocurment->getAllStores();
-	    $this->data['all_stores'] = $this->siteprocurment->getAllWarehouses();
+	        $this->data['stores'] = $this->siteprocurment->getAllStores();
+	        $this->data['all_stores'] = $this->siteprocurment->getAllWarehouses();
             //$this->data['currencies'] = $this->siteprocurment->getAllCurrencies();
             $this->data['billers'] = ($this->Owner || $this->Admin || !$this->session->userdata('biller_id')) ? $this->siteprocurment->getAllCompanies('biller') : null;
             $this->data['tax_rates'] = $this->siteprocurment->getAllTaxRates();
@@ -384,36 +373,31 @@ class Store_request extends MY_Controller
         }
     }
 
-    public function add()
-    {
-        $this->sma->checkPermissions();
-
-        $this->form_validation->set_message('is_natural_no_zero', $this->lang->line("no_zero_required"));
-		 $this->form_validation->set_rules('from_store_id', $this->lang->line("from_store"), 'required');
+    public function add(){
+          $this->sma->checkPermissions();
+          $this->form_validation->set_message('is_natural_no_zero', $this->lang->line("no_zero_required"));
+		  $this->form_validation->set_rules('from_store_id', $this->lang->line("from_store"), 'required');
 		  $this->form_validation->set_rules('to_store_id', $this->lang->line("to_store"), 'required');
-		$this->form_validation->set_rules('request_type', $this->lang->line("request_type"), 'required');
-        if ($this->form_validation->run() == true) {
-	    $n = $this->siteprocurment->lastidStoreRequest();
-            $reference = 'SR'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
-	    $date = date('Y-m-d H:i:s');
-            $warehouse_id = $this->input->post('warehouse');
-			$from_store_id = $this->input->post('from_store_id');
-			$to_store_id = $this->input->post('to_store_id');
-            $supplier_id = $this->input->post('supplier');
-			$biller_id = $this->input->post('biller');
-            $status = $this->input->post('status');
-            
-			
-            $biller_details = $this->siteprocurment->getCompanyByID($biller_id);
-            $biller = $biller_details->company != '-' ? $biller_details->company : $biller_details->name;
-            if ($supplier_id) {
+		  $this->form_validation->set_rules('request_type', $this->lang->line("request_type"), 'required');
+          if ($this->form_validation->run() == true) {
+	      $n = $this->siteprocurment->lastidStoreRequest();
+          $reference = 'SR'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
+		  $date = date('Y-m-d H:i:s');
+          $warehouse_id = $this->input->post('warehouse');
+		  $from_store_id = $this->input->post('from_store_id');
+		  $to_store_id = $this->input->post('to_store_id');
+          $supplier_id = $this->input->post('supplier');
+		  $biller_id = $this->input->post('biller');
+          $status = $this->input->post('status');
+          $biller_details = $this->siteprocurment->getCompanyByID($biller_id);
+          $biller = $biller_details->company != '-' ? $biller_details->company : $biller_details->name;
+          if ($supplier_id) {
                 $supplier_details = $this->siteprocurment->getCompanyByID($supplier_id);
                 $supplier = $supplier_details->company != '-' ? $supplier_details->company : $supplier_details->name;
-            } else {
+           } else {
                 $supplier = NULL;
-            }
+           }
             $note = $this->sma->clear_tags($this->input->post('note'));
-
             $total = 0;
             $product_tax = 0;
             $product_discount = 0;
@@ -421,56 +405,38 @@ class Store_request extends MY_Controller
             $total_cgst = $total_sgst = $total_igst = 0;
             $i = isset($_POST['product_code']) ? sizeof($_POST['product_code']) : 0;
             for ($r = 0; $r < $i; $r++) {
-		$store_id = $from_store_id;
+		        $store_id = $from_store_id;
                 $item_id = $_POST['product_id'][$r];
                 $item_type = $_POST['product_type'][$r];
                 $item_code = $_POST['product_code'][$r];
                 $item_name = $_POST['product_name'][$r];
-                //$item_option = isset($_POST['product_option'][$r]) && $_POST['product_option'][$r] != 'false' ? $_POST['product_option'][$r] : null;
-                //$real_unit_price = $this->sma->formatDecimal($_POST['real_unit_price'][$r]);
-               // $unit_price = $this->sma->formatDecimal($_POST['unit_price'][$r]);
-               $item_unit_quantity = $_POST['quantity'][$r];
-               // $item_tax_rate = isset($_POST['product_tax'][$r]) ? $_POST['product_tax'][$r] : null;
-               // $item_discount = isset($_POST['product_discount'][$r]) ? $_POST['product_discount'][$r] : null;
+                $item_unit_quantity = $_POST['quantity'][$r];
                 $item_unit = $_POST['product_unit'][$r];
                 $item_quantity = $_POST['product_base_quantity'][$r];
-		$category_id = $_POST['category_id'][$r];
+		        $category_id = $_POST['category_id'][$r];
                 $category_name = $_POST['category_name'][$r];
-		$subcategory_id = $_POST['subcategory_id'][$r];
+		        $subcategory_id = $_POST['subcategory_id'][$r];
                 $subcategory_name = $_POST['subcategory_name'][$r];
-		$brand_id = $_POST['brand_id'][$r];
+		        $brand_id = $_POST['brand_id'][$r];
                 $brand_name = $_POST['brand_name'][$r];
                if (!empty($item_code)) {
                     $product_details = $item_type != 'manual' ? $this->store_request_model->getProductByCode($item_code) : null;
-                    // $unit_price = $real_unit_price;
-                   // $pr_discount = $this->siteprocurment->calculateDiscount($item_discount, $unit_price);
-                  //  $unit_price = $this->sma->formatDecimal($unit_price - $pr_discount);
-                   // $item_net_price = $unit_price;
-                  //  $pr_item_discount = $this->sma->formatDecimal($pr_discount * $item_unit_quantity);
-                  //  $product_discount += $pr_item_discount;
-                  //  $pr_item_tax = $item_tax = 0;
-                  //  $tax = "";
-
-                   
-
                     $products[] = array(
-                        'product_id' => $item_id,
-                        'product_code' => $item_code,
-                        'product_name' => $item_name,
-                        'product_type' => $item_type,
-                        'quantity' => $item_quantity,
-						'unit_quantity' => $item_quantity,
+                        'product_id'      => $item_id,
+                        'product_code'    => $item_code,
+                        'product_name'    => $item_name,
+                        'product_type'    => $item_type,
+                        'quantity'        => $item_quantity,
+						'unit_quantity'   => $item_quantity,
                         'product_unit_id' => $item_unit,
-                       // 'product_unit_code' => $unit->code,
-                        'warehouse_id' => $warehouse_id,
-			'category_id' => $category_id,
-                        'category_name' => $category_name,
-			'subcategory_id' => $subcategory_id,
+                        'warehouse_id'    => $warehouse_id,
+						'category_id'     => $category_id,
+                        'category_name'   => $category_name,
+						'subcategory_id'  => $subcategory_id,
                         'subcategory_name' => $subcategory_name,
-			'brand_id' => $brand_id,
-                        'brand_name' => $brand_name,
+						'brand_id'         => $brand_id,
+                        'brand_name'       => $brand_name,
                     );
-
                 }
             }
             if (empty($products)) {
@@ -478,7 +444,6 @@ class Store_request extends MY_Controller
             } else {
                 $products;
             }
-
             if($this->siteprocurment->GETaccessModules('')){
 				$approved_by = $this->session->userdata('user_id');
 			}
@@ -499,7 +464,6 @@ class Store_request extends MY_Controller
 				'reference_no' => $reference,
 				'date' => $date,
 				'request_type' => $this->input->post('request_type'),
-                
 				'from_store_id' => $from_store_id,
 				'to_store_id' => $to_store_id,
                 'warehouse_id' => $warehouse_id,
@@ -528,8 +492,6 @@ class Store_request extends MY_Controller
                 $photo = $this->upload->file_name;
                 $data['attachment'] = $photo;
             }
-
-            //$this->sma->print_arrays($data, $products);die;
         }
 
         if ($this->form_validation->run() == true && $this->store_request_model->addStore_request($data, $products)) {
@@ -984,11 +946,8 @@ print_r($this->input->post());die;*/
         }
     }
 
-    public function update_status($id)
-    {
-
+    public function update_status($id){
         $this->form_validation->set_rules('status', lang("status"), 'required');
-
         if ($this->form_validation->run() == true) {
             $status = $this->input->post('status');
             $note = $this->sma->clear_tags($this->input->post('note'));
@@ -996,16 +955,13 @@ print_r($this->input->post());die;*/
             $this->session->set_flashdata('error', validation_errors());
             admin_redirect(isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : 'sales');
         }
-
         if ($this->form_validation->run() == true && $this->store_request_model->updateStatus($id, $status, $note)) {
             $this->session->set_flashdata('message', lang('status_updated'));
             admin_redirect(isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : 'sales');
         } else {
-
             $this->data['inv'] = $this->store_request_model->getStore_requestByID($id);
             $this->data['modal_js'] = $this->siteprocurment->modal_js();
             $this->load->view($this->theme.'store_request/update_status', $this->data);
-
         }
     }
 

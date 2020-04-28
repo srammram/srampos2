@@ -58,25 +58,18 @@ class Products extends MY_Controller{
         $this->page_construct('products/index', $meta, $this->data);
     }
 
-    function getProducts($warehouse_id = NULL)
-    {
+    function getProducts($warehouse_id = NULL){
         $this->sma->checkPermissions('index', TRUE);
         $supplier = $this->input->get('supplier') ? $this->input->get('supplier') : NULL;
-		
         if ((! $this->Owner || ! $this->Admin) && ! $warehouse_id) {
             $user = $this->site->getUser();
             $warehouse_id = $user->warehouse_id;
         }
         $detail_link = anchor('admin/products/view/$1', '<i class="fa fa-file-text-o"></i> ' . lang('Purchase Items Details'));
-		
-		
-		
-	
         $delete_link = "<a href='#' class='tip po' title='<b>" . $this->lang->line("delete_product") . "</b>' data-content=\"<p>"
             . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete1' id='a__$1' href='" . admin_url('products/delete/$1') . "'>"
             . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i> "
             . lang('Delete Purchase Items') . "</a>";
-	
         $single_barcode = anchor('admin/products/print_barcodes/$1', '<i class="fa fa-print"></i> ' . lang('print_barcode_label'));
         // $single_label = anchor_popup('products/single_label/$1/' . ($warehouse_id ? $warehouse_id : ''), '<i class="fa fa-print"></i> ' . lang('print_label'), $this->popup_attributes);
         $action = '<div class="text-center"><div class="btn-group text-left">'

@@ -1,36 +1,26 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Store_request_model extends CI_Model
-{
-
+class Store_request_model extends CI_Model{
     public function __construct()
     {
         parent::__construct();
     }
-
-    
-
-
-    public function getProductNames($term, $warehouse_id, $limit = 10)
-    {
+    public function getProductNames($term, $warehouse_id, $limit = 10){
         $this->db->select('recipe.*, warehouses_recipe.quantity')
             ->join('warehouses_recipe', 'warehouses_recipe.recipe_id=recipe.id', 'left')
             ->group_by('recipe.id');
-
             $this->db->where("(name LIKE '%" . $term . "%' OR code LIKE '%" . $term . "%' OR  concat(name, ' (', code, ')') LIKE '%" . $term . "%')");
-
-        $this->db->limit($limit);
-        $q = $this->db->get('recipe');        
-        if ($q->num_rows() > 0) {
+			$this->db->limit($limit);
+			$q = $this->db->get('recipe');        
+			if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
             }
             return $data;
-        }
+			}
     }
 
-    public function getProductByCode($code)
-    {
+    public function getProductByCode($code){
         $q = $this->db->get_where('recipe', array('code' => $code), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -38,8 +28,7 @@ class Store_request_model extends CI_Model
         return FALSE;
     }
 
-    public function getWHProduct($id)
-    {
+    public function getWHProduct($id){
         $this->db->select('recipe.id, code, name, warehouses_recipe.quantity, cost, tax_rate')
             ->join('warehouses_recipe', 'warehouses_recipe.product_id=recipe.id', 'left')
             ->group_by('recipe.id');
@@ -101,13 +90,9 @@ class Store_request_model extends CI_Model
         return FALSE;
     }
 
-    public function addStore_request($data = array(), $items = array())
-    {
-		
+    public function addStore_request($data = array(), $items = array()){
         if ($this->db->insert('pro_store_request', $data)) {
-			
             $store_request_id = $this->db->insert_id();
-            
             foreach ($items as $item) {
                 $item['store_request_id'] = $store_request_id;
                 $this->db->insert('pro_store_request_items', $item);
@@ -119,8 +104,7 @@ class Store_request_model extends CI_Model
     }
 
 
-    public function updateStore_request($id, $data, $items = array())
-    {        
+    public function updateStore_request($id, $data, $items = array()){        
         if ($this->db->update('pro_store_request', $data, array('id' => $id)) && $this->db->delete('pro_store_request_items', array('store_request_id' => $id))) {
             foreach ($items as $item) {
                 $item['store_request_id'] = $id;
