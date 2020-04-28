@@ -12,12 +12,7 @@
             </button>
             <h4 class="modal-title" id="myModalLabel"><?=lang('Store_request')?> - <?=$store_req->reference_no?></h4>
         </div>
-		<?php
-		/* echo '<pre>';
-      print_r($store_req);
-	  die; */
-	  ?>
-      
+		
         <div class="modal-body">
           <div class="table-responsive">
             <table class="custom_tables">
@@ -31,24 +26,18 @@
                      <td colspan=2 ><?=lang('status')?>: </td>
                     <td colspan=2  class="td-value"><?=$store_req->status?></td>
                 </tr>
-               
-                
                 <tr>
                     
                     <?php
                     $from_store = '';
                     $to_store = '';
-				//	print_r($stores);
-					//print_r($all_stores);
-					
 					foreach ($stores as $store) {
-						$from_store = $store->name;
+						 if($store_req->from_store_id==$store->id){
+					    	$from_store = $store->name;
+						 }      
 					}
 					echo $from_store;
-                    foreach($all_stores as $k => $row) :
-                        /* if($store_req->from_store_id==$row->id){
-                           echo  $from_store = $row->name;
-                        } */
+                    foreach($stores as $k => $row) :
                         if($store_req->to_store_id==$row->id){
                             $to_store = $row->name;
                         }                    

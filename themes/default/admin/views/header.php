@@ -97,7 +97,14 @@
                         </ul>
                     </li>
                 </ul>
+				
                 <ul class="nav navbar-nav pull-right">
+				<?php   if($this->isStore){   ?>
+				 <li class="dropdown hidden-xs" >
+                      <i class="fa fa-exchange" <?php echo  ($this->centerdb_connected)? "style='color:green;font-size: 32px;' ":"style='color:red;font-size: 32px;'"   ?> aria-hidden="true"></i>
+                    </li>
+					
+			<?php  	} ?>
                     <li class="dropdown hidden-xs"><a class="btn tip" title="<?= lang('dashboard') ?>" data-placement="bottom" href="<?= admin_url('welcome') ?>"><i class="fa fa-dashboard"></i></a></li>
                     <?php if (SHOP) { ?>
                     <li class="dropdown hidden-xs"><a class="btn tip" title="<?= lang('shop') ?>" data-placement="bottom" href="<?= base_url() ?>"><i class="fa fa-shopping-cart"></i></a></li>

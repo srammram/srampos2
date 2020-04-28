@@ -222,11 +222,8 @@ class Purchase_invoices extends MY_Controller{
 
     }
 
-    public function view_bk($purchase_invoices_id = null)
-    {
-		
+    public function view_bk($purchase_invoices_id = null){
         $this->sma->checkPermissions();
-
         if ($this->input->get('id')) {
              $purchase_invoices_id = $this->input->get('id');
         }

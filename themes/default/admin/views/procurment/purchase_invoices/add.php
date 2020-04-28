@@ -5,20 +5,6 @@
 <script type="text/javascript">
     var default_store = '<?=$default_store?>';
     
-//    <?php if($purchase_invoices_id) { ?>
-//    localStorage.setItem('pi_warehouse', '<?= $purchase_invoices->warehouse_id ?>');
-//	localStorage.setItem('pi_requestnumber', '<?= $purchase_invoices->requestnumber ?>');
-//	localStorage.setItem('pi_requestdate', '<?= $purchase_invoices->requestdate ?>');
-//    localStorage.setItem('pi_note', '<?= str_replace(array("\r", "\n"), "", $this->sma->decode_html($purchase_invoices->note)); ?>');
-//    localStorage.setItem('pi_discount', '<?= $purchase_invoices->order_discount_id ?>');
-//    localStorage.setItem('pi_tax2', '<?= $purchase_invoices->order_tax_id ?>');
-//    localStorage.setItem('pi_shipping', '<?= $purchase_invoices->shipping ?>');
-//    <?php if ($purchase_invoices->supplier_id) { ?>
-//        localStorage.setItem('pi_supplier', '<?= $purchase_invoices->supplier_id ?>');
-//    <?php } ?>
-//    localStorage.setItem('pi_items', JSON.stringify(<?= $quote_items; ?>));
-//    <?php } ?>
-
     var count = 1, an = 1, purchase_invoices_edit = false, product_variant = 0, DT = <?= $Settings->default_tax_rate ?>, DC = '<?= @$default_currency->code ?>', shipping = 0,
         product_tax = 0, invoice_tax = 0, total_discount = 0, total = 0,
         tax_rates = <?php echo json_encode($tax_rates); ?>, pi_items = {},
@@ -122,12 +108,7 @@
                     $(this).removeClass('ui-autocomplete-loading');
                     $(this).val('');
                 }
-               /* else if (ui.content.length == 1 && ui.content[0].id != 0) {
-                    ui.item = ui.content[0];
-                    $(this).data('ui-autocomplete')._trigger('select', 'autocompleteselect', ui);
-                    $(this).autocomplete('close');
-                    $(this).removeClass('ui-autocomplete-loading');
-                }*/
+              
                 else if (ui.content.length == 1 && ui.content[0].id == 0) {
                     //audio_error.play();
                     bootbox.alert('<?= lang('no_match_found') ?>', function () {

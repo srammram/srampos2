@@ -67,18 +67,7 @@ class Store_request extends MY_Controller{
         . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete' href='" . admin_url('procurment/store_request/delete/$1') . "'>"
         . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i> "
         . lang('delete_store_request') . "</a>";
-		
-       /* $action = '<div class="text-center"><div class="btn-group text-left">'
-        . '<button type="button" class="btn btn-default btn-xs btn-primary dropdown-toggle" data-toggle="dropdown">'
-        . lang('actions') . ' <span class="caret"></span></button>
-                    <ul class="dropdown-menu pull-right" role="menu">
-                        <li>' . $detail_link . '</li>
-                        <li>' . $edit_link . '</li>
-                        <li>' . $pdf_link . '</li>
-                        <li>' . $email_link . '</li>
-                        <li>' . $delete_link . '</li>
-                    </ul>
-                </div></div>';*/
+
 		$action = '<div class="text-center"><div class="btn-group text-left">'
         . '<button type="button" class="btn btn-default btn-xs btn-primary dropdown-toggle" data-toggle="dropdown">'
         . lang('actions') . ' <span class="caret"></span></button>
@@ -88,8 +77,7 @@ class Store_request extends MY_Controller{
                         <li>' . $delete_link . '</li>
                     </ul>
                 </div></div>';
-        //$action = '<div class="text-center">' . $detail_link . ' ' . $edit_link . ' ' . $email_link . ' ' . $delete_link . '</div>';
-
+       
         $this->load->library('datatables');
         if ($warehouse_id) {
             $this->datatables
@@ -104,19 +92,14 @@ class Store_request extends MY_Controller{
 				->join('warehouses f', 'f.id = pro_store_request.from_store_id', 'left')
 				->join('warehouses t', 't.id = pro_store_request.to_store_id', 'left');
         }
-        /*if (!$this->Customer && !$this->Supplier && !$this->Owner && !$this->Admin && !$this->session->userdata('view_right')) {
-            $this->datatables->where('pro_store_request.created_by', $this->session->userdata('user_id'));
-        } elseif ($this->Customer) {
-            $this->datatables->where('pro_store_request.customer_id', $this->session->userdata('user_id'));
-        }*/
+      
 	$this->datatables->edit_column('attachment', '$1__$2', $this->digital_upload_path.', attachment');
         $this->datatables->add_column("Actions", $action, "pro_store_request.id,pro_store_request.status");
         echo $this->datatables->generate();
     }
 
     public function modal_view($store_request_id = null){
-        //$this->sma->checkPermissions('index', true);
-
+      
         if ($this->input->get('id')) {
             $store_request_id = $this->input->get('id');
         }
@@ -136,13 +119,11 @@ class Store_request extends MY_Controller{
     }
 
     public function view($store_request_id = null){
-	$this->sma->checkPermissions();
-	$id = $store_request_id;
-	$this->data['store_req'] = $this->store_request_model->getStore_requestByID($id);
+	        $this->sma->checkPermissions();
+	        $id = $store_request_id;
+	        $this->data['store_req'] = $this->store_request_model->getStore_requestByID($id);
             $inv_items = $this->store_request_model->getAllStore_requestItems($id);
-            /*echo "<pre>";
-             print_r($inv_items);die;*/
-             krsort($inv_items);
+            krsort($inv_items);
             $c = rand(100000, 9999999);
             foreach ($inv_items as $item) {
                 $row = $this->siteprocurment->getRecipeByID($item->product_id);
@@ -208,171 +189,19 @@ class Store_request extends MY_Controller{
             $this->data['store_req_items'] = $pr;
             $this->data['id'] = $id;
 	        $this->data['stores'] = $this->siteprocurment->getAllStores();
-	        $this->data['all_stores'] = $this->siteprocurment->getAllWarehouses();
-            //$this->data['currencies'] = $this->siteprocurment->getAllCurrencies();
             $this->data['billers'] = ($this->Owner || $this->Admin || !$this->session->userdata('biller_id')) ? $this->siteprocurment->getAllCompanies('biller') : null;
             $this->data['tax_rates'] = $this->siteprocurment->getAllTaxRates();
             $this->data['warehouses'] = ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) ? $this->siteprocurment->getAllWarehouses() : null;
 
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('procurment/store_request'), 'page' => lang('store_request')), array('link' => '#', 'page' => lang('view_store_request')));
             $meta = array('page_title' => lang('view_store_request'), 'bc' => $bc);
-        $this->load->view($this->theme . 'procurment/store_request/view',  $this->data);
+          $this->load->view($this->theme . 'procurment/store_request/view',  $this->data);
 
     }
 
-    public function pdf($store_request_id = null, $view = null, $save_bufffer = null)
-    {
-        //$this->sma->checkPermissions();
+   
 
-        if ($this->input->get('id')) {
-            $store_request_id = $this->input->get('id');
-        }
-        $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
-        $inv = $this->store_request_model->getStore_requestByID($store_request_id);
-        if (!$this->session->userdata('view_right')) {
-            $this->sma->view_rights($inv->created_by);
-        }
-        $this->data['rows'] = $this->store_request_model->getAllStore_requestItems($store_request_id);
-        $this->data['customer'] = $this->siteprocurment->getCompanyByID($inv->customer_id);
-        $this->data['biller'] = $this->siteprocurment->getCompanyByID($inv->biller_id);
-        $this->data['created_by'] = $this->siteprocurment->getUser($inv->created_by);
-        $this->data['warehouse'] = $this->siteprocurment->getWarehouseByID($inv->warehouse_id);
-        $this->data['inv'] = $inv;
-        $name = $this->lang->line("store_request") . "_" . str_replace('/', '_', $inv->reference_no) . ".pdf";
-        $html = $this->load->view($this->theme . 'store_request/pdf', $this->data, true);
-        if (! $this->Settings->barcode_img) {
-            $html = preg_replace("'\<\?xml(.*)\?\>'", '', $html);
-        }
-        if ($view) {
-            $this->load->view($this->theme . 'store_request/pdf', $this->data);
-        } elseif ($save_bufffer) {
-            return $this->sma->generate_pdf($html, $name, $save_bufffer);
-        } else {
-            $this->sma->generate_pdf($html, $name);
-        }
-    }
-
-    public function combine_pdf($store_request_id)
-    {
-        //$this->sma->checkPermissions('pdf');
-
-        foreach ($store_request_id as $store_request_id) {
-
-            $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
-            $inv = $this->store_request_model->getStore_requestByID($store_request_id);
-            if (!$this->session->userdata('view_right')) {
-                $this->sma->view_rights($inv->created_by);
-            }
-            $this->data['rows'] = $this->store_request_model->getAllStore_requestItems($store_request_id);
-            $this->data['customer'] = $this->siteprocurment->getCompanyByID($inv->customer_id);
-            $this->data['biller'] = $this->siteprocurment->getCompanyByID($inv->biller_id);
-            $this->data['user'] = $this->siteprocurment->getUser($inv->created_by);
-            $this->data['warehouse'] = $this->siteprocurment->getWarehouseByID($inv->warehouse_id);
-            $this->data['inv'] = $inv;
-
-            $html[] = array(
-                'content' => $this->load->view($this->theme . 'store_request/pdf', $this->data, true),
-                'footer' => '',
-            );
-        }
-
-        $name = lang("store_request") . ".pdf";
-        $this->sma->generate_pdf($html, $name);
-
-    }
-
-    public function email($store_request_id = null)
-    {
-        //$this->sma->checkPermissions(false, true);
-
-        if ($this->input->get('id')) {
-            $store_request_id = $this->input->get('id');
-        }
-        $inv = $this->store_request_model->getStore_requestByID($store_request_id);
-        $this->form_validation->set_rules('to', $this->lang->line("to") . " " . $this->lang->line("email"), 'trim|required|valid_email');
-        $this->form_validation->set_rules('subject', $this->lang->line("subject"), 'trim|required');
-        $this->form_validation->set_rules('cc', $this->lang->line("cc"), 'trim|valid_emails');
-        $this->form_validation->set_rules('bcc', $this->lang->line("bcc"), 'trim|valid_emails');
-        $this->form_validation->set_rules('note', $this->lang->line("message"), 'trim');
-
-        if ($this->form_validation->run() == true) {
-            if (!$this->session->userdata('view_right')) {
-                $this->sma->view_rights($inv->created_by);
-            }
-            $to = $this->input->post('to');
-            $subject = $this->input->post('subject');
-            if ($this->input->post('cc')) {
-                $cc = $this->input->post('cc');
-            } else {
-                $cc = null;
-            }
-            if ($this->input->post('bcc')) {
-                $bcc = $this->input->post('bcc');
-            } else {
-                $bcc = null;
-            }
-            $customer = $this->siteprocurment->getCompanyByID($inv->customer_id);
-            $biller = $this->siteprocurment->getCompanyByID($inv->biller_id);
-            $this->load->library('parser');
-            $parse_data = array(
-                'reference_number' => $inv->reference_no,
-                'contact_person' => $customer->name,
-                'company' => $customer->company,
-                'site_link' => base_url(),
-                'site_name' => $this->Settings->site_name,
-                'logo' => '<img src="' . base_url() . 'assets/uploads/logos/' . $biller->logo . '" alt="' . ($biller->company != '-' ? $biller->company : $biller->name) . '"/>',
-            );
-            $msg = $this->input->post('note');
-            $message = $this->parser->parse_string($msg, $parse_data);
-            $attachment = $this->pdf($store_request_id, null, 'S');
-
-            try {
-                if ($this->sma->send_email($to, $subject, $message, null, null, $attachment, $cc, $bcc)) {
-                    delete_files($attachment);
-                    $this->db->update('store_request', array('status' => 'approved'), array('id' => $store_request_id));
-                    $this->session->set_flashdata('message', $this->lang->line("email_sent"));
-                    admin_redirect("procurment/store_request");
-                }
-            } catch (Exception $e) {
-                $this->session->set_flashdata('error', $e->getMessage());
-                redirect($_SERVER["HTTP_REFERER"]);
-            }
-
-        } elseif ($this->input->post('send_email')) {
-
-            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-            $this->session->set_flashdata('error', $this->data['error']);
-            redirect($_SERVER["HTTP_REFERER"]);
-
-        } else {
-
-            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-
-            if (file_exists('./themes/' . $this->Settings->theme . '/admin/views/email_templates/store_request.html')) {
-                $store_request_temp = file_get_contents('themes/' . $this->Settings->theme . '/admin/views/email_templates/store_request.html');
-            } else {
-                $store_request_temp = file_get_contents('./themes/default/admin/views/email_templates/store_request.html');
-            }
-
-            $this->data['subject'] = array('name' => 'subject',
-                'id' => 'subject',
-                'type' => 'text',
-                'value' => $this->form_validation->set_value('subject', lang('store_request').' (' . $inv->reference_no . ') '.lang('from').' '.$this->Settings->site_name),
-            );
-            $this->data['note'] = array('name' => 'note',
-                'id' => 'note',
-                'type' => 'text',
-                'value' => $this->form_validation->set_value('note', $store_request_temp),
-            );
-            $this->data['customer'] = $this->siteprocurment->getCompanyByID($inv->customer_id);
-
-            $this->data['id'] = $store_request_id;
-            $this->data['modal_js'] = $this->siteprocurment->modal_js();
-            $this->load->view($this->theme . 'store_request/email', $this->data);
-
-        }
-    }
-
+ 
     public function add(){
           $this->sma->checkPermissions();
           $this->form_validation->set_message('is_natural_no_zero', $this->lang->line("no_zero_required"));
@@ -380,6 +209,7 @@ class Store_request extends MY_Controller{
 		  $this->form_validation->set_rules('to_store_id', $this->lang->line("to_store"), 'required');
 		  $this->form_validation->set_rules('request_type', $this->lang->line("request_type"), 'required');
           if ($this->form_validation->run() == true) {
+			  
 	      $n = $this->siteprocurment->lastidStoreRequest();
           $reference = 'SR'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
 		  $date = date('Y-m-d H:i:s');
@@ -405,6 +235,7 @@ class Store_request extends MY_Controller{
             $total_cgst = $total_sgst = $total_igst = 0;
             $i = isset($_POST['product_code']) ? sizeof($_POST['product_code']) : 0;
             for ($r = 0; $r < $i; $r++) {
+				$unit = $this->site->getUnitByID($_POST['product_unit'][$r]);
 		        $store_id = $from_store_id;
                 $item_id = $_POST['product_id'][$r];
                 $item_type = $_POST['product_type'][$r];
@@ -412,13 +243,15 @@ class Store_request extends MY_Controller{
                 $item_name = $_POST['product_name'][$r];
                 $item_unit_quantity = $_POST['quantity'][$r];
                 $item_unit = $_POST['product_unit'][$r];
-                $item_quantity = $_POST['product_base_quantity'][$r];
+				$quantity = $_POST['quantity'][$r];
+                $unit_quantity = $_POST['product_base_quantity'][$r];
 		        $category_id = $_POST['category_id'][$r];
                 $category_name = $_POST['category_name'][$r];
 		        $subcategory_id = $_POST['subcategory_id'][$r];
                 $subcategory_name = $_POST['subcategory_name'][$r];
 		        $brand_id = $_POST['brand_id'][$r];
                 $brand_name = $_POST['brand_name'][$r];
+				
                if (!empty($item_code)) {
                     $product_details = $item_type != 'manual' ? $this->store_request_model->getProductByCode($item_code) : null;
                     $products[] = array(
@@ -426,16 +259,10 @@ class Store_request extends MY_Controller{
                         'product_code'    => $item_code,
                         'product_name'    => $item_name,
                         'product_type'    => $item_type,
-                        'quantity'        => $item_quantity,
-						'unit_quantity'   => $item_quantity,
+                        'quantity'        => $quantity,
+						'unit_quantity'   => $unit_quantity,
                         'product_unit_id' => $item_unit,
-                        'warehouse_id'    => $warehouse_id,
-						'category_id'     => $category_id,
-                        'category_name'   => $category_name,
-						'subcategory_id'  => $subcategory_id,
-                        'subcategory_name' => $subcategory_name,
-						'brand_id'         => $brand_id,
-                        'brand_name'       => $brand_name,
+						'product_unit_code'=>$unit->name
                     );
                 }
             }
@@ -472,8 +299,10 @@ class Store_request extends MY_Controller{
                 'created_by' => $this->session->userdata('user_id'),
 				'approved_by' => $approved_by ? $approved_by : 0,
 				'approved_on' => $date,
-				'is_create' => date('Y-m-d H:i:s'),
-                'hash' => hash('sha256', microtime() . mt_rand()),
+				'created_on' => date('Y-m-d H:i:s'),
+				'total_no_items' =>$this->input->post('titems'),
+				'total_no_qty'=>$this->input->post('total_items')
+              
             );
 
             if ($_FILES['document']['size'] > 0) {
@@ -492,6 +321,7 @@ class Store_request extends MY_Controller{
                 $photo = $this->upload->file_name;
                 $data['attachment'] = $photo;
             }
+			
         }
 
         if ($this->form_validation->run() == true && $this->store_request_model->addStore_request($data, $products)) {
@@ -500,7 +330,7 @@ class Store_request extends MY_Controller{
             admin_redirect('procurment/store_request');
         } else {
             $this->data['stores'] = $this->siteprocurment->getAllStores();
-			$this->data['all_stores'] = $this->siteprocurment->getAllWarehouses_Stores();
+			$this->data['all_stores'] = $this->siteprocurment->getAllWarehouses_Storeslist();
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
             $this->data['billers'] = ($this->Owner || $this->Admin || !$this->session->userdata('biller_id')) ? $this->siteprocurment->getAllCompanies('biller') : null;
             //$this->data['currencies'] = $this->siteprocurment->getAllCurrencies();
@@ -511,33 +341,21 @@ class Store_request extends MY_Controller{
         }
     }
 
-    public function edit($id = null)
-    {
+    public function edit($id = null){
         $this->sma->checkPermissions();
-
         if ($this->input->get('id')) {
             $id = $this->input->get('id');
         }
         $inv = $this->store_request_model->getStore_requestByID($id);
-		
-				
-		
 		if ($inv->status == 'approved' || $inv->status == 'completed') {
 			$this->session->set_flashdata('error', lang("Do not allowed edit option"));
 			admin_redirect("procurment/store_request");
 		}	
-		
-        
         $this->form_validation->set_message('is_natural_no_zero', $this->lang->line("no_zero_required"));
-		
-		 $this->form_validation->set_rules('request_type', $this->lang->line("request_type"), 'required');
+		$this->form_validation->set_rules('request_type', $this->lang->line("request_type"), 'required');
         $this->form_validation->set_rules('warehouse', $this->lang->line("warehouse"), 'required');
-		 // $this->form_validation->set_rules('to_store_id', $this->lang->line("to_store"), 'required');
-        //$this->form_validation->set_rules('note', $this->lang->line("note"), 'xss_clean');
-
+		
         if ($this->form_validation->run() == true) {
-
-            
             $warehouse_id = $this->input->post('warehouse');
             $biller_id = $this->input->post('biller');
 			$from_store_id = $this->input->post('from_store_id');
@@ -562,54 +380,33 @@ class Store_request extends MY_Controller{
             $total_cgst = $total_sgst = $total_igst = 0;
             $i = isset($_POST['product_code']) ? sizeof($_POST['product_code']) : 0;
            	for ($r = 0; $r < $i; $r++) {
+               $unit = $this->site->getUnitByID($_POST['product_unit'][$r]);
+		        $store_id = $from_store_id;
                 $item_id = $_POST['product_id'][$r];
                 $item_type = $_POST['product_type'][$r];
                 $item_code = $_POST['product_code'][$r];
                 $item_name = $_POST['product_name'][$r];
-                //$item_option = isset($_POST['product_option'][$r]) && $_POST['product_option'][$r] != 'false' ? $_POST['product_option'][$r] : null;
-                //$real_unit_price = $this->sma->formatDecimal($_POST['real_unit_price'][$r]);
-               // $unit_price = $this->sma->formatDecimal($_POST['unit_price'][$r]);
-               $item_unit_quantity = $_POST['quantity'][$r];
-               // $item_tax_rate = isset($_POST['product_tax'][$r]) ? $_POST['product_tax'][$r] : null;
-               // $item_discount = isset($_POST['product_discount'][$r]) ? $_POST['product_discount'][$r] : null;
+                $item_unit_quantity = $_POST['quantity'][$r];
                 $item_unit = $_POST['product_unit'][$r];
-                $item_quantity = $_POST['product_base_quantity'][$r];
-		$category_id = $_POST['category_id'][$r];
+				$quantity = $_POST['quantity'][$r];
+                $unit_quantity = $_POST['product_base_quantity'][$r];
+		        $category_id = $_POST['category_id'][$r];
                 $category_name = $_POST['category_name'][$r];
-		$subcategory_id = $_POST['subcategory_id'][$r];
+		        $subcategory_id = $_POST['subcategory_id'][$r];
                 $subcategory_name = $_POST['subcategory_name'][$r];
-		$brand_id = $_POST['brand_id'][$r];
+		        $brand_id = $_POST['brand_id'][$r];
                 $brand_name = $_POST['brand_name'][$r];
-
                if (!empty($item_code)) {
                     $product_details = $item_type != 'manual' ? $this->store_request_model->getProductByCode($item_code) : null;
-                    // $unit_price = $real_unit_price;
-                   // $pr_discount = $this->siteprocurment->calculateDiscount($item_discount, $unit_price);
-                  //  $unit_price = $this->sma->formatDecimal($unit_price - $pr_discount);
-                   // $item_net_price = $unit_price;
-                  //  $pr_item_discount = $this->sma->formatDecimal($pr_discount * $item_unit_quantity);
-                  //  $product_discount += $pr_item_discount;
-                  //  $pr_item_tax = $item_tax = 0;
-                  //  $tax = "";
-
-                   
-
                     $products[] = array(
-                        'product_id' => $item_id,
-                        'product_code' => $item_code,
-                        'product_name' => $item_name,
-                        'product_type' => $item_type,
-                        'quantity' => $item_unit_quantity,
-						'unit_quantity' => $item_quantity,
+                        'product_id'      => $item_id,
+                        'product_code'    => $item_code,
+                        'product_name'    => $item_name,
+                        'product_type'    => $item_type,
+                        'quantity'        => $quantity,
+						'unit_quantity'   => $unit_quantity,
                         'product_unit_id' => $item_unit,
-                        //'product_unit_code' => $unit->code,
-                        'warehouse_id' => $warehouse_id,
-			'category_id' => $category_id,
-                        'category_name' => $category_name,
-			'subcategory_id' => $subcategory_id,
-                        'subcategory_name' => $subcategory_name,
-			'brand_id' => $brand_id,
-                        'brand_name' => $brand_name,
+						'product_unit_code'=>$unit->name
                     );
 
                 }
@@ -622,14 +419,12 @@ class Store_request extends MY_Controller{
 
             $data = array(
 				'request_type' => $this->input->post('request_type'),
-               // 'from_store_id' => $from_store_id,
-                //'to_store_id' => $to_store_id,
                 'warehouse_id' => $warehouse_id,
                 'note' => $note,
                 'status' => $status,
                 'updated_by' => $this->session->userdata('user_id'),
-				'is_update' => date('Y-m-d H:i:s'),
-                'hash' => hash('sha256', microtime() . mt_rand()),
+				'total_no_items' =>$this->input->post('titems'),
+				'total_no_qty'=>$this->input->post('total_items')
             );
 
             if ($_FILES['document']['size'] > 0) {
@@ -647,25 +442,17 @@ class Store_request extends MY_Controller{
                 }
                 $photo = $this->upload->file_name;
                 $data['attachment'] = $photo;
-		@unlink($this->digital_upload_path.$inv->attachment);
+	          	@unlink($this->digital_upload_path.$inv->attachment);
             }
-
-            //$this->sma->print_arrays($data, $products);die;
         }
-        /*echo "<pre>";
-print_r($this->input->post());die;*/
         if ($this->form_validation->run() == true && $this->store_request_model->updateStore_request($id, $data, $products)) {
             $this->session->set_userdata('remove_quls', 1);
             $this->session->set_flashdata('message', $this->lang->line("store_request_added"));
             admin_redirect('procurment/store_request');
         } else {
-
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-
             $this->data['inv'] = $this->store_request_model->getStore_requestByID($id);
             $inv_items = $this->store_request_model->getAllStore_requestItems($id);
-            /*echo "<pre>";
-             print_r($inv_items);die;*/
              krsort($inv_items);
             $c = rand(100000, 9999999);
             foreach ($inv_items as $item) {
@@ -692,22 +479,19 @@ print_r($this->input->post());die;*/
                 $row->base_unit_price = $row->price ? $row->price : $item->unit_price;
                 $row->unit = $item->product_unit_id;
                 $row->qty = $item->quantity;
-                $row->discount = $item->discount ? $item->discount : '0';
-               // $row->price = $this->sma->formatDecimal($item->net_unit_price + $this->sma->formatDecimal($item->item_discount / $item->quantity));
-                //$row->unit_price = $row->tax_method ? $item->unit_price + $this->sma->formatDecimal($item->item_discount / $item->quantity) + $this->sma->formatDecimal($item->item_tax / $item->quantity) : $item->unit_price + ($item->item_discount / $item->quantity);
-                $row->real_unit_price = $item->real_unit_price;
-                $row->tax_rate = $item->tax_rate_id;
-                $row->option = $item->option_id;
-		$row->category_id = $item->category_id;
-                $row->category_name = $item->category_name;
-		$row->subcategory_id = $item->subcategory_id;
-                $row->subcategory_name = $item->subcategory_name;
-		$row->brand_id = $item->brand_id;
-                $row->brand_name = $item->brand_name;
-		$row->purchase_cost = $item->cost_price;
-                $row->cost = $item->selling_price;
+                $row->discount = $row->discount ? $row->discount : '0';
+                $row->real_unit_price = $row->real_unit_price;
+                $row->tax_rate = $row->tax_rate_id;
+                $row->option = $row->option_id;
+		        $row->category_id = $row->category_id;
+                $row->category_name = $row->category_name;
+		        $row->subcategory_id = $row->subcategory_id;
+                $row->subcategory_name = $row->subcategory_name;
+		        $row->brand_id = $row->brand_id;
+                $row->brand_name = $row->brand_name;
+		        $row->purchase_cost = $row->cost_price;
+                $row->cost = $row->selling_price;
                 $options = $this->store_request_model->getProductOptions($row->id, $item->warehouse_id);
-
                 if ($options) {
                     $option_quantity = 0;
                     foreach ($options as $option) {
@@ -732,15 +516,16 @@ print_r($this->input->post());die;*/
                 }
                 $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
                 $tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
-                $ri = $this->Settings->item_addition ? $row->id : $c;
-		$item_key = $ri.'_'.$item->category_id.'_'.$item->subcategory_id.'_'.$item->brand_id;
+                $ri = $row->id ? $row->id : $c;
+		        $item_key = $ri.'_'.$row->category_id.'_'.$row->subcategory_id.'_'.$row->brand_id;
                 $pr[$item_key] = array('id' => $c, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")", 'row' => $row, 'combo_items' => $combo_items, 'tax_rate' => $tax_rate, 'units' => $units, 'options' => $options);
+				
                 $c++;
             }
             $this->data['inv_items'] = json_encode($pr);
             $this->data['id'] = $id;
 			$this->data['stores'] = $this->siteprocurment->getAllStores();
-			$this->data['all_stores'] = $this->siteprocurment->getAllWarehouses_Stores();
+			$this->data['all_stores'] = $this->siteprocurment->getAllWarehouses_Storeslist();
             //$this->data['currencies'] = $this->siteprocurment->getAllCurrencies();
             $this->data['billers'] = ($this->Owner || $this->Admin || !$this->session->userdata('biller_id')) ? $this->siteprocurment->getAllCompanies('biller') : null;
             $this->data['tax_rates'] = $this->siteprocurment->getAllTaxRates();
@@ -752,29 +537,25 @@ print_r($this->input->post());die;*/
         }
     }
 
-    public function delete($id = null)
-    {
-        //$this->sma->checkPermissions(NULL, true);
-
+    public function delete($id = null){
         if ($this->input->get('id')) {
-            $id = $this->input->get('id');
+             $id = $this->input->get('id')?$this->input->get('id'):$id;
         }
-
+		$inv = $this->store_request_model->getStore_requestByID($id);
+		if ($inv->status == 'approved' || $inv->status == 'completed') {
+			 $this->sma->send_json(array('error' => 1, 'msg' => lang("Do not allowed edit option")));
+		}	
         if ($this->store_request_model->deleteStore_request($id)) {
-            if ($this->input->is_ajax_store_request()) {
                 $this->sma->send_json(array('error' => 0, 'msg' => lang("store_request_deleted")));
-            }
-            $this->session->set_flashdata('message', lang('store_request_deleted'));
-            admin_redirect('procurment/welcome');
-        }
+        }else{
+			$this->sma->send_json(array('error' => 1, 'msg' => lang("store_request Unable to Delete")));
+		}
     }
 
-    public function suggestions()
-    {
+    public function suggestions(){
         $term = $this->input->get('term', true);
         $warehouse_id = $this->input->get('warehouse_id', true);
         $supplier_id = $this->input->get('supplier_id', true);
-
         if (strlen($term) < 1 || !$term) {
             die("<script type='text/javascript'>setTimeout(function(){ window.top.location.href = '" . admin_url('procurment/welcome') . "'; }, 10);</script>");
         }
@@ -783,8 +564,6 @@ print_r($this->input->post());die;*/
         $sr = $analyzed['term'];
         $option_id = $analyzed['option_id'];
         $warehouse = $this->siteprocurment->getWarehouseByID($warehouse_id);
-       // $customer = $this->siteprocurment->getCompanyByID($customer_id);
-       // $customer_group = $this->siteprocurment->getCustomerGroupByID($customer->customer_group_id);
         $rows = $this->siteprocurment->getProductNames($sr);
         if ($rows) {
             $c = str_replace(".", "", microtime(true));
@@ -844,7 +623,7 @@ print_r($this->input->post());die;*/
                 $row->base_quantity = 1;
                 $row->base_unit = $row->unit;
                 $row->base_unit_price = $row->price;
-                $row->unit = $row->sale_unit ? $row->sale_unit : $row->unit;
+                $row->unit = $row->purchase_unit ? $row->purchase_unit : $row->unit;
                 $combo_items = false;
                 if ($row->type == 'combo') {
                     $combo_items = $this->store_request_model->getProductComboItems($row->id, $warehouse_id);
@@ -880,20 +659,15 @@ print_r($this->input->post());die;*/
         }
     }
 
-    public function store_request_actions()
-    {
+    public function store_request_actions(){
         if (!$this->Owner && !$this->GP['bulk_actions']) {
             $this->session->set_flashdata('warning', lang('access_denied'));
             redirect($_SERVER["HTTP_REFERER"]);
         }
-
         $this->form_validation->set_rules('form_action', lang("form_action"), 'required');
-
         if ($this->form_validation->run() == true) {
-
             if (!empty($_POST['val'])) {
                 if ($this->input->post('form_action') == 'delete') {
-
                     //$this->sma->checkPermissions('delete');
                     foreach ($_POST['val'] as $id) {
                         $this->store_request_model->deleteStore_request($id);
@@ -906,7 +680,6 @@ print_r($this->input->post());die;*/
                     $html = $this->combine_pdf($_POST['val']);
 
                 } elseif ($this->input->post('form_action') == 'export_excel') {
-
                     $this->load->library('excel');
                     $this->excel->setActiveSheetIndex(0);
                     $this->excel->getActiveSheet()->setTitle(lang('store_request'));

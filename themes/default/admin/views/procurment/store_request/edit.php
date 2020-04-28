@@ -151,19 +151,11 @@
                 ?>
                 <div class="row">
 				<div class="col-lg-12" style="background:#b1d7fd; padding:15px 15px;">
-                        <?php
-                      //  if($inv->status == 'process'){ ?>
-                            
-                              <?php echo form_submit('edit_store_request', $this->lang->line("save"), 'id="edit_store_request" class="btn col-lg-1 btn-sm btn-primary pull-right" '); ?>
+               <?php echo form_submit('edit_store_request', $this->lang->line("save"), 'id="edit_store_request" class="btn col-lg-1 btn-sm btn-primary pull-right" '); ?>
 
-                            <button type="button" class="btn col-lg-1 btn-sm btn-danger pull-right" id="reset" style="display: none;margin-right:15px;height:30px!important;font-size: 12px!important"><?= lang('reset'); ?></button>
-                        <?php // } ?>
-
-                     
-                        <input type="hidden" name="warehouse" id="store_reqwarehouse" value="<?php echo $inv->warehouse_id ?>">
-
-                        <input type="hidden" name="biller" id="reqbiller" value="<?php echo $Settings->default_biller ?>"> 
-
+               <button type="button" class="btn col-lg-1 btn-sm btn-danger pull-right" id="reset" style="display: none;margin-right:15px;height:30px!important;font-size: 12px!important"><?= lang('reset'); ?></button>
+               <input type="hidden" name="warehouse" id="store_reqwarehouse" value="<?php echo $inv->warehouse_id ?>">
+               <input type="hidden" name="biller" id="reqbiller" value="<?php echo $Settings->default_biller ?>"> 
                         <table class="table custom_tables">
                             <tbody>
                                 <tr>
@@ -245,11 +237,9 @@
                                         <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
                                             <i class="fa fa-2x fa-barcode addIcon"></i></div>
                                         <?php echo form_input('add_item', '', 'class="form-control input-lg" id="add_item" placeholder="' . $this->lang->line("Search Purchase Items") . '"'); ?>
-                                        <?php if ($Owner || $Admin || $GP['products-add']) { ?>
-                                        <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
-                                            <a href="<?= admin_url('procurment/products/add') ?>" id="addManually1"><i
-                                                    class="fa fa-2x fa-plus addIcon" id="addIcon"></i></a></div>
-                                        <?php } ?>
+                                      <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
+                                            <a href="javascript:void(0)" id="addManually1"><i
+                                                    class="fa fa-2x fa-search addIcon" id="addIcon"></i></a></div>
                                     </div>
                                 </div>
                                 <div class="clearfix"></div>
@@ -282,10 +272,27 @@
                                 </div>
                             </div>
                         </div>
-                       <input type="hidden" name="total_items" value="" id="total_items"/>                       
+                                           
                     </div>
                 </div>
-               
+                <table class="table total_item_qty_tables" style="padding: 4px;border-top: none!important;width:30%">
+				    <tbody>
+					<tr>                                    
+					    <td>
+						<label for="titems">total no items</label>                                    </td>
+					    <td>
+						<input name="titems" id="titems" readonly="" class="form-control" autocomplete="off">
+					    </td>
+					</tr>
+					<tr>                                    
+					    <td>
+						<label for="total_items">total no qty</label>                                    </td>
+					    <td>
+						<input name="total_items" id="total_items" readonly="" class="form-control" autocomplete="off">
+					    </td>
+					</tr>
+				    </tbody>
+				    </table>
                 <?php echo form_close(); ?>
 
             </div>

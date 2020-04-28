@@ -72,12 +72,10 @@ class Store_request_model extends CI_Model{
         return FALSE;
     }
 
-    public function getAllStore_requestItems($store_request_id)
-    {
-        $this->db->select('pro_store_request_items.*, tax_rates.code as tax_code, tax_rates.name as tax_name, tax_rates.rate as tax_rate, recipe.unit, recipe.image, recipe.details as details, recipe_variants.name as variant, recipe.hsn_code as hsn_code, recipe.name as second_name')
+    public function getAllStore_requestItems($store_request_id){
+        $this->db->select('pro_store_request_items.*, recipe.unit, recipe.image, recipe.details as details, recipe_variants.name as variant, recipe.hsn_code as hsn_code, recipe.name as second_name')
             ->join('recipe', 'recipe.id=pro_store_request_items.product_id', 'left')
             ->join('recipe_variants', 'recipe_variants.id=pro_store_request_items.option_id', 'left')
-            ->join('tax_rates', 'tax_rates.id=pro_store_request_items.tax_rate_id', 'left')
             ->group_by('pro_store_request_items.id')
             ->order_by('id', 'asc');
         $q = $this->db->get_where('pro_store_request_items', array('store_request_id' => $store_request_id));
@@ -93,23 +91,44 @@ class Store_request_model extends CI_Model{
     public function addStore_request($data = array(), $items = array()){
         if ($this->db->insert('pro_store_request', $data)) {
             $store_request_id = $this->db->insert_id();
-            foreach ($items as $item) {
-                $item['store_request_id'] = $store_request_id;
-                $this->db->insert('pro_store_request_items', $item);
-                //file_put_contents('tt.txt',json_encode($this->db->error()),FILE_APPEND);
+			
+        if ($store_request_id) {            
+            $unique_id = $this->site->generateUniqueTableID($store_request_id);
+            if ($store_request_id) {
+                $this->site->updateUniqueTableId($store_request_id,$unique_id,'pro_store_request');
             }
+            foreach ($items as $item) {
+                $item['store_request_id'] = $unique_id;
+                $this->db->insert('pro_store_request_items', $item);
+				$i_request_id = $this->db->insert_id();
+                $i_unique_id = $this->site->generateUniqueTableID($i_request_id);
+                if ($i_request_id) {
+                    $this->site->updateUniqueTableId($i_request_id,$i_unique_id,'pro_store_request_items');
+                }
+            }
+			  if($data['status']=="approved"){
+		      $this->sync_center->sync_storeIndentRequests($unique_id);
+	    }
             return true;
         }
         return false;
     }
-
+	}
 
     public function updateStore_request($id, $data, $items = array()){        
         if ($this->db->update('pro_store_request', $data, array('id' => $id)) && $this->db->delete('pro_store_request_items', array('store_request_id' => $id))) {
             foreach ($items as $item) {
                 $item['store_request_id'] = $id;
                 $this->db->insert('pro_store_request_items', $item);
-            }            
+				$i_request_id = $this->db->insert_id();//p($this->db->error());
+                $i_unique_id = $this->site->generateUniqueTableID($i_request_id);
+                if ($i_request_id) {
+                    $this->site->updateUniqueTableId($i_request_id,$i_unique_id,'pro_store_request_items');
+                }
+            }          
+       if($data['status']=="approved"){
+		$this->sync_center->sync_storeIndentRequests($unique_id);
+	    }			
             return true;
         }        
         return false;
@@ -126,7 +145,7 @@ class Store_request_model extends CI_Model{
 
     public function deleteStore_request($id)
     {
-        if ($this->db->delete('pro_quote_items', array('store_request_id' => $id)) && $this->db->delete('pro_store_request', array('id' => $id))) {
+        if ($this->db->delete('pro_store_request_items', array('store_request_id' => $id)) && $this->db->delete('pro_store_request', array('id' => $id))) {
             return true;
         }
         return FALSE;

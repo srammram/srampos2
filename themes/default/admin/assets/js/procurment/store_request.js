@@ -693,6 +693,7 @@ $('#store_reqdiscount').focus(function () {
         }
         var new_qty = parseFloat($(this).val()),
         item_id = row.attr('data-item-id');
+		console.log(item_id);
         store_reqitems[item_id].row.base_quantity = new_qty;
         if(store_reqitems[item_id].row.unit != store_reqitems[item_id].row.base_unit) {
             $.each(store_reqitems[item_id].units, function(){
@@ -799,12 +800,9 @@ function loadItems() {
         product_discount = 0;
         order_discount = 0;
         total_discount = 0;
-
         $("#store_reqTable tbody").empty();
-        
         store_reqitems = JSON.parse(localStorage.getItem('store_reqitems'));
         sortedItems = store_reqitems;
-        /*sortedItems = (site.settings.item_addition == 1) ? _.sortBy(store_reqitems, function(o) { return [parseInt(o.order)]; }) : store_reqitems;*/
         $('#add_sale, #edit_sale').attr('disabled', false);
         var c = 1;
         $.each(sortedItems, function () {
@@ -813,12 +811,12 @@ function loadItems() {
             var item_id = item.item_id;
             item.order = item.order ? item.order : new Date().getTime();
             var product_id = item.row.id, item_type = item.row.type, combo_items = item.combo_items, item_price = item.row.price, item_qty = item.row.qty, item_aqty = item.row.quantity, item_tax_method = item.row.tax_method, item_ds = item.row.discount, item_discount = 0, item_option = item.row.option, item_code = item.row.code, item_serial = item.row.serial, item_name = item.row.name.replace(/"/g, "&#034;").replace(/'/g, "&#039;");
-	    var category_id = item.row.category_id,
-		category_name = item.row.category_name,
-		subcategory_id = item.row.subcategory_id,
-		subcategory_name = item.row.subcategory_name,
-		brand_id = item.row.brand_id,
-		brand_name = item.row.brand_name;
+	        var category_id = item.row.category_id,
+		    category_name = item.row.category_name,
+		    subcategory_id = item.row.subcategory_id,
+		    subcategory_name = item.row.subcategory_name,
+		    brand_id = item.row.brand_id,
+		    brand_name = item.row.brand_name;
             var unit_price = item.row.real_unit_price;
             var product_unit = item.row.unit, base_quantity = item.row.base_quantity;
             if(item.units && item.row.fup != 1 && product_unit != item.row.base_unit) {
@@ -906,17 +904,9 @@ function loadItems() {
 		     '<span class="sname" id="name_' + row_no + '">' + brand_name +'</span>'+
 		     '</td>';
 		     
-           // tr_html += '<td class="text-right"><input class="form-control input-sm text-right rprice" name="net_price[]" type="hidden" id="price_' + row_no + '" value="' + formatDecimal(item_price) + '"><input class="ruprice" name="unit_price[]" type="hidden" value="' + unit_price + '"><input class="realuprice" name="real_unit_price[]" type="hidden" value="' + item.row.real_unit_price + '"><span class="text-right sprice" id="sprice_' + row_no + '">' + formatMoney(item_price) + '</span></td>';
+         
             tr_html += '<td><input class="form-control text-center rquantity" tabindex="'+((site.settings.set_focus == 1) ? an : (an+1))+'" name="quantity[]" type="text" value="' + formatQuantity2(item_qty) + '" data-id="' + row_no + '" data-item="' + item_id + '" id="quantity_' + row_no + '" onClick="this.select();"><input name="product_unit[]" type="hidden" class="runit" value="' + product_unit + '"><input name="product_base_quantity[]" type="hidden" class="rbase_quantity" value="' + base_quantity + '"></td>';
-            /*if ((site.settings.product_discount == 1 && allow_discount == 1) || item_discount) {
-                tr_html += '<td class="text-right"><input class="form-control input-sm rdiscount" name="product_discount[]" type="hidden" id="discount_' + row_no + '" value="' + item_ds + '"><span class="text-right sdiscount text-danger" id="sdiscount_' + row_no + '">' + formatMoney(0 - (item_discount * item_qty)) + '</span></td>';
-            }*/
-            /*if (site.settings.tax1 == 1) {
-                tr_html += '<td class="text-right"><input class="form-control input-sm text-right rproduct_tax" name="product_tax[]" type="hidden" id="product_tax_' + row_no + '" value="' + pr_tax.id + '"><span class="text-right sproduct_tax" id="sproduct_tax_' + row_no + '">' + (pr_tax_rate ? '(' + formatDecimal(pr_tax_rate) + ')' : '') + ' ' + formatMoney(pr_tax_val * item_qty) + '</span></td>';
-            }*/
-            //tr_html += '<td class="text-right"><span class="text-right ssubtotal" id="subtotal_' + row_no + '">' + formatMoney(((parseFloat(item_price) + parseFloat(pr_tax_val)) * parseFloat(item_qty))) + '</span></td>';
-            /*tr_html += '<td class="text-center"><i class="fa fa-times tip pointer store_reqdel" id="' + row_no + '" title="Remove" style="cursor:pointer;"></i></td>';*/
-
+           
             tr_html += '<td class="text-center"><i class="fa fa-trash-o tip pointer store_reqdel" id="' + row_no + '" title="Remove" style="cursor:pointer; color:red;"></i></td>';
 
             newTr.html(tr_html);
@@ -924,6 +914,7 @@ function loadItems() {
             total += formatDecimal(((parseFloat(item_price) + parseFloat(pr_tax_val)) * parseFloat(item_qty)), 4);
             count += parseFloat(item_qty);
             an++;
+			
             if (item_type == 'standard' && item.options !== false) {
                 $.each(item.options, function () {
                     if(this.id == item_option && base_quantity > this.quantity) {
@@ -949,14 +940,7 @@ function loadItems() {
 
         var col = 2;
 		var tfoot = '';
-        // tfoot +=  '<tr id="tfoot" class="tfoot active"><th colspan="'+col+'">Total</th><th class="text-center">' + formatQty(parseFloat(count) - 1) + '</th>';
-        /*if ((site.settings.product_discount == 1 && allow_discount == 1) || product_discount) {
-            tfoot += '<th class="text-right">'+formatMoney(product_discount)+'</th>';
-        }*/
-        /*if (site.settings.tax1 == 1) {
-            tfoot += '<th class="text-right">'+formatMoney(product_tax)+'</th>';
-        }*/
-       // tfoot += '<th class="text-right">'+formatMoney(total)+'</th><th class="text-center"><i class="fa fa-trash-o" style="opacity:0.5; filter:alpha(opacity=50);"></i></th></tr>';
+     
         $('#store_reqTable tfoot').html(tfoot);
 
         // Order level discount calculations
@@ -989,12 +973,16 @@ function loadItems() {
                 });*/
             }
         }
+		
         total_discount = parseFloat(order_discount + product_discount);
         // Totals calculations after item addition
         var gtotal = parseFloat(((total + invoice_tax) - order_discount) + shipping);
         $('#total').text(formatMoney(total));
-        $('#titems').text((an - 1) + ' (' + formatQty(parseFloat(count) - 1) + ')');
-        $('#total_items').val((parseFloat(count) - 1));
+        $('#titems').val((an - 1));
+        $('#total_items').val((parseFloat(count)- 1));
+		
+		
+		
         $('#tds').text(formatMoney(order_discount));
         if (site.settings.tax2 != 0) {
             $('#ttax2').text(formatMoney(invoice_tax));

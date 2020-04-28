@@ -288,6 +288,17 @@ class Siteprocurment extends CI_Model{
         }
         return FALSE;
     }
+	 public function getAllWarehouses_Storeslist() {
+		 $this->db->where_not_in('id',$this->store_id);
+        $q = $this->db->get('warehouses');
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return FALSE;
+    }
 	public function getAllStores() {
         $this->db->where('type', 1);
         $q = $this->db->get('warehouses');
@@ -2050,7 +2061,7 @@ class Siteprocurment extends CI_Model{
         return 0;
 	}
 	public function lastidStoreRequest(){
-		$this->db->order_by('id' , 'DESC');
+		$this->db->order_by('s_no' , 'DESC');
         $q = $this->db->get('pro_store_request');
         if ($q->num_rows() > 0) {
             return $q->row('id');

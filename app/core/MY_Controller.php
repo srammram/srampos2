@@ -9,12 +9,19 @@ class MY_Controller extends CI_Controller {
         ini_set('memory_limit',-1);
         //define('SOCKET_PORT',$this->Settings->socket_port);
         //define('SOCKET_HOST',$this->Settings->socket_host);  
-        $thisStore = $this->site->getThisStore();        
+        $thisStore = $this->site->getThisStore(); 
+		
         $this->isWarehouse = ($thisStore->type==1)?false:true;
         $this->isStore = ($thisStore->type==1)?true:false;
         $this->store_id = $thisStore->id;
         $this->store_name = $thisStore->name;
 		$this->myIp = getHostByName(php_uname('n'));
+		
+		  $this->centerdb_connected =  false;
+        if($this->isStore){
+            $this->center_server->connect();
+           //echo $this->centerdb_connected;exit;
+        }
 		if(!empty($this->myIp)){
 			$counter = $this->site->getCounter($this->myIp);
 			if(!empty($counter)){

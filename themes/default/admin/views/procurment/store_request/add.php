@@ -145,7 +145,6 @@
                 echo admin_form_open_multipart("procurment/store_request/add", $attrib)
                 ?>                
                 <div class="row">
-
                     <div class="col-lg-12" style="background:#b1d7fd; padding:15px 15px;">
                         <?php echo form_submit('add_store_request', $this->lang->line("save"), 'id="add_store_request" class="btn col-lg-1 btn-sm btn-primary pull-right" '); ?>
                         <button type="button" class="btn col-lg-1 btn-sm btn-danger pull-right" id="reset" style="margin-right:15px;height:30px!important;font-size: 12px!important"><?= lang('reset'); ?></button>
@@ -170,13 +169,8 @@
                                         <?= lang("from_store", "store_reqfrom_store_id"); ?>
                                     </td>
                                     <td>
-                                        <?php
-                                            $fst[''] = '';
-                                            foreach ($stores as $store) {
-                                                $fst[$store->id] = $store->name;
-                                            }
-                                            echo form_dropdown('from_store_id', $fst, (isset($_POST['from_store_id']) ? $_POST['from_store_id'] : ''), 'id="store_reqfrom_store_id" class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("from_store") . '" required="required" style="width:100%;" ');
-                                            ?>
+                                       <input type="text" name="from_store_name" id="from_store_name" readonly class="form-control" value="<?=$this->store_name?>">
+									    <input type="hidden" name="from_store_id" id="from_store_id" readonly class="form-control" value="<?=$this->store_id?>">
                                     </td>
                                     <td width="150px">
                                         <?= lang("to_warehouse", "store_reqto_store_id"); ?>
@@ -251,35 +245,18 @@
                                         <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
                                             <i class="fa fa-2x fa-barcode addIcon"></i></div>
                                         <?php echo form_input('add_item', '', 'class="form-control input-lg" id="add_item" placeholder="' . $this->lang->line("Search Purchase Items") . '"'); ?>
-                                        <?php if ($Owner || $Admin || $GP['products-add']) { ?>
+                                       
                                         <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
-                                            <a href="<?= admin_url('procurment/products/add') ?>" id="addManually1"><i
-                                                    class="fa fa-2x fa-plus addIcon" id="addIcon"></i></a></div>
-                                        <?php } ?>
+                                            <a href="javascript:void(0)" id="addManually1"><i
+                                                    class="fa fa-2x fa-search addIcon" id="addIcon"></i></a></div>
+                                     
                                     </div>
                                 </div>
                                 <div class="clearfix"></div>
                             </div>
                         </div>
 
-                       <!--  <div class="col-md-12" id="sticker">
-                            <div class="well well-sm">
-                                <div class="form-group" style="margin-bottom:0;">
-                                    <div class="input-group wide-tip">
-                                        <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
-                                            <i class="fa fa-2x fa-barcode addIcon"></i></div>
-                                        <?php echo form_input('add_item', '', 'class="form-control input-lg" id="add_item" placeholder="' . $this->lang->line("add_product_to_order") . '"'); ?>
-                                        <?php if ($Owner || $Admin || $GP['products-add']) { ?>
-                                        <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
-                                            <a href="javascript:void(0)" id="addManually" class="tip"
-                                               title="<?= lang('add_product_manually') ?>"><i
-                                                    class="fa fa-2x fa-plus-circle addIcon" id="addIcon"></i></a></div>
-                                        <?php } ?>
-                                    </div>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div>
-                        </div> -->
+                     
                         <div class="clearfix"></div>
                         <div class="col-md-12">
                             <div class="control-group table-group">
@@ -307,27 +284,28 @@
                             </div>
                         </div>
 
-                        <!--<input type="hidden" name="total_items" value="" id="total_items" required="required"/>-->
-
-                       <!--  <div class="row" id="bt">
-                            <div class="col-sm-12">
-                                <div class="col-sm-12">
-                                    <div class="form-group">
-                                        <?= lang("note", "store_reqnote"); ?>
-                                        <?php echo form_textarea('note', (isset($_POST['note']) ? $_POST['note'] : ""), 'class="form-control" id="store_reqnote" style="margin-top: 10px; height: 100px;"'); ?>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div> -->
-                       <!--  <div class="col-sm-12">
-                            <div
-                                class="fprom-group"><?php echo form_submit('add_store_request', $this->lang->line("submit"), 'id="add_store_request" class="btn btn-primary" style="padding: 6px 15px; margin:15px 0;"'); ?>
-                                <button type="button" class="btn btn-danger" id="reset"><?= lang('reset') ?></div>
-                        </div> -->
+                     
                     </div>
+					
                 </div>
-               
+               <table class="table total_item_qty_tables" style="padding: 4px;border-top: none!important;width:30%">
+				    <tbody>
+					<tr>                                    
+					    <td>
+						<label for="titems">total no items</label>                                    </td>
+					    <td>
+						<input name="titems" id="titems" readonly="" class="form-control" autocomplete="off">
+					    </td>
+					</tr>
+					<tr>                                    
+					    <td>
+						<label for="total_items">total no qty</label>                                    </td>
+					    <td>
+						<input name="total_items" id="total_items" readonly="" class="form-control" autocomplete="off">
+					    </td>
+					</tr>
+				    </tbody>
+				    </table>
                
 
                 <?php echo form_close(); ?>

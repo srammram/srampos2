@@ -1672,7 +1672,7 @@ public function getAllDefalutKitchen() {
     }
 
     public function getThisStore(){
-	$q = $this->db->get_where('warehouses',array('id'=>1));
+	$q = $this->db->get_where('warehouses',array('this_store'=>1));
 	
 	if($q->num_rows()>0){
 	    return $q->row();
@@ -8496,4 +8496,15 @@ function basePriceToUnitPrice($price,$operator,$operation_value){
             return $price;
 	  }
 	}
+	function generateUniqueTableID($db_insertid,$store_id=false){
+	$storeid = ($store_id)?$store_id:$this->store_id;
+	return $storeid.$db_insertid;
+    }
+    function updateUniqueTableId($db_insertid,$unique_ID,$table_name){
+	$this->db->set('id',$unique_ID);
+	$this->db->where('s_no',$db_insertid);
+	$this->db->update($table_name);
+  //  echo $this->db->last_query();
+	
+    }
 }
