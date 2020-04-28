@@ -294,6 +294,7 @@ class Store_request extends MY_Controller{
 				'from_store_id' => $from_store_id,
 				'to_store_id' => $to_store_id,
                 'warehouse_id' => $warehouse_id,
+				  'store_id' =>$this->store_id,
                 'note' => $note,
                 'status' => $status,
                 'created_by' => $this->session->userdata('user_id'),
