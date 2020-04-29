@@ -57,7 +57,7 @@ class Indent_process_model extends CI_Model{
             $n = $this->siteprocurment->lastidStockRequest();
             $data['reference_no'] = 'SR'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
             $this->db->insert($table_name, $data);
-            $request_id = $this->db->insert_id();p($this->db->error());
+            $request_id = $this->db->insert_id();
             if ($request_id) {         
                 $unique_id = $this->site->generateUniqueTableID($request_id);
                 if ($request_id) {
@@ -67,15 +67,13 @@ class Indent_process_model extends CI_Model{
                 foreach ($items as $item) {
                     $item['stock_request_id'] = $unique_id;
                     $this->db->insert($table_items, $item);
-                    $i_request_id = $this->db->insert_id();p($this->db->error());
+                    $i_request_id = $this->db->insert_id();
                     $i_unique_id = $this->site->generateUniqueTableID($i_request_id);
                     if ($i_request_id) {
                         $this->site->updateUniqueTableId($i_request_id,$i_unique_id,$table_items);
                     }
                 }
-                if($data['status']=="approved"){
-                    //$this->sync_store->sync_stockRequests($id);
-                }
+               
             }
         }
         $u_data['is_processed'] = 1;
@@ -92,33 +90,27 @@ class Indent_process_model extends CI_Model{
             foreach ($items as $item) {
                 $item['store_request_id'] = $id;
                 $this->db->insert('pro_store_request_items', $item);
-                $i_request_id = $this->db->insert_id();//p($this->db->error());
+                $i_request_id = $this->db->insert_id();
                 $i_unique_id = $this->site->generateUniqueTableID($i_request_id);
                 if ($i_request_id) {
                     $this->site->updateUniqueTableId($i_request_id,$i_unique_id,'pro_store_request_items');
                 }
             }
-            if($data['status']=="approved"){
-		//$this->sync_store->sync_stockRequests($id);
-	    }
+           
             return true;
         }        
         return false;
     }
 
- 
 
-
-    public function deleteStore_request($id)
-    {
+    public function deleteStore_request($id){
         if ($this->db->delete('pro_quote_items', array('store_request_id' => $id)) && $this->db->delete('pro_store_request', array('id' => $id))) {
             return true;
         }
         return FALSE;
     }
 
-    public function getProductByName($name)
-    {
+    public function getProductByName($name){
         $q = $this->db->get_where('products', array('name' => $name), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -190,10 +182,8 @@ class Indent_process_model extends CI_Model{
         return FALSE;
     }
 
-    public function getAllStock_requestItems($stock_request_id)
-    {
+    public function getAllStock_requestItems($stock_request_id){
         $this->db->select('pro_stock_request_items.*')
-           
             ->group_by('pro_stock_request_items.id')
             ->order_by('id', 'asc');
         $q = $this->db->get_where('pro_stock_request_items', array('stock_request_id' => $stock_request_id));
@@ -205,6 +195,4 @@ class Indent_process_model extends CI_Model{
         }
         return FALSE;
     }
-   
-
 }

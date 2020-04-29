@@ -579,13 +579,10 @@ $('#pi_discount').focus(function () {
     });
 
 	$(document).on('click', '.delivery_store', function () {
-
         var row = $(this).closest('tr');
         var row_id = row.attr('id');
         item_id = row.attr('data-item-id');
-		
 		var quote_id = localStorage.getItem('pi_requestnumber');
-		
         item = pi_items[item_id];
         var qty = row.children().children('.rquantity').val();
 		var product_id = row.children().children('.rid').val();
@@ -1347,7 +1344,7 @@ function loadItems() {
              tr_html += '</select></td>';
 
             tr_html += '<td class="text-right"><input  type="hidden" class="form-control text-right input-sm item_tax" name="item_tax[]" value="'+ parseFloat(pr_tax_val) +  '"  id="item_tax_' + row_no + '" ><span class="text-right ru_taxamt" id="ru_taxamt_' + row_no + '" style="width:100px!important">' + formatDecimal(parseFloat(pr_tax_val)) + '</span></td>';
-	    $landingCost = formatDecimal(((parseFloat(item.row.unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)+parseFloat(tax_val))/parseFloat(item_qty));
+	         $landingCost = formatDecimal(((parseFloat(item.row.unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)+parseFloat(tax_val))/parseFloat(item_qty));
 	    
             tr_html += '<td class="text-right"><input  type="hidden" class="form-control text-right input-sm landcost" name="landing_cost[]" value="'+ $landingCost+  '"  id="landcost_' + row_no + '" ><span class="text-right ru_landcost" id="ru_landcost_' + row_no + '">' + formatMoney($landingCost) + '</span></td>';
 			$selling_price_required = (item_type=='standard')?' required':'';

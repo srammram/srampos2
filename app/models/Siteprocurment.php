@@ -2553,4 +2553,20 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
         }
         return 0;
     }
+		public function lastidStoreStockRequest(){
+		$this->db->order_by('s_no' , 'DESC');
+        $q = $this->db->get('pro_stock_request');
+        if ($q->num_rows() > 0) {
+            return $q->row('s_no');
+        }
+        return 0;
+	}
+	function lastidStockRequest(){
+	$this->db->order_by('s_no' , 'DESC');
+        $q = $this->db->get('pro_stock_request');
+        if ($q->num_rows() > 0) {
+            return $q->row('s_no');
+        }
+        return 0;
+    }
 }

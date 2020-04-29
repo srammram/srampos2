@@ -203,15 +203,18 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 	
-	 public function getRequestByID($id){
+	 public function getRequestByID($id)
+    {
         $q = $this->db->get_where('pro_request', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
         }
         return FALSE;
     }
+	
 
-    public function getProductOptionByID($id){
+    public function getProductOptionByID($id)
+    {
         $q = $this->db->get_where('product_variants', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -656,36 +659,11 @@ class Quotes_model extends CI_Model
         $this->db->from('pro_store_indent_receive');
         $this->db->where('is_completed',0);
         $this->db->where('is_processed',0);
-        $this->db->where('warehouse_id',$store_id);
+        $this->db->where('from_store_id',$store_id);
         $q = $this->db->get();
         if($q->num_rows()>0){
             return $q->result();
         }
         return false;
-    }
-	 public function getstoreRequestByID($id){
-        $q = $this->db->get_where('pro_store_indent_receive', array('id' => $id), 1);
-
-        if ($q->num_rows() > 0) {
-            return $q->row();
-        }
-        return FALSE;
-    }
-	
-	public function getAllstoreRequestItems($request_id){
-        $this->db->select('pro_store_indent_receive_items.*, recipe.unit, recipe.details as details, recipe_variants.name as variant, recipe.hsn_code as hsn_code')
-            ->join('recipe', 'recipe.id=pro_store_indent_receive_items.product_id', 'left')
-            ->join('recipe_variants', 'recipe_variants.id=pro_store_indent_receive_items.variant_id', 'left')
-            // ->join('tax_rates', 'tax_rates.id=pro_request_items.tax_rate_id', 'left')
-            ->group_by('pro_store_indent_receive_items.id')
-            ->order_by('id', 'asc');
-        $q = $this->db->get_where('pro_store_indent_receive_items', array('store_request_id' => $request_id)); 
-        if ($q->num_rows() > 0) {
-            foreach (($q->result()) as $row) {
-                $data[] = $row;
-            }
-            return $data;
-        }
-        return FALSE;
     }
 }

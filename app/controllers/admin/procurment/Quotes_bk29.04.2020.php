@@ -31,9 +31,8 @@ class Quotes extends MY_Controller{
 	
 	public function quotes_list(){
 		$poref =  $this->input->get('poref');
-	    $poref = !empty($poref) ? end($poref) : null;
-		$data['quotes'] =$quotes= $this->quotes_model->getstoreRequestByID($poref);
-		$inv_items = $this->quotes_model->getAllstoreRequestItems($poref);
+		$data['quotes'] = $this->quotes_model->getRequestByID($poref);
+		$inv_items = $this->quotes_model->getAllRequestItems($poref);
 		 krsort($inv_items);
 		$c = rand(100000, 9999999);
 		foreach ($inv_items as $item) {
@@ -44,7 +43,7 @@ class Quotes extends MY_Controller{
             }
 			$row->expiry = (($item->expiry && $item->expiry != '0000-00-00') ? $this->sma->hrsd($item->expiry) : '');
 			$row->mfg = (($item->mfg && $item->mfg != '0000-00-00') ? $this->sma->hrsd($item->mfg) : '');			
-			$row->batch_no = $item->batch_no ? $item->batch_no : '';		
+			$row->batch_no = $item->batch_no ? $item->batch_no : '';						
 			$row->base_quantity = $item->quantity;
 			$row->base_unit = $row->unit ? $row->unit : $item->product_unit_id;
 			$row->base_unit_cost = $row->cost ? $row->cost : $item->unit_cost;
@@ -68,38 +67,46 @@ class Quotes extends MY_Controller{
 			$tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
 			
 			
-			$row->category_id = $row->category_id;
-			$row->category_name = $row->category_name;
-			$row->subcategory_id = $row->subcategory_id;
-			$row->subcategory_name = $row->subcategory_name;
-			$row->brand_id = $row->brand_id;
-			$row->brand_name = $row->brand_name;
-            $row->cost = $row->cost_price ? $row->cost_price : 0;
-            $row->price = $row->selling_price ? $row->selling_price : 0;
+			$row->category_id = $item->category_id;
+			$row->category_name = $item->category_name;
+			$row->subcategory_id = $item->subcategory_id;
+			$row->subcategory_name = $item->subcategory_name;
+			$row->brand_id = $item->brand_id;
+			$row->brand_name = $item->brand_name;
+            $row->cost = $item->cost_price ? $item->cost_price : 0;
+            $row->price = $item->selling_price ? $item->selling_price : 0;
             $row->variant_id = $item->variant_id;
 			
+		
 			$ri = $this->Settings->item_addition ? $row->id : $row->id;
 			 $ri = $row->id;
-			$item_key = $ri.'_'.$quotes->store_id.'_'.$row->category_id.'_'.$row->subcategory_id.'_'.$row->brand_id.'_'.$row->variant_id;
-			$pr[] = array('store_id'=>$quotes->store_id,'id' => $c, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
+			$item_key = $ri.'_'.$item->store_id.'_'.$item->category_id.'_'.$item->subcategory_id.'_'.$item->brand_id.'_'.$item->variant_id;
+			$pr[$item_key] = array('store_id'=>$item->store_id,'id' => $c, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
 				'row' => $row, 'tax_rate' => $row->tax_rate, 'units' => $units, 'options' => $options);
 			$c++;
 		}
-		/* $data['quotesitem'] = $pr;
+		/*echo "<pre>";
+        print_r($pr);die;*/
+		$data['quotesitem'] = $pr;
+		
+		
+		
 		if(!empty($data)){
 			$response['status'] = 'success';
 			$response['value'] = $data;
 		}else{
 			$response['status'] = 'error';
 			$response['value'] = '';
-		} */
-	  $this->sma->send_json($pr);
+		}
+		echo json_encode($response);
 		exit;
 	}
 
 	public function supplier(){
+		
 		$supplier_id =  $this->input->get('supplier_id');
 		$data = $this->quotes_model->getSupplierdetails($supplier_id);
+		
 		if(!empty($data)){
 			$response['supplier_name'] = $data->name;
 			$response['supplier_code'] = $data->ref_id;
@@ -120,9 +127,12 @@ class Quotes extends MY_Controller{
 	}
     /* ------------------------------------------------------------------------- */
 
-    public function index($warehouse_id = null){        
+    public function index($warehouse_id = null)
+    {        
+         
        $this->sma->checkPermissions();
-       $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
+
+        $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         if ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) {
             $this->data['warehouses'] = $this->siteprocurment->getAllWarehouses();
             $this->data['warehouse_id'] = $warehouse_id;
@@ -132,13 +142,17 @@ class Quotes extends MY_Controller{
             $this->data['warehouse_id'] = $this->session->userdata('warehouse_id');
             $this->data['warehouse'] = $this->session->userdata('warehouse_id') ? $this->siteprocurment->getWarehouseByID($this->session->userdata('warehouse_id')) : null;
         }
-		$bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => '#', 'page' => lang('quotes')));
+
+        $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => '#', 'page' => lang('quotes')));
         $meta = array('page_title' => lang('quotes'), 'bc' => $bc);
         $this->page_construct('procurment/quotes/index', $meta, $this->data);
 
     }
 
-    public function getQuotes($warehouse_id = null){        
+    public function getQuotes($warehouse_id = null)
+    { 
+
+               
         $detail_link = anchor('admin/procurment/quotes/view/$1', '<i class="fa fa-file-text-o"></i> ' . lang('quotes_details'));
         $payments_link = anchor('admin/procurment/quotes/payments/$1', '<i class="fa fa-money"></i> ' . lang('view_payments'), 'data-toggle="modal" data-target="#myModal"');
         $add_payment_link = anchor('admin/procurment/quotes/add_payment/$1', '<i class="fa fa-money"></i> ' . lang('add_payment'), 'data-toggle="modal" data-target="#myModal"');
@@ -152,8 +166,18 @@ class Quotes extends MY_Controller{
         . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete' href='" . admin_url('procurment/quotes/delete/$1') . "'>"
         . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i> "
         . lang('delete_quotes') . "</a>";
-     
-     	 $action = '<div class="text-center"><div class="btn-group text-left">'
+       /* $action = '<div class="text-center"><div class="btn-group text-left">'
+        . '<button type="button" class="btn btn-default btn-xs btn-primary dropdown-toggle" data-toggle="dropdown">'
+        . lang('actions') . ' <span class="caret"></span></button>
+        <ul class="dropdown-menu pull-right" role="menu">
+            <li>' . $detail_link . '</li>            
+            <li>' . $edit_link . '</li>
+            <li>' . $pdf_link . '</li>
+            <li>' . $email_link . '</li>            
+            <li>' . $delete_link . '</li>
+        </ul>
+    </div></div>';*/
+	 $action = '<div class="text-center"><div class="btn-group text-left">'
         . '<button type="button" class="btn btn-default btn-xs btn-primary dropdown-toggle" data-toggle="dropdown">'
         . lang('actions') . ' <span class="caret"></span></button>
         <ul class="dropdown-menu pull-right" role="menu">
@@ -161,29 +185,43 @@ class Quotes extends MY_Controller{
 	    <li>' . $view_link . '</li>
             <li>' . $delete_link . '</li>
         </ul>
-          </div></div>';
+    </div></div>';
+        //$action = '<div class="text-center">' . $detail_link . ' ' . $edit_link . ' ' . $email_link . ' ' . $delete_link . '</div>';
+// echo "string";exit;
         $this->load->library('datatables');
         if ($warehouse_id) {        
+        // echo "fg";exit;    
             $this->datatables
                 ->select("pro_quotes.id as quote_id, DATE_FORMAT(date, '%Y-%m-%d %T') as date, reference_no, req_reference_no, C.name as supplier, status,IFNULL(attachment,'') as attachment")
                 ->from('pro_quotes')
                 ->join('companies C','C.id=pro_quotes.supplier_id' ,'left')
                 ->where('pro_quotes.warehouse_id', $warehouse_id);
         } else {
-                $this->datatables
+            // echo "sdsd";exit;
+            $this->datatables
                 ->select("pro_quotes.id as quote_id, DATE_FORMAT(date, '%Y-%m-%d %T') as date, pro_quotes.reference_no, pro_quotes.req_reference_no,  C.name as supplier, pro_quotes.status,IFNULL(attachment,'') as attachment")
                 ->join('companies C','C.id=pro_quotes.supplier_id' ,'left')
                 ->from('pro_quotes');
                 
         }
-	    $this->datatables->edit_column('attachment', '$1__$2', $this->digital_upload_path.', attachment');
+        // $this->datatables->where('status !=', 'returned');
+        /*if (!$this->Customer && !$this->Supplier && !$this->Owner && !$this->Admin && !$this->session->userdata('view_right')) {
+            $this->datatables->where('created_by', $this->session->userdata('user_id'));
+        } elseif ($this->Supplier) {
+            $this->datatables->where('customer_id', $this->session->userdata('user_id'));
+        }*/
+	$this->datatables->edit_column('attachment', '$1__$2', $this->digital_upload_path.', attachment');
         $this->datatables->add_column("Actions", $action, "quote_id");
+
         echo $this->datatables->generate();
     }
 
     /* ----------------------------------------------------------------------------- */
 
-    public function modal_view($quotes_id = null){
+    public function modal_view($quotes_id = null)
+    {
+        //$this->sma->checkPermissions('index', true);
+
         if ($this->input->get('id')) {
             $quotes_id = $this->input->get('id');
         }
@@ -199,34 +237,57 @@ class Quotes extends MY_Controller{
         $this->data['payments'] = $this->quotes_model->getPaymentsForPurchase($quotes_id);
         $this->data['created_by'] = $this->siteprocurment->getUser($po->created_by);
         $this->data['updated_by'] = $po->updated_by ? $this->siteprocurment->getUser($po->updated_by) : null;
+        // $this->data['return_purchase'] = $po->return_id ? $this->quotes_model->getQuotesByID($po->return_id) : NULL;
+        // $this->data['return_rows'] = $po->return_id ? $this->quotes_model->getAllQuotesItems($po->return_id) : NULL;
+
         $this->load->view($this->theme . 'quotes/modal_view', $this->data);
+
     }
 
-    public function view($quotes_id = null){
-			$this->sma->checkPermissions('index');
-			$id = $quotes_id;
-			$this->data['quotations'] =  $this->quotes_model->getQuotesByID($id);
-			$inv_items = $this->quotes_model->getAllQuotesItems($id);   
-			krsort($inv_items);
-			$c = rand(100000, 9999999);
-			foreach ($inv_items as $item) {
-				$store = $this->siteprocurment->getWarehouseByID($item->store_id);
+    public function view($quotes_id = null)
+    {
+		
+    $this->sma->checkPermissions('index');
+	$id = $quotes_id;
+    $this->data['quotations'] =  $this->quotes_model->getQuotesByID($id);
+    $inv_items = $this->quotes_model->getAllQuotesItems($id);   
+
+    krsort($inv_items);
+    $c = rand(100000, 9999999);
+
+    foreach ($inv_items as $item) {
+
+        $store = $this->siteprocurment->getWarehouseByID($item->store_id);
+        
                 $item->store_name = $store->name;
                 $ri = $item->id;
+
                 $pr[$ri.'_'.$item->store_id] = array('row' => $item);
+                
                 $c++;
-            }
+
+       /* $row = $this->siteprocurment->getRecipeByID($item->product_id);
+        $ri = $this->Settings->item_addition ? $row->id : $row->id;
+        $pr[$ri.'_'.$item->store_id] = array('id' => $c, 'store_id'=>$item->store_id,'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
+            'row' => $item, 'tax_rate' => $row->tax_rate);
+        $c++;*/
+    }
+			//echo "<pre>";print_r($pr);die;
             $this->data['quotations_items'] = $pr;
+	   //echo '<pre>';print_R($this->data['quotations']);
 			$q = $this->db->get_where('companies', array('id' => $this->data['quotations']->supplier_id));
             $this->data['supplier_name'] = $q->row('name');
 			$this->data['supplier_address'] = $q->row('address');
             $this->data['id'] = $id;
             $this->data['suppliers'] = $this->siteprocurment->getAllCompanies('supplier');
+		//	 echo '<pre>';print_R($this->data['suppliers']);exit;
             $this->data['quotes'] = $this->quotes_model->getQuotesByID($id);
             $this->data['currencies'] = $this->siteprocurment->getAllCurrencies();
             $this->data['categories'] = $this->siteprocurment->getAllCategories();
             $this->data['tax_rates'] = $this->siteprocurment->getAllTaxRates();
             $this->data['warehouses'] = $this->siteprocurment->getAllWarehouses();
+			
+			 
             $this->load->helper('string');
             $value = random_string('alnum', 20);
             $this->session->set_userdata('user_csrf', $value);
@@ -234,7 +295,7 @@ class Quotes extends MY_Controller{
             $this->data['csrf'] = $this->session->userdata('user_csrf');
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('procurment/quotes'), 'page' => lang('quotes')), array('link' => '#', 'page' => lang('edit_quotes')));
             $meta = array('page_title' => lang('edit_quotes'), 'bc' => $bc);
-			$this->load->view($this->theme . 'procurment/quotes/view', $this->data);
+	$this->load->view($this->theme . 'procurment/quotes/view', $this->data);
 
     }
 
@@ -242,12 +303,17 @@ class Quotes extends MY_Controller{
 
 //generate pdf and force to download
 
-    public function pdf($quotes_id = null, $view = null, $save_bufffer = null){
+    public function pdf($quotes_id = null, $view = null, $save_bufffer = null)
+    {
+        //$this->sma->checkPermissions();
+
         if ($this->input->get('id')) {
             $quotes_id = $this->input->get('id');
         }
+
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         $po = $this->quotes_model->getQuotesByID($quotes_id);
+
         if (!$this->session->userdata('view_right')) {
             $this->sma->view_rights($po->created_by);
         }
@@ -694,9 +760,9 @@ class Quotes extends MY_Controller{
             $this->data['tax_rates'] = $this->siteprocurment->getAllTaxRates();
             $this->data['warehouses'] = $this->siteprocurment->getAllWarehouses();
 			$this->data['ref_requestnumber'] = $_GET['ref'];
-			$this->data['requestnumber'] = $this->quotes_model->getStoreIndentRequests($this->store_id);
+			$this->data['requestnumber'] = $this->siteprocurment->getAllREQUESTNUMBER();
 			
-            $this->data['ponumber'] = ''; //$this->siteprocurment->getReference('po');
+           $this->data['ponumber'] = ''; //$this->siteprocurment->getReference('po');
             $this->load->helper('string');
             $value = random_string('alnum', 20);
             $this->session->set_userdata('user_csrf', $value);

@@ -1003,7 +1003,7 @@ function loadItems() {
  * @returns {Boolean}
  ---------------------------- */
  function add_invoice_item(item) {
-
+console.log(item);
     if (count == 1) {
         store_reqitems = {};
         if ($('#store_reqwarehouse').val()) {
@@ -1025,7 +1025,6 @@ function loadItems() {
 	
 	var item_id = item.item_id+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id;
     if (store_reqitems[item_id]) {
-
         var new_qty = parseFloat(store_reqitems[item_id].row.qty) + 1;
         store_reqitems[item_id].row.base_quantity = new_qty;
         if(store_reqitems[item_id].row.unit != store_reqitems[item_id].row.base_unit) {

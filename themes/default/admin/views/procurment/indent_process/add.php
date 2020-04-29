@@ -114,43 +114,7 @@
                      </div> 
 
                         <div class="clearfix"></div>
-                        <!-- <div class="col-md-12" id="sticker">
-                            <div class="well well-sm">
-                              
-                                <div class="form-group" style="margin-bottom:0;">
-                                    <div class="input-group wide-tip">
-                                        <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
-                                            <i class="fa fa-2x fa-barcode addIcon"></i></div>
-                                        <?php echo form_input('add_item', '', 'class="form-control input-lg" id="add_item" placeholder="' . $this->lang->line("Search Purchase Items") . '"'); ?>
-                                        <?php if ($Owner || $Admin || $GP['products-add']) { ?>
-                                        <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
-                                            <a href="<?= admin_url('procurment/products/add') ?>" id="addManually1"><i
-                                                    class="fa fa-2x fa-plus addIcon" id="addIcon"></i></a></div>
-                                        <?php } ?>
-                                    </div>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div>
-                        </div>-->
-
-                       <!--  <div class="col-md-12" id="sticker">
-                            <div class="well well-sm">
-                                <div class="form-group" style="margin-bottom:0;">
-                                    <div class="input-group wide-tip">
-                                        <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
-                                            <i class="fa fa-2x fa-barcode addIcon"></i></div>
-                                        <?php echo form_input('add_item', '', 'class="form-control input-lg" id="add_item" placeholder="' . $this->lang->line("add_product_to_order") . '"'); ?>
-                                        <?php if ($Owner || $Admin || $GP['products-add']) { ?>
-                                        <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
-                                            <a href="javascript:void(0)" id="addManually" class="tip"
-                                               title="<?= lang('add_product_manually') ?>"><i
-                                                    class="fa fa-2x fa-plus-circle addIcon" id="addIcon"></i></a></div>
-                                        <?php } ?>
-                                    </div>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div>
-                        </div> -->
+                       
                         <div class="clearfix"></div>
                         <div class="col-md-12">
                             <div class="control-group table-group">
@@ -161,11 +125,11 @@
                                             class="table items  table-bordered table-condensed sortable_table" style="background:#fff">
                                         <thead>
                                         <tr>
-					    <th><?= lang('s_no');?></th>
-					    <th><?= lang('code');?></th>  
+					                        <th><?= lang('s_no');?></th>
+					                        <th><?= lang('code');?></th>  
                                             <th><?= lang('product');?></th>                                            
                                             <th><?= lang("Request_Quantity"); ?></th>
-					    <th><?= lang("Assign_store"); ?></th>
+											<th><?= lang("Assign_store"); ?></th>
                                             <th style="text-align:center !important"><i
                                                     class="fa fa-trash-o"
                                                     style="opacity:0.5; filter:alpha(opacity=50);"></i></th>

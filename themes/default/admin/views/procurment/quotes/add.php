@@ -310,7 +310,7 @@
                                             foreach ($requestnumber as $requestnumber_row) {
                                                 $qn[$requestnumber_row->id] = $requestnumber_row->reference_no;
                                             }
-                                            echo form_dropdown('requestnumber', $qn, '', ' class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("request_number") . '"style="width:100%;" id="qu_requestnumber"  ');
+                                            echo form_dropdown('requestnumber', $qn, '', ' class="form-control input-tip select" multiple data-placeholder="' . lang("select") . ' ' . lang("request_number") . '"style="width:100%;" id="qu_requestnumber"  ');
                                         ?>
                                     </td>                                    
                                     <td>
@@ -478,11 +478,14 @@ $(document).on('change', '#qu_supplier', function(){
 if(!empty($ref_requestnumber)){
 ?>
 $(document).ready(function(e) {
-	
 	if(localStorage.getItem('qu_requestnumber') == null){
+		
     	localStorage.setItem('qu_requestnumber', '<?= $ref_requestnumber ?>');
 		$("#qu_requestnumber").val(localStorage.getItem('qu_requestnumber'));
 		$('#qu_requestnumber').trigger('change');
+	}else{
+		console.log("reno"+localStorage.getItem('qu_requestnumber'));
+		$("#qu_requestnumber").val(localStorage.getItem('qu_requestnumber'));
 	}
 });
 <?php
@@ -491,6 +494,15 @@ $(document).ready(function(e) {
 
 
 $(document).on('change', '#qu_requestnumber', function(){
+	if ($('#qu_supplier').val()) {
+            $('#qu_supplier').select2("readonly", true);
+			localStorage.setItem('qu_requestnumber', $(this).val());
+        } else {
+		    $("#qu_requestnumber").select2("val", "");
+            bootbox.alert(lang.select_supplier);
+            item = null;
+            return;
+        }
 	
 	if (localStorage.getItem('qu_items')) {
         localStorage.removeItem('qu_items');
@@ -498,27 +510,7 @@ $(document).on('change', '#qu_requestnumber', function(){
 	if (localStorage.getItem('qu_requestnumber')) {
         localStorage.removeItem('qu_requestnumber');
     }
-	if (localStorage.getItem('qu_requestdate')) {
-        localStorage.removeItem('qu_requestdate');
-    }
-    if (localStorage.getItem('qu_discount')) {
-        localStorage.removeItem('qu_discount');
-    }
-    if (localStorage.getItem('qu_tax2')) {
-        localStorage.removeItem('qu_tax2');
-    }
-    if (localStorage.getItem('qu_shipping')) {
-        localStorage.removeItem('qu_shipping');
-    }
-    if (localStorage.getItem('qu_ref')) {
-        localStorage.removeItem('qu_ref');
-    }
-    if (localStorage.getItem('qu_warehouse')) {
-        localStorage.removeItem('qu_warehouse');
-    }
-    if (localStorage.getItem('qu_note')) {
-        localStorage.removeItem('qu_note');
-    }
+	
     if (localStorage.getItem('qu_supplier')) {
         localStorage.removeItem('qu_supplier');
     }
@@ -537,9 +529,7 @@ $(document).on('change', '#qu_requestnumber', function(){
     if (localStorage.getItem('qu_payment_term')) {
         localStorage.removeItem('qu_payment_term');
     }
-	
 	var qu_requestnumber = $(this).val();
-	
 	$.ajax({
 		type: 'get',
 		url: '<?= admin_url('procurment/quotes/quotes_list'); ?>',
@@ -548,27 +538,12 @@ $(document).on('change', '#qu_requestnumber', function(){
 			poref: qu_requestnumber
 		},
 		success: function (data) {
-			
-			var quotes_value = [];
 			$(this).removeClass('ui-autocomplete-loading');
-			var items = JSON.stringify(data.value['quotesitem']);
+		     $.each(data, function (key, val) {
+              add_quotes_item(val);
+			});
 			
-			var quotes = JSON.stringify(data.value['quotes']);
-			quotes_value = $.parseJSON(quotes);
-			
-
-			localStorage.setItem('qu_requestnumber',  quotes_value["id"]);
-			
-			localStorage.setItem('qu_requestdate',  quotes_value["date"]);
-			localStorage.setItem('qu_warehouse', quotes_value["warehouse_id"]);
-			localStorage.setItem('qu_note', quotes_value["note"]);
-			localStorage.setItem('qu_discount', 0);
-			localStorage.setItem('qu_tax2', quotes_value["order_tax_id"]);
-			localStorage.setItem('qu_shipping', quotes_value["shipping"]);
-			localStorage.setItem('qu_supplier', quotes_value["supplier_id"]);
-			localStorage.setItem('qu_items', items);
-			localStorage.setItem('quotes_date', quotes_value["quotes_date"]);
-			location.reload();			
+		
 		}		
 	});
 });

@@ -83,12 +83,7 @@
                     $(this).removeClass('ui-autocomplete-loading');
                     $(this).val('');
                 }
-                /*else if (ui.content.length == 1 && ui.content[0].id != 0) {
-                    ui.item = ui.content[0];
-                    $(this).data('ui-autocomplete')._trigger('select', 'autocompleteselect', ui);
-                    $(this).autocomplete('close');
-                    $(this).removeClass('ui-autocomplete-loading');
-                }*/
+               
                 else if (ui.content.length == 1 && ui.content[0].id == 0) {
                     bootbox.alert('<?= lang('no_match_found') ?>', function () {
                         $('#add_item').focus();
