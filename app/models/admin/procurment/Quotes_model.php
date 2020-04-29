@@ -680,6 +680,7 @@ class Quotes_model extends CI_Model
             ->group_by('pro_store_indent_receive_items.id')
             ->order_by('id', 'asc');
         $q = $this->db->get_where('pro_store_indent_receive_items', array('store_request_id' => $request_id)); 
+	
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;

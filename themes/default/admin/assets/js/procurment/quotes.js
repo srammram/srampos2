@@ -1034,7 +1034,12 @@ function loadItems() {
 		bootbox.confirm('This item is already added. Do you want to add it again?', function (result) {
 			+'_'+item.row.brand_id+'_'+item.row.brand_id
 			if (result) {
-				var new_qty = parseFloat(qu_items[item_id].row.qty) + 1;
+				if(item.row.qty){
+				
+				var new_qty = parseFloat(qu_items[item_id].row.qty) + parseFloat(item.row.qty);
+				}else{
+					var new_qty = parseFloat(qu_items[item_id].row.qty) + 1;
+				}
 				qu_items[item_id].row.base_quantity = new_qty;
 				if(qu_items[item_id].row.unit != qu_items[item_id].row.base_unit) {
 					$.each(qu_items[item_id].units, function(){

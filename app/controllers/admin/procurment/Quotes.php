@@ -31,7 +31,9 @@ class Quotes extends MY_Controller{
 	
 	public function quotes_list(){
 		$poref =  $this->input->get('poref');
-	    $poref = !empty($poref) ? end($poref) : null;
+		print_r($poref);
+		die;
+	  //  $poref = !empty($poref) ? end($poref) : null;
 		$data['quotes'] =$quotes= $this->quotes_model->getstoreRequestByID($poref);
 		$inv_items = $this->quotes_model->getAllstoreRequestItems($poref);
 		 krsort($inv_items);
@@ -49,7 +51,7 @@ class Quotes extends MY_Controller{
 			$row->base_unit = $row->unit ? $row->unit : $item->product_unit_id;
 			$row->base_unit_cost = $row->cost ? $row->cost : $item->unit_cost;
 			$row->unit = $item->product_unit_id;
-			$row->qty = $item->unit_quantity;
+			$row->qty = $item->quantity;
 			$row->oqty = $item->quantity;
 			$row->supplier_part_no = $item->supplier_part_no;
 			$row->received = $item->quantity_received ? $item->quantity_received : $item->quantity;

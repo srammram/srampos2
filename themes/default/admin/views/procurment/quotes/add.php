@@ -510,7 +510,6 @@ $(document).on('change', '#qu_requestnumber', function(){
 	if (localStorage.getItem('qu_requestnumber')) {
         localStorage.removeItem('qu_requestnumber');
     }
-	
     if (localStorage.getItem('qu_supplier')) {
         localStorage.removeItem('qu_supplier');
     }
