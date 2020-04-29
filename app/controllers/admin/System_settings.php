@@ -2024,6 +2024,14 @@ public function view_bbq_daywise_discount($id = null)
 		'pos-shift_settlement' => $this->input->post('pos-shift_settlement'),
 		'pos-shift_view' => $this->input->post('pos-shift_view'),
 		'pos-shift_reprint' => $this->input->post('pos-shift_reprint'),
+		  'store_indent_receive-index' =>$this->input->post('store_indent_receive-index'),
+            'store_indent_receive-view' =>$this->input->post('store_indent_receive-view'),
+            'indent_process-index' =>$this->input->post('indent_process-index'),
+            'indent_process-add' =>$this->input->post('indent_process-add'),
+            'indent_process-edit' =>$this->input->post('indent_process-edit'),
+            'indent_process-view' =>$this->input->post('indent_process-view'),
+            'indent_process-approve' =>$this->input->post('indent_process-approve'),
+            'indent_process-process' =>$this->input->post('indent_process-process'),
             );
 
             if (POS) {

@@ -2544,5 +2544,13 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
         }
             
     }
-    
+     function getWarehouse($id=false){
+	$this->db->where('type' , 0);
+	if($id) $this->db->where('id' , $id);
+        $q = $this->db->get('warehouses');
+        if ($q->num_rows() > 0) {
+            return $q->row();
+        }
+        return 0;
+    }
 }

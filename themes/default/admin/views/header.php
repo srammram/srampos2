@@ -758,10 +758,11 @@
                                        </ul>
                                     </li>
                                    <?php endif; ?>
+								   <!--
                                     <li id="procurment_request">
                                         <a class="dropmenu" href="javascript:void(0)">
                                             <span class="text">  <?= lang('quotation_request'); ?> </span>
-                                            <!--<span class="chevron closed"></span>-->
+                                            <!--<span class="chevron closed"></span>
                                         </a>
                                         <ul class="level-3-menu">
                                             <li id="procurment_request_index">
@@ -779,7 +780,44 @@
                                                                                       
                                        </ul>
                                     </li>
-                                    
+                                    -->
+									   <?php if($this->isWarehouse) : ?>
+									 <li id="procurment_store_indent_receive">
+                                        <a class="dropmenu" href="javascript:void(0)">
+                                            <span class="text">  <?= lang('store_indent_request_receive'); ?> </span>
+                                        </a>
+                                        <ul class="level-3-menu">
+                                           <li id="procurment_store_indent_receive_index">
+                                        <a class="submenu" href="<?= admin_url('procurment/store_indent_receive'); ?>">
+                                                   <span class="text"> <?= lang('list'); ?></span></a>
+                                        </li>
+                                       </ul>
+                                   </li>
+									 <?php endif; ?>
+									
+									        <?php if($this->isWarehouse) : ?>
+                                            <li id="procurment_indent_process">
+                                              <a class="dropmenu" href="javascript:void(0)">
+                                              <span class="text">  <?= lang('indent_process'); ?> </span>
+											</a>
+								            <ul class="level-3-menu">
+									        <li id="procurment_indent_process_index">
+											<a class="submenu" href="<?= admin_url('procurment/indent_process'); ?>">
+											<span class="text"> <?= lang('list'); ?></span>
+											</a>
+											</li>
+										<li id="procurment_indent_process_add">
+										<a class="submenu" href="<?= admin_url('procurment/indent_process/add'); ?>">
+										<span class="text"> <?= lang('create'); ?></span>
+										</a>
+										</li>
+									</ul>
+							         	</li>
+							
+									 <?php endif; ?>
+									
+									
+									
                                     <li id="procurment_quotes">
                                         <a class="dropmenu" href="javascript:void(0)">
                                             <span class="text">  <?= lang('purchase_quotation'); ?> </span>
@@ -800,6 +838,12 @@
                                        </ul>
                                     </li>
                                     
+									
+									
+									 
+									
+									
+									
                                     <li id="procurment_purchase_orders">
                                         <a class="dropmenu" href="javascript:void(0)">
                                             <span class="text">  <?= lang('purchase_orders'); ?> </span>
@@ -2107,11 +2151,11 @@
                                        </ul>
                                     </li>
                                     <?php endif; ?> -->
-                                    <?php if($GP['request-add'] || $GP['request-index']) : ?>
-                                    <li id="procurment_request">
+                                    <?php //if($GP['request-add'] || $GP['request-index']) : ?>
+                                 <!--   <li id="procurment_request">
                                         <a class="dropmenu" href="javascript:void(0)">
                                             <span class="text">  <?= lang('quotation_request'); ?> </span>
-                                            <!--<span class="chevron closed"></span>-->
+                                            <!--<span class="chevron closed"></span>
                                         </a>
                                         <ul class="level-3-menu">
                                             <?php if($GP['request-index']) : ?>
@@ -2132,8 +2176,14 @@
 
                                                                                       
                                        </ul>
-                                    </li>
-                                    <?php endif; ?>
+                                    </li>  --->
+                                    <?php //endif; ?>
+									
+									
+									
+									
+									
+									
                                     <?php if($GP['quotes-add'] || $GP['quotes-index']) : ?>
                                     <li id="procurment_quotes">
                                         <a class="dropmenu" href="javascript:void(0)">
@@ -2158,7 +2208,23 @@
                                             
                                        </ul>
                                     </li>
-                                    <?php endif; ?>
+                                    <?php   endif; ?>
+									
+									   <?php if($this->isWarehouse) : ?>
+									 <li id="procurment_store_indent_receive">
+                                        <a class="dropmenu" href="javascript:void(0)">
+                                            <span class="text">  <?= lang('store_indent_request_receive'); ?> </span>
+                                        </a>
+                                        <ul class="level-3-menu">
+                                           <li id="procurment_store_indent_receive_index">
+                                        <a class="submenu" href="<?= admin_url('procurment/store_indent_receive'); ?>">
+                                                   <span class="text"> <?= lang('list'); ?></span></a>
+                                        </li>
+                                       </ul>
+                                   </li>
+									 <?php   endif; ?>
+									
+									
                                     <?php if($GP['purchase_orders-add'] || $GP['purchase_orders-index']) : ?>
                                     <li id="procurment_purchase_orders">
                                         <a class="dropmenu" href="javascript:void(0)">

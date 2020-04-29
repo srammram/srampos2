@@ -93,7 +93,7 @@ $s2_file_date = $this->parser->parse_string($s2_lang_file, $s2_data, true);
 <?= ($m == 'store_return_receivers' && ($v == 'add' || $v == 'edit')) ? '<script type="text/javascript" src="' . $assets . 'js/procurment/store_return_receivers.js?v1=1"></script>' : ''; ?>
 <?= ($m == 'store_returns' && ($v == 'add' || $v == 'edit')) ? '<script type="text/javascript" src="' . $assets . 'js/procurment/store_returns.js?v1=1"></script>' : ''; ?>
 <?= ($m == 'production' && ($v == 'add' || $v == 'edit')) ? '<script type="text/javascript" src="' . $assets . 'js/procurment/production.js?v1=1"></script>' : ''; ?>
-
+<?= ($m == 'indent_process' && ($v == 'add' || $v == 'edit')) ? '<script type="text/javascript" src="' . $assets . 'js/procurment/indent_process.js?v1=1"></script>' : ''; ?>
 <?php //} ?>
 
 

@@ -1896,6 +1896,88 @@
                                                         
                                                     </td>
                                                 </tr>
+												
+												
+												
+												  <tr class="store_indent_receive">
+                                        <td><?= lang("store_indent_receive"); ?></td>
+                                        <td colspan="5">
+                                            <ul>
+                                                <li>
+                                                <span style="inline-block">
+                                                    <input type="checkbox" value="1" class="checkbox" id="store_indent_receive-index" name="store_indent_receive-index" <?php echo $p->{'store_indent_receive-index'} ? "checked" : ''; ?>>
+                                                    <label for="store_indent_receive-index" class="padding05"><?= lang('list') ?></label>
+                                                </span>
+                                                </li>
+                                                <li>
+                                                <span style="inline-block">
+                                                    <input type="checkbox" value="1" class="checkbox" id="store_indent_receive-view" name="store_indent_receive-view" <?php echo $p->{'store_indent_receive-view'} ? "checked" : ''; ?>>
+                                                    <label for="store_indent_receive-view" class="padding05"><?= lang('view') ?></label>
+                                                </span>
+                                                </li>
+                                            </ul>
+                                        </td>                                                
+                                        </tr>
+                                       
+                                       
+                                     <tr class="indent_process">
+                                        <td><?= lang("indent_process"); ?></td>
+                                        <td colspan="5">
+                                            <ul>
+                                                <li>
+                                                <span style="inline-block">
+                                                    <input type="checkbox" value="1" class="checkbox" id="indent_process-index" name="indent_process-index" <?php echo $p->{'indent_process-index'} ? "checked" : ''; ?>>
+                                                    <label for="indent_process-index" class="padding05"><?= lang('list') ?></label>
+                                                </span>
+                                                </li>
+                                                <li>
+                                                <span style="inline-block">
+                                                    <input type="checkbox" value="1" class="checkbox" id="indent_process-add" name="indent_process-add" <?php echo $p->{'indent_process-add'} ? "checked" : ''; ?>>
+                                                    <label for="indent_process-add" class="padding05"><?= lang('add') ?></label>
+                                                </span>
+                                                </li>
+                                                <li>
+                                                <span style="inline-block">
+                                                    <input type="checkbox" value="1" class="checkbox" id="indent_process-edit" name="indent_process-edit" <?php echo $p->{'indent_process-edit'} ? "checked" : ''; ?>>
+                                                    <label for="indent_process-edit" class="padding05"><?= lang('edit') ?></label>
+                                                </span>
+                                                </li>
+                                                <li>
+                                                <span style="inline-block">
+                                                    <input type="checkbox" value="1" class="checkbox" id="indent_process-view" name="indent_process-view" <?php echo $p->{'indent_process-view'} ? "checked" : ''; ?>>
+                                                    <label for="indent_process-view" class="padding05"><?= lang('view') ?></label>
+                                                </span>
+                                                </li>
+                                                <li>
+                                                <span style="inline-block">
+                                                    <input type="checkbox" value="1" class="checkbox" id="indent_process-approve" name="indent_process-approve" <?php echo $p->{'indent_process-approve'} ? "checked" : ''; ?>>
+                                                    <label for="indent_process-approve" class="padding05"><?= lang('approve') ?></label>
+                                                </span>
+                                                </li>
+                                                <li>
+                                                <span style="inline-block">
+                                                    <input type="checkbox" value="1" class="checkbox" id="indent_process-process" name="indent_process-process" <?php echo $p->{'indent_process-process'} ? "checked" : ''; ?>>
+                                                    <label for="indent_process-process" class="padding05"><?= lang('process') ?></label>
+                                                </span>
+                                                </li>
+                                                
+                                            </ul>
+                                        </td>
+                                     </tr>
+												
+												
+												
+												
+												
+												
+												
+												
+												
+												
+												
+												
+												
+												
 						<tr>
                                                     <td width="200"><?= lang('production'); ?></td>
                                                     <td  colspan="5">
@@ -1926,7 +2008,7 @@
                                                         
                                                     </td>
                                                 </tr>
-						<tr>
+					<!--	<tr>
                                                     <td width="200"><?= lang('quotation_request'); ?></td>
                                                     <td  colspan="5">
                                                     	<span style="display:inline-block;">
@@ -1955,7 +2037,7 @@
 							</span>
                                                         
                                                     </td>
-                                                </tr>
+                                                </tr>-->
                                                 <tr>
                                                 	<td width="200"><?= lang('purchase_quotation'); ?></td>
                                                     <td  colspan="5">

@@ -1,3 +1,0 @@
-ALTER TABLE `srampos_settings` ADD `shift_enable` TINYINT NOT NULL AFTER `smtp_user`, ADD `open_til_enable` TINYINT NOT NULL AFTER `shift_enable`;
-
-ALTER TABLE `srampos_settings` ADD `shift_user_handling` TINYINT NOT NULL AFTER `open_til_enable`, ADD `shift_opencash_next_days_continue` TINYINT NOT NULL AFTER `shift_user_handling`, ADD `shift_opencash_setting_pos` TINYINT NOT NULL AFTER `shift_opencash_next_days_continue`, ADD `opening_cash_type` TINYINT NOT NULL AFTER `shift_opencash_setting_pos`, ADD `opening_cash_usd` DECIMAL(10,2) NOT NULL AFTER `opening_cash_type`, ADD `opening_cash_khmr` DECIMAL(10,2) NOT NULL AFTER `opening_cash_usd`;
