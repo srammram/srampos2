@@ -27,7 +27,7 @@
 <?= admin_form_open('tables/area_actions', 'id="action-form"') ?>
 <div class="box">
     <div class="box-header">
-        <h2 class="blue"><i class="fa-fw fa fa-th-list"></i><?= lang('areas'); ?></h2>
+        <h2 class="blue"><i class="fa-fw fa fa-th-list"></i><?= lang('table_area'); ?></h2>
 
         <div class="box-icon">
             <ul class="btn-tasks">
@@ -38,7 +38,7 @@
                     <ul class="dropdown-menu pull-right tasks-menus" role="menu" aria-labelledby="dLabel">
                         <li>
                             <a href="<?php echo admin_url('tables/add_area'); ?>" data-toggle="modal" data-target="#myModal">
-                                <i class="fa fa-plus"></i> <?= lang('add_area') ?>
+                                <i class="fa fa-plus"></i> <?= lang('Add_Area') ?>
                             </a>
                         </li>
                         

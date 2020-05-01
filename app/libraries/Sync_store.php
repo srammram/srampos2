@@ -181,9 +181,74 @@ class Sync_store {
 	$a = $this->compare_server_local($db1,$db2,$table_name);
     }
 	
+	function sync_restaurant_kitchens(){
+	$table_name = 'restaurant_areas';
+	$this->CI->centerdb->select('r.*');
+	$this->CI->centerdb->from('restaurant_areas r');
+	$this->CI->centerdb->where('warehouse_id',$this->CI->store_id);
+	$db1 = $this->CI->centerdb->get()->result_array();
+    
+	$this->CI->db->select('r.*');
+	$this->CI->db->from('restaurant_areas r');
+	$this->CI->db->where('warehouse_id',$this->CI->store_id);
+	$db2 = $this->CI->db->get()->result_array();
+	$a = $this->compare_server_local($db1,$db2,$table_name);
+    }
 	function sync_taxrates(){
-	$table = 'tax_rates';
+		$table = 'tax_rates';
+		$this->sync_tables($table);
+    }
+	function sync_user_groups(){
+		$table = 'groups';
+		$return = $this->sync_tables($table);
+		return true;
+    }
+	 function sync_user_store_access(){
+		$table = 'user_store_access';
+		$return = $this->sync_tables_store_id($table);
+		return true;
+    }
+	function sync_users(){	
+	    $table_name = 'users';
+	    $this->CI->centerdb->select('u.*');
+	    $this->CI->centerdb->from('users u');
+	    $this->CI->centerdb->join('user_store_access ua','ua.user_id=u.id');
+	    $this->CI->centerdb->where('store_id',$this->CI->store_id);
+	    $db1 = $this->CI->centerdb->get()->result_array();
+	    
+	    $this->CI->db->select('u.*');
+	    $this->CI->db->from('users u');
+	    $this->CI->db->join('user_store_access ua','ua.user_id=u.id');
+	    $this->CI->db->where('store_id',$this->CI->store_id);
+	    $db2 = $this->CI->db->get()->result_array();
+	    $a = $this->compare_server_local($db1,$db2,$table_name);
+	
+    }
+	  function sync_vendors(){
+		$table_name = 'companies';
+		$this->CI->centerdb->from($table_name);
+		$this->CI->centerdb->where('group_id',4);
+		$db1 = $this->CI->centerdb->get()->result_array();
+		$this->CI->db->from($table_name);
+		$this->CI->db->where('group_id',4);
+		$db2 = $this->CI->db->get()->result_array();
+		$a = $this->compare_server_local($db1,$db2,$table_name);
+    }
+  	 function sync_customer_groups(){
+		$table = 'customer_groups';
+		$this->sync_tables($table);
+	 }
+	 function sync_expense_categories(){
+	$table = 'expense_categories';
 	$this->sync_tables($table);
+    }
+     function sync_tendertypes(){
+	    $table = 'payment_methods';
+  	    $this->sync_tables($table);
+	    
+    }
+	   function sync_calendar(){
+	    $table = 'calendar';$this->sync_tables($table);	
     }
 	
 	
@@ -211,49 +276,7 @@ class Sync_store {
     function sync_product_alert_quantity(){
 	$table = 'product_alert_quantity';$this->sync_tables_store_id($table);    
     }
-    function sync_user_groups(){
-	$table = 'groups';
-	$return = $this->sync_tables($table);
-	return true;
-    }
-    function sync_user_store_access(){
-	$table = 'user_store_access';
-	$return = $this->sync_tables_store_id($table);
-	return true;
-    }
-    function sync_users(){	
-	
-	    $table_name = 'users';
-	    $this->CI->centerdb->select('u.*');
-	    $this->CI->centerdb->from('users u');
-	    $this->CI->centerdb->join('user_store_access ua','ua.user_id=u.id');
-	    $this->CI->centerdb->where('store_id',$this->CI->store_id);
-	    $db1 = $this->CI->centerdb->get()->result_array();
-	    
-	    $this->CI->db->select('u.*');
-	    $this->CI->db->from('users u');
-	    $this->CI->db->join('user_store_access ua','ua.user_id=u.id');
-	    $this->CI->db->where('store_id',$this->CI->store_id);
-	    $db2 = $this->CI->db->get()->result_array();
-	    
-	    $a = $this->compare_server_local($db1,$db2,$table_name);
-	
-    }
-    function sync_vendors(){
-	$table_name = 'companies';
-	$this->CI->centerdb->from($table_name);
-	$this->CI->centerdb->where('group_id',4);
-	$db1 = $this->CI->centerdb->get()->result_array();
-	
-	$this->CI->db->from($table_name);
-	$this->CI->db->where('group_id',4);
-	$db2 = $this->CI->db->get()->result_array();
-	
-	$a = $this->compare_server_local($db1,$db2,$table_name);
-    }
-    function sync_calendar(){
-	$table = 'calendar';$this->sync_tables($table);	
-    }
+ 
     function sync_giftvoucher(){
 	/**
 	 *giftvoucher_master
@@ -311,39 +334,27 @@ class Sync_store {
 	$table = 'currency_ex_rates';$this->sync_tables($table);
 	$this->CI->site->isCurrencyRatesUpdated();
     }
-    function sync_customer_groups(){
-	$table = 'customer_groups';
+	
+    function sync_grouppermission(){
+	$table = 'permissions';
 	$this->sync_tables($table);
     }
    
-    function sync_expense_categories(){
-	$table = 'expense_categories';
-	$this->sync_tables($table);
-    }
-    
    
+	
+	
+	
+   
+  
+  
+  
   
   
     function sync_stores(){
 	$table = 'warehouses';
 	$this->sync_tables_with_images($table);
     }
-    function sync_tendertypes(){
-	/**
-	 *tender_card_types
-	 *tender_coupon_types
-	 *tender_wallet_types
-	 *payment_methods
-	 ***/
-	    $table = 'payment_methods';
-  	    $this->sync_tables($table);
-	    $table = 'tender_card_types';
-	    $this->sync_tables($table);
-	    $table = 'tender_coupon_types';
-	    $this->sync_tables($table);
-	    $table = 'tender_wallet_types';
-	    $this->sync_tables($table);
-    }
+   
     function sync_commissionslab(){
 	$table = 'Commissionslab';
 	$this->sync_tables($table);
@@ -360,10 +371,7 @@ class Sync_store {
 	$table = 'notifications';
 	$this->sync_tables($table);
     }
-    function sync_grouppermission(){
-	$table = 'permissions';
-	$this->sync_tables($table);
-    }
+   
     function sync_sync_settings(){
 	$table = 'sync_settings';
 	$this->sync_tables($table);

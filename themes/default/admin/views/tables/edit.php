@@ -37,20 +37,9 @@
                 <?= form_input('max_seats', $table->max_seats, 'class="form-control numberonly" id="max_seats" maxlength="2" required="required"'); ?>
             </div>
             
-             <div class="form-group">
-                <?= lang("warehouse", "warehouse"); ?>
-                <?php
-                $wh[''] = '';
-                foreach ($warehouses as $warehouse) {
-                    $wh[$warehouse->id] = $warehouse->name;
-                }
-                echo form_dropdown('warehouse_id', $wh, $table->warehouse_id, 'class="form-control" data-placeholder="' . lang("select") . ' ' . lang("warehouse") . '" required="required" style="width:100%;" ');
-                ?>
-                
-            </div>
-            
+           
             <div class="form-group">
-                <?= lang("areas", "areas"); ?>
+                <?= lang("Table_area", "Table_area"); ?>
                 <?php
                 $ar[''] = '';
                 foreach ($areas as $area) {

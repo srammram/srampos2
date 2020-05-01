@@ -14,10 +14,10 @@ class Sync extends MY_Controller{
         @ob_end_flush();
         flush();
 	if($this->centerdb_connected){
-	    $this->site->update_sync_startTime();
-	    $sync_settings = $this->sync_store->sync_sync_settings();
-	    if($sync_settings){
-		if($particular_sync){
+	     $this->site->update_sync_startTime();
+	     $sync_settings = $this->sync_store->sync_sync_settings();
+	     if($sync_settings){
+		 if($particular_sync){
 		    $tables[0] = $particular_sync;
 		}else{
 		 $tables = $this->site->getSyncEnabledTables();   
@@ -43,68 +43,69 @@ class Sync extends MY_Controller{
 				$this->sync_store->sync_recipe_variants();
 			    }
 			    break;
-				
-				
 				case 'kitchen':
 			    if($this->sync_store->sync_restaurant_kitchens()){
-				$this->sync_store->sync_restaurant_tables();
+					$this->sync_store->sync_restaurant_kitchens();
+					$this->sync_store->sync_restaurant_tables();
 			    }
 			    break;
 				
 				
-				case 'currencies':			    
+			/* 	case 'currencies':			    
 			    $this->sync_store->sync_currencies();
-			    break;
+			    break; */
 			
 			    case 'tax':
 			    $this->sync_store->sync_taxrates();
 			    break;
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-			case 'users':
+					
+			    case 'users':
 			    $this->sync_store->sync_user_groups();
 			    if($this->sync_store->sync_user_store_access()){
 				$this->sync_store->sync_users();
 			    }
-			    
 			    break;
-			case 'suppliers':
+				
+				case 'suppliers':
 			    $this->sync_store->sync_vendors();
 			    break;
-			case 'customers':
+				
+				case 'customers':
 			    $this->sync_both->sync_customers();			    
 			    $this->sync_store->sync_customer_groups();
 			    break;
-			case 'tills':
+				case 'tills':
 			    $this->sync_both->sync_tills();
 			    break;
-		
-			case 'printers':
+				case 'printers':
 			    $this->sync_both->sync_printers();
 			    break;
-			case 'tender_types':			    
+					
+			    case 'tender_types':			    
 			    $this->sync_store->sync_tendertypes();
-			    $this->sync_both->sync_tendertype_status();
+			   // $this->sync_both->sync_tendertype_status();
 			    break;
-			
-			case 'expense_category':
+				case 'expense_category':
 			    $this->sync_store->sync_expense_categories();
 			    break;
-			case 'calendar':
+				case 'calendar':
 			    $this->sync_store->sync_calendar();
 			    break;
+			    
+				case 'group_permission':
+			    $this->sync_store->sync_grouppermission();
+			    break;
+				
+				
+			
+			
+			
+			
+		
+		
+			
+		
+			
 			case 'giftvoucher':
 			    $this->sync_store->sync_giftvoucher();
 			    $this->sync_center->sync_issued_giftvouchers();
@@ -112,9 +113,7 @@ class Sync extends MY_Controller{
 			    $this->sync_both->sync_giftvoucher_status();
 			    break;
 			
-			case 'group_permission':
-			    $this->sync_store->sync_grouppermission();
-			    break;			
+					
 			case 'promotions':
 			    $this->sync_store->sync_billdiscount();
 			    break;

@@ -10,9 +10,6 @@
         echo admin_form_open_multipart("tables/add_kitchen", $attrib); ?>
         <div class="modal-body">
             <p><?= lang('enter_info'); ?></p>
-
-            
-
             <div class="form-group">
                 <?= lang('name', 'name'); ?>
                 <?= form_input('name', '', 'class="form-control" id="name" required="required"'); ?>
@@ -22,14 +19,14 @@
                 <?= form_textarea('description', '', 'class="form-control" id="details"'); ?>
             </div>
 			
-            <div class="form-group hidden">
+            <div class="form-group ">
                 <?= lang("warehouse", "warehouse"); ?>
                 <?php
                 $wh[''] = '';
                 foreach ($warehouses as $warehouse) {
                     $wh[$warehouse->id] = $warehouse->name;
                 }
-                echo form_dropdown('warehouse_id', $wh, '', 'class="form-control" data-placeholder="' . lang("select") . ' ' . lang("warehouse") . '" style="width:100%;" ');
+                echo form_dropdown('warehouse_id', $wh, '', 'class="form-control" data-placeholder="' . lang("select") . ' ' . lang("warehouse") . '"  required="required" style="width:100%;" ');
                 ?>
             </div>
             <div class="form-group">

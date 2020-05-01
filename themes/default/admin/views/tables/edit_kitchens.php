@@ -13,21 +13,21 @@
             
             <div class="form-group">
                 <?= lang('name', 'name'); ?>
-                <?= form_input('name', $kitchen->name, 'class="form-control" id="name" required="required"'); ?>
+                <?= form_input('name', $kitchen->name, 'class="form-control" id="name" autocomplete="off" required="required"'); ?>
             </div>
             <div class="form-group all">
 				<?= lang("description", "description") ?>
                 <?= form_textarea('description', $kitchen->description, 'class="form-control" id="details"'); ?>
             </div>
 			
-            <div class="form-group hidden">
+            <div class="form-group ">
                 <?= lang("warehouse", "warehouse"); ?>
                 <?php
                 $wh[''] = '';
                 foreach ($warehouses as $warehouse) {
                     $wh[$warehouse->id] = $warehouse->name;
                 }
-                echo form_dropdown('warehouse_id', $wh, $kitchen->warehouse_id, 'class="form-control" data-placeholder="' . lang("select") . ' ' . lang("warehouse") . '"  style="width:100%;" ');
+                echo form_dropdown('warehouse_id', $wh, $kitchen->warehouse_id, 'class="form-control" data-placeholder="' . lang("select") . ' ' . lang("warehouse") . '" required="required"  style="width:100%;" ');
                 ?>
             </div>
 

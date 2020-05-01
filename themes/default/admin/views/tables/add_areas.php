@@ -4,21 +4,33 @@
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-2x">&times;</i>
             </button>
-            <h4 class="modal-title" id="myModalLabel"><?php echo lang('add_area'); ?></h4>
+            <h4 class="modal-title" id="myModalLabel"><?php echo lang('Add_Area'); ?></h4>
         </div>
         <?php $attrib = array('data-toggle' => 'validator', 'role' => 'form');
         echo admin_form_open_multipart("tables/add_area", $attrib); ?>
         <div class="modal-body">
             <p><?= lang('enter_info'); ?></p>
 
+
             
 			<div class="form-group">
-				
                 <input type="radio" value="suki" id="suki" class="checkbox" name="type" checked>
                 <label for="suki" class="padding03"><?= lang('dine_in') ?></label>
-    <input type="radio" value="bbq" id="bbq" class="checkbox" name="type" >
+                <input type="radio" value="bbq" id="bbq" class="checkbox" name="type" >
                 <label for="bbq" class="padding03"><?= lang('BBQ') ?></label>
               
+            </div>
+			
+			<div class="form-group">
+                <?= lang("warehouse", "warehouse"); ?>
+                <?php
+                $wh[''] = '';
+                foreach ($warehouses as $warehouse) {
+                    $wh[$warehouse->id] = $warehouse->name;
+                }
+                echo form_dropdown('warehouse_id', $wh, '', 'class="form-control" data-placeholder="' . lang("select") . ' ' . lang("warehouse") . '" required="required" style="width:100%;" ');
+                ?>
+                
             </div>
             <div class="form-group">
                 <?= lang('name', 'name'); ?>
