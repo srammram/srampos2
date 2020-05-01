@@ -105,12 +105,7 @@
                     $(this).removeClass('ui-autocomplete-loading');
                     $(this).val('');
                 }
-               /* else if (ui.content.length == 1 && ui.content[0].id != 0) {
-                    ui.item = ui.content[0];
-                    $(this).data('ui-autocomplete')._trigger('select', 'autocompleteselect', ui);
-                    $(this).autocomplete('close');
-                    $(this).removeClass('ui-autocomplete-loading');
-                }*/
+              
                 else if (ui.content.length == 1 && ui.content[0].id == 0) {
                     //audio_error.play();
                     bootbox.alert('<?= lang('no_match_found') ?>', function () {
@@ -310,8 +305,9 @@
                                         foreach ($requestnumber as $requestnumber_row) {
                                             $qn[$requestnumber_row->id] = $requestnumber_row->reference_no;
                                         }
-                                        echo form_dropdown('requestnumber', $qn, $inv->request_id, ' class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("request_number") . '"style="width:100%;" id="qu_requestnumber"  ');
+                                        echo form_dropdown('requestnumber', $qn, $inv->request_id, ' class="form-control input-tip select" multiple data-placeholder="' . lang("select") . ' ' . lang("request_number") . '"style="width:100%;" id="qu_requestnumber"  ');
                                         ?>
+										
                                 </td> 
                                 <td>
                                     <?= lang("document", "document") ?>
@@ -321,12 +317,12 @@
                                    data-show-preview="false" class="form-control file">
                                 </td>                                  
                            </tr>
-                           <tr>
+                       <!--    <tr>
                                 <td> <?= lang("store_request_no", "store_request_no");?></td>
                                 <td>
                                      <input type="text" name="store_request_no" id="store_request_no"  readonly="" class="form-control">
                                 </td>
-                           </tr>
+                           </tr>-->
                         </tbody>
                     </table>
                 </div>
@@ -371,6 +367,7 @@
                                             <th class="col-md-2"><?= lang("Quantity"); ?></th>
                                             <th class="col-md-2"><?= lang("uom"); ?></th>
                                             <th class="col-md-2"><?= lang("Selling.Price"); ?></th>
+											  <th class="col-md-2"><?= lang("Delivery_to_warehouse"); ?></th>
 											<th class="col-md-1" style="text-align: center;">
                                                   <i class="fa fa-trash-o"
                                                     style="opacity:0.5; filter:alpha(opacity=50);"></i></th>

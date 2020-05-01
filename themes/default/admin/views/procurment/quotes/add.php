@@ -1,13 +1,12 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 <script type="text/javascript">
     var default_store = '<?=$default_store?>';
-    
     <?php if($quotes_id) { ?>
     localStorage.setItem('qu_warehouse', '<?= $quotes->warehouse_id ?>');
 	localStorage.setItem('qu_requestnumber', '<?= $quotes->requestnumber ?>');
 	localStorage.setItem('qu_requestdate', '<?= $quotes->requestdate ?>');
     localStorage.setItem('qu_note', '<?= str_replace(array("\r", "\n"), "", $this->sma->decode_html($quotes->note)); ?>');
-    localStorage.setItem('qu_discount', '<?= $quotes->order_discount_id ?>');
+    localStorage.setItem('qu_discount','<?= $quotes->order_discount_id ?>');
     localStorage.setItem('qu_tax2', '<?= $quotes->order_tax_id ?>');
     localStorage.setItem('qu_shipping', '<?= $quotes->shipping ?>');
     <?php if ($quotes->supplier_id) { ?>
@@ -16,19 +15,19 @@
     localStorage.setItem('qu_items', JSON.stringify(<?= $quote_items; ?>));
     <?php } ?>
 
-    var count = 1, an = 1, quotes_edit = false, product_variant = 0, DT = <?= $Settings->default_tax_rate ?>, DC = '<?= $default_currency->code ?>', shipping = 0,
+		var count = 1, an = 1, quotes_edit = false, product_variant = 0, DT = <?= $Settings->default_tax_rate ?>, DC = '<?= $default_currency->code ?>', shipping = 0,
         product_tax = 0, invoice_tax = 0, total_discount = 0, total = 0,
         tax_rates = <?php echo json_encode($tax_rates); ?>, qu_items = {},
         audio_success = new Audio('<?= $assets ?>sounds/sound2.mp3'),
         audio_error = new Audio('<?= $assets ?>sounds/sound3.mp3');
-    $(document).ready(function () {
+		$(document).ready(function () {
         <?php if($this->input->get('supplier')) { ?>
         if (!localStorage.getItem('qu_items')) {
             localStorage.setItem('qu_supplier', <?=$this->input->get('supplier');?>);
         }
         <?php } ?>
         $("#qu_date").prop('disabled', true);
-        <?php //if ($Owner || $Admin) { ?>
+        
         if (!localStorage.getItem('qu_date')) {            
             $("#qu_date").datetimepicker({
                 format: site.dateFormats.js_ldate,
@@ -108,12 +107,6 @@
                     $(this).removeClass('ui-autocomplete-loading');
                     $(this).val('');
                 }
-               /* else if (ui.content.length == 1 && ui.content[0].id != 0) {
-                    ui.item = ui.content[0];
-                    $(this).data('ui-autocomplete')._trigger('select', 'autocompleteselect', ui);
-                    $(this).autocomplete('close');
-                    $(this).removeClass('ui-autocomplete-loading');
-                }*/
                 else if (ui.content.length == 1 && ui.content[0].id == 0) {
                     //audio_error.play();
                     bootbox.alert('<?= lang('no_match_found') ?>', function () {
@@ -137,7 +130,6 @@
         });
 
         $(document).on('click', '#addItemManually', function (e) {
-			
             if (!$('#mcode').val()) {
                 $('#mError').text('<?= lang('product_code_is_required') ?>');
                 $('#mError-con').show();
@@ -168,7 +160,6 @@
                 $('#mError-con').show();
                 return false;
             }
-
             var msg, row = null, product = {
                 type: 'standard',
                 code: $('#mcode').val(),
@@ -180,7 +171,6 @@
                 cost: $('#mcost').val(),
                 price: $('#mprice').val()
             };
-
             $.ajax({
                 type: "get", async: false,
                 url: site.base_url + "products/addByAjax",
@@ -196,7 +186,6 @@
             });
             if (row) {
                 $('#mModal').modal('hide');
-                //audio_success.play();
             } else {
                 $('#mError').text(msg);
                 $('#mError-con').show();
@@ -210,14 +199,11 @@
 
 <div class="box">
     <div class="box-header procurment-header">
-        <!-- <h2 class="blue"><i class="fa-fw fa fa-plus"></i><?= lang('add_quotes'); ?></h2> -->
         <h2 class=""><?= lang('add_purchase_quotes'); ?></h2>
     </div>
     <div class="box-content">
         <div class="row">
             <div class="col-lg-12">
-
-                <!-- <p class="introtext"><?php echo lang('enter_info'); ?></p> -->
                 <?php
                 $attrib = array('data-toggle' => 'validator1', 'role' => 'form','id'=>'add-purchase-invoice');
                 echo admin_form_open_multipart("procurment/quotes/add", $attrib)
@@ -244,7 +230,7 @@
                                     </td>
                                     <td>
                                         <?php 
-                                                $n = $this->siteprocurment->lastidQuotation();
+                                        $n = $this->siteprocurment->lastidQuotation();
                                         $reference = str_pad($n + 1, 5, 0, STR_PAD_LEFT);
                                         ?>
                                        <input type="text" name="quotation_no" id="quotation_no" readonly class="form-control" value="<?php echo $reference; ?>">
@@ -302,15 +288,15 @@
                                      <input type="datetime" name="requestdate" id="qu_requestdate" readonly class="form-control" value="<?php echo date('Y-m-d') ?>">
                                     </td>
                                     <td width="150px">
-                                        <?= lang("quotation_request_number", "quotation_request_number"); ?>
+                                        <?= lang("request_number", "request_number"); ?>
                                     </td>
                                     <td>
                                        <?php                        
-                                           $qn[''] = '';
+                                       
                                             foreach ($requestnumber as $requestnumber_row) {
                                                 $qn[$requestnumber_row->id] = $requestnumber_row->reference_no;
                                             }
-                                            echo form_dropdown('requestnumber', $qn, '', ' class="form-control input-tip select" multiple data-placeholder="' . lang("select") . ' ' . lang("request_number") . '"style="width:100%;" id="qu_requestnumber"  ');
+                                            echo form_dropdown('requestnumber[]', $qn, '', ' class="form-control input-tip select" multiple data-placeholder="' . lang("select") . ' ' . lang("request_number") . '"style="width:100%;" id="qu_requestnumber"  ');
                                         ?>
                                     </td>                                    
                                     <td>
@@ -321,31 +307,22 @@
                                        data-show-preview="false" class="form-control file">
                                     </td>
                                 </tr>
-                                <!-- <tr>
-                                    <td> <?= lang("store_request_no", "store_request_no");?></td>
-                                    <td>
-                                         <input type="text" name="store_request_no" id="store_request_no"  readonly="" class="form-control">
-                                    </td>
-                                </tr> -->
                             </tbody>
                         </table>
                     </div>
                   
-                    
                     <div class="clearfix"></div>
                          <div class="col-md-12" id="sticker">
                             <div class="well well-sm">
-                              
                                 <div class="form-group" style="margin-bottom:0;">
-                                    <div class="input-group wide-tip">
-                                        <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
-                                            <i class="fa fa-2x fa-barcode addIcon"></i></div>
+                                 <div class="input-group wide-tip">
+                                    <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
+                                       <i class="fa fa-2x fa-barcode addIcon"></i></div>
                                         <?php echo form_input('add_item', '', 'class="form-control input-lg" id="add_item" placeholder="' . $this->lang->line("Search Purchase Items") . '"'); ?>
-                                        <?php if ($Owner || $Admin || $GP['products-add']) { ?>
                                         <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
-                                            <a href="<?= admin_url('procurment/products/add') ?>" id="addManually1"><i
-                                                    class="fa fa-2x fa-plus addIcon" id="addIcon"></i></a></div>
-                                        <?php } ?>
+                                         <a href="javascript:void(0);" ><i
+                                                    class="fa fa-2x fa-search addIcon" id="addIcon"></i></a></div>
+                                        
                                     </div>
                                 </div>
                                 <div class="clearfix"></div>
@@ -371,6 +348,7 @@
                                             <th class="col-md-2"><?= lang("Quantity"); ?></th>
                                             <th class="col-md-2"><?= lang("uom"); ?></th>
                                             <th class="col-md-2"><?= lang("Selling.Price"); ?></th>
+											  <th class="col-md-2"><?= lang("Delivery_to_warehouse"); ?></th>
                                             <th class="col-md-1" style="text-align: center;">
                                               <i class="fa fa-trash-o" style="opacity:0.5; filter:alpha(opacity=50);"></i>
                                             </th>
@@ -394,7 +372,7 @@
                                         <td width="150px">
                                             <input  name="total_no_items" id="total_no_items" readonly class="form-control">
                                         </td>
-					 <td width="150px">
+											<td width="150px">
                                             <?= lang("Total No Of Qty", "total_qty") ?>
                                         </td>
                                         <td width="150px">
@@ -423,6 +401,7 @@
 </div>
 
 <script>
+
 $(document).ready(function(e) {
     var supplierid = localStorage.getItem('qu_supplier');	
     $('#qu_supplier').val(supplierid);
@@ -459,42 +438,34 @@ $(document).on('change', '#qu_supplier', function(){
 			$(this).removeClass('ui-autocomplete-loading');
             localStorage.setItem('qutsupplier_address', data.supplier_address);
             $('#qutsupplier_address').val(data.supplier_address);
-			/*$('#supplier_name').val(data.supplier_name);
-			$('#supplier_code').val(data.supplier_code);
-			$('#supplier_vatno').val(data.supplier_vatno);
-			$('#supplier_address').val(data.supplier_address);
-			$('#supplier_email').val(data.supplier_email);
-			$('#supplier_phno').val(data.supplier_phno);*/            
+			      
 		}
 	});
     localStorage.setItem('qu_supplier', $(this).val());
 });
-       if (localStorage.getItem('qutsupplier_address')) {
-                $('#qutsupplier_address').val(localStorage.getItem('qutsupplier_address'));
-            } 
+if (localStorage.getItem('qutsupplier_address')) {
+   $('#qutsupplier_address').val(localStorage.getItem('qutsupplier_address'));
+ } 
 
 
-<?php
-if(!empty($ref_requestnumber)){
-?>
+
 $(document).ready(function(e) {
 	if(localStorage.getItem('qu_requestnumber') == null){
-		
     	localStorage.setItem('qu_requestnumber', '<?= $ref_requestnumber ?>');
 		$("#qu_requestnumber").val(localStorage.getItem('qu_requestnumber'));
 		$('#qu_requestnumber').trigger('change');
 	}else{
-		console.log("reno"+localStorage.getItem('qu_requestnumber'));
-		$("#qu_requestnumber").val(localStorage.getItem('qu_requestnumber'));
+		qu_requestnumber=localStorage.getItem('qu_requestnumber')
+		qu_requestnumber=qu_requestnumber.split(",");
+		$("#qu_requestnumber").val(qu_requestnumber);
+		
+		
 	}
 });
-<?php
-}
-?>
 
-
-$(document).on('change', '#qu_requestnumber', function(){
-	if ($('#qu_supplier').val()) {
+ 
+$(document).on('change', '#qu_requestnumber', function(e){
+	if ($('#qu_supplier').val()!=null) {
             $('#qu_supplier').select2("readonly", true);
 			localStorage.setItem('qu_requestnumber', $(this).val());
         } else {
@@ -503,32 +474,9 @@ $(document).on('change', '#qu_requestnumber', function(){
             item = null;
             return;
         }
-	
-	if (localStorage.getItem('qu_items')) {
-        localStorage.removeItem('qu_items');
-    }
-	if (localStorage.getItem('qu_requestnumber')) {
-        localStorage.removeItem('qu_requestnumber');
-    }
-    if (localStorage.getItem('qu_supplier')) {
-        localStorage.removeItem('qu_supplier');
-    }
-    if (localStorage.getItem('qu_currency')) {
-        localStorage.removeItem('qu_currency');
-    }
-    if (localStorage.getItem('qu_extras')) {
-        localStorage.removeItem('qu_extras');
-    }
-    if (localStorage.getItem('qu_date')) {
-        localStorage.removeItem('qu_date');
-    }
-    if (localStorage.getItem('qu_status')) {
-        localStorage.removeItem('qu_status');
-    }
-    if (localStorage.getItem('qu_payment_term')) {
-        localStorage.removeItem('qu_payment_term');
-    }
-	var qu_requestnumber = $(this).val();
+
+	//var qu_requestnumber = $(this).val();
+	var qu_requestnumber =e.added.id;
 	$.ajax({
 		type: 'get',
 		url: '<?= admin_url('procurment/quotes/quotes_list'); ?>',
@@ -541,8 +489,6 @@ $(document).on('change', '#qu_requestnumber', function(){
 		     $.each(data, function (key, val) {
               add_quotes_item(val);
 			});
-			
-		
 		}		
 	});
 });
@@ -590,30 +536,7 @@ $(document).on('change', '#qu_requestnumber', function(){
                         </div>
                     </div>
 					
-				<!-- 	<div class="form-group">
-                            <label for="pbatch_no" class="col-sm-4 control-label"><?= lang('Batch_no') ?></label>
-
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control" id="pbatch_no">
-                            </div>
-                        </div> -->
-						
-                   <!--  <?php if ($Settings->product_expiry) { ?>
-                    	<div class="form-group">
-                            <label for="pmfg" class="col-sm-4 control-label"><?= lang('Product_mfg') ?></label>
-
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control date" id="pmfg">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="pexpiry" class="col-sm-4 control-label"><?= lang('Product_expiry') ?></label>
-
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control date" id="pexpiry">
-                            </div>
-                        </div>
-                    <?php } ?> -->
+				
                     <div class="form-group">
                         <label for="punit" class="col-sm-4 control-label"><?= lang('product_unit') ?></label>
                         <div class="col-sm-8">
@@ -681,6 +604,9 @@ $(document).on('change', '#qu_requestnumber', function(){
     </div>
 </div>
 
+
+
+
 <div class="modal" id="mModal" tabindex="-1" role="dialog" aria-labelledby="mModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -691,7 +617,6 @@ $(document).on('change', '#qu_requestnumber', function(){
             </div>
             <div class="modal-body" id="pr_popover_content">
                 <div class="alert alert-danger" id="mError-con" style="display: none;">
-                    <!--<button data-dismiss="alert" class="close" type="button">×</button>-->
                     <span id="mError"></span>
                 </div>
                 <div class="row">
@@ -757,3 +682,5 @@ $(document).on('change', '#qu_requestnumber', function(){
         </div>
     </div>
 </div>
+
+

@@ -31,9 +31,6 @@ class Quotes extends MY_Controller{
 	
 	public function quotes_list(){
 		$poref =  $this->input->get('poref');
-		print_r($poref);
-		die;
-	  //  $poref = !empty($poref) ? end($poref) : null;
 		$data['quotes'] =$quotes= $this->quotes_model->getstoreRequestByID($poref);
 		$inv_items = $this->quotes_model->getAllstoreRequestItems($poref);
 		 krsort($inv_items);
@@ -76,25 +73,20 @@ class Quotes extends MY_Controller{
 			$row->subcategory_name = $row->subcategory_name;
 			$row->brand_id = $row->brand_id;
 			$row->brand_name = $row->brand_name;
-            $row->cost = $row->cost_price ? $row->cost_price : 0;
-            $row->price = $row->selling_price ? $row->selling_price : 0;
-            $row->variant_id = $item->variant_id;
-			
-			$ri = $this->Settings->item_addition ? $row->id : $row->id;
+            $row->cost = $row->cost ? $row->cost : 0;
+            $row->price = $row->price ? $row->price : 0;
+            $row->variant_id = $item->variant_id?$item->variant_id:'';
+			$row->delivery_to =1;
+			$row->unit_name =$item->product_unit_code;
+		
 			 $ri = $row->id;
 			$item_key = $ri.'_'.$quotes->store_id.'_'.$row->category_id.'_'.$row->subcategory_id.'_'.$row->brand_id.'_'.$row->variant_id;
-			$pr[] = array('store_id'=>$quotes->store_id,'id' => $c, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
-				'row' => $row, 'tax_rate' => $row->tax_rate, 'units' => $units, 'options' => $options);
+			$pr[$item_key] = array('store_id'=>$quotes->store_id,'id' => $c, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
+				'row' => $row, 'tax_rate' => $row->tax_rate, 'units' => $units, 'options' => $options,'uniqueid'=>$item_key);
 			$c++;
 		}
-		/* $data['quotesitem'] = $pr;
-		if(!empty($data)){
-			$response['status'] = 'success';
-			$response['value'] = $data;
-		}else{
-			$response['status'] = 'error';
-			$response['value'] = '';
-		} */
+		
+	
 	  $this->sma->send_json($pr);
 		exit;
 	}
@@ -308,11 +300,7 @@ class Quotes extends MY_Controller{
 
     }
 
-    public function email($quotes_id = null)
-    {
-
-        //$this->sma->checkPermissions(false, true);
-
+    public function email($quotes_id = null){
         if ($this->input->get('id')) {
             $quotes_id = $this->input->get('id');
         }
@@ -322,7 +310,6 @@ class Quotes extends MY_Controller{
         $this->form_validation->set_rules('cc', $this->lang->line("cc"), 'trim|valid_emails');
         $this->form_validation->set_rules('bcc', $this->lang->line("bcc"), 'trim|valid_emails');
         $this->form_validation->set_rules('note', $this->lang->line("message"), 'trim');
-
         if ($this->form_validation->run() == true) {
             if (!$this->session->userdata('view_right')) {
                 $this->sma->view_rights($po->created_by);
@@ -406,8 +393,8 @@ class Quotes extends MY_Controller{
         $this->form_validation->set_rules('supplier', $this->lang->line("supplier"), 'required');
         $this->session->unset_userdata('csrf_token');
         if ($this->form_validation->run() == true) { //echo "<pre>";print_r($this->input->post());die;         
-	    $n = $this->siteprocurment->lastidQuotation();
-	    $reference = 'PQ'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
+	        $n = $this->siteprocurment->lastidQuotation();
+	        $reference = 'PQ'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
 			$date = date('Y-m-d H:i:s');
 			
             $warehouse_id = $this->input->post('warehouse');
@@ -460,6 +447,7 @@ class Quotes extends MY_Controller{
                 $subcategory_name = $_POST['subcategory_name'][$r];
 		        $brand_id = $_POST['brand_id'][$r];
                 $brand_name = $_POST['brand_name'][$r];
+				$deliver_to= ($_POST['delivery_to'][$r]==1)?$_POST['delivery_to'][$r]:$store_id;
                 if (isset($item_code) && isset($unit_cost) &&  isset($quantity)) {
                     $product_details = $this->quotes_model->getProductByCode($item_code);                    
                     $pr_discount = $this->siteprocurment->calculateDiscount($item_discount, $unit_cost);
@@ -508,15 +496,8 @@ class Quotes extends MY_Controller{
                         'subcategory_name' => $subcategory_name,
                         'brand_id' => $brand_id,
                         'brand_name' => $brand_name,
+						 'deliver_to' => $deliver_to,
                     );
-
-                    // $products[] = ($product + $gst_data);
-                    // echo "<pre>";
-                    // print_r($this->input->post());
-                    // echo "</pre>";
-                    // echo "<pre>";
-                    // print_r($products);exit;
-                    // echo "</pre>";
                     $total += $this->sma->formatDecimal(($item_net_cost * $item_unit_quantity), 4);
                 }
             }
@@ -531,12 +512,10 @@ class Quotes extends MY_Controller{
             $order_tax = $this->siteprocurment->calculateOrderTax($this->input->post('order_tax'), ($total + $product_tax - $total_discount));
             $total_tax = $this->sma->formatDecimal(($product_tax + $order_tax), 4);
             $grand_total = $this->sma->formatDecimal(($total + $total_tax + $this->sma->formatDecimal($shipping) - $order_discount), 4);
-			
-			$join_ref_no = $this->quotes_model->getReqBYID($this->input->post('requestnumber'));
-            /*echo "<pre>";
-            print_r($join_ref_no);die;*/
-            
-           
+			if($this->input->post('requestnumber')){
+			$join_ref_no = $this->quotes_model->getStoreIndentRequestsRef_concat($this->input->post('requestnumber'));
+			}
+        
 			if($status == 'process'){
 				$un = $this->siteprocurment->getUsersnotificationWithoutSales();
 				foreach($un as $un_row)
@@ -552,11 +531,9 @@ class Quotes extends MY_Controller{
 			}
              $data = array('date' => $date,
                 'reference_no' => $reference,
-                // 'biller_id' => $biller_id,
-                // 'biller' => $biller,
                 'supplier_id' => $supplier_id,
-                'request_id' => $join_ref_no->id ? $join_ref_no->id : 0,
-                'requestdate' => $join_ref_no->date ? $join_ref_no->date : '',
+                'request_id' => $join_ref_no->request_id ? $join_ref_no->request_id :'',
+               // 'requestdate' => $join_ref_no->date ? $join_ref_no->date : '',
                 'req_reference_no' => $join_ref_no->reference_no ? $join_ref_no->reference_no : '',
                 'supplier' => $supplier,
                 'supplier_address' => $supplier_address,
@@ -565,11 +542,10 @@ class Quotes extends MY_Controller{
                 'note' => $note,
                 'status' => $status,
                 'created_by' => $this->session->userdata('user_id'),
-               
                 'created_on' => date('Y-m-d H:i:s'),
                 'hash' => hash('sha256', microtime() . mt_rand()),
-		'total_no' => $this->input->post('total_no_items'),
-		'total_qty' => $this->input->post('total_no_qty'),
+				'total_no' => $this->input->post('total_no_items'),
+				'total_qty' => $this->input->post('total_no_qty'),
             );
 	    if($status=="approved"){
 		$data['approved_by'] = $this->session->userdata('user_id');
@@ -603,6 +579,8 @@ class Quotes extends MY_Controller{
 					'status' => 'completed',
 				);
 			}
+		/* 	print_r($products);
+			die;  */
 			
         }
         if ($this->form_validation->run() == true && $this->quotes_model->addQuotes($data, $products, $quotes_array, $this->input->post('requestnumber'))) {
@@ -721,36 +699,27 @@ class Quotes extends MY_Controller{
 			$this->session->set_flashdata('error', lang("Do not allowed edit option"));
 			admin_redirect("procurment/quotes");
 		}
-      
-        // $this->form_validation->set_message('is_natural_no_zero', $this->lang->line("no_zero_required"));
-        //$this->form_validation->set_rules('reference_no', $this->lang->line("ref_no"), 'required');
-        //$this->form_validation->set_rules('warehouse', $this->lang->line("warehouse"), 'required|is_natural_no_zero');
         $this->form_validation->set_rules('supplier', $this->lang->line("supplier"), 'required');
         $this->session->unset_userdata('csrf_token');
         if ($this->form_validation->run() == true) {
-            //echo "<pre>";print_r($this->input->post());die;
-
             $reference = $this->input->post('quotation_no');
             if ($this->Owner || $this->Admin) {
                 $date = $this->input->post('date');
             } else {
                 $date = $inv->date;
             }
-            
             $warehouse_id = $this->input->post('warehouse');           
             $supplier_id = $this->input->post('supplier');
             $status = $this->input->post('status');
             $shipping = $this->input->post('shipping') ? $this->input->post('shipping') : 0;
             $supplier_details = $this->siteprocurment->getCompanyByID($supplier_id);
             $supplier = $supplier_details->company != '-'  ? $supplier_details->company : $supplier_details->name;
-
             $supplier_address = $this->input->post('supplier_address');
             $currency = $this->input->post('currency');
             $biller_id = $this->input->post('biller');
-
             $note = $this->sma->clear_tags($this->input->post('note'));
-             $payment_term = $this->input->post('payment_term');
-             $due_date = $payment_term ? date('Y-m-d', strtotime('+' . ' days', strtotime($date))) : null;
+            $payment_term = $this->input->post('payment_term');
+            $due_date = $payment_term ? date('Y-m-d', strtotime('+' . ' days', strtotime($date))) : null;
 
             $total = 0;
             $product_tax = 0;
@@ -779,17 +748,15 @@ class Quotes extends MY_Controller{
                 $brand_id = $_POST['brand_id'][$r];
                 $brand_name = $_POST['brand_name'][$r];
                 $item_net_cost = $this->sma->formatDecimal($_POST['net_cost'][$r]);
-                // $unit_cost = $this->sma->formatDecimal($_POST['unit_cost'][$r]);
 				$unit_cost_new = $this->sma->formatDecimal($_POST['unit_cost'][$r]);
                 $real_unit_cost = $this->sma->formatDecimal($_POST['real_unit_cost'][$r]);
-               // $item_unit_quantity = $_POST['quantity'][$r];
-                // $quantity_received = $_POST['received_base_quantity'][$r];
                 $item_option = isset($_POST['product_option'][$r]) && $_POST['product_option'][$r] != 'false' ? $_POST['product_option'][$r] : null;
                 $item_tax_rate = isset($_POST['product_tax'][$r]) ? $_POST['product_tax'][$r] : null;
 				$item_tax_method = isset($_POST['tax1'][$r]) ? $_POST['tax1'][$r] : 0;
                 $item_discount = isset($_POST['product_discount'][$r]) ? $_POST['product_discount'][$r] : null;
                 $item_unit = $_POST['product_unit'][$r];
                 $item_quantity = $_POST['product_base_quantity'][$r];
+				$deliver_to= ($_POST['delivery_to'][$r])?$_POST['delivery_to'][$r]:$store_id;
                 if (isset($item_code) && isset($unit_cost) && isset($item_quantity)) {
                     $product_details = $this->quotes_model->getProductByCode($item_code);
                     // $unit_cost = $real_unit_cost;
@@ -825,13 +792,11 @@ class Quotes extends MY_Controller{
                         'subcategory_name' => $subcategory_name,
                         'brand_id' => $brand_id,
                         'brand_name' => $brand_name,
+						 'deliver_to' => $deliver_to,
                     );
-                    // $items[] = ($item+$gst_data);
-                    // $total += $item_net_cost * $item_unit_quantity;
                 }
             }
 
-// echo "string";die;
             if (empty($item)) {
                 $this->form_validation->set_rules('product', lang("order_items"), 'required');
             } else {
@@ -849,12 +814,7 @@ class Quotes extends MY_Controller{
             
              $data = array('date' => $date,
                 'reference_no' => $reference ?  $reference : 'QU'.date('YmdHis'),
-                // 'biller_id' => $biller_id,
-                // 'biller' => $biller,
                 'supplier_id' => $supplier_id,
-                'request_id' => $join_ref_no->id ? $join_ref_no->id : 0,
-                'requestdate' => $join_ref_no->date ? $join_ref_no->date : $date,
-                'req_reference_no' => $join_ref_no->reference_no ? $join_ref_no->reference_no : '',
                 'supplier' => $supplier,
                 'supplier_address' => $supplier_address,
                 'warehouse_id' => $warehouse_id,
@@ -963,7 +923,7 @@ class Quotes extends MY_Controller{
             $this->data['tax_rates'] = $this->siteprocurment->getAllTaxRates();
             $this->data['warehouses'] = $this->siteprocurment->getAllWarehouses();
 			$this->data['ref_requestnumber'] = $_GET['ref'];
-			 $this->data['requestnumber'] = $this->siteprocurment->getAllREQUESTNUMBERedit();
+			 $this->data['requestnumber'] = $this->quotes_model->getStoreIndentRequests($this->store_id);
 			 
             $this->load->helper('string');
             $value = random_string('alnum', 20);
@@ -1289,7 +1249,7 @@ class Quotes extends MY_Controller{
                 $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
                 $tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
 				$label = $row->name . " (" . $row->code . ") CAT - ".$row->category_name." | SUBCAT - ".$row->subcategory_name." | BRAND - ".$row->brand_name;
-                $pr[] = array('id' => ($c + $r), 'item_id' => $row->id, 'label' => $label,
+                $pr[] = array('id' => ($c + $r), 'item_id' => $row->id,'store_id'=>$this->store_id, 'label' => $label,
                     'row' => $row, 'tax_rate' => $tax_rate, 'units' => $units, 'options' => $options);
                 $r++;
             }
@@ -2151,9 +2111,7 @@ class Quotes extends MY_Controller{
         return $cost;
     }
 
-    public function update_status($id)
-    {
-
+    public function update_status($id){
         $this->form_validation->set_rules('status', lang("status"), 'required');
 
         if ($this->form_validation->run() == true) {

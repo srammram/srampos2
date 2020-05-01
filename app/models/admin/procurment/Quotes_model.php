@@ -272,13 +272,15 @@ class Quotes_model extends CI_Model
     }
 
     public function addQuotes($data, $items, $quotes, $order_id){
+		
         if ($this->db->insert('pro_quotes', $data)) {
              $quotes_id = $this->db->insert_id();
 			 $this->db->update('pro_request', $quotes, array('id' => $order_id));
             foreach ($items as $item) {
+				$item['store_id']=($data['status']=='approved')?$item['deliver_to']:$item['store_id'];
                 $item['quote_id'] = $quotes_id;
                 $this->db->insert('pro_quote_items', $item);
-            }            
+            }     
 			// print_r($this->db->error());die;
             return true;
         }
@@ -290,6 +292,7 @@ class Quotes_model extends CI_Model
         if ($this->db->update('pro_quotes', $data, array('id' => $id)) && $this->db->delete('pro_quote_items', array('quote_id' => $id))) {
             $quotes_id = $id;
             foreach ($items as $item) {
+				$item['store_id']=($data['status']=='approved')?$item['deliver_to']:$item['store_id'];
                 $item['quote_id'] = $id;
                 $this->db->insert('pro_quote_items', $item);
             }
@@ -663,6 +666,17 @@ class Quotes_model extends CI_Model
         }
         return false;
     }
+	
+	function getStoreIndentRequestsRef_concat($ids){
+	$this->db->select("GROUP_CONCAT(`reference_no` SEPARATOR ',') AS `reference_no`, GROUP_CONCAT(`id` SEPARATOR ',') AS `request_id`");
+        $this->db->from('pro_store_indent_receive');
+        $this->db->where_in('id',$ids);
+        $q = $this->db->get();
+		return $q->row();
+	}
+	
+	
+	
 	 public function getstoreRequestByID($id){
         $q = $this->db->get_where('pro_store_indent_receive', array('id' => $id), 1);
 
