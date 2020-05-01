@@ -109,6 +109,13 @@ class MY_Controller extends CI_Controller {
         $this->loggedIn = $this->sma->logged_in();
 
         if($this->loggedIn) {
+			
+			if($this->isStore && $this->centerdb_connected){ 
+                $this->site->start_sync();
+            }
+			
+			
+			
             if($this->Settings->transaction_date==1){
                 $this->site->set_cur_transaction_date();
             }

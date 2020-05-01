@@ -8507,4 +8507,62 @@ function basePriceToUnitPrice($price,$operator,$operation_value){
   //  echo $this->db->last_query();
 	
     }
+	 function start_sync($sync_now=false){
+	$sync_time = $this->site->get_syncTime();
+	if($sync_time){
+	    $end_time = $sync_time->end_time;
+	    $now = date('Y-m-d H:i:s');
+	    $seconds = strtotime($now) - strtotime($end_time);
+	}
+	
+	if($this->centerdb_connected &&($sync_now || !$sync_time || ($seconds>60 && $sync_time->status=="completed"))){		    
+	    $ch=curl_init();
+	    curl_setopt($ch,CURLOPT_URL,site_url('sync/start_sync'));
+	    curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,2);
+	    curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+	    $buffer = curl_exec($ch);
+	    curl_close($ch);
+	}
+    }
+	   function getSyncEnabledTables(){
+        $q = $this->db->get_where('sync_settings',array('enable_sync'=>1));
+        if($q->num_rows()>0){
+            $table_names = array();
+            foreach($q->result() as $k => $row){
+                array_push($table_names,$row->type);
+            }
+            return $table_names;
+        }
+    }
+	 function get_syncTime(){
+      $q = $this->db->get_where('last_sync',array('id'=>1));
+      if($q->num_rows()>0){
+	return $q->row();
+      }
+      return false;
+    }
+    function insert_lastsync($data){
+	$this->db->insert('last_sync',$data);
+    }
+    function update_sync_startTime(){
+	$time['start_time'] = date('Y-m-d H:i:s');
+	$time['status'] = 'ongoing';
+	if($this->get_syncTime()){
+	    $this->db->where(array('id'=>1));
+	    $this->db->update('last_sync',$time);
+	}else{
+	    $this->insert_lastsync($time);
+	}
+     
+    }
+    function update_sync_endTime(){
+	$time['end_time'] = date('Y-m-d H:i:s');
+	$time['status'] = 'completed';
+	if($this->get_syncTime()){
+	    $this->db->where(array('id'=>1));
+	    $this->db->update('last_sync',$time);
+	}else{
+	    $this->insert_lastsync($time);
+	}
+    }
 }

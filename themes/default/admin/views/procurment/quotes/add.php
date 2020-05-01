@@ -15,7 +15,7 @@
     localStorage.setItem('qu_items', JSON.stringify(<?= $quote_items; ?>));
     <?php } ?>
 
-		var count = 1, an = 1, quotes_edit = false, product_variant = 0, DT = <?= $Settings->default_tax_rate ?>, DC = '<?= $default_currency->code ?>', shipping = 0,
+      var count = 1, an = 1, quotes_edit = false, product_variant = 0, DT = <?= $Settings->default_tax_rate ?>, DC = '<?= $default_currency->code ?>', shipping = 0,
         product_tax = 0, invoice_tax = 0, total_discount = 0, total = 0,
         tax_rates = <?php echo json_encode($tax_rates); ?>, qu_items = {},
         audio_success = new Audio('<?= $assets ?>sounds/sound2.mp3'),
@@ -27,7 +27,6 @@
         }
         <?php } ?>
         $("#qu_date").prop('disabled', true);
-        
         if (!localStorage.getItem('qu_date')) {            
             $("#qu_date").datetimepicker({
                 format: site.dateFormats.js_ldate,
@@ -52,7 +51,6 @@
         }
 		$("#qu_requestnumber").val(localStorage.getItem('qu_requestnumber'));
 		$("#qu_requestdate").val(localStorage.getItem('qu_requestdate'));
-		
 		if (!localStorage.getItem('iodate')) {
             $("#iodate").datetimepicker({
                 format: site.dateFormats.js_ldate,
@@ -79,7 +77,6 @@
         }
         ItemnTotals();
         $("#add_item").autocomplete({
-            // source: '<?= admin_url('procurment/quotes/suggestions'); ?>',
             source: function (request, response) {
                 $.ajax({
                     type: 'get',
@@ -100,7 +97,6 @@
             delay: 250,
             response: function (event, ui) {
                 if ($(this).val().length >= 16 && ui.content[0].id == 0) {
-                    //audio_error.play();
                     bootbox.alert('<?= lang('no_match_found') ?>', function () {
                         $('#add_item').focus();
                     });
@@ -108,7 +104,6 @@
                     $(this).val('');
                 }
                 else if (ui.content.length == 1 && ui.content[0].id == 0) {
-                    //audio_error.play();
                     bootbox.alert('<?= lang('no_match_found') ?>', function () {
                         $('#add_item').focus();
                     });
@@ -123,7 +118,6 @@
                     if (row)
                         $(this).val('');
                 } else {
-                    //audio_error.play();
                     bootbox.alert('<?= lang('no_match_found') ?>');
                 }
             }
@@ -204,18 +198,14 @@
     <div class="box-content">
         <div class="row">
             <div class="col-lg-12">
-                <?php
-                $attrib = array('data-toggle' => 'validator1', 'role' => 'form','id'=>'add-purchase-invoice');
-                echo admin_form_open_multipart("procurment/quotes/add", $attrib)
-                ?>
+    <?php $attrib = array('data-toggle' => 'validator1', 'role' => 'form','id'=>'add-purchase-invoice');
+     echo admin_form_open_multipart("procurment/quotes/add", $attrib)   ?>
                 <div class="row">
                     <div class="col-lg-12" style="background:#b1d7fd; padding:15px 15px;">
                         <?php echo form_submit('add_request', $this->lang->line("save"), 'id="add_request" class="btn col-lg-1 btn-sm btn-primary pull-right" '); ?>
                         <button type="button" class="btn col-lg-1 btn-sm btn-danger pull-right" id="reset" style="margin-right:15px;height:30px!important;font-size: 12px!important"><?= lang('Reset'); ?></button>
-
                         <input type="hidden" name="warehouse" id="reqwarehouse" value="<?php echo $Settings->default_warehouse ?>"> 
                         <input type="hidden" name="biller" id="reqbiller" value="<?php echo $Settings->default_biller ?>"> 
-
                         <table class="table custom_tables">
                             <tbody>
                                 <tr>  
@@ -249,7 +239,6 @@
                                     </td>                                   
                                 </tr>
                                 <tr>
-
                                      <td width="100px">
                                         <?= lang("supplier", "qu_supplier"); ?>
                                     </td>
@@ -401,7 +390,6 @@
 </div>
 
 <script>
-
 $(document).ready(function(e) {
     var supplierid = localStorage.getItem('qu_supplier');	
     $('#qu_supplier').val(supplierid);
@@ -423,8 +411,6 @@ $(document).ready(function(e) {
 		});
 	}
 });
-
-
 $(document).on('change', '#qu_supplier', function(){
 	var qu_supplier = $(this).val();
 	$.ajax({
@@ -446,9 +432,6 @@ $(document).on('change', '#qu_supplier', function(){
 if (localStorage.getItem('qutsupplier_address')) {
    $('#qutsupplier_address').val(localStorage.getItem('qutsupplier_address'));
  } 
-
-
-
 $(document).ready(function(e) {
 	if(localStorage.getItem('qu_requestnumber') == null){
     	localStorage.setItem('qu_requestnumber', '<?= $ref_requestnumber ?>');
@@ -462,8 +445,6 @@ $(document).ready(function(e) {
 		
 	}
 });
-
- 
 $(document).on('change', '#qu_requestnumber', function(e){
 	if ($('#qu_supplier').val()!=null) {
             $('#qu_supplier').select2("readonly", true);
@@ -574,7 +555,6 @@ $(document).on('change', '#qu_requestnumber', function(e){
                     <div class="panel panel-default">
                         <div class="panel-heading"><?= lang('calculate_unit_cost'); ?></div>
                         <div class="panel-body">
-
                             <div class="form-group">
                                 <label for="pcost" class="col-sm-4 control-label"><?= lang('subtotal') ?></label>
                                 <div class="col-sm-8">

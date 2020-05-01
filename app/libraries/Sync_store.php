@@ -7,62 +7,196 @@ class Sync_store {
     }
     /////////////// FROM CENTER //////////////////////
     
-    
-    function sync_warehouse_products(){
+     function compare_server_local($DB1,$DB2,$table=false){
+	$result = array();$localkeys = array();
+	$localDB =  array();
+	$serverDB = array();
+	//*************** change Auto increment ID as array Key ****************//
+	    foreach($DB1 as $key => $val) {
+		$k = $val['id'];
+		$serverDB[$k] = $val; 
+	    }
+	    foreach($DB2 as $key => $val) {
+		$k = $val['id'];
+		$localDB[$k] = $val; 
+	    }
+	//*************** Compare ServerDB and LocalDB  - For update and Insert ****************//
+	foreach($serverDB as $key => $val) { 
+	    $key = $val['id'];
+	    if(isset($localDB[$key])){
+		if(is_array($val)  && is_array($localDB[$key])){		
+		    //$array_diff = array_diff($val, $localDB[$key]);
+		    //$array_diff = array_merge(array_diff($val, $localDB[$key]), array_diff($localDB[$key],$val));
+		    $array_diff = array_merge(array_diff_assoc($val, $localDB[$key]), array_diff_assoc($localDB[$key],$val));
+		    if(!empty($array_diff)){
+				 if(isset($val['s_no'])){unset($val['s_no']);}
+			$result['update'][$key] = $val;
+		    }
+		}
+	    }else{	
+		if(isset($val['s_no'])){unset($val['s_no']);}		
+		$result['insert'][$key] = $val;
+	    }
+	    $localkeys[$key] = true;	
+	    //// check for delete	
+	}
+	//*************** Compare ServerDB and LocalDB  - For Delete ****************//
+	$l = array_diff_key($localDB,$localkeys); 
+	foreach($l as $k => $lk){ 
+	    $result['delete'][] = $k;
+	}
+	//*************** sync table ************//
+	$store_id = $this->CI->store_id;
+	if($table){
+	  $this->sync_table($result,$table);	    
+	}
+	return $result;
+    }
+    function sync_table($data,$table){
+	if(isset($data['update']) && !empty($data['update'])){
+	    $updateData = $data['update'];
+	    $this->update_table($updateData,$table);
+	}
+	if(isset($data['insert']) && !empty($data['insert'])){
+	    $insertData = $data['insert'];
+	    $this->insert_table($insertData,$table);
+	}
+	if(isset($data['delete']) && !empty($data['delete'])){
+	    $deleteIDS = $data['delete'];
+	    $this->delete_table($deleteIDS,$table);
+	}
+    }
+    function update_table($data,$table){
+	if($table=="warehouses"){
+	    foreach($data as $k => $row){
+		unset($row['this_store']);
+		$data[$k] = $row;
+	    }
+	}
+	$this->CI->db->update_batch($table,$data,'id');
+    }
+    function insert_table($data,$table){
+	if($table=="currency_ex_rates"){
+	    foreach($data as $k => $row){
+		unset($row['id']);
+		$data[$k] = $row;
+	    }
+	}
+	$this->CI->db->insert_batch($table,$data);//p($this->db->error());
+    }
+    function delete_table($deleteIds,$table){
+	$this->CI->db->where_in('id',$deleteIds);
+	$this->CI->db->delete($table);
+    }
+    function sync_warehouse_recipe(){
 	$field_name = 'warehouse_id';
-	$table = 'warehouses_products';
+	$table = 'warehouses_recipe';
 	$this->sync_tables_store_id($table,$field_name);
 	return true;
     }
-    function sync_products(){
+	 function sync_categories(){
+	$table = 'categories';
+	$this->sync_tables($table);
+    }
+	function sync_category_mapping(){
+	$table = 'category_mapping';
+	$this->sync_tables($table);
+    }
+	 function sync_units(){
+	$table = 'units';
+	$this->sync_tables($table);
+    }
+    function sync_brands(){
+	$table = 'brands';
+	$this->sync_tables($table);
+    }
+	 function sync_variants(){
+	$table = 'variants';
+	$this->sync_tables($table);
+    }
 	
-	$table_name = 'products';
-	$this->CI->centerdb->select('p.*');
-	$this->CI->centerdb->from('products p');
-	$this->CI->centerdb->join('warehouses_products w','w.product_id=p.id');
+    function sync_recipes(){
+	$table_name = 'recipe';
+	$this->CI->centerdb->select('r.*');
+	$this->CI->centerdb->from('recipe r');
+	$this->CI->centerdb->join('warehouses_recipe w','w.recipe_id=r.id');
 	$this->CI->centerdb->where('warehouse_id',$this->CI->store_id);
 	//echo $this->CI->centerdb->get_compiled_select();
 	$db1 = $this->CI->centerdb->get()->result_array();
     
-	$this->CI->db->select('p.*');
-	$this->CI->db->from('products p');
-	$this->CI->db->join('warehouses_products w','w.product_id=p.id');
+	$this->CI->db->select('r.*');
+	$this->CI->db->from('recipe r');
+	$this->CI->db->join('warehouses_recipe w','w.recipe_id=r.id');
 	$this->CI->db->where('warehouse_id',$this->CI->store_id);
-	//echo $this->CI->centerdb->get_compiled_select();
 	$db2 = $this->CI->db->get()->result_array();
-	
 	$a = $this->compare_server_local($db1,$db2,$table_name);
+    }
+	 function sync_recipe_product(){
+    	$table = 'recipe_products';
+	    $this->sync_tables($table);
+    }
 	
-    }
-    function sync_attributes(){
-	$table = 'attribute';
-	$this->sync_tables($table);
-	$table = 'attribute_properties';
-	$this->sync_tables($table);  
-    }
-    function sync_warehouse_pdt_variants(){
-	//$table = 'warehouses_products_variants';
-	//$this->sync_tables_store_id($table);
-	$table_name = 'products';
-	$this->CI->centerdb->select('pv.*');
-	$this->CI->centerdb->from('warehouses_products_variants pv');
-	$this->CI->centerdb->join('products p','p.id=pv.warehouse_id');
-	$this->CI->centerdb->join('warehouses_products w','w.product_id=p.id and pv.warehouse_id=w.id');
-	$this->CI->centerdb->where('w.warehouse_id',$this->CI->store_id);
-	//echo $this->CI->centerdb->get_compiled_select();
+	function sync_recipe_combo_items(){
+		$table = 'recipe_combo_items';
+	    $this->sync_tables($table);
+	}
+	function sync_recipe_photos(){
+		$table = 'recipe_photos';
+	    $this->sync_tables($table);
+	}
+    function sync_recipe_variant_values(){
+		$table = 'recipe_variants_values';
+	    $this->sync_tables($table);
+	}
+    function sync_recipe_variants(){
+		$table = 'recipe_variants';
+	    $this->sync_tables($table);
+	}
+	
+	function sync_restaurant_kitchens(){
+	$table_name = 'restaurant_kitchens';
+	$this->CI->centerdb->select('r.*');
+	$this->CI->centerdb->from('restaurant_kitchens r');
+	$this->CI->centerdb->where('warehouse_id',$this->CI->store_id);
 	$db1 = $this->CI->centerdb->get()->result_array();
     
-    
-	$this->CI->db->select('pv.*');
-	$this->CI->db->from('warehouses_products_variants pv');
-	$this->CI->db->join('products p','p.id=pv.warehouse_id');
-	$this->CI->db->join('warehouses_products w','w.product_id=p.id and pv.warehouse_id=w.id');
-	$this->CI->db->where('w.warehouse_id',$this->CI->store_id);
-	//echo $this->CI->centerdb->get_compiled_select();
+	$this->CI->db->select('r.*');
+	$this->CI->db->from('restaurant_kitchens r');
+	$this->CI->db->where('warehouse_id',$this->CI->store_id);
 	$db2 = $this->CI->db->get()->result_array();
-	
 	$a = $this->compare_server_local($db1,$db2,$table_name);
     }
+	
+	 function sync_restaurant_tables(){
+	$table_name = 'restaurant_tables';
+	$this->CI->centerdb->select('r.*');
+	$this->CI->centerdb->from('restaurant_tables r');
+	$this->CI->centerdb->where('warehouse_id',$this->CI->store_id);
+	$db1 = $this->CI->centerdb->get()->result_array();
+    
+	$this->CI->db->select('r.*');
+	$this->CI->db->from('restaurant_tables r');
+	$this->CI->db->where('warehouse_id',$this->CI->store_id);
+	$db2 = $this->CI->db->get()->result_array();
+	$a = $this->compare_server_local($db1,$db2,$table_name);
+    }
+	
+	function sync_taxrates(){
+	$table = 'tax_rates';
+	$this->sync_tables($table);
+    }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
     function sync_price_master(){
 	$table = 'price_master';
 	$result = $this->sync_tables_store_id($table);
@@ -181,31 +315,15 @@ class Sync_store {
 	$table = 'customer_groups';
 	$this->sync_tables($table);
     }
-    function sync_categories(){
-	$table = 'categories';
-	$this->sync_tables($table);
-    }
+   
     function sync_expense_categories(){
 	$table = 'expense_categories';
 	$this->sync_tables($table);
     }
     
-    function sync_units(){
-	$table = 'units';
-	$this->sync_tables($table);
-    }
-    function sync_brands(){
-	$table = 'brands';
-	$this->sync_tables($table);
-    }
-    function sync_variants(){
-	$table = 'variants';
-	$this->sync_tables($table);
-    }
-    function sync_taxrates(){
-	$table = 'tax_rates';
-	$this->sync_tables($table);
-    }
+   
+  
+  
     function sync_stores(){
 	$table = 'warehouses';
 	$this->sync_tables_with_images($table);
@@ -409,87 +527,7 @@ class Sync_store {
 	 return $a;
     }
     
-    function compare_server_local($DB1,$DB2,$table=false){
-	$result = array();$localkeys = array();
-	$localDB =  array();
-	$serverDB = array();
-	//*************** change Auto increment ID as array Key ****************//
-	    foreach($DB1 as $key => $val) {
-		$k = $val['id'];
-		$serverDB[$k] = $val; 
-	    }
-	    foreach($DB2 as $key => $val) {
-		$k = $val['id'];
-		$localDB[$k] = $val; 
-	    }
-	//*************** Compare ServerDB and LocalDB  - For update and Insert ****************//
-	foreach($serverDB as $key => $val) { 
-	    $key = $val['id'];
-	    if(isset($localDB[$key])){
-		if(is_array($val)  && is_array($localDB[$key])){		
-		    //$array_diff = array_diff($val, $localDB[$key]);
-		    //$array_diff = array_merge(array_diff($val, $localDB[$key]), array_diff($localDB[$key],$val));
-		    $array_diff = array_merge(array_diff_assoc($val, $localDB[$key]), array_diff_assoc($localDB[$key],$val));
-		    if(!empty($array_diff)){
-				 if(isset($val['s_no'])){unset($val['s_no']);}
-			$result['update'][$key] = $val;
-		    }
-		}
-	    }else{	
-		if(isset($val['s_no'])){unset($val['s_no']);}		
-		$result['insert'][$key] = $val;
-	    }
-	    $localkeys[$key] = true;	
-	    //// check for delete	
-	}
-	//*************** Compare ServerDB and LocalDB  - For Delete ****************//
-	$l = array_diff_key($localDB,$localkeys); 
-	foreach($l as $k => $lk){ 
-	    $result['delete'][] = $k;
-	}
-	//*************** sync table ************//
-	$store_id = $this->CI->store_id;
-	if($table){
-	  $this->sync_table($result,$table);	    
-	}
-	return $result;
-    }
-    function sync_table($data,$table){
-	if(isset($data['update']) && !empty($data['update'])){
-	    $updateData = $data['update'];
-	    $this->update_table($updateData,$table);
-	}
-	if(isset($data['insert']) && !empty($data['insert'])){
-	    $insertData = $data['insert'];
-	    $this->insert_table($insertData,$table);
-	}
-	if(isset($data['delete']) && !empty($data['delete'])){
-	    $deleteIDS = $data['delete'];
-	    $this->delete_table($deleteIDS,$table);
-	}
-    }
-    function update_table($data,$table){
-	if($table=="warehouses"){
-	    foreach($data as $k => $row){
-		unset($row['this_store']);
-		$data[$k] = $row;
-	    }
-	}
-	$this->CI->db->update_batch($table,$data,'id');
-    }
-    function insert_table($data,$table){
-	if($table=="currency_ex_rates"){
-	    foreach($data as $k => $row){
-		unset($row['id']);
-		$data[$k] = $row;
-	    }
-	}
-	$this->CI->db->insert_batch($table,$data);//p($this->db->error());
-    }
-    function delete_table($deleteIds,$table){
-	$this->CI->db->where_in('id',$deleteIds);
-	$this->CI->db->delete($table);
-    }
+   
 
 /////////////// FROM CENTER - END /////////////////////
     function getStockRequest_Items_id($id){

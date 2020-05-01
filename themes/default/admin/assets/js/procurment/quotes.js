@@ -1039,12 +1039,10 @@ $(document).on('change', '.delivery_to', function() {
 		if(delivery_to ==0){
 			old_item_id=$item_id+'_'+$store_id+'_'+$category_id+'_'+$subcategory_id+'_'+$brand_id + '_'+$variant_id ;
 			new_item_id=old_item_id+'_'+0;
-			
 			if(qu_items[new_item_id] !=undefined){
 				new_qty=(qu_items[new_item_id].row.qty)?qu_items[new_item_id].row.qty:0;
 				qu_items[new_item_id].row.qty=parseFloat(qu_items[new_item_id].row.qty)+parseFloat(new_qty);
 			}
-			
 			
 		    qu_items[new_item_id]= qu_items[old_item_id+'_'+1];
 			qu_items[item_id].row.delivery_to = delivery_to;

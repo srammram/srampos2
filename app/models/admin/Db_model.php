@@ -31,7 +31,7 @@ class Db_model extends CI_Model
             $this->db->where('created_by', $this->session->userdata('user_id'));
         }
         $this->db->order_by('id', 'desc');
-        $q = $this->db->get("quotes", 5);
+        $q = $this->db->get("pro_quotes", 5);
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -46,7 +46,7 @@ class Db_model extends CI_Model
             $this->db->where('created_by', $this->session->userdata('user_id'));
         }
         $this->db->order_by('id', 'desc');
-        $q = $this->db->get("purchases", 5);
+        $q = $this->db->get("pro_purchase_invoices", 5);
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -61,7 +61,7 @@ class Db_model extends CI_Model
             $this->db->where('created_by', $this->session->userdata('user_id'));
         }
         $this->db->order_by('id', 'desc');
-        $q = $this->db->get("transfers", 5);
+        $q = $this->db->get("pro_store_transfers", 5);
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -98,7 +98,7 @@ class Db_model extends CI_Model
     {
         $myQuery = "SELECT S.month,
         COALESCE(S.sales, 0) as sales,
-        COALESCE( P.purchases, 0 ) as purchases,
+        COALESCE( P.purchases, 0 ) as pro_purchase_invoices,
         COALESCE(S.tax1, 0) as tax1,
         COALESCE(S.tax2, 0) as tax2,
         COALESCE( P.ptax, 0 ) as ptax
@@ -110,15 +110,16 @@ class Db_model extends CI_Model
                 WHERE date >= date_sub( now( ) , INTERVAL 12 MONTH )
                 GROUP BY date_format(date, '%Y-%m')) S
             LEFT JOIN ( SELECT  date_format(date, '%Y-%m') Month,
-                        SUM(product_tax) ptax,
-                        SUM(order_tax) otax,
+                        SUM(total_tax) ptax,
+                        SUM(total_tax) otax,
                         SUM(total) purchases
-                        FROM " . $this->db->dbprefix('purchases') . "
+                        FROM " . $this->db->dbprefix('pro_purchase_invoices') . "
                         GROUP BY date_format(date, '%Y-%m')) P
             ON S.Month = P.Month
             ORDER BY S.Month";
 
         $q = $this->db->query($myQuery);
+	
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
