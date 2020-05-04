@@ -1,4 +1,5 @@
 <?php
+
 /*
  * --------------------------------------------------------------------
  * SET YOUR TIMEZONE
@@ -7,7 +8,7 @@
  * Find your timezone here
  * http://php.net/manual/en/timezones.php
  */
-	$timezone = "Asia/Bangkok";
+	$timezone = "Asia/Kolkata";
 	if(function_exists('date_default_timezone_set')) date_default_timezone_set($timezone);
 	define('TIMEZONE', $timezone);
 
@@ -49,7 +50,8 @@
  * Different environments will require different levels of error reporting.
  * By default development will show errors but testing and live will hide them.
  */
-switch (ENVIRONMENT){
+switch (ENVIRONMENT)
+{
 	case 'development':
 		error_reporting(-1);
 		ini_set('display_errors', 1);
