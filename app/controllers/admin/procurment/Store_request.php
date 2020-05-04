@@ -284,6 +284,7 @@ class Store_request extends MY_Controller{
 					'message' => 'The new purchase request has been created. REF No:'.$reference.', Date:'.$date,
 					'created_by' => $this->session->userdata('user_id'),
 					'created_on' => date('Y-m-d H:i:s'),
+					'store_id' => $to_store_id ,
 				);	
 				$this->siteprocurment->insertNotification($notification);
 			}

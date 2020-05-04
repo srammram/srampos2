@@ -1,5 +1,4 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
-
 class Quotes extends MY_Controller{
     public function __construct(){
         parent::__construct();
@@ -41,52 +40,45 @@ class Quotes extends MY_Controller{
                 $variant_row = $this->siteprocurment->getVariantByID($item->variant_id); 
                 $row->name =$row->name.'-'.$variant_row->name;
             }
-			$row->expiry = (($item->expiry && $item->expiry != '0000-00-00') ? $this->sma->hrsd($item->expiry) : '');
-			$row->mfg = (($item->mfg && $item->mfg != '0000-00-00') ? $this->sma->hrsd($item->mfg) : '');			
-			$row->batch_no = $item->batch_no ? $item->batch_no : '';		
-			$row->base_quantity = $item->quantity;
-			$row->base_unit = $row->unit ? $row->unit : $item->product_unit_id;
-			$row->base_unit_cost = $row->cost ? $row->cost : $item->unit_cost;
-			$row->unit = $item->product_unit_id;
-			$row->qty = $item->quantity;
-			$row->oqty = $item->quantity;
-			$row->supplier_part_no = $item->supplier_part_no;
-			$row->received = $item->quantity_received ? $item->quantity_received : $item->quantity;
-			$row->quantity_balance = $item->quantity_balance + ($item->quantity-$row->received);
-			$row->discount = $item->discount ? $item->discount : '0';
-			$options = $this->quotes_model->getProductOptions($row->id);
-			$row->option = $item->option_id;
-            // $row->real_unit_cost = $item->real_unit_price;
-			$row->real_unit_cost = $item->cost_price;
-			// $row->cost = $this->sma->formatDecimal($item->net_unit_price + ($item->item_discount / $item->quantity));
-					
-			$row->tax_rate = $row->tax_rate;
-			$row->tax_method = $row->tax_method;
+			$row->expiry            = (($item->expiry && $item->expiry != '0000-00-00') ? $this->sma->hrsd($item->expiry) : '');
+			$row->mfg               = (($item->mfg && $item->mfg != '0000-00-00') ? $this->sma->hrsd($item->mfg) : '');			
+			$row->batch_no          = $item->batch_no ? $item->batch_no : '';		
+			$row->base_quantity     = $item->quantity;
+			$row->base_unit         = $row->unit ? $row->unit : $item->product_unit_id;
+			$row->base_unit_cost    = $row->cost ? $row->cost : $item->unit_cost;
+			$row->unit              = $item->product_unit_id;
+			$row->qty               = $item->quantity;
+			$row->oqty              = $item->quantity;
+			$row->supplier_part_no  = $item->supplier_part_no;
+			$row->received          = $item->quantity_received ? $item->quantity_received : $item->quantity;
+			$row->quantity_balance  = $item->quantity_balance + ($item->quantity-$row->received);
+			$row->discount          = $item->discount ? $item->discount : '0';
+			$options                = $this->quotes_model->getProductOptions($row->id);
+			$row->option            = $item->option_id;
+			$row->real_unit_cost    = $item->cost_price;
+			$row->tax_rate          = $row->tax_rate;
+			$row->tax_method        = $row->tax_method;
 			unset($row->details, $row->product_details, $row->file, $row->product_group_id);
 			$units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
-			$tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
-			
-			
-			$row->category_id = $row->category_id;
-			$row->category_name = $row->category_name;
-			$row->subcategory_id = $row->subcategory_id;
-			$row->subcategory_name = $row->subcategory_name;
-			$row->brand_id = $row->brand_id;
-			$row->brand_name = $row->brand_name;
-            $row->cost = $row->cost ? $row->cost : 0;
-            $row->price = $row->price ? $row->price : 0;
-            $row->variant_id = $item->variant_id?$item->variant_id:'';
-			$row->delivery_to =1;
-			$row->unit_name =$item->product_unit_code;
-		
-			 $ri = $row->id;
+			$tax_rate              =  $this->siteprocurment->getTaxRateByID($row->tax_rate);
+			$row->category_id      =  $row->category_id;
+			$row->category_name    =  $row->category_name;
+			$row->subcategory_id   =  $row->subcategory_id;
+			$row->subcategory_name =  $row->subcategory_name;
+			$row->brand_id         =  $row->brand_id;
+			$row->brand_name       =  $row->brand_name;
+            $row->cost             =  $row->cost ? $row->cost : 0;
+            $row->price            =  $row->price ? $row->price : 0;
+            $row->variant_id       =  $item->variant_id?$item->variant_id:'';
+			$row->delivery_to      =  1;
+			$row->unit_name        =  $item->product_unit_code;
+			$row->option_id        =  $item->option_id;
+			$ri                    =  $row->id;
 			$item_key = $ri.'_'.$quotes->store_id.'_'.$row->category_id.'_'.$row->subcategory_id.'_'.$row->brand_id.'_'.$row->variant_id;
-			$pr[$item_key] = array('store_id'=>$quotes->store_id,'id' => $c, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
+			$pr[$item_key] = array('store_id'=>$quotes->store_id,'id' => $c, 'item_id' => $row->id, 'label' => $item->product_name . " (" . $row->code . ")",
 				'row' => $row, 'tax_rate' => $row->tax_rate, 'units' => $units, 'options' => $options,'uniqueid'=>$item_key);
 			$c++;
 		}
-		
-	
 	  $this->sma->send_json($pr);
 		exit;
 	}
@@ -267,12 +259,8 @@ class Quotes extends MY_Controller{
 
     }
 
-    public function combine_pdf($quotes_id)
-    {
-        //$this->sma->checkPermissions('pdf');
-
+    public function combine_pdf($quotes_id){
         foreach ($quotes_id as $quotes_id) {
-
             $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
             $inv = $this->quotes_model->getQuotesByID($quotes_id);
             if (!$this->session->userdata('view_right')) {
@@ -297,7 +285,6 @@ class Quotes extends MY_Controller{
 
         $name = lang("quotes") . ".pdf";
         $this->sma->generate_pdf($html, $name);
-
     }
 
     public function email($quotes_id = null){
@@ -353,15 +340,11 @@ class Quotes extends MY_Controller{
             }
 
         } elseif ($this->input->post('send_email')) {
-
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
             $this->session->set_flashdata('error', $this->data['error']);
             redirect($_SERVER["HTTP_REFERER"]);
-
         } else {
-
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-
             if (file_exists('./themes/' . $this->Settings->theme . '/admin/views/email_templates/quotes.html')) {
                 $quotes_temp = file_get_contents('themes/' . $this->Settings->theme . '/admin/views/email_templates/quotes.html');
             } else {
@@ -378,11 +361,9 @@ class Quotes extends MY_Controller{
                 'value' => $this->form_validation->set_value('note', $quotes_temp),
             );
             $this->data['supplier'] = $this->siteprocurment->getCompanyByID($po->customer_id);
-
             $this->data['id'] = $quotes_id;
             $this->data['modal_js'] = $this->siteprocurment->modal_js();
             $this->load->view($this->theme . 'quotes/email', $this->data);
-
         }
     }
 
@@ -396,7 +377,6 @@ class Quotes extends MY_Controller{
 	        $n = $this->siteprocurment->lastidQuotation();
 	        $reference = 'PQ'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
 			$date = date('Y-m-d H:i:s');
-			
             $warehouse_id = $this->input->post('warehouse');
             $supplier_id = $this->input->post('supplier');
             $status = $this->input->post('status');
@@ -405,24 +385,19 @@ class Quotes extends MY_Controller{
             $currency = $this->input->post('currency');
             $biller_id = $this->input->post('biller');
             $status = $this->input->post('status');
-
             $supplier_details = $this->siteprocurment->getCompanyByID($supplier_id);
             $supplier = $supplier_details->company != '-'  ? $supplier_details->company : $supplier_details->name;
             $note = $this->sma->clear_tags($this->input->post('note'));
-
             $total = 0;
             $product_tax = 0;
             $product_discount = 0;
-            // $i = sizeof($_POST['product']);
             $gst_data = [];
             $total_cgst = $total_sgst = $total_igst = 0;
             $i = isset($_POST['product_code']) ? sizeof($_POST['product_code']) : 0;
-            /*echo "<pre>";
-              print_r($this->input->post());die;*/
             for ($r = 0; $r < $i; $r++) {
                 $store_id = $_POST['store_id'][$r];
                 $item_id = $_POST['product_id'][$r];
-                $variant_id = $_POST['variant_id'][$r];
+                $variant_id = ($_POST['variant_id'][$r])?$_POST['variant_id'][$r]:$_POST['product_option'][$r];
                 $item_type = $_POST['product_type'][$r];
                 $item_code = $_POST['product_code'][$r];
                 $item_name = $_POST['product_name'][$r];
@@ -437,7 +412,6 @@ class Quotes extends MY_Controller{
                 $item_tax_rate = isset($_POST['product_tax'][$r]) ? $_POST['product_tax'][$r] : null;
                 $item_discount = isset($_POST['product_discount'][$r]) ? $_POST['product_discount'][$r] : null;
 				$item_tax_method = isset($_POST['tax1'][$r]) ? $_POST['tax1'][$r] : null;
-                // $item_expiry = (isset($_POST['expiry'][$r]) && !empty($_POST['expiry'][$r])) ? $this->sma->fsd($_POST['expiry'][$r]) : null;
                 $supplier_part_no = (isset($_POST['part_no'][$r]) && !empty($_POST['part_no'][$r])) ? $_POST['part_no'][$r] : null;
                 $item_unit = $_POST['product_unit'][$r];
                 $item_quantity = $_POST['quantity'][$r];
@@ -448,6 +422,8 @@ class Quotes extends MY_Controller{
 		        $brand_id = $_POST['brand_id'][$r];
                 $brand_name = $_POST['brand_name'][$r];
 				$deliver_to= ($_POST['delivery_to'][$r]==1)?$_POST['delivery_to'][$r]:$store_id;
+				$option_id = $_POST['product_option'][$r];
+				$product_option=$this->quotes_model->getrecipeOptionByID($option_id);
                 if (isset($item_code) && isset($unit_cost) &&  isset($quantity)) {
                     $product_details = $this->quotes_model->getProductByCode($item_code);                    
                     $pr_discount = $this->siteprocurment->calculateDiscount($item_discount, $unit_cost);
@@ -475,7 +451,7 @@ class Quotes extends MY_Controller{
                     $product_tax += $pr_item_tax;
                     $subtotal = (($item_net_cost * $quantity) + $pr_item_tax);
                     $unit = $this->siteprocurment->getUnitByID($item_unit);
-/*common_quote_items*/
+					/*common_quote_items*/
                     $products[] = array(
                         'store_id' => $store_id,
                         'product_id' => $item_id,
@@ -496,6 +472,8 @@ class Quotes extends MY_Controller{
                         'subcategory_name' => $subcategory_name,
                         'brand_id' => $brand_id,
                         'brand_name' => $brand_name,
+						'option_id'=>$option_id,
+						'option_name'=>$product_option->name,
 						 'deliver_to' => $deliver_to,
                     );
                     $total += $this->sma->formatDecimal(($item_net_cost * $item_unit_quantity), 4);
@@ -516,36 +494,48 @@ class Quotes extends MY_Controller{
 			$join_ref_no = $this->quotes_model->getStoreIndentRequestsRef_concat($this->input->post('requestnumber'));
 			}
         
-			if($status == 'process'){
+			if(empty($join_ref_no)){
 				$un = $this->siteprocurment->getUsersnotificationWithoutSales();
 				foreach($un as $un_row)
 				$notification = array(
-					'user_id' => $un_row->user_id,
-					'group_id' => $un_row->group_id,
-					'title' => 'Purchases Request',
-					'message' => 'The new purchase request has been created. REF No:'.$reference.', Date:'.$date,
-					'created_by' => $this->session->userdata('user_id'),
-					'created_on' => date('Y-m-d H:i:s'),
+				'user_id' => $un_row->user_id,
+				'group_id' => $un_row->group_id,
+				'title' => 'Purchases Request',
+				'message' => 'The new purchase request has been created. REF No:'.$reference.', Date:'.$date,
+				'created_by' => $this->session->userdata('user_id'),
+				'created_on' => date('Y-m-d H:i:s'),
 				);	
 				$this->siteprocurment->insertNotification($notification);
+			}else{
+				foreach($this->input->post('requestnumber') as $rno){
+				$request_de=$this->quotes_model->getstoreRequestByID($rno);
+				$notification = array(
+				'user_id' => $this->session->userdata('user_id'),
+				'title' => 'Purchases Quotation Request',
+				'message' => 'The new purchase Quotation request has been created('.$reference.'). Request REF No:'.         $request_de->reference_no.', Date:'.$date,
+				'created_by' => $this->session->userdata('user_id'),
+				'created_on' => date('Y-m-d H:i:s'),
+				'store_id'=>$request_de->store_id
+				);	
+				$this->siteprocurment->insertNotification($notification);
+				}
 			}
-             $data = array('date' => $date,
-                'reference_no' => $reference,
-                'supplier_id' => $supplier_id,
-                'request_id' => $join_ref_no->request_id ? $join_ref_no->request_id :'',
-               // 'requestdate' => $join_ref_no->date ? $join_ref_no->date : '',
-                'req_reference_no' => $join_ref_no->reference_no ? $join_ref_no->reference_no : '',
-                'supplier' => $supplier,
-                'supplier_address' => $supplier_address,
-                'warehouse_id' => $warehouse_id,
-                'currency' => $currency,
-                'note' => $note,
-                'status' => $status,
-                'created_by' => $this->session->userdata('user_id'),
-                'created_on' => date('Y-m-d H:i:s'),
-                'hash' => hash('sha256', microtime() . mt_rand()),
-				'total_no' => $this->input->post('total_no_items'),
-				'total_qty' => $this->input->post('total_no_qty'),
+             $data = array('date'    => $date,
+                'reference_no'       => $reference,
+                'supplier_id'        => $supplier_id,
+                'request_id'         => $join_ref_no->request_id ? $join_ref_no->request_id :'',
+                'req_reference_no'   => $join_ref_no->reference_no ? $join_ref_no->reference_no : '',
+                'supplier'           => $supplier,
+                'supplier_address'   => $supplier_address,
+                'warehouse_id'       => $warehouse_id,
+                'currency'           => $currency,
+                'note'               => $note,
+                'status'             => $status,
+                'created_by'         => $this->session->userdata('user_id'),
+                'created_on'         => date('Y-m-d H:i:s'),
+                'hash'               => hash('sha256', microtime() . mt_rand()),
+				'total_no'           => $this->input->post('total_no_items'),
+				'total_qty'          => $this->input->post('total_no_qty'),
             );
 	    if($status=="approved"){
 		$data['approved_by'] = $this->session->userdata('user_id');
@@ -579,20 +569,14 @@ class Quotes extends MY_Controller{
 					'status' => 'completed',
 				);
 			}
-		/* 	print_r($products);
-			die;  */
-			
         }
         if ($this->form_validation->run() == true && $this->quotes_model->addQuotes($data, $products, $quotes_array, $this->input->post('requestnumber'))) {
-            
             $this->session->set_userdata('remove_pols', 1);
             $this->session->set_flashdata('message', $this->lang->line("quotes_added"));
             admin_redirect('procurment/quotes');
-        } else {//echo "string";die;
-			
+        } else {
             if ($quotes_id) {
                 $this->data['quotes'] = $this->quotes_model->getQuotesByID($quotes_id);
-				
                 $supplier_id = $this->data['quotes']->supplier_id;
                 $items = $this->quotes_model->getAllQuotesItems($quotes_id);
                 krsort($items);
@@ -653,12 +637,10 @@ class Quotes extends MY_Controller{
                         $row->expiry = '';
                         $row->real_unit_cost = $row->cost ? $row->cost : 0;
                         $options = $this->quotes_model->getProductOptions($row->id);
-
                         $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
                         $tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
                         $ri = $this->Settings->item_addition ? $row->id : $row->id;
-
-                        $pr[$ri] = array('id' => $c, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
+                        $pr[$ri] = array('id' => $c, 'item_id' => $row->id, 'label' => $item->product_name . " (" . $row->code . ")",
                             'row' => $row, 'tax_rate' => $row->tax_rate, 'units' => $units, 'options' => $options);
                         $c++;
                     }
@@ -720,79 +702,81 @@ class Quotes extends MY_Controller{
             $note = $this->sma->clear_tags($this->input->post('note'));
             $payment_term = $this->input->post('payment_term');
             $due_date = $payment_term ? date('Y-m-d', strtotime('+' . ' days', strtotime($date))) : null;
-
             $total = 0;
             $product_tax = 0;
             $product_discount = 0;
             $partial = false;
-            // $i = sizeof($_POST['product']);
             $i = isset($_POST['product_code']) ? sizeof($_POST['product_code']) : 0;
             $gst_data = [];
             $total_cgst = $total_sgst = $total_igst = 0;
             for ($r = 0; $r < $i; $r++) {
-                $store_id = $_POST['store_id'][$r];
-                $item_id = $_POST['product_id'][$r];
-                $variant_id = $_POST['variant_id'][$r];
-                $item_type = $_POST['product_type'][$r];
-                $item_code = $_POST['product_code'][$r];
-                $item_name = $_POST['product_name'][$r];
-                $unit_cost = $_POST['unit_cost'][$r];
-                $selling_price = $_POST['selling_price'][$r];
-                $quantity = $_POST['quantity'][$r];
-                $item_unit = $_POST['product_unit'][$r];
+                $store_id           = $_POST['store_id'][$r];
+                $item_id            = $_POST['product_id'][$r];
+                $variant_id         = $_POST['variant_id'][$r];
+                $item_type          = $_POST['product_type'][$r];
+                $item_code          = $_POST['product_code'][$r];
+                $item_name          = $_POST['product_name'][$r];
+                $unit_cost          = $_POST['unit_cost'][$r];
+                $selling_price      = $_POST['selling_price'][$r];
+                $quantity           = $_POST['quantity'][$r];
+                $item_unit          = $_POST['product_unit'][$r];
                 $item_unit_quantity = $_POST['product_base_quantity'][$r];
-                $category_id = $_POST['category_id'][$r];
-                $category_name = $_POST['category_name'][$r];
-                $subcategory_id = $_POST['subcategory_id'][$r];
-                $subcategory_name = $_POST['subcategory_name'][$r];
-                $brand_id = $_POST['brand_id'][$r];
-                $brand_name = $_POST['brand_name'][$r];
-                $item_net_cost = $this->sma->formatDecimal($_POST['net_cost'][$r]);
-				$unit_cost_new = $this->sma->formatDecimal($_POST['unit_cost'][$r]);
-                $real_unit_cost = $this->sma->formatDecimal($_POST['real_unit_cost'][$r]);
-                $item_option = isset($_POST['product_option'][$r]) && $_POST['product_option'][$r] != 'false' ? $_POST['product_option'][$r] : null;
-                $item_tax_rate = isset($_POST['product_tax'][$r]) ? $_POST['product_tax'][$r] : null;
-				$item_tax_method = isset($_POST['tax1'][$r]) ? $_POST['tax1'][$r] : 0;
-                $item_discount = isset($_POST['product_discount'][$r]) ? $_POST['product_discount'][$r] : null;
-                $item_unit = $_POST['product_unit'][$r];
-                $item_quantity = $_POST['product_base_quantity'][$r];
-				$deliver_to= ($_POST['delivery_to'][$r])?$_POST['delivery_to'][$r]:$store_id;
+                $category_id        = $_POST['category_id'][$r];
+                $category_name      = $_POST['category_name'][$r];
+                $subcategory_id     = $_POST['subcategory_id'][$r];
+                $subcategory_name   = $_POST['subcategory_name'][$r];
+                $brand_id           = $_POST['brand_id'][$r];
+                $brand_name         = $_POST['brand_name'][$r];
+                $item_net_cost      = $this->sma->formatDecimal($_POST['net_cost'][$r]);
+				$unit_cost_new      = $this->sma->formatDecimal($_POST['unit_cost'][$r]);
+                $real_unit_cost     = $this->sma->formatDecimal($_POST['real_unit_cost'][$r]);
+                $item_option        = isset($_POST['product_option'][$r]) && $_POST['product_option'][$r] != 'false' ? $_POST['product_option'][$r] : null;
+                $item_tax_rate       = isset($_POST['product_tax'][$r]) ? $_POST['product_tax'][$r] : null;
+				$item_tax_method     = isset($_POST['tax1'][$r]) ? $_POST['tax1'][$r] : 0;
+                $item_discount       = isset($_POST['product_discount'][$r]) ? $_POST['product_discount'][$r] : null;
+                $item_unit           = $_POST['product_unit'][$r];
+                $item_quantity       = $_POST['product_base_quantity'][$r];
+				$deliver_to          = ($_POST['delivery_to'][$r])?$_POST['delivery_to'][$r]:$store_id;
+				$option_id           = $_POST['product_option'][$r];
+				$product_option=$this->quotes_model->getrecipeOptionByID($option_id);
                 if (isset($item_code) && isset($unit_cost) && isset($item_quantity)) {
-                    $product_details = $this->quotes_model->getProductByCode($item_code);
+                    $product_details = $this->quotes_model->getProductByCode($item_code);  
                     // $unit_cost = $real_unit_cost;
-                    $pr_discount = $this->siteprocurment->calculateDiscount($item_discount, $unit_cost);
-                    $unit_cost = $this->sma->formatDecimal($unit_cost - $pr_discount);
-                    $item_net_cost = $unit_cost;
+                    $pr_discount      = $this->siteprocurment->calculateDiscount($item_discount, $unit_cost);
+                    $unit_cost        = $this->sma->formatDecimal($unit_cost - $pr_discount);
+                    $item_net_cost    = $unit_cost;
                     $pr_item_discount = $this->sma->formatDecimal($pr_discount * $item_unit_quantity);
                     $product_discount += $pr_item_discount;
-                    $pr_item_tax = 0;
-                    $item_tax = 0;
-                    $tax = "";
-                    $product_tax += $pr_item_tax;
-                    $subtotal = (($item_net_cost * $item_unit_quantity) + $pr_item_tax);
-                    $unit = $this->siteprocurment->getUnitByID($item_unit);
+                    $pr_item_tax      = 0;
+                    $item_tax         = 0;
+                    $tax              = "";
+                    $product_tax     += $pr_item_tax;
+                    $subtotal         = (($item_net_cost * $item_unit_quantity) + $pr_item_tax);
+                    $unit             = $this->siteprocurment->getUnitByID($item_unit);
                     /*update common_quote_items*/
                      $item[] = array(
-                        'store_id' => $store_id,
-                        'product_id' => $item_id,
-                        'variant_id' => $variant_id,
-                        'product_code' => $item_code,
-                        'product_name' => $item_name,
-                        'cost_price' => $unit_cost,
-                        'selling_price' => $selling_price,
-                        'product_type' => $item_type,
-                        'quantity' => $quantity,
-                        'unit_quantity' => $item_unit_quantity,
+                        'store_id'       => $store_id,
+                        'product_id'     => $item_id,
+                        'variant_id'     => $variant_id,
+                        'product_code'   => $item_code,
+                        'product_name'   => $item_name,
+                        'cost_price'     => $unit_cost,
+                        'selling_price'  => $selling_price,
+                        'product_type'   => $item_type,
+                        'quantity'       => $quantity,
+                        'unit_quantity'  => $item_unit_quantity,
                         'product_unit_id' => $item_unit,
                         'product_unit_code' => $unit->code,
-                        'warehouse_id' => $warehouse_id,
-                        'category_id' => $category_id,
-                        'category_name' => $category_name,
-                        'subcategory_id' => $subcategory_id,
+                        'warehouse_id'     => $warehouse_id,
+                        'category_id'      => $category_id,
+                        'category_name'    => $category_name,
+                        'subcategory_id'   => $subcategory_id,
                         'subcategory_name' => $subcategory_name,
-                        'brand_id' => $brand_id,
-                        'brand_name' => $brand_name,
-						 'deliver_to' => $deliver_to,
+                        'brand_id'         => $brand_id,
+                        'brand_name'       => $brand_name,
+						'deliver_to'       => $deliver_to,
+						'option_id'        =>$option_id,
+						'option_name'      =>$product_option->name
                     );
                 }
             }
@@ -910,7 +894,7 @@ class Quotes extends MY_Controller{
                 $row->brand_name = $item->brand_name;
                 $row->variant_id = $item->variant_id;
                 $item_key = $ri.'_'.$item->store_id.'_'.$item->category_id.'_'.$item->subcategory_id.'_'.$item->brand_id.'_'.$item->variant_id;
-                $pr[$item_key] = array('id' => $c, 'store_id'=>$item->store_id,'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
+                $pr[$item_key] = array('id' => $c, 'store_id'=>$item->store_id,'item_id' => $row->id, 'label' => $item->product_name ,
                     'row' => $row, 'tax_rate' => $row->tax_rate, 'units' => $units, 'options' => $options);
                 $c++;
             }            

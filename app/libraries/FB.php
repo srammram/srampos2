@@ -1,16 +1,9 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
-/*
-*  ==============================================================================
-*  Author   : Tharani
-*  Email    : info@srampos.com
-*  Web      : http://srampos.com
-*  ==============================================================================
-*/
+
 
 require_once APPPATH . 'third_party/Facebook/autoload.php';
 require_once APPPATH . 'third_party/Facebook/FileUpload/FacebookFile.php';
-class FB
-{
+class FB{
 
     public function __construct() {
 

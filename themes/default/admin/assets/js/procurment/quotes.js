@@ -743,16 +743,12 @@ function loadItems() {
         qu_items = JSON.parse(localStorage.getItem('qu_items'));
 
 		sortedItems = qu_items;
-       // sortedItems = (site.settings.item_addition == 1) ? _.sortBy(qu_items, function(o){return [parseInt(o.order)];}) : qu_items;
         var order_no = new Date().getTime();
 		var c = 1;
-        $.each(sortedItems, function () {			
-			
-            var item = this;
-            //var item_id = site.settings.item_addition == 1 ? item.item_id : item.id;
-			 var item_id = item.item_id;
-			
-            item.order = item.order ? item.order : order_no++;
+        $.each(sortedItems, function () {		
+				var item = this;
+				var item_id = item.item_id;
+				item.order = item.order ? item.order : order_no++;
             
 			var product_id = item.row.id, item_type = item.row.type, combo_items = item.combo_items, item_cost = item.row.cost, net_item_cost, item_oqty = item.row.oqty, item_qty = item.row.qty, item_bqty = item.row.quantity_balance, item_batch_no = item.row.batch_no, item_mfg = item.row.mfg, item_expiry = item.row.expiry, item_tax_method = item.row.tax_method, item_tax1 = item.row.tax1, item_tax2 = item.row.tax2, item_ds = item.row.discount, item_discount = 0, item_option = item.row.option, item_code = item.row.code, item_name = item.row.name.replace(/"/g, "&#034;").replace(/'/g, "&#039;"),selected_taxincl,selected_taxexcl,selected_taxrate;
             
@@ -770,15 +766,11 @@ function loadItems() {
 			subcategory_name = item.row.subcategory_name,
 			brand_id = item.row.brand_id,
             brand_name = item.row.brand_name,
-            variant_id = item.row.variant_id,
-			
-
+            option_id = item.row.option_id,
 			unit_name = item.row.unit_name ? item.row.unit_name :'-';
 			item_tax_method = (item_tax_method) ? item_tax_method : 0;
 			var delivery_to=item.row.delivery_to;
 			var delivery_to_checked=(delivery_to==1)?"checked":"";
-			
-
                 if (supplier == item.row.supplier1) {
                     belong = true;
                 } else
@@ -839,17 +831,18 @@ function loadItems() {
             if (item.store_id) {
                 $store_id = item.store_id;
             }
-            var newTr = $('<tr id="row_' + row_no + '" class="row_' + item_id + '" data-item-id="' + item_id+'_'+$store_id+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id + '_'+item.row.variant_id +'_'+item.row.delivery_to+'"></tr>');
+			//console.log("variant_id"+item.row.option_id);
+            var newTr = $('<tr id="row_' + row_no + '" class="row_' + item_id + '" data-item-id="' + item_id+'_'+$store_id+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id + '_'+item.row.option_id +'_'+item.row.delivery_to+'"></tr>');
 
             tr_html = '<td><span class="sno" id="no_' + row_no + '">' + c  +'</span></td>';
             c++;
 			
             tr_html += '<td><span class="rcode" id="code_' + row_no + '">' + item_code +'</span></td>';
             
-            tr_html += '<td><input name="store_id[]" type="hidden" class="store-id" value="' + $store_id + '"><input name="product_id[]" type="hidden" class="rid" value="' + product_id + '"><input name="variant_id[]" type="hidden" class="rvariant_id" value="' + variant_id + '"><input name="product_type[]" type="hidden" class="rtype" value="' + item_type + '"><input name="product_code[]" type="hidden" class="rcode" value="' + item_code + '"><input name="product_name[]" type="hidden" class="rname" value="' + item_name + '"><input name="product_option[]" type="hidden" class="roption" value="' + item_option + '"><span class="sname" id="name_' + row_no + '">' + item_name +'</span> </td>';
+            tr_html += '<td><input name="store_id[]" type="hidden" class="store-id" value="' + $store_id + '"><input name="product_id[]" type="hidden" class="rid" value="' + product_id + '"><input name="variant_id[]" type="hidden" class="rvariant_id" value="' + item.row.option_id + '"><input name="product_type[]" type="hidden" class="rtype" value="' + item_type + '"><input name="product_code[]" type="hidden" class="rcode" value="' + item_code + '"><input name="product_name[]" type="hidden" class="rname" value="' + item.label + '"><input name="product_option[]" type="hidden" class="roption" value="' + item_option + '"><span class="sname" id="name_' + row_no + '">' + item.label +'</span> </td>';
             
             if (category_name==null) {category_name ='-';}if (category_id==null) {category_id =0;}
-	    tr_html +='<td align="center">'+
+			tr_html +='<td align="center">'+
 		     '<input name="category_id[]" type="hidden" class="cid" value="' + category_id + '">'+
 		     '<input name="category_name[]" type="hidden" class="cname" readonly value="' + category_name + '">'+
 		     '<span class="sname" id="name_' + row_no + '">' + category_name +'</span>'+
@@ -976,7 +969,7 @@ function loadItems() {
     if (item == null)
         return;
             //var item_id = site.settings.item_addition == 1 ? item.item_id : item.id;
-			 var item_id =  item.item_id+'_'+item.store_id+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id + '_'+item.row.variant_id+'_'+item.row.delivery_to ;
+			 var item_id =  item.item_id+'_'+item.store_id+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id + '_'+item.row.option_id+'_'+item.row.delivery_to ;
 			
     if (qu_items[item_id] ) {
 		bootbox.confirm('This item is already added. Do you want to add it again?', function (result) {
@@ -1035,9 +1028,9 @@ $(document).on('change', '.delivery_to', function() {
 		$category_id=qu_items[item_id].row.category_id;
 		$subcategory_id=qu_items[item_id].row.subcategory_id;
 		$brand_id= qu_items[item_id].row.brand_id;
-		$variant_id=qu_items[item_id].row.variant_id;
+		$option_id=qu_items[item_id].row.option_id;
 		if(delivery_to ==0){
-			old_item_id=$item_id+'_'+$store_id+'_'+$category_id+'_'+$subcategory_id+'_'+$brand_id + '_'+$variant_id ;
+			old_item_id=$item_id+'_'+$store_id+'_'+$category_id+'_'+$subcategory_id+'_'+$brand_id + '_'+$option_id ;
 			new_item_id=old_item_id+'_'+0;
 			if(qu_items[new_item_id] !=undefined){
 				new_qty=(qu_items[new_item_id].row.qty)?qu_items[new_item_id].row.qty:0;
@@ -1051,7 +1044,7 @@ $(document).on('change', '.delivery_to', function() {
 			qu_items = JSON.parse(localStorage.getItem('qu_items'));
 		}else{
 			
-			old_item_id=$item_id+'_'+$store_id+'_'+$category_id+'_'+$subcategory_id+'_'+$brand_id + '_'+$variant_id ;
+			old_item_id=$item_id+'_'+$store_id+'_'+$category_id+'_'+$subcategory_id+'_'+$brand_id + '_'+$option_id ;
 			new_item_id=old_item_id+'_'+1;
 			if(qu_items[new_item_id] !=undefined){
 				new_qty=(qu_items[new_item_id].row.qty)?qu_items[new_item_id].row.qty:0;

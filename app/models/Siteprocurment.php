@@ -568,9 +568,7 @@ class Siteprocurment extends CI_Model{
 	
 	public function insertNotification($notification_array = array()){
 	    $this->load->library('socketemitter');
-		
 		if(!empty($notification_array)){	
-		
 			$this->db->insert('pro_access_notification ', $notification_array);	
 			$insert_id = $this->db->insert_id();
 			$q = $this->db->where('id', $insert_id)->get('pro_access_notification');

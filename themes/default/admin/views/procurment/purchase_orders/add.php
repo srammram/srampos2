@@ -730,9 +730,7 @@ $(document).ready(function(e) {
 <?php
 }
 ?>
-
 $(document).on('change', '#po_requestnumber', function(){
-    
     if (localStorage.getItem('po_items')) {
         localStorage.removeItem('po_items');
     }
@@ -778,9 +776,7 @@ $(document).on('change', '#po_requestnumber', function(){
     if (localStorage.getItem('po_payment_term')) {
         localStorage.removeItem('po_payment_term');
     }
-    
     var po_requestnumber = $(this).val();
-    
     $.ajax({
         type: 'get',
         url: '<?= admin_url('procurment/purchase_orders/purchase_orders_list'); ?>',
@@ -789,15 +785,11 @@ $(document).on('change', '#po_requestnumber', function(){
             poref: po_requestnumber
         },
         success: function (data) {
-            
             var purchase_orders_value = [];
             $(this).removeClass('ui-autocomplete-loading');
             var items = JSON.stringify(data.value['purchase_ordersitem']);
-            
             var purchase_orders = JSON.stringify(data.value['purchase_orders']);
             purchase_orders_value = $.parseJSON(purchase_orders);
-            
-
             localStorage.setItem('po_requestnumber',  purchase_orders_value["id"]);
             localStorage.setItem('po_requestdate',  purchase_orders_value["date"]);
             localStorage.setItem('po_warehouse', purchase_orders_value["warehouse_id"]);
@@ -808,12 +800,8 @@ $(document).on('change', '#po_requestnumber', function(){
             localStorage.setItem('po_supplier', purchase_orders_value["supplier_id"]);
             localStorage.setItem('po_items', items);
             localStorage.setItem('purchase_orders_date', purchase_orders_value["purchase_orders_date"]);
-            
             location.reload();
-            
         }
-        
-        
     });
 });
 </script>

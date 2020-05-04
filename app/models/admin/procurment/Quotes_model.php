@@ -1,35 +1,29 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Quotes_model extends CI_Model
-{
-
-    public function __construct()
-    {
+class Quotes_model extends CI_Model{
+    public function __construct(){
         parent::__construct();
     }
 
-    public function getProductNames($term, $limit = 10)
-    {
+    public function getProductNames($term, $limit = 10){
         $type = array('standard','raw');
         $this->db->select('r.*,t.rate as purchase_tax_rate');
         $this->db->from('recipe r');
         $this->db->join('tax_rates t','r.purchase_tax=t.id','left');
-            $this->db->where("(r.name LIKE '%" . $term . "%' OR r.code LIKE '%" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '%" . $term . "%')");
+        $this->db->where("(r.name LIKE '%" . $term . "%' OR r.code LIKE '%" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '%" . $term . "%')");
             $this->db->where_in('r.type',$type);
         $this->db->limit($limit);
-        
-            $q = $this->db->get();
-            if ($q->num_rows() > 0) {
-                foreach (($q->result()) as $row) {
+        $q = $this->db->get();
+        if ($q->num_rows() > 0) {
+           foreach (($q->result()) as $row) {
                     $data[] = $row;
-                }
-                return $data;
-            }
-            return FALSE;
+          }
+           return $data;
+        }
+       return FALSE;
     }
 	
-	public function getReqBYID($id)
-    {
+	public function getReqBYID($id){
         $q = $this->db->get_where('pro_request', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -37,8 +31,7 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 	
-	public function getQuoteByID($id)
-    {
+	public function getQuoteByID($id){
         $q = $this->db->get_where('pro_quotes', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -47,9 +40,7 @@ class Quotes_model extends CI_Model
     }
 	
 	
-	public function getAllQuoteItems($quote_id)
-    {
-		
+	public function getAllQuoteItems($quote_id){
         $this->db->select('pro_quote_items.*, tax_rates.code as tax_code, tax_rates.name as tax_name, tax_rates.rate as tax_rate, products.unit, products.details as details, product_variants.name as variant, products.hsn_code as hsn_code')
             ->join('products', 'products.id=pro_quote_items.product_id', 'left')
             ->join('product_variants', 'product_variants.id=pro_quote_items.option_id', 'left')
@@ -66,8 +57,7 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 	
-    public function getAllProducts()
-    {
+    public function getAllProducts(){
         $q = $this->db->get('products');
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -78,8 +68,7 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 
-    public function getProductByID($id)
-    {
+    public function getProductByID($id){
         $q = $this->db->get_where('products', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -94,8 +83,7 @@ class Quotes_model extends CI_Model
         }
         return FALSE;
 	}
-    public function getProductsByCode($code)
-    {
+    public function getProductsByCode($code){
         $this->db->select('*')->from('products')->like('code', $code, 'both');
         $q = $this->db->get();
         if ($q->num_rows() > 0) {
@@ -106,8 +94,7 @@ class Quotes_model extends CI_Model
         }
     }
 
-    public function getProductByCode($code)
-    {
+    public function getProductByCode($code){
         $q = $this->db->get_where('products', array('code' => $code), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -115,8 +102,7 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 
-    public function getProductByName($name)
-    {
+    public function getProductByName($name){
         $q = $this->db->get_where('products', array('name' => $name), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -124,8 +110,7 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 
-    public function getAllQuotes()
-    {
+    public function getAllQuotes(){
         $q = $this->db->get('pro_quotes');
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -137,8 +122,7 @@ class Quotes_model extends CI_Model
 
 	
 	
-	public function getAllRequestItems($quotes_id)
-    {
+	public function getAllRequestItems($quotes_id){
         $this->db->select('pro_request_items.*, recipe.unit, recipe.details as details, recipe_variants.name as variant, recipe.hsn_code as hsn_code')
             ->join('recipe', 'recipe.id=pro_request_items.product_id', 'left')
             ->join('recipe_variants', 'recipe_variants.id=pro_request_items.variant_id', 'left')
@@ -155,18 +139,14 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 	
-    public function getAllQuotesItems($quotes_id)
-    {        
+    public function getAllQuotesItems($quotes_id){        
         $this->db->select('pro_quote_items.*, recipe.unit, recipe.details as details, recipe_variants.name as variant, recipe.hsn_code as hsn_code,u.name as unit_name')
             ->join('recipe', 'recipe.id=pro_quote_items.product_id', 'left')
             ->join('recipe_variants', 'recipe_variants.id=pro_quote_items.option_id', 'left')
             ->join('units u','u.id=recipe.unit','left')
-            // ->join('product_variants', 'product_variants.id=pro_quote_items.option_id', 'left')
-            // ->join('tax_rates', 'tax_rates.id=pro_quote_items.tax_rate_id', 'left')
             ->group_by('pro_quote_items.id,pro_quote_items.variant_id')
             ->order_by('id', 'asc');
         $q = $this->db->get_where('pro_quote_items', array('pro_quote_items.quote_id' => $quotes_id));
-      //  print_r($this->db->last_query());die;
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -176,8 +156,7 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 
-    public function getItemByID($id)
-    {
+    public function getItemByID($id){
         $q = $this->db->get_where('pro_quote_items', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -185,8 +164,7 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 
-    public function getTaxRateByName($name)
-    {
+    public function getTaxRateByName($name){
         $q = $this->db->get_where('tax_rates', array('name' => $name), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -219,8 +197,7 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 
-    public function getProductWarehouseOptionQty($option_id, $warehouse_id)
-    {
+    public function getProductWarehouseOptionQty($option_id, $warehouse_id){
         $q = $this->db->get_where('warehouses_products_variants', array('option_id' => $option_id, 'warehouse_id' => $warehouse_id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -228,8 +205,7 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 
-    public function addProductOptionQuantity($option_id, $warehouse_id, $quantity, $product_id)
-    {
+    public function addProductOptionQuantity($option_id, $warehouse_id, $quantity, $product_id){
         if ($option = $this->getProductWarehouseOptionQty($option_id, $warehouse_id)) {
             $nq = $option->quantity + $quantity;
             if ($this->db->update('warehouses_products_variants', array('quantity' => $nq), array('option_id' => $option_id, 'warehouse_id' => $warehouse_id))) {
@@ -243,8 +219,7 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 
-    public function resetProductOptionQuantity($option_id, $warehouse_id, $quantity, $product_id)
-    {
+    public function resetProductOptionQuantity($option_id, $warehouse_id, $quantity, $product_id){
         if ($option = $this->getProductWarehouseOptionQty($option_id, $warehouse_id)) {
             $nq = $option->quantity - $quantity;
             if ($this->db->update('warehouses_products_variants', array('quantity' => $nq), array('option_id' => $option_id, 'warehouse_id' => $warehouse_id))) {
@@ -259,8 +234,7 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 
-    public function getOverSoldCosting($product_id)
-    {
+    public function getOverSoldCosting($product_id){
         $q = $this->db->get_where('costing', array('overselling' => 1));
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -272,7 +246,6 @@ class Quotes_model extends CI_Model
     }
 
     public function addQuotes($data, $items, $quotes, $order_id){
-		
         if ($this->db->insert('pro_quotes', $data)) {
              $quotes_id = $this->db->insert_id();
 			 $this->db->update('pro_request', $quotes, array('id' => $order_id));
@@ -280,7 +253,14 @@ class Quotes_model extends CI_Model
 				$item['store_id']=($data['status']=='approved')?$item['deliver_to']:$item['store_id'];
                 $item['quote_id'] = $quotes_id;
                 $this->db->insert('pro_quote_items', $item);
-            }     
+            }   
+			if($data['status']=="approved"  && !empty($data['request_id'])){
+				$request_ids=explode(",",$data['request_id']);
+				foreach($request_ids  as $row){
+					$this->db->where("id",$row);
+					$this->db->update("pro_store_indent_receive",array("is_processed"=>1));
+				}
+			}
 			// print_r($this->db->error());die;
             return true;
         }
@@ -296,6 +276,12 @@ class Quotes_model extends CI_Model
                 $item['quote_id'] = $id;
                 $this->db->insert('pro_quote_items', $item);
             }
+			if($data['status']=="approved"  && !empty($data['request_id'])){
+				foreach($data['request_id']  as $row){
+					$this->db->where("id",$row);
+					$this->db->update("pro_store_indent_receive",array("is_processed"=>1));
+				}
+			}
             return true;
         }
         return false;
@@ -500,8 +486,7 @@ class Quotes_model extends CI_Model
         }
     }
 
-    public function getPurcahseItemByID($id)
-    {
+    public function getPurcahseItemByID($id){
         $q = $this->db->get_where('pro_purchase_items', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -509,11 +494,8 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 
-    public function returnPurchase($data = array(), $items = array())
-    {
-
+    public function returnPurchase($data = array(), $items = array()){
         $purchase_items = $this->getAllQuotesItems($data['quotes_id']);
-
         if ($this->db->insert('return_quotes', $data)) {
             $return_id = $this->db->insert_id();
             if ($this->siteprocurment->getReference('rep') == $data['reference_no']) {
@@ -522,7 +504,6 @@ class Quotes_model extends CI_Model
             foreach ($items as $item) {
                 $item['return_id'] = $return_id;
                 $this->db->insert('return_purchase_items', $item);
-
                 if ($purchase_item = $this->getPurcahseItemByID($item['purchase_item_id'])) {
                     if ($purchase_item->quantity == $item['quantity']) {
                         $this->db->delete('pro_purchase_items', array('id' => $item['purchase_item_id']));
@@ -537,7 +518,6 @@ class Quotes_model extends CI_Model
                         $subtotal = $purchase_item->unit_cost * $nqty;
                         $this->db->update('pro_purchase_items', array('quantity' => $nqty, 'quantity_balance' => $bqty, 'quantity_received' => $rqty, 'item_tax' => $item_tax, 'item_discount' => $item_discount, 'subtotal' => $subtotal), array('id' => $item['purchase_item_id']));
                     }
-
                 }
             }
             $this->calculatePurchaseTotals($data['quote_id'], $return_id, $data['surcharge']);
@@ -548,8 +528,7 @@ class Quotes_model extends CI_Model
         return false;
     }
 
-    public function calculatePurchaseTotals($id, $return_id, $surcharge)
-    {
+    public function calculatePurchaseTotals($id, $return_id, $surcharge){
         $purchase = $this->getQuotesByID($id);
         $items = $this->getAllQuotesItems($id);
         if (!empty($items)) {
@@ -610,8 +589,7 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 
-    public function getExpenseCategories()
-    {
+    public function getExpenseCategories(){
         $q = $this->db->get('expense_categories');
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -622,8 +600,7 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 
-    public function getExpenseCategoryByID($id)
-    {
+    public function getExpenseCategoryByID($id){
         $q = $this->db->get_where("expense_categories", array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -631,8 +608,7 @@ class Quotes_model extends CI_Model
         return FALSE;
     }
 
-    public function updateAVCO($data)
-    {
+    public function updateAVCO($data){
         if ($wp_details = $this->getWarehouseProductQuantity($data['warehouse_id'], $data['product_id'])) {
             $total_cost = (($wp_details->quantity * $wp_details->avg_cost) + ($data['quantity'] * $data['cost']));
             $total_quantity = $wp_details->quantity + $data['quantity'];
@@ -677,6 +653,7 @@ class Quotes_model extends CI_Model
 	
 	
 	
+	
 	 public function getstoreRequestByID($id){
         $q = $this->db->get_where('pro_store_indent_receive', array('id' => $id), 1);
 
@@ -700,6 +677,13 @@ class Quotes_model extends CI_Model
                 $data[] = $row;
             }
             return $data;
+        }
+        return FALSE;
+    }
+	 public function getrecipeOptionByID($id){
+        $q = $this->db->get_where('recipe_variants', array('id' => $id), 1);
+        if ($q->num_rows() > 0) {
+            return $q->row();
         }
         return FALSE;
     }

@@ -1079,15 +1079,15 @@ function loadItems() {
 	    var $total_no_qty=0;
               $.each(sortedItems, function () {			
 			   $i++;
-               var item = this;
-			   var item_id = item.item_id;
-               item.order = item.order ? item.order : order_no++;
-               var item_days= item.row.days ? parseInt(item.row.days) : 1; 
-			   if(item.row.mfg != ''){
+                var item = this;
+			    var item_id = item.item_id;
+                item.order = item.order ? item.order : order_no++;
+                var item_days= item.row.days ? parseInt(item.row.days) : 1; 
+			    if(item.row.mfg != ''){
 				var item_mfgs = item.row.mfg;
 				var mfgdate = new Date(item_mfgs);
 				mfgdate.setDate(mfgdate.getDate() + item_days);
-				var mfgfinalDate = mfgdate.getFullYear()+'-'+ (mfgdate.getMonth() < 9 ? '0': '') + (mfgdate.getMonth()+1) +'-'+ (mfgdate.getDate() < 9 ? '0': '') + mfgdate.getDate();
+				var mfgfinalDate = mfgdate.getFullYear()+'-'+ (mfgdate.getMonth() < 9 ? '0': '') + (mfgdate.getMonth()+1) +'-'(mfgdate.getDate() < 9 ? '0': '') + mfgdate.getDate();
 				var item_mfg = mfgfinalDate;
 				var expirydate = new Date(mfgfinalDate);
 				expirydate.setDate(expirydate.getDate() + item_days);
@@ -1096,7 +1096,7 @@ function loadItems() {
 		    	}else{
 				var mfgdate = new Date();
 				mfgdate.setDate(mfgdate.getDate() + item_days);
-				var mfgfinalDate = mfgdate.getFullYear()+'-'+ (mfgdate.getMonth() < 9 ? '0': '') + (mfgdate.getMonth()+1) +'-'+ (mfgdate.getDate() < 9 ? '0': '') + mfgdate.getDate();
+				var mfgfinalDate = mfgdate.getFullYear()+'-'+ (mfgdate.getMonth() < 9 ? '0': '') + (mfgdate.getMonth()+1) +'-' (mfgdate.getDate() < 9 ? '0': '') + mfgdate.getDate();
 				var item_mfg = mfgfinalDate;
 				var expirydate = new Date(mfgfinalDate);
 				expirydate.setDate(expirydate.getDate() + item_days);
@@ -1104,7 +1104,7 @@ function loadItems() {
 				var item_expiry = expiryfinalDate;
 			}
 			var product_id = item.row.id, item_type = item.row.type, combo_items = item.combo_items, item_cost = item.row.cost, net_item_cost, item_oqty = item.row.oqty, item_qty = item.row.qty, item_bqty = item.row.quantity_balance, item_batch_no = item.row.batch_no,  item_tax1 = item.row.tax1, item_tax2 = item.row.tax2, item_ds = item.row.item_discount_percent,item_ds_amt = item.row.item_discount_amt, item_discount = 0, item_option = item.row.option, item_code = item.row.code, item_name = item.row.name.replace(/"/g, "&#034;").replace(/'/g, "&#039;"),selected_taxincl,selected_taxexcl,selected_taxrate,item_bill_dis = item.row.item_bill_discount, item_expiry = item.row.expiry,item_selling = item.row.item_selling_price;  
-             item_ds =  item_ds ? item_ds :0
+            item_ds =  item_ds ? item_ds :0
 	        item_expiry = (item_expiry!='0000-00-00')?item_expiry:'';
 	        item_po_qty = item.row.po_qty;
 	        var category_id = item.row.category_id,
@@ -1114,13 +1114,11 @@ function loadItems() {
             brand_id = item.row.brand_id,
 		    variant_id = item.row.variant_id,
 		    brand_name = item.row.brand_name;
-		   var product_unit = item.row.unit, base_quantity = item.row.base_quantity;
-		   
-		 if( product_unit != item.row.base_unit) {
+		    var product_unit = item.row.unit, base_quantity = item.row.base_quantity;
+			if( product_unit != item.row.base_unit) {
                 $.each(item.units, function(){
                     if (this.id == product_unit) {
                         base_quantity = formatDecimal(unitToBaseQty(item.row.qty, this), 4);
-                      //  unit_price = formatDecimal((parseFloat(item.row.base_unit_price)*(unitToBaseQty(1, this))), 4);
                     }
                 });
             }
