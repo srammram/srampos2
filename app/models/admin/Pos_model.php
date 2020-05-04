@@ -4745,7 +4745,14 @@ function base64ToImage($imageData,$filename){
 
     public function addPrinter($data = array()) {
         if($this->db->insert('printers', $data)) {
-            return $this->db->insert_id();
+			 $printer_id = $this->db->insert_id();
+			if ($printer_id) {            
+            $unique_id = $this->site->generateUniqueTableID($printer_id);
+            if ($printer_id) {
+                $this->site->updateUniqueTableId($printer_id,$unique_id,'printers');
+            }
+			}
+            return $printer_id;
         }
         return false;
     }

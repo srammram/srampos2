@@ -2176,7 +2176,7 @@ class Siteprocurment extends CI_Model{
     public function getProductNames($term, $limit = 10){
 	$type = array('standard','raw');
 
-    $this->db->select('r.*,t.rate as purchase_tax_rate,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,cm.category_id,cm.subcategory_id,cm.id as cm_id,cm.brand_id,cm.purchase_cost as cost,cm.selling_price as price,u.name as unit_name,us.name as purchase_unitName,COALESCE(rv.id,0) as variant_id,(CASE WHEN r.variants = 1 THEN CONCAT(r.name,"-",rv.name) ELSE r.name END) AS name,cm.selling_price AS price,cm.purchase_cost AS cost');
+    $this->db->select('r.*,t.rate as purchase_tax_rate,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,cm.category_id,cm.subcategory_id,cm.id as cm_id,cm.brand_id,cm.purchase_cost as cost,cm.selling_price as price,u.name as unit_name,us.name as purchase_unitName,COALESCE(rv.id,0) as variant_id,(CASE WHEN r.variants = 1 THEN CONCAT(r.name,"-",rv.name) ELSE r.name END) AS name,cm.selling_price AS price,cm.purchase_cost AS cost,rvv.attr_id as option_id');
 
 	$this->db->from('recipe r');
 	$this->db->join('category_mapping as cm','cm.product_id=r.id','left'); // 
@@ -2198,7 +2198,7 @@ class Siteprocurment extends CI_Model{
 	//$this->db->where('cm.category_id IS NOT NULL OR cm.subcategory_id IS NOT NULL OR cm.brand_id  IS NOT NULL');
 	$this->db->where_in('r.type',$type);
 	
-    //$this->db->group_by('r.id,rv.id');
+    $this->db->group_by('r.id,rv.id,rc.id,rsc.id,b.id');
 	
 	$this->db->limit($limit);
 	//echo $this->db->get_compiled_select();

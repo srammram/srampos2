@@ -9353,8 +9353,7 @@ print_r($inv);die;*/
         $this->page_construct('pos/printers', $meta, $this->data);
     }
 
-    public function get_printers()
-    {
+    public function get_printers(){
         $this->sma->checkPermissions('printers');
 
         $this->load->library('datatables');
@@ -9367,11 +9366,8 @@ print_r($inv);die;*/
 
     }
 
-    public function add_printer()
-    {
-
+    public function add_printer(){
         $this->sma->checkPermissions();
-
         $this->form_validation->set_rules('title', $this->lang->line("title"), 'required');
         $this->form_validation->set_rules('type', $this->lang->line("type"), 'required');
         $this->form_validation->set_rules('profile', $this->lang->line("profile"), 'required');
@@ -9384,7 +9380,6 @@ print_r($inv);die;*/
         }
 
         if ($this->form_validation->run() == true) {
-
             $data = array('title' => $this->input->post('title'),
                 'type' => $this->input->post('type'),
                 'profile' => $this->input->post('profile'),
@@ -9393,12 +9388,11 @@ print_r($inv);die;*/
                 'ip_address' => $this->input->post('ip_address'),
                 'port' => ($this->input->post('type') == 'network') ? $this->input->post('port') : null,
                 'print_mirroring' => (isset($_POST['print_mirroring'])) ? implode(',', $this->input->post('print_mirroring')) : '',
+				'store_id'=>$this->input->post('warehouse_id')
             );
-
         }
 
         if ($this->form_validation->run() == true && $cid = $this->pos_model->addPrinter($data)) {
-
             $this->session->set_flashdata('message', $this->lang->line("printer_added"));
             admin_redirect("pos/printers");
 
@@ -9406,7 +9400,7 @@ print_r($inv);die;*/
             if ($this->input->is_ajax_request()) {
                 echo json_encode(array('status' => 'failed', 'msg' => validation_errors()));die();
             }
-
+			$this->data['warehouses'] = $this->settings_model->getAllWarehouses();
             $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
             $this->data['page_title'] = lang('add_printer');
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('pos'), 'page' => lang('pos')), array('link' => admin_url('pos/printers'), 'page' => lang('printers')), array('link' => '#', 'page' => lang('add_printer')));
@@ -9416,12 +9410,9 @@ print_r($inv);die;*/
         }
     }
 
-    public function edit_printer($id = null)
-    {
-
+    public function edit_printer($id = null){
         $this->sma->checkPermissions();
         if ($this->input->get('id')) {$id = $this->input->get('id', true);}
-
         $printer = $this->pos_model->getPrinterByID($id);
         $this->form_validation->set_rules('title', $this->lang->line("title"), 'required');
         $this->form_validation->set_rules('type', $this->lang->line("type"), 'required');
@@ -9435,13 +9426,10 @@ print_r($inv);die;*/
             $this->form_validation->set_rules('port', $this->lang->line("port"), 'required');
         } else {
             $this->form_validation->set_rules('path', $this->lang->line("path"), 'required');
-            /*if ($this->input->post('path') != $printer->path) {
-        $this->form_validation->set_rules('path', $this->lang->line("path"), 'is_unique[printers.path]');
-        }*/
+           
         }
 
         if ($this->form_validation->run() == true) {
-
             $data = array('title' => $this->input->post('title'),
                 'type' => $this->input->post('type'),
                 'profile' => $this->input->post('profile'),
@@ -9450,18 +9438,16 @@ print_r($inv);die;*/
                 'ip_address' => $this->input->post('ip_address'),
                 'print_mirroring' => (isset($_POST['print_mirroring'])) ? implode(',', $this->input->post('print_mirroring')) : '',
                 'port' => ($this->input->post('type') == 'network') ? $this->input->post('port') : null,
+				'store_id'=>$this->input->post('warehouse_id')
             );
-
         }
-
         if ($this->form_validation->run() == true && $this->pos_model->updatePrinter($id, $data)) {
-
             $this->session->set_flashdata('message', $this->lang->line("printer_updated"));
             admin_redirect("pos/printers");
 
         } else {
-
             $this->data['printer'] = $printer;
+			$this->data['warehouses'] = $this->settings_model->getAllWarehouses();
             $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
             $this->data['page_title'] = lang('edit_printer');
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('pos'), 'page' => lang('pos')), array('link' => admin_url('pos/printers'), 'page' => lang('printers')), array('link' => '#', 'page' => lang('edit_printer')));
@@ -9472,20 +9458,13 @@ print_r($inv);die;*/
         }
     }
 
-    public function delete_printer($id = null)
-    {
+    public function delete_printer($id = null){
         if (DEMO) {
             $this->session->set_flashdata('error', $this->lang->line("disabled_in_demo"));
             $this->sma->md();
         }
-        //if (!$this->Owner) {
-        //    $this->session->set_flashdata('error', lang('access_denied'));
-        //    $this->sma->md();
-        //}
         $this->sma->checkPermissions();
-
         if ($this->input->get('id')) {$id = $this->input->get('id', true);}
-
         if ($this->pos_model->deletePrinter($id)) {
             $this->sma->send_json(array('error' => 0, 'msg' => lang("printer_deleted")));
         }

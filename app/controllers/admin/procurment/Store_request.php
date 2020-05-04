@@ -248,7 +248,8 @@ class Store_request extends MY_Controller{
                 $subcategory_name = $_POST['subcategory_name'][$r];
 		        $brand_id = $_POST['brand_id'][$r];
                 $brand_name = $_POST['brand_name'][$r];
-				
+				$option_id = $_POST['product_option'][$r];
+				$product_option=$this->store_request_model->getrecipeOptionByID($option_id);
                if (!empty($item_code)) {
                     $product_details = $item_type != 'manual' ? $this->store_request_model->getProductByCode($item_code) : null;
                     $products[] = array(
@@ -259,7 +260,9 @@ class Store_request extends MY_Controller{
                         'quantity'        => $quantity,
 						'unit_quantity'   => $unit_quantity,
                         'product_unit_id' => $item_unit,
-						'product_unit_code'=>$unit->name
+						'product_unit_code'=>$unit->name,
+						'option_id'=>$option_id,
+						'option_name'=>$product_option->name
                     );
                 }
             }
@@ -352,7 +355,6 @@ class Store_request extends MY_Controller{
         $this->form_validation->set_message('is_natural_no_zero', $this->lang->line("no_zero_required"));
 		$this->form_validation->set_rules('request_type', $this->lang->line("request_type"), 'required');
         $this->form_validation->set_rules('warehouse', $this->lang->line("warehouse"), 'required');
-		
         if ($this->form_validation->run() == true) {
             $warehouse_id = $this->input->post('warehouse');
             $biller_id = $this->input->post('biller');
@@ -370,7 +372,6 @@ class Store_request extends MY_Controller{
                 $supplier = NULL;
             }
             $note = $this->sma->clear_tags($this->input->post('note'));
-
             $total = 0;
             $product_tax = 0;
             $product_discount = 0;
@@ -393,7 +394,10 @@ class Store_request extends MY_Controller{
 		        $subcategory_id = $_POST['subcategory_id'][$r];
                 $subcategory_name = $_POST['subcategory_name'][$r];
 		        $brand_id = $_POST['brand_id'][$r];
+				$brand_id = $_POST['brand_id'][$r];
                 $brand_name = $_POST['brand_name'][$r];
+				$option_id = $_POST['product_option'][$r];
+				$product_option=$this->store_request_model->getrecipeOptionByID($option_id);
                if (!empty($item_code)) {
                     $product_details = $item_type != 'manual' ? $this->store_request_model->getProductByCode($item_code) : null;
                     $products[] = array(
@@ -404,7 +408,9 @@ class Store_request extends MY_Controller{
                         'quantity'        => $quantity,
 						'unit_quantity'   => $unit_quantity,
                         'product_unit_id' => $item_unit,
-						'product_unit_code'=>$unit->name
+						'product_unit_code'=>$unit->name,
+						'option_id'=>$option_id,
+						'option_name'=>$product_option->name
                     );
 
                 }
@@ -451,7 +457,7 @@ class Store_request extends MY_Controller{
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
             $this->data['inv'] = $this->store_request_model->getStore_requestByID($id);
             $inv_items = $this->store_request_model->getAllStore_requestItems($id);
-             krsort($inv_items);
+            krsort($inv_items);
             $c = rand(100000, 9999999);
             foreach ($inv_items as $item) {
                 $row = $this->siteprocurment->getRecipeByID($item->product_id);
@@ -468,9 +474,9 @@ class Store_request extends MY_Controller{
                         $row->quantity += $pi->quantity_balance;
                     }
                 }
-                $row->id = $item->product_id;
-                $row->code = $item->product_code;
-                $row->name = $item->product_name;
+                $row->id      = $item->product_id;
+                $row->code    = $item->product_code;
+                $row->name    = $item->product_name;
                 $row->type = $item->product_type;
                 $row->base_quantity = $item->quantity;
                 $row->base_unit = $row->unit ? $row->unit : $item->product_unit_id;
@@ -489,6 +495,7 @@ class Store_request extends MY_Controller{
                 $row->brand_name = $row->brand_name;
 		        $row->purchase_cost = $row->cost_price;
                 $row->cost = $row->selling_price;
+				$row->option_id = ($item->option_id)?$item->option_id:0;
                 $options = $this->store_request_model->getProductOptions($row->id, $item->warehouse_id);
                 if ($options) {
                     $option_quantity = 0;
@@ -515,7 +522,7 @@ class Store_request extends MY_Controller{
                 $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
                 $tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
                 $ri = $row->id ? $row->id : $c;
-		        $item_key = $ri.'_'.$row->category_id.'_'.$row->subcategory_id.'_'.$row->brand_id;
+		        $item_key = $ri.'_'.$row->category_id.'_'.$row->subcategory_id.'_'.$row->brand_id.'_'.$row->option_id;
                 $pr[$item_key] = array('id' => $c, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")", 'row' => $row, 'combo_items' => $combo_items, 'tax_rate' => $tax_rate, 'units' => $units, 'options' => $options);
 				
                 $c++;
@@ -560,7 +567,7 @@ class Store_request extends MY_Controller{
 
         $analyzed = $this->sma->analyze_term($term);
         $sr = $analyzed['term'];
-        $option_id = $analyzed['option_id'];
+        $option_id = $analyzed['option_id'];// option id means variant id
         $warehouse = $this->siteprocurment->getWarehouseByID($warehouse_id);
         $rows = $this->siteprocurment->getProductNames($sr);
         if ($rows) {
@@ -573,9 +580,11 @@ class Store_request extends MY_Controller{
                 $row->item_tax_method = $row->tax_method;
                 $row->qty = 1;
                 $row->discount = '0';
+				$option_id=($row->option_id)?$row->option_id:0;
+				$row->option_id=$option_id;
                 $options = $this->store_request_model->getProductOptions($row->id, $warehouse_id);
                 if ($options) {
-                    $opt = $option_id && $r == 0 ? $this->store_request_model->getProductOptionByID($option_id) : $options[0];
+                    $opt = $option_id && $r == 0 ? $this->store_request_model->getrecipeOptionByID($option_id) : $options[0];
                     if (!$option_id || $r > 0) {
                         $option_id = $opt->id;
                     }
@@ -622,39 +631,36 @@ class Store_request extends MY_Controller{
                 $row->base_unit = $row->unit;
                 $row->base_unit_price = $row->price;
                 $row->unit = $row->purchase_unit ? $row->purchase_unit : $row->unit;
+				
                 $combo_items = false;
                 if ($row->type == 'combo') {
                     $combo_items = $this->store_request_model->getProductComboItems($row->id, $warehouse_id);
                 }
                 $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
                 $tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
-				
 				if($row->category_name != ''){
 					$cat = ' CAT - ' .$row->category_name;
 				}else{
 					$cat = '';
 				}
-				
 				if($row->subcategory_name != ''){
 					$sub_cat = ' | SUBCAT - ' .$row->subcategory_name;
 				}else{
 					$sub_cat = '';
 				}
-				
 				if($row->brand_name != ''){
 					$brand = ' | BRAND - ' .$row->brand_name;
 				}else{
 					$brand = '';
 				}
-
                 $pr[] = array('id' => ($c + $r), 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")" . $cat.$sub_cat.$brand,  'category_name' => $row->category_name, 'category_name' => $row->category_name,
                     'row' => $row, 'combo_items' => $combo_items, 'tax_rate' => $tax_rate, 'units' => $units, 'options' => $options);
                 $r++;
             }
             $this->sma->send_json($pr);
-        } else {
+           } else {
             $this->sma->send_json(array(array('id' => 0, 'label' => lang('no_match_found'), 'value' => $term)));
-        }
+          }
     }
 
     public function store_request_actions(){
@@ -674,7 +680,6 @@ class Store_request extends MY_Controller{
                     redirect($_SERVER["HTTP_REFERER"]);
 
                 } elseif ($this->input->post('form_action') == 'combine') {
-
                     $html = $this->combine_pdf($_POST['val']);
 
                 } elseif ($this->input->post('form_action') == 'export_excel') {

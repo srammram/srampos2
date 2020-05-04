@@ -4549,16 +4549,15 @@ $this->sma->checkPermissions('sales_type');
         echo $this->datatables->generate();
     }
 
-    function add_tills()
-    {
-       
-        $this->form_validation->set_rules('system_ip', lang("system_ip"), 'trim|is_unique[tills.system_ip]|required');
-
+    function add_tills(){
+        
+		$this->form_validation->set_rules('system_ip', lang("system_ip"), 'trim|is_unique[tills.system_ip]|required');
         if ($this->form_validation->run() == true) {
              $data = array(
                 'system_name' => $this->input->post('system_name'),
                 'system_ip' => $this->input->post('system_ip'),
 				'warehouse_id' => $this->input->post('warehouse_id'),
+				'store_id' => $this->input->post('warehouse_id'),
 				'till_name' => $this->input->post('till_name')
            ); 
         } elseif ($this->input->post('add_tills')) {
@@ -4577,20 +4576,18 @@ $this->sma->checkPermissions('sales_type');
         }
     }
 
-    function edit_tills($id = NULL)
-    {
-       
+    function edit_tills($id = NULL){
         $this->form_validation->set_rules('system_ip', lang("system_ip"), 'trim|required');
         $tills_details = $this->settings_model->getTillsByID($id);
         if ($this->input->post('system_ip') != $tills_details->system_ip) {
             $this->form_validation->set_rules('system_ip', lang("system_ip"), 'required|is_unique[tills.system_ip]');
         }
-
         if ($this->form_validation->run() == true) {
             $data = array(
                 'system_name' => $this->input->post('system_name'),
                 'system_ip' => $this->input->post('system_ip'),
 				'warehouse_id' => $this->input->post('warehouse_id'),
+				'store_id' => $this->input->post('warehouse_id'),
 				'till_name' => $this->input->post('till_name')
            ); 
         } elseif ($this->input->post('edit_tills')) {
@@ -4610,16 +4607,13 @@ $this->sma->checkPermissions('sales_type');
         }
     }
 
-    function delete_tills($id = NULL)
-    {
+    function delete_tills($id = NULL){
         if ($this->settings_model->deleteTills($id)) {
             $this->sma->send_json(array('error' => 0, 'msg' => lang("tills_deleted")));
         }
     }
 
-    function create_sale_item_mapping()
-    {   
-
+    function create_sale_item_mapping(){   
         $this->form_validation->set_rules('days', lang('days'), 'required');
         if ($this->form_validation->run() == TRUE) {               
           $data = array(

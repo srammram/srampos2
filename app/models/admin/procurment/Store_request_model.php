@@ -186,9 +186,7 @@ class Store_request_model extends CI_Model{
         }
         return FALSE;
     }
-
-    public function getProductOptions($product_id, $warehouse_id)
-    {
+      public function getProductOptions($product_id, $warehouse_id){
         $this->db->select('product_variants.id as id, product_variants.name as name, product_variants.price as price, product_variants.quantity as total_quantity, warehouses_products_variants.quantity as quantity')
             ->join('warehouses_products_variants', 'warehouses_products_variants.option_id=product_variants.id', 'left')
             //->join('warehouses', 'warehouses.id=product_variants.warehouse_id', 'left')
@@ -206,9 +204,17 @@ class Store_request_model extends CI_Model{
         return FALSE;
     }
 
-    public function getProductOptionByID($id)
-    {
+    public function getProductOptionByID($id){
         $q = $this->db->get_where('product_variants', array('id' => $id), 1);
+        if ($q->num_rows() > 0) {
+            return $q->row();
+        }
+        return FALSE;
+    }
+	
+	
+	 public function getrecipeOptionByID($id){
+        $q = $this->db->get_where('recipe_variants', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
         }

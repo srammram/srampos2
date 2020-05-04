@@ -97,6 +97,23 @@ class Sync extends MY_Controller{
 			    break;
 				
 				
+			case 'store_indent_request':
+			    $this->sync_center->sync_storeIndentRequests();
+			    break;
+			case 'stock_request':
+			    $this->sync_store->sync_StockRequests();
+			    break;
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
 			
 			
 			
@@ -144,12 +161,7 @@ class Sync extends MY_Controller{
 			    $this->sync_both->sync_stock();
 				$this->sync_center->sync_stock();
 			    break;
-			case 'store_indent_request':
-			    $this->sync_center->sync_storeIndentRequests();
-			    break;
-			case 'stock_request':
-			    $this->sync_store->sync_StockRequests();
-			    break;
+			
 			case 'stock_transfer':
 			    $this->sync_center->sync_store_transfers();
 			    $this->sync_store->sync_StockReceiver();

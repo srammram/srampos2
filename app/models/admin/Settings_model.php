@@ -1514,13 +1514,19 @@ public function getBBQMenus()
 	public function addTills($data)
     {
         if ($this->db->insert('tills', $data)) {
+			 $till_id = $this->db->insert_id();
+        if ($till_id) {            
+            $unique_id = $this->site->generateUniqueTableID($till_id);
+            if ($till_id) {
+                $this->site->updateUniqueTableId($till_id,$unique_id,'tills');
+            }
+		}
             return true;
         }
         return false;
     }
 
-    public function updateTills($id, $data = array())
-    {
+    public function updateTills($id, $data = array()){
         $this->db->where('id', $id);
         if ($this->db->update('tills', $data)) {
             return true;

@@ -181,7 +181,7 @@ class Sync_store {
 	$a = $this->compare_server_local($db1,$db2,$table_name);
     }
 	
-	function sync_restaurant_kitchens(){
+	/* function sync_restaurant_kitchens(){
 	$table_name = 'restaurant_areas';
 	$this->CI->centerdb->select('r.*');
 	$this->CI->centerdb->from('restaurant_areas r');
@@ -193,7 +193,7 @@ class Sync_store {
 	$this->CI->db->where('warehouse_id',$this->CI->store_id);
 	$db2 = $this->CI->db->get()->result_array();
 	$a = $this->compare_server_local($db1,$db2,$table_name);
-    }
+    } */
 	function sync_taxrates(){
 		$table = 'tax_rates';
 		$this->sync_tables($table);
@@ -339,12 +339,40 @@ class Sync_store {
 	$table = 'permissions';
 	$this->sync_tables($table);
     }
-   
+    function sync_StockRequests(){
+	/** tables
+	 * pro_stock_request
+	 * pro_stock_request_items
+	 * */
+	if($this->CI->centerdb_connected){
+	    $table_name = 'pro_stock_request';
+	    $table_items = 'pro_stock_request_items';
+	    $db1 = $this->CI->centerdb->get_where($table_name,array('to_store_id'=>$this->CI->store_id))->result_array();	
+	    $db2 = $this->CI->db->get_where($table_name,array('to_store_id'=>$this->CI->store_id))->result_array();
+	    $data = $this->compare_server_local($db1,$db2);
+	    if(isset($data['insert']) && !empty($data['insert'])){
+		foreach($data['insert'] as $k => $insert_data){
+		    $this->CI->db->insert($table_name,$insert_data);
+		    $id = $insert_data['id'];
+		    $item_details = $this->getStockRequest_Items_id($id);
+		    $this->CI->db->insert_batch($table_items,$item_details);
+		 }
+	    }
+	   
+	}
+    }
    
 	
 	
 	
    
+  
+  
+  
+  
+  
+  
+  
   
   
   
@@ -418,28 +446,7 @@ class Sync_store {
 	$table = 'device_detail';
 	$this->sync_tables($table);
     }
-    function sync_StockRequests(){
-	/** tables
-	 * pro_stock_request
-	 * pro_stock_request_items
-	 * */
-	if($this->CI->centerdb_connected){
-	    $table_name = 'pro_stock_request';
-	    $table_items = 'pro_stock_request_items';
-	    $db1 = $this->CI->centerdb->get_where($table_name,array('to_store_id'=>$this->CI->store_id))->result_array();	
-	    $db2 = $this->CI->db->get_where($table_name,array('to_store_id'=>$this->CI->store_id))->result_array();
-	    $data = $this->compare_server_local($db1,$db2);
-	    if(isset($data['insert']) && !empty($data['insert'])){
-		foreach($data['insert'] as $k => $insert_data){
-		    $this->CI->db->insert($table_name,$insert_data);
-		    $id = $insert_data['id'];
-		    $item_details = $this->getStockRequest_Items_id($id);
-		    $this->CI->db->insert_batch($table_items,$item_details);
-		 }
-	    }
-	   
-	}
-    }
+   
     function sync_StockReceiver(){
 	/** tables
 	 * pro_store_receivers

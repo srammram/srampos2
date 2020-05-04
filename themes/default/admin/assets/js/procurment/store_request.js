@@ -693,7 +693,7 @@ $('#store_reqdiscount').focus(function () {
         }
         var new_qty = parseFloat($(this).val()),
         item_id = row.attr('data-item-id');
-		console.log(item_id);
+		console.log(store_reqitems);
         store_reqitems[item_id].row.base_quantity = new_qty;
         if(store_reqitems[item_id].row.unit != store_reqitems[item_id].row.base_unit) {
             $.each(store_reqitems[item_id].units, function(){
@@ -790,7 +790,6 @@ function nsSupplier() {
 
 //localStorage.clear();
 function loadItems() {
-
     if (localStorage.getItem('store_reqitems')) {
         total = 0;
         count = 1;
@@ -807,7 +806,6 @@ function loadItems() {
         var c = 1;
         $.each(sortedItems, function () {
             var item = this;
-            // var item_id = site.settings.item_addition == 1 ? item.item_id : item.item_id;
             var item_id = item.item_id;
             item.order = item.order ? item.order : new Date().getTime();
             var product_id = item.row.id, item_type = item.row.type, combo_items = item.combo_items, item_price = item.row.price, item_qty = item.row.qty, item_aqty = item.row.quantity, item_tax_method = item.row.tax_method, item_ds = item.row.discount, item_discount = 0, item_option = item.row.option, item_code = item.row.code, item_serial = item.row.serial, item_name = item.row.name.replace(/"/g, "&#034;").replace(/'/g, "&#039;");
@@ -835,6 +833,7 @@ function loadItems() {
                     }
                 });
             }
+
 
             var ds = item_ds ? item_ds : '0';
             if (ds.indexOf("%") !== -1) {
@@ -882,8 +881,8 @@ function loadItems() {
                 }
             });
             var row_no = (new Date).getTime();
-            var newTr = $('<tr id="row_' + row_no + '" class="row_' + item_id + '" data-item-id="' + item_id +'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id + '"></tr>');
-            tr_html = '<td><input name="product_id[]" type="hidden" class="rid" value="' + product_id + '"><input name="product_type[]" type="hidden" class="rtype" value="' + item_type + '"><input name="product_code[]" type="hidden" class="rcode" value="' + item_code + '"><input name="product_name[]" type="hidden" class="rname" value="' + item_name + '"><input name="product_option[]" type="hidden" class="roption" value="' + item_option + '"><span class="sname" id="name_' + row_no + '">' + item_code +' - '+ item_name +(sel_opt != '' ? ' ('+sel_opt+')' : '')+'</span> </td>';
+            var newTr = $('<tr id="row_' + row_no + '" class="row_' + item_id + '" data-item-id="' + item_id +'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id +'_'+item.row.option_id+'"></tr>');
+            tr_html = '<td><input name="product_id[]" type="hidden" class="rid" value="' + product_id + '"><input name="product_type[]" type="hidden" class="rtype" value="' + item_type + '"><input name="product_code[]" type="hidden" class="rcode" value="' + item_code + '"><input name="product_name[]" type="hidden" class="rname" value="' + item_name + '"><input name="product_option[]" type="hidden" class="roption" value="' + item.row.option_id + '"><span class="sname" id="name_' + row_no + '">' + item_code +' - '+ item_name +(sel_opt != '' ? ' ('+sel_opt+')' : '')+'</span> </td>';
 	    
 	    if (category_name==null) {category_name ='';}if (category_id==null) {category_id =0;}
 	    tr_html +='<td>'+
@@ -1003,7 +1002,6 @@ function loadItems() {
  * @returns {Boolean}
  ---------------------------- */
  function add_invoice_item(item) {
-console.log(item);
     if (count == 1) {
         store_reqitems = {};
         if ($('#store_reqwarehouse').val()) {
@@ -1022,8 +1020,8 @@ console.log(item);
         return;
 
    // var item_id = site.settings.item_addition == 1 ? item.item_id : item.id;
-	
-	var item_id = item.item_id+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id;
+	console.log(item.row.option_id);
+	var item_id = item.item_id+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id+'_'+item.row.option_id;
     if (store_reqitems[item_id]) {
         var new_qty = parseFloat(store_reqitems[item_id].row.qty) + 1;
         store_reqitems[item_id].row.base_quantity = new_qty;

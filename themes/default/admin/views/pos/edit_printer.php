@@ -14,7 +14,16 @@
                         <label class="control-label" for="title"><?= $this->lang->line("title"); ?></label>
                         <?= form_input('title', set_value('title', $printer->title), 'class="form-control input-sm" id="title"'); ?>
                     </div>
-
+				<div class="form-group">
+                <?= lang("warehouse", "warehouse"); ?>
+                <?php
+                $wh[''] = '';
+                foreach ($warehouses as $warehouse) {
+                    $wh[$warehouse->id] = $warehouse->name;
+                }
+                echo form_dropdown('warehouse_id', $wh,$printer->store_id, 'class="form-control" data-placeholder="' . lang("select") . ' ' . lang("warehouse") . '" required="required" style="width:100%;" ');
+                ?>
+            </div>
                     <div class="form-group">
                         <?= lang('type', 'type'); ?>
                         <?php
