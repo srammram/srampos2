@@ -1,130 +1,53 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 <script type="text/javascript">
     var count = 1, an = 1, product_variant = 0, DT = <?= $Settings->default_tax_rate ?>, allow_discount = <?= ($Owner || $Admin || $this->session->userdata('allow_discount')) ? 1 : 0; ?>,
-        product_tax = 0, invoice_tax = 0, total_discount = 0, total = 0, shipping = 0;
-         /*tax_rates = <?php echo json_encode($tax_rates); ?>;*/
+    product_tax = 0, invoice_tax = 0, total_discount = 0, total = 0, shipping = 0;
     var audio_success = new Audio('<?=$assets?>sounds/sound2.mp3');
     var audio_error = new Audio('<?=$assets?>sounds/sound3.mp3');
     $(document).ready(function () {
-        <?php if($this->input->get('customer')) { ?>
-        if (!localStorage.getItem('store_reqitems')) {
-            localStorage.setItem('store_reqcustomer', <?=$this->input->get('customer');?>);
-        }
-        <?php } ?>
-        <?php //if ($Owner || $Admin) { ?>
-        if (!localStorage.getItem('store_reqdate')) {
-            $("#store_reqdate").datetimepicker({
-                format: site.dateFormats.js_ldate,
-                fontAwesome: true,
-                language: 'common',
-                weekStart: 1,
-                todayBtn: 1,
-                autoclose: 1,
-                todayHighlight: 1,
-                startView: 2,
-                forceParse: 0
-            }).datetimepicker('update', new Date());
-        }
-        $(document).on('change', '#store_reqdate', function (e) {
-            localStorage.setItem('store_reqdate', $(this).val());
+        $(document).on('change', '#grn_date', function (e) {
+            localStorage.setItem('grn_date', $(this).val());
         });
-        if (store_reqdate = localStorage.getItem('store_reqdate')) {
-            $('#store_reqdate').val(store_reqdate);
+        if (grn_date = localStorage.getItem('grn_date')) {
+            $('#grn_date').val(grn_date);
         }
-        <?php //} ?>
-        $(document).on('change', '#store_reqbiller', function (e) {
-            localStorage.setItem('store_reqbiller', $(this).val());
+		 $(document).on('change', '#note', function (e) {
+            localStorage.setItem('note', $(this).val());
         });
-        if (store_reqbiller = localStorage.getItem('store_reqbiller')) {
-            $('#store_reqbiller').val(store_reqbiller);
+        if (note = localStorage.getItem('note')) {
+            $('#note').val(note);
         }
-		$(document).on('change', '#store_reqtype', function (e) {
-            localStorage.setItem('store_reqtype', $(this).val());
-        });
-        if (store_reqbiller = localStorage.getItem('store_reqtype')) {
-            $('#store_reqtype').val(store_reqtype);
+		
+		
+		if (pi_date = localStorage.getItem('pi_date')) {
+            $('.invoice_date').val(pi_date);
         }
-        if (!localStorage.getItem('store_reqtax2')) {
-            localStorage.setItem('store_reqtax2', <?=$Settings->default_tax_rate2;?>);
+		
+		if (invoice_amt = localStorage.getItem('invoice_amt')) {
+            $('.invoice_amt').val(invoice_amt);
         }
+		if (delivery_address = localStorage.getItem('delivery_address')) {
+            $('.delivery_address').val(delivery_address);
+        }
+		if (pi_supplier = localStorage.getItem('pi_supplier')) {
+            $('.pi_supplier').val(pi_supplier);
+        }
+		if (currency = localStorage.getItem('currency')) {
+            $('.currency').val(currency);
+        }
+		
+			if (supplier_address = localStorage.getItem('supplier_address')) {
+            $('.supplier_address').val(supplier_address);
+        }
+		if (pi_number = localStorage.getItem('pi_number')) {
+            $('.pi_number').val(pi_number);
+        }
+		
+		
+		
+		
+		
         ItemnTotals();
-        $("#add_item").autocomplete({
-            source: function (request, response) {
-                if (!$('#store_reqfrom_store_id').val() && !$('#store_reqto_store_id').val() ) {
-                    $('#add_item').val('').removeClass('ui-autocomplete-loading');
-                    bootbox.alert('<?=lang('select_above_from_store_and_to_store');?>');
-                    //response('');
-                    $('#add_item').focus();
-                    return false;
-                }
-                $.ajax({
-                    type: 'get',
-                    url: '<?= admin_url('procurment/store_request/suggestions'); ?>',
-                    dataType: "json",
-                    data: {
-                        term: request.term,
-                        warehouse_id: $("#store_reqwarehouse").val(),
-                        supplier_id: $("#store_reqsupplier").val()
-                    },
-                    success: function (data) {
-                        $(this).removeClass('ui-autocomplete-loading');
-                        response(data);
-                    }
-                });
-            },
-            minLength: 1,
-            autoFocus: false,
-            delay: 250,
-            response: function (event, ui) {
-                if ($(this).val().length >= 16 && ui.content[0].id == 0) {
-                    bootbox.alert('<?= lang('no_match_found') ?>', function () {
-                        $('#add_item').focus();
-                    });
-                    $(this).removeClass('ui-autocomplete-loading');
-                    $(this).val('');
-                }
-               
-                else if (ui.content.length == 1 && ui.content[0].id == 0) {
-                    bootbox.alert('<?= lang('no_match_found') ?>', function () {
-                        $('#add_item').focus();
-                    });
-                    $(this).removeClass('ui-autocomplete-loading');
-                    $(this).val('');
-
-                }
-            },
-            select: function (event, ui) {
-                event.preventDefault();
-                if (ui.item.id !== 0) {
-                    var row = add_invoice_item(ui.item);
-                    if (row)
-                        $(this).val('');
-                } else {
-                    bootbox.alert('<?= lang('no_match_found') ?>');
-                }
-            }
-        });
-		
-		
-		var store_reqfrom_store_id;
-        $('#store_reqfrom_store_id').on("select2-focus", function (e) {
-            store_reqfrom_store_id = $(this).val();
-        }).on("select2-close", function (e) {
-            if ($(this).val() != '' && $(this).val() == $('#store_reqto_store_id').val()) {
-                $(this).select2('val', store_reqfrom_store_id);
-                bootbox.alert('<?= lang('please_select_different_store') ?>');
-            }
-        });
-        var store_reqto_store_id;
-        $('#store_reqto_store_id').on("select2-focus", function (e) {
-            store_reqto_store_id = $(this).val();
-        }).on("select2-close", function (e) {
-            if ($(this).val() != '' && $(this).val() == $('#store_reqfrom_store_id').val()) {
-                $(this).select2('val', store_reqto_store_id);
-                bootbox.alert('<?= lang('please_select_different_store') ?>');
-            }
-        });
-		
     });
 </script>
 
@@ -144,10 +67,7 @@
                         <?php echo form_submit('add_grn', $this->lang->line("save"), 'id="add_grn" class="btn col-lg-1 btn-sm btn-primary pull-right" '); ?>
                         <button type="button" class="btn col-lg-1 btn-sm btn-danger pull-right" id="reset" style="margin-right:15px;height:30px!important;font-size: 12px!important"><?= lang('reset'); ?></button>
 
-                        <input type="hidden" name="warehouse" id="store_reqwarehouse" 
-                        value="<?php echo $Settings->default_warehouse ?>">
-                        <input type="hidden" name="biller" id="reqbiller" value="<?php echo $Settings->default_biller ?>"> 
-                    
+                        
                         <table class="table custom_tables">
                             <tbody>
                                 <tr>
@@ -155,15 +75,15 @@
                                         <?= lang("date", "date") ?>
                                     </td>
                                     <td>
-                                        <input type="datetime" name="date" id="store_reqdate" readonly class="form-control" value="<?php echo date('Y-m-d H:i:s') ?>">
-                                     <input type="hidden" name="request_type" id="store_reqtype" value="<?php echo 'new' ?>">
+                                        <input type="datetime" name="date" id="grn_date" readonly class="form-control" value="<?php echo date('Y-m-d H:i:s') ?>">
+                                    
                                     </td>                                              
                                      <td width="150px">
                                         <?= lang("reference_no", "reference_no"); ?>
                                     </td>
                                     <td>
                                         <?php
-                                        $n = $this->siteprocurment->lastidPurchaseInv();
+                                        $n = $this->siteprocurment->lastidGrn();
                                         $n2 = str_pad($n + 1, 5, 0, STR_PAD_LEFT);
                                         ?>
                                         <input  name="reference_no" id="reference_no" readonly tabindex=-1 class="form-control" value="<?php echo $n2 ?>">
@@ -203,49 +123,70 @@
                                         <?= lang("Remarks/Note", "note") ?>
                                     </td>
                                     <td>
-                                        <input  name="note" id="reqnote" class="form-control" >
+                                        <input  name="note" id="note" class="form-control" >
                                     </td>  
                                 </tr>
 								<tr>
-                                    <td>
-                                        <?= lang("invoice_date", "invoice_date") ?>
-                                    </td>
-                                    <td>                                        
-                                        <input type="datetime" name="invoice_date" id="invoice_date"  class="required form-control">
-                                    </td>
-                                    <td>
-                                        <?= lang("invoice_no", "invoice_no") ?>
-                                    </td>
-                                    <td>                                        
-                                        <input type="text" name="invoice_no" id="invoice_no"  class="required form-control" value="">
-                                    </td>
-                                    <td>
+								 <td>
                                         <?= lang("load_pi", "load_pi") ?>
                                     </td>
                                     <td>
-                                        <?php
-                                           $po[''] = '';
-                                            foreach ($purchaseorder as $purchaseorder_row) {
-                                                $po[$purchaseorder_row->id] = $purchaseorder_row->reference_no;
-                                            }
-                                            echo form_dropdown('po_number', $po, (isset($_POST['po_number']) ? $_POST['po_number'] : 0 ), ' class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("pi_number") . '"style="width:100%;" id="pi_requestnumber"  ');
+                                        <?php  $pi[''] = '';
+                                             foreach ($invoicelist as $row) {
+                                                $pi[$row->id] = $row->reference_no;
+                                             }
+                                              echo form_dropdown('pi_number', $pi, (isset($_POST['pi_number']) ? $_POST['pi_number'] : 0 ), ' class="form-control pi_number input-tip select" data-placeholder="' . lang("select") . ' ' . lang("pi_number") . '"style="width:100%;" id="pi_number"  ');
                                         ?>
+                                    </td>
+                                    <td width="100px">
+										<?= lang("supplier", "pi_supplier"); ?>
+									</td>
+									<td width="350px">
+										<div class="input-group">
+											<?php
+												$sl[""] = "";
+												foreach ($suppliers as $supplier) {
+													$sl[$supplier->id] = $supplier->name;
+												}
+												echo form_dropdown('supplier', $sl, (isset($_POST['supplier']) ? $_POST['supplier'] : 0), 'id="pi_supplier" data-placeholder="' . $this->lang->line("select") . ' ' . $this->lang->line("supplier") . '"  class="form-control pi_supplier input-tip select" readonly style="width:100%;"');
+											?>
+											<div class="input-group-addon no-print" style="padding: 2px 5px;">
+											<a href="<?= admin_url('procurment/supplier/add'); ?>" id="add-supplier1" class="external" data-toggle="modal" data-target="#myModal">
+											<i class="fa fa-2x fa-plus-square" id="addIcon1"></i>
+											</a>
+										</div>
+										</div>
+										</td>
+										 <td>
+                                        <?= lang("invoice_date", "invoice_date") ?>
+                                    </td>
+                                    <td>                                        
+                                        <input type="datetime"   class="required form-control invoice_date">
+										   <input type="hidden" name="invoice_date" id="invoice_date"  class="required form-control invoice_date">
                                     </td>
                                 </tr>
 								<tr>
-                               
-                                
+								<td>
+                                        <?= lang("supplier_address", "supplier_address") ?>
+                                    </td>
+                                    <td> 
+                                       <input type="text" name="supplier_address" id="supplier_address" class="required form-control supplier_address" value="">
+									     <input type="hidden"   class="required form-control supplier_address" value="">
+                                    </td>
                                      <td>
                                         <?= lang("invoice_amt", "invoice_amt") ?>
                                     </td>
                                     <td> 
-                                       <input type="text" name="invoice_amt" id="invoice_amt" class="required form-control numberonly" value="">
+                                       <input type="text"  id="invoice_amt" class="required form-control invoice_amt numberonly" value="">
+									   
+									      <input type="hidden" name="invoice_amt"  class="required form-control invoice_amt numberonly" value="">
                                     </td>
 									<td>
                                         <?= lang("delivery_address", "delivery_address") ?>
                                     </td>
                                     <td> 
-                                       <input type="text" name="delivery_address" id="delivery_address" class="required form-control numberonly" value="">
+                                       <input type="text"  id="delivery_address" class="required form-control delivery_address numberonly" readonly>
+									     <input type="hidden" name="delivery_address"  class="required form-control delivery_address " >
                                     </td>
                                 </tr>
                             </tbody>
@@ -254,14 +195,14 @@
                      </div> 
 
                         <div class="clearfix"></div>
-                         <div class="col-md-12" id="sticker">
+                        <div class="col-md-12" id="sticker">
                             <div class="well well-sm">
                               
                                 <div class="form-group" style="margin-bottom:0;">
                                     <div class="input-group wide-tip">
                                         <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
                                             <i class="fa fa-2x fa-barcode addIcon"></i></div>
-                                        <?php echo form_input('add_item', '', 'class="form-control input-lg" id="add_item" placeholder="' . $this->lang->line("Search Purchase Items") . '"'); ?>
+                                        <?php echo form_input('add_item', '', 'class="form-control input-lg" id="add_item"  readonly placeholder="' . $this->lang->line("Search Purchase Items") . '"'); ?>
                                        
                                         <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
                                             <a href="javascript:void(0)" id="addManually1"><i
@@ -301,8 +242,6 @@
                                 </div>
                             </div>
                         </div>
-
-                     
                     </div>
 					
                 </div>
@@ -333,3 +272,78 @@
         </div>
     </div>
 </div>
+<script>
+$(document).on('change', '#pi_number', function(){
+	if (localStorage.getItem('pi_items')) {
+        localStorage.removeItem('pi_items');
+    }
+	if (localStorage.getItem('pi_number')) {
+        localStorage.removeItem('pi_number');
+    }
+    if (localStorage.getItem('pi_invoiceno')) {
+        localStorage.removeItem('pi_invoiceno');
+    }
+    if (localStorage.getItem('pi_warehouse')) {
+        localStorage.removeItem('pi_warehouse');
+    }
+    if (localStorage.getItem('pi_supplier')) {
+        localStorage.removeItem('pi_supplier');
+    }
+    if (localStorage.getItem('pi_currency')) {
+        localStorage.removeItem('pi_currency');
+    }
+    if (localStorage.getItem('pi_date')) {
+        localStorage.removeItem('pi_date');
+    }
+	  if (localStorage.getItem('delivery_address')) {
+        localStorage.removeItem('delivery_address');
+    }
+	 if (localStorage.getItem('supplier_address')) {
+        localStorage.removeItem('supplier_address');
+    }
+	if (localStorage.getItem('invoice_amt')) {
+        localStorage.removeItem('invoice_amt');
+    }
+	
+  
+	var pi_number = $(this).val();
+	$.ajax({
+		type: 'get',
+		url: '<?= admin_url('procurment/grn/purchase_invoice_list'); ?>',
+		dataType: "json",
+		data: {
+			poref: pi_number
+		},
+		success: function (data) {
+			var purchase_invoices_value = [];
+			$(this).removeClass('ui-autocomplete-loading');
+			var items = JSON.stringify(data.value['purchase_invoicesitem']);
+			var purchase_invoices = JSON.stringify(data.value['purchase_invoices']);
+			purchase_invoices_value = $.parseJSON(purchase_invoices);
+			localStorage.setItem('pi_number',purchase_invoices_value["id"]);
+			localStorage.setItem('pi_date',purchase_invoices_value["date"]);
+			localStorage.setItem('pi_supplier',purchase_invoices_value["supplier_id"]);
+			localStorage.setItem('supplier_address',purchase_invoices_value["supplier_address"]);
+			localStorage.setItem('pi_currency',purchase_invoices_value["currency"]);
+			localStorage.setItem('pi_invoiceno',purchase_invoices_value["invoice_no"]);
+			localStorage.setItem('invoice_amt',purchase_invoices_value["invoice_amt"]);
+			localStorage.setItem('delivery_address',purchase_invoices_value["address"]);
+			
+			$('.invoice_date').val(localStorage.getItem('pi_date'));
+			$('.supplier_address').val(localStorage.getItem('supplier_address'));
+			$('.invoice_amt').val(localStorage.getItem('invoice_amt'));
+			$('.delivery_address').val(localStorage.getItem('delivery_address'));
+			
+			$('.pi_supplier').val(localStorage.getItem('pi_supplier'));
+			$('.pi_supplier').change();
+			
+			$('.currency').val(localStorage.getItem('pi_currency'));
+			$('.currency').change();
+			localStorage.setItem('grn_items', items);
+			
+			loadItems();
+		}
+	});
+});
+
+</script>

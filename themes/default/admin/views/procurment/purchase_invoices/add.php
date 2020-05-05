@@ -256,8 +256,8 @@
 									<a href="<?= admin_url('procurment/supplier/add'); ?>" id="add-supplier1" class="external" data-toggle="modal" data-target="#myModal">
 									<i class="fa fa-2x fa-plus-square" id="addIcon1"></i>
 									</a>
-								</div>
-							</div>
+								   </div>
+						         	</div>
                                     </td>
                                     <td width="100px">
                                         <?= lang("Supplier Address", "supplier_address") ?>
@@ -389,7 +389,7 @@
                             </div>
                         </div>
 					<style>
-						.total_item_qty_tables tbody tr td:last-child{width: 12%;}
+					.total_item_qty_tables tbody tr td:last-child{width: 12%;}
 </style>
                         <div class="col-md-12">
                             <div class="control-group table-group">

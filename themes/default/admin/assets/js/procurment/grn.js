@@ -94,54 +94,36 @@ if (site.settings.set_focus != 1) {
     $('#reset').click(function (e) {
             bootbox.confirm(lang.r_u_sure, function (result) {
                 if (result) {
-                    if (localStorage.getItem('store_reqitems')) {
-                        localStorage.removeItem('store_reqitems');
-                    }
-                    if (localStorage.getItem('store_reqdiscount')) {
-                        localStorage.removeItem('store_reqdiscount');
-                    }
-                    if (localStorage.getItem('store_reqtax2')) {
-                        localStorage.removeItem('store_reqtax2');
-                    }
-                    if (localStorage.getItem('store_reqshipping')) {
-                        localStorage.removeItem('store_reqshipping');
-                    }
-                    if (localStorage.getItem('store_reqref')) {
-                        localStorage.removeItem('store_reqref');
-                    }
-                    if (localStorage.getItem('store_reqwarehouse')) {
-                        localStorage.removeItem('store_reqwarehouse');
-                    }
-					if (localStorage.getItem('store_reqfrom_store_id')) {
-                        localStorage.removeItem('store_reqfrom_store_id');
-                    }
-					if (localStorage.getItem('store_reqto_store_id')) {
-                        localStorage.removeItem('store_reqto_store_id');
-                    }
-					if (localStorage.getItem('store_reqstore')) {
-                        localStorage.removeItem('store_reqstore');
-                    }
-                    if (localStorage.getItem('store_reqnote')) {
-                        localStorage.removeItem('store_reqnote');
-                    }
-                    if (localStorage.getItem('store_reqinnote')) {
-                        localStorage.removeItem('store_reqinnote');
-                    }
-                    if (localStorage.getItem('store_reqcustomer')) {
-                        localStorage.removeItem('store_reqcustomer');
-                    }
-                    if (localStorage.getItem('store_reqcurrency')) {
-                        localStorage.removeItem('store_reqcurrency');
-                    }
-                    if (localStorage.getItem('store_reqdate')) {
-                        localStorage.removeItem('store_reqdate');
-                    }
-                    if (localStorage.getItem('store_reqstatus')) {
-                        localStorage.removeItem('store_reqstatus');
-                    }
-                    if (localStorage.getItem('store_reqbiller')) {
-                        localStorage.removeItem('store_reqbiller');
-                    }
+                   if (localStorage.getItem('pi_items')) {
+						localStorage.removeItem('pi_items');
+					}
+					if (localStorage.getItem('pi_number')) {
+						localStorage.removeItem('pi_number');
+					}
+					if (localStorage.getItem('pi_invoiceno')) {
+						localStorage.removeItem('pi_invoiceno');
+					}
+					if (localStorage.getItem('pi_warehouse')) {
+						localStorage.removeItem('pi_warehouse');
+					}
+					if (localStorage.getItem('pi_supplier')) {
+						localStorage.removeItem('pi_supplier');
+					}
+					if (localStorage.getItem('pi_currency')) {
+						localStorage.removeItem('pi_currency');
+					}
+					if (localStorage.getItem('pi_date')) {
+					localStorage.removeItem('pi_date');
+					}
+					if (localStorage.getItem('delivery_address')) {
+						localStorage.removeItem('delivery_address');
+					}
+					if (localStorage.getItem('supplier_address')) {
+					localStorage.removeItem('supplier_address');
+					}
+					if (localStorage.getItem('invoice_amt')) {
+						localStorage.removeItem('invoice_amt');
+					}
 
                     $('#modal-loading').show();
                     location.reload();
@@ -790,7 +772,7 @@ function nsSupplier() {
 
 //localStorage.clear();
 function loadItems() {
-    if (localStorage.getItem('store_reqitems')) {
+    if (localStorage.getItem('grn_items1')) {  
         total = 0;
         count = 1;
         an = 1;
@@ -800,8 +782,8 @@ function loadItems() {
         order_discount = 0;
         total_discount = 0;
         $("#store_reqTable tbody").empty();
-        store_reqitems = JSON.parse(localStorage.getItem('store_reqitems'));
-        sortedItems = store_reqitems;
+        grn_items = JSON.parse(localStorage.getItem('grn_items'));
+        sortedItems = grn_items;
         $('#add_sale, #edit_sale').attr('disabled', false);
         var c = 1;
         $.each(sortedItems, function () {
@@ -1003,7 +985,7 @@ function loadItems() {
  ---------------------------- */
  function add_invoice_item(item) {
     if (count == 1) {
-        store_reqitems = {};
+        grn_items = {};
         if ($('#store_reqwarehouse').val()) {
             $('#store_reqcustomer').select2("readonly", true);
             $('#store_reqwarehouse').select2("readonly", true);
@@ -1022,23 +1004,23 @@ function loadItems() {
    // var item_id = site.settings.item_addition == 1 ? item.item_id : item.id;
 	console.log(item.row.option_id);
 	var item_id = item.item_id+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id+'_'+item.row.option_id;
-    if (store_reqitems[item_id]) {
-        var new_qty = parseFloat(store_reqitems[item_id].row.qty) + 1;
-        store_reqitems[item_id].row.base_quantity = new_qty;
-        if(store_reqitems[item_id].row.unit != store_reqitems[item_id].row.base_unit) {
-            $.each(store_reqitems[item_id].units, function(){
-                if (this.id == store_reqitems[item_id].row.unit) {
-                    store_reqitems[item_id].row.base_quantity = unitToBaseQty(new_qty, this);
+    if (grn_items[item_id]) {
+        var new_qty = parseFloat(grn_items[item_id].row.qty) + 1;
+        grn_items[item_id].row.base_quantity = new_qty;
+        if(grn_items[item_id].row.unit != grn_items[item_id].row.base_unit) {
+            $.each(grn_items[item_id].units, function(){
+                if (this.id == grn_items[item_id].row.unit) {
+                    grn_items[item_id].row.base_quantity = unitToBaseQty(new_qty, this);
                 }
             });
         }
-        store_reqitems[item_id].row.qty = new_qty;
+        grn_items[item_id].row.qty = new_qty;
 
     } else {
-        store_reqitems[item_id] = item;
+        grn_items[item_id] = item;
     }
-    store_reqitems[item_id].order = new Date().getTime();
-    localStorage.setItem('store_reqitems', JSON.stringify(store_reqitems));
+    grn_items[item_id].order = new Date().getTime();
+    localStorage.setItem('grn_items', JSON.stringify(grn_items));
     loadItems();
     return true;
 	

@@ -1042,7 +1042,7 @@ function loadItems() {
 		    	}else{
 				var mfgdate = new Date();
 				mfgdate.setDate(mfgdate.getDate() + item_days);
-				var mfgfinalDate = mfgdate.getFullYear()+'-'+ (mfgdate.getMonth() < 9 ? '0': '') + (mfgdate.getMonth()+1) +'-' (mfgdate.getDate() < 9 ? '0': '') + mfgdate.getDate();
+				var mfgfinalDate = mfgdate.getFullYear()+'-'+ (mfgdate.getMonth() < 9 ? '0': '') + (mfgdate.getMonth()+1) +'-' +(mfgdate.getDate() < 9 ? '0': '') + mfgdate.getDate();
 				var item_mfg = mfgfinalDate;
 				var expirydate = new Date(mfgfinalDate);
 				expirydate.setDate(expirydate.getDate() + item_days);
@@ -1090,6 +1090,7 @@ function loadItems() {
                 $.each(item.units, function(){
                     if (this.id == product_unit) {
                         base_quantity = formatDecimal(unitToBaseQty(item.row.qty, this), 4);
+						
                       //  unit_price = formatDecimal((parseFloat(item.row.base_unit_price)*(unitToBaseQty(1, this))), 4);
                     }
                 });

@@ -96,8 +96,11 @@ $s2_file_date = $this->parser->parse_string($s2_lang_file, $s2_data, true);
 <?= ($m == 'indent_process' && ($v == 'add' || $v == 'edit')) ? '<script type="text/javascript" src="' . $assets . 'js/procurment/indent_process.js?v1=1"></script>' : ''; ?>
 <?php //} ?>
 
+<?= ($m == 'grn' && ($v == 'add' || $v == 'edit')) ? '<script type="text/javascript" src="' . $assets . 'js/procurment/grn.js?v1=1"></script>' : ''; ?>
 
 <?= ( ($m == 'products' || $m == 'recipe') && ($v == 'add_adjustment' || $v == 'edit_adjustment')) ? '<script type="text/javascript" src="' . $assets . 'js/adjustments.js"></script>' : ''; ?>
+
+
 
 <script type="text/javascript" charset="UTF-8">var oTable = '', r_u_sure = "<?=lang('r_u_sure')?>";
     <?=$s2_file_date?>

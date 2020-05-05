@@ -7,14 +7,15 @@ class Grn_model extends CI_Model{
     }
 	
 	 public function getPurchase_invoicesByID($id){
-     $this->db->select('pro_purchase_invoices.*')
-	->from('pro_purchase_invoices')
-	->join('pro_purchase_invoice_items','pro_purchase_invoice_items.invoice_id=pro_purchase_invoices.id','left')
-	->where('pro_purchase_invoices.status', 'approved')
-	->where('pro_purchase_invoices.store_id',$this->store_id)
-	->where('pro_purchase_invoice_items.id',$id)
-	->group_by('pro_purchase_invoices.id')
-	->limit(1);
+      $this->db->select('pro_purchase_invoices.*,warehouses.name,warehouses.address,warehouses.id as deliver_tostore')
+	  ->from('pro_purchase_invoices')
+	  ->join('pro_purchase_invoice_items','pro_purchase_invoice_items.invoice_id=pro_purchase_invoices.id','left')
+	  ->join('warehouses','warehouses.id=pro_purchase_invoice_items.store_id','left')
+	 //->where('pro_purchase_invoices.status', 'approved')
+	 ->where('pro_purchase_invoice_items.store_id',$this->store_id)
+	 ->where('pro_purchase_invoice_items.id',$id)
+	 ->group_by('pro_purchase_invoices.id')
+	 ->limit(1);
         $q = $this->db->get();
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -25,7 +26,8 @@ class Grn_model extends CI_Model{
 		$this->db->select("pro_purchase_invoice_items.*");
 		$this->db->where("invoice_id",$id);
 		$this->db->where("store_id",$this->store_id);
-		$q=$this->db->get();
+		$this->db->where("is_complete",0);
+		$q=$this->db->get("pro_purchase_invoice_items");
 		if($q->num_rows()>0){
 			foreach($q->result() as $row){
 				$data[]=$row;
@@ -52,7 +54,23 @@ class Grn_model extends CI_Model{
         }
         return FALSE;
     }
-	
+	 public function getProductOptions($product_id, $warehouse_id){
+        $this->db->select('product_variants.id as id, product_variants.name as name, product_variants.price as price, product_variants.quantity as total_quantity, warehouses_products_variants.quantity as quantity')
+            ->join('warehouses_products_variants', 'warehouses_products_variants.option_id=product_variants.id', 'left')
+            //->join('warehouses', 'warehouses.id=product_variants.warehouse_id', 'left')
+            ->where('product_variants.product_id', $product_id)
+            ->where('warehouses_products_variants.warehouse_id', $warehouse_id)
+            ->where('warehouses_products_variants.quantity >', 0)
+            ->group_by('product_variants.id');
+        $q = $this->db->get('product_variants');
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return FALSE;
+    }
 	
 	
 	
@@ -249,23 +267,7 @@ class Grn_model extends CI_Model{
         }
         return FALSE;
     }
-      public function getProductOptions($product_id, $warehouse_id){
-        $this->db->select('product_variants.id as id, product_variants.name as name, product_variants.price as price, product_variants.quantity as total_quantity, warehouses_products_variants.quantity as quantity')
-            ->join('warehouses_products_variants', 'warehouses_products_variants.option_id=product_variants.id', 'left')
-            //->join('warehouses', 'warehouses.id=product_variants.warehouse_id', 'left')
-            ->where('product_variants.product_id', $product_id)
-            ->where('warehouses_products_variants.warehouse_id', $warehouse_id)
-            ->where('warehouses_products_variants.quantity >', 0)
-            ->group_by('product_variants.id');
-        $q = $this->db->get('product_variants');
-        if ($q->num_rows() > 0) {
-            foreach (($q->result()) as $row) {
-                $data[] = $row;
-            }
-            return $data;
-        }
-        return FALSE;
-    }
+     
 
     public function getProductOptionByID($id){
         $q = $this->db->get_where('product_variants', array('id' => $id), 1);

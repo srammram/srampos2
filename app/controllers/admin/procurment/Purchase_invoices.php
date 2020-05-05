@@ -79,10 +79,8 @@ class Purchase_invoices extends MY_Controller{
 	}
 
 	public function supplier(){
-		
 		$supplier_id =  $this->input->get('supplier_id');
 		$data = $this->purchase_invoices_model->getSupplierdetails($supplier_id);
-		
 		if(!empty($data)){
 			$response['supplier_name'] = $data->name;
 			$response['supplier_code'] = $data->ref_id;
@@ -103,11 +101,8 @@ class Purchase_invoices extends MY_Controller{
 	}
     /* ------------------------------------------------------------------------- */
 
-    public function index($warehouse_id = null)
-    {
-         
+    public function index($warehouse_id = null){
         $this->sma->checkPermissions();
-
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         if ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) {
             $this->data['warehouses'] = $this->siteprocurment->getAllWarehouses();
@@ -118,42 +113,27 @@ class Purchase_invoices extends MY_Controller{
             $this->data['warehouse_id'] = $this->session->userdata('warehouse_id');
             $this->data['warehouse'] = $this->session->userdata('warehouse_id') ? $this->siteprocurment->getWarehouseByID($this->session->userdata('warehouse_id')) : null;
         }
-
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => '#', 'page' => lang('purchase_invoices')));
         $meta = array('page_title' => lang('purchase_invoices'), 'bc' => $bc);
         $this->page_construct('procurment/purchase_invoices/index', $meta, $this->data);
-
     }
 
-    public function getPurchase_invoices($warehouse_id = null)
-    { 
-
-               
+    public function getPurchase_invoices($warehouse_id = null){ 
         $detail_link = anchor('admin/procurment/purchase_invoices/view/$1', '<i class="fa fa-file-text-o"></i> ' . lang('purchase_invoices_details'));
         $payments_link = anchor('admin/procurment/purchase_invoices/payments/$1', '<i class="fa fa-money"></i> ' . lang('view_payments'), 'data-toggle="modal" data-target="#myModal"');
         $add_payment_link = anchor('admin/procurment/purchase_invoices/add_payment/$1', '<i class="fa fa-money"></i> ' . lang('add_payment'), 'data-toggle="modal" data-target="#myModal"');
         $email_link = anchor('admin/procurment/purchase_invoices/email/$1', '<i class="fa fa-envelope"></i> ' . lang('email_purchase_invoices'), 'data-toggle="modal" data-target="#myModal"');
         $edit_link = anchor('admin/procurment/purchase_invoices/edit/$1', '<i class="fa fa-edit"></i> ' . lang('edit_purchase_invoices'));
         $view_link = '<a href="'.admin_url('procurment/purchase_invoices/view/$1').'" data-toggle="modal" data-target="#myModal"><i class="fa fa-edit"></i>'.lang('view_purchase_invoice').'</a>';
-	$pdf_link = anchor('admin/procurment/purchase_invoices/pdf/$1', '<i class="fa fa-file-pdf-o"></i> ' . lang('download_pdf'));
+		$pdf_link = anchor('admin/procurment/purchase_invoices/pdf/$1', '<i class="fa fa-file-pdf-o"></i> ' . lang('download_pdf'));
         $print_barcode = anchor('admin/procurment/products/print_barcodes/?purchase=$1', '<i class="fa fa-print"></i> ' . lang('print_barcodes'));
         $return_link = anchor('admin/procurment/purchase_invoices/return_purchase/$1', '<i class="fa fa-angle-double-left"></i> ' . lang('return_purchase'));
         $delete_link = "<a href='#' class='po' title='<b>" . $this->lang->line("delete_quotation") . "</b>' data-content=\"<p>"
         . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete' href='" . admin_url('procurment/purchase_invoices/delete/$1') . "'>"
         . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i> "
         . lang('delete_purchase_invoices') . "</a>";
-        /*$action = '<div class="text-center"><div class="btn-group text-left">'
-        . '<button type="button" class="btn btn-default btn-xs btn-primary dropdown-toggle" data-toggle="dropdown">'
-        . lang('actions') . ' <span class="caret"></span></button>
-        <ul class="dropdown-menu pull-right" role="menu">
-            <li>' . $detail_link . '</li>            
-            <li>' . $edit_link . '</li>
-            <li>' . $pdf_link . '</li>
-            <li>' . $email_link . '</li>            
-            <li>' . $delete_link . '</li>
-        </ul>
-    </div></div>';*/
-	$action = '<div class="text-center"><div class="btn-group text-left">'
+        
+		$action = '<div class="text-center"><div class="btn-group text-left">'
         . '<button type="button" class="btn btn-default btn-xs btn-primary dropdown-toggle" data-toggle="dropdown">'
         . lang('actions') . ' <span class="caret"></span></button>
         <ul class="dropdown-menu pull-right" role="menu">
@@ -162,33 +142,23 @@ class Purchase_invoices extends MY_Controller{
             <li>' . $delete_link . '</li>
         </ul>
     </div></div>';
-        //$action = '<div class="text-center">' . $detail_link . ' ' . $edit_link . ' ' . $email_link . ' ' . $delete_link . '</div>';
-// echo "string";exit;
         $this->load->library('datatables');
         if ($warehouse_id) {        
-            //echo "string";die;
-            $this->datatables
+                $this->datatables
                 ->select("pro_purchase_invoices.id as invid, DATE_FORMAT({$this->db->dbprefix('pro_purchase_invoices')}.date, '%Y-%m-%d %T') as date, pro_purchase_invoices.reference_no, pro_purchase_orders.reference_no as po_number,pro_purchase_invoices.invoice_no, C.name as supplier, pro_purchase_invoices.total, pro_purchase_invoices.total_discount, pro_purchase_invoices.total_tax, pro_purchase_invoices.grand_total, pro_purchase_invoices.status,IFNULL({$this->db->dbprefix('pro_purchase_invoices')}.attachment,0) attachment",FALSE)
                 ->from('pro_purchase_invoices')
                 ->join('pro_purchase_orders','pro_purchase_orders.id=pro_purchase_invoices.po_number','left')
                  ->join('companies C','C.id=pro_purchase_invoices.supplier_id' ,'left')
                 ->where('pro_purchase_invoices.warehouse_id', $warehouse_id);
         } else {
-            // echo "sdsd";exit;
-            $this->datatables
+                 $this->datatables
                  ->select("pro_purchase_invoices.id as invid, DATE_FORMAT({$this->db->dbprefix('pro_purchase_invoices')}.date, '%Y-%m-%d %T') as date, pro_purchase_invoices.reference_no, pro_purchase_orders.reference_no as po_number,pro_purchase_invoices.invoice_no, C.name as supplier, pro_purchase_invoices.total, pro_purchase_invoices.total_discount, pro_purchase_invoices.total_tax, pro_purchase_invoices.grand_total, pro_purchase_invoices.status,IFNULL({$this->db->dbprefix('pro_purchase_invoices')}.attachment,0) attachment",FALSE)
                 ->from('pro_purchase_invoices')
                 ->join('pro_purchase_orders','pro_purchase_orders.id=pro_purchase_invoices.po_number','left')
                 ->join('companies C','C.id=pro_purchase_invoices.supplier_id' ,'left');
                 
         }
-        // $this->datatables->where('status !=', 'returned');
-        /*if (!$this->Customer && !$this->Supplier && !$this->Owner && !$this->Admin && !$this->session->userdata('view_right')) {
-            $this->datatables->where('created_by', $this->session->userdata('user_id'));
-        } elseif ($this->Supplier) {
-            $this->datatables->where('customer_id', $this->session->userdata('user_id'));
-        }*/
-	$this->datatables->edit_column('attachment', '$1__$2', $this->digital_upload_path.', attachment');
+		$this->datatables->edit_column('attachment', '$1__$2', $this->digital_upload_path.', attachment');
         $this->datatables->add_column("Actions", $action, "invid");
 
         echo $this->datatables->generate();
@@ -196,10 +166,7 @@ class Purchase_invoices extends MY_Controller{
 
     /* ----------------------------------------------------------------------------- */
 
-    public function modal_view($purchase_invoices_id = null)
-    {
-        //$this->sma->checkPermissions('index', true);
-
+    public function modal_view($purchase_invoices_id = null){
         if ($this->input->get('id')) {
             $purchase_invoices_id = $this->input->get('id');
         }
@@ -215,9 +182,6 @@ class Purchase_invoices extends MY_Controller{
         $this->data['payments'] = $this->purchase_invoices_model->getPaymentsForPurchase($purchase_invoices_id);
         $this->data['created_by'] = $this->siteprocurment->getUser($po->created_by);
         $this->data['updated_by'] = $po->updated_by ? $this->siteprocurment->getUser($po->updated_by) : null;
-        // $this->data['return_purchase'] = $po->return_id ? $this->purchase_invoices_model->getPurchase_invoicesByID($po->return_id) : NULL;
-        // $this->data['return_rows'] = $po->return_id ? $this->purchase_invoices_model->getAllPurchase_invoicesItems($po->return_id) : NULL;
-
         $this->load->view($this->theme . 'purchase_invoices/modal_view', $this->data);
 
     }

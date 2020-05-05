@@ -26,7 +26,6 @@ class Grn extends MY_Controller{
     }
 
     public function index($warehouse_id = null){
-        //$this->sma->checkPermissions();
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         if ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) {
             $this->data['warehouses'] = $this->siteprocurment->getAllWarehouses();
@@ -143,7 +142,6 @@ class Grn extends MY_Controller{
                 $row->tax_rate = $item->tax_rate_id;
                 $row->option = $item->option_id;
                 $options = $this->grn_model->getProductOptions($row->id, $item->warehouse_id);
-
                 if ($options) {
                     $option_quantity = 0;
                     foreach ($options as $option) {
@@ -158,7 +156,6 @@ class Grn extends MY_Controller{
                         }
                     }
                 }
-
                 $combo_items = false;
                 if ($row->type == 'combo') {
                     $combo_items = $this->grn_model->getProductComboItems($row->id, $item->warehouse_id);
@@ -179,10 +176,9 @@ class Grn extends MY_Controller{
             $this->data['billers'] = ($this->Owner || $this->Admin || !$this->session->userdata('biller_id')) ? $this->siteprocurment->getAllCompanies('biller') : null;
             $this->data['tax_rates'] = $this->siteprocurment->getAllTaxRates();
             $this->data['warehouses'] = ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) ? $this->siteprocurment->getAllWarehouses() : null;
-
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('procurment/store_request'), 'page' => lang('store_request')), array('link' => '#', 'page' => lang('view_store_request')));
             $meta = array('page_title' => lang('view_store_request'), 'bc' => $bc);
-          $this->load->view($this->theme . 'procurment/grn/view',  $this->data);
+            $this->load->view($this->theme . 'procurment/grn/view',  $this->data);
 
     }
 
@@ -293,7 +289,6 @@ class Grn extends MY_Controller{
 				'created_on' => date('Y-m-d H:i:s'),
 				'total_no_items' =>$this->input->post('titems'),
 				'total_no_qty'=>$this->input->post('total_items')
-              
             );
 
             if ($_FILES['document']['size'] > 0) {
@@ -324,7 +319,8 @@ class Grn extends MY_Controller{
             $this->data['billers'] = ($this->Owner || $this->Admin || !$this->session->userdata('biller_id')) ? $this->siteprocurment->getAllCompanies('biller') : null;
             $this->data['warehouses'] = ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) ? $this->siteprocurment->getAllWarehouses() : null;
 			$this->data['invoicelist'] =$this->grn_model->getPurchase_invoicelist();
-			
+			$this->data['suppliers'] = $this->siteprocurment->getAllCompanies('supplier');
+			 $this->data['currencies'] = $this->siteprocurment->getAllCurrencies();
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('procurment/grn'), 'page' => lang('GRN')), array('link' => '#', 'page' => lang('add_GRN')));
             $meta = array('page_title' => lang('add_GRN'), 'bc' => $bc);
             $this->page_construct('procurment/grn/add', $meta, $this->data);
@@ -544,49 +540,46 @@ class Grn extends MY_Controller{
     }
 
   public function purchase_invoice_list(){
-	    $poref =  $this->input->get('poref');
-	    $data['purchase_invoices'] = $this->purchase_invoices_model->getPurchase_invoicesByID($poref);
-	    $inv_items = $this->purchase_invoices_model->getAllPurchase_invoiceItems($poref);
-	    $c=1;
-	   // echo '<pre>';print_R($inv_items);exit;
+	     $poref =  $this->input->get('poref');
+	     $data['purchase_invoices'] = $this->grn_model->getPurchase_invoicesByID($poref);
+	     $inv_items = $this->grn_model->getAllPurchase_invoiceItems($poref);
+	     $c=1;
 	    foreach ($inv_items as $item) {
-            $row = $this->siteprocurment->getItemByID($item->product_id);
-            $row->name = $item->product_name;
-            $row->id = $item->product_id;
-            $row->code = $item->product_code;
-            $row->po_qty = $item->quantity;
-            $row->qty = $item->quantity;
-			$row->base_quantity = $item->quantity;
-            $row->quantity_balance = $item->quantity;
-            $row->batch_no = '';
-            $row->expiry = $row->value_expiry;
-            $row->expiry_type = $row->type_expiry;
-            $row->unit_cost = $item->cost;
-            $row->real_unit_cost = $item->cost;
-            //$row->real_unit_cost = $item->gross;
+            $row                        = $this->siteprocurment->getItemByID($item->product_id);
+            $row->name                  = $item->product_name;
+            $row->id                    = $item->product_id;
+            $row->code                  = $item->product_code;
+            $row->po_qty                = $item->quantity;
+            $row->qty                   = $item->quantity;
+			$row->base_quantity         = $item->quantity;
+            $row->quantity_balance      = $item->quantity;
+            $row->batch_no              = '';
+            $row->expiry                = $row->value_expiry;
+            $row->expiry_type           = $row->type_expiry;
+            $row->unit_cost             = $item->cost;
+            $row->real_unit_cost        = $item->cost;
             $row->item_discount_percent = $item->item_disc ? $item->item_disc : '0';
-            $row->item_discount_amt = $item->item_disc_amt ? $item->item_disc_amt : '0';
-            $row->item_dis_type = $item->item_dis_type;
-            $row->item_bill_discount = $item->item_bill_disc_amt ? $item->item_bill_disc_amt : '0';
-            $row->tax_rate = $item->item_tax_method;
-            $tax = $this->siteprocurment->getTaxRateByID($item->item_tax_method);
-            $row->tax_rate_val = $tax->rate;
-            $row->item_selling_price =$item->selling_price;
-
-            $row->category_id = $item->category_id;
-            $row->category_name = $item->category_name;
-            $row->subcategory_id = $item->subcategory_id;
-            $row->subcategory_name = $item->subcategory_name;
-            $row->brand_id = $item->brand_id;
-            $row->variant_id = $item->variant_id;
-            $row->brand_name = $item->brand_name;
-            $row->cost = $item->selling_price;
-            $row->unit_name = $item->product_unit_code;
-            $row->base_unit = $row->unit ? $row->unit : $item->product_unit_id;
-			$row->unit = $row->purchase_unit ? $row->purchase_unit : $row->unit;
-            $options = $this->purchase_invoices_model->getProductOptions($row->id);
-            $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
-            $ri = $this->Settings->item_addition ? $row->id : $row->id;
+            $row->item_discount_amt     = $item->item_disc_amt ? $item->item_disc_amt : '0';
+            $row->item_dis_type         = $item->item_dis_type;
+            $row->item_bill_discount    = $item->item_bill_disc_amt ? $item->item_bill_disc_amt : '0';
+            $row->tax_rate              = $item->item_tax_method;
+            $tax                        = $this->siteprocurment->getTaxRateByID($item->item_tax_method);
+            $row->tax_rate_val          = $tax->rate;
+            $row->item_selling_price    = $item->selling_price;
+            $row->category_id           = $item->category_id;
+            $row->category_name         = $item->category_name;
+            $row->subcategory_id        = $item->subcategory_id;
+            $row->subcategory_name      = $item->subcategory_name;
+            $row->brand_id              = $item->brand_id;
+            $row->variant_id            = $item->variant_id;
+            $row->brand_name            = $item->brand_name;
+            $row->cost                  = $item->selling_price;
+            $row->unit_name             = $item->product_unit_code;
+            $row->base_unit             = $row->unit ? $row->unit : $item->product_unit_id;
+			$row->unit                  = $row->purchase_unit ? $row->purchase_unit : $row->unit;
+            $options                    = $this->grn_model->getProductOptions($row->id);
+            $units                      = $this->siteprocurment->getUnitsByBUID($row->base_unit);
+            $ri                         = $this->Settings->item_addition ? $row->id : $row->id;
 		    $item_key = $ri.'_'.$item->store_id.'_'.$item->category_id.'_'.$item->subcategory_id.'_'.$item->brand_id.'_'.$item->variant_id;
             $pr[$item_key] = array('id' => $c,'store_id'=>$item->store_id,'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
                     'row' => $row, 'tax_rate_id' => $item->item_tax_method,'tax_rate_val' => $item->tax_rate,'tax_rate' => $item->item_tax, 'units' => $units, 'options' => $options);
@@ -594,9 +587,6 @@ class Grn extends MY_Controller{
             }
 		
 		$data['purchase_invoicesitem'] = $pr;
-		
-		
-		
 		if(!empty($data)){
 			$response['status'] = 'success';
 			$response['value'] = $data;
@@ -604,6 +594,7 @@ class Grn extends MY_Controller{
 			$response['status'] = 'error';
 			$response['value'] = '';
 		}
+		
 		echo json_encode($response);
 		exit;
 	}

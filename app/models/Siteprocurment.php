@@ -2567,4 +2567,13 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
         }
         return 0;
     }
+	
+	  public function lastidGrn(){
+        $this->db->order_by('id' , 'DESC');
+        $q = $this->db->get('pro_grn');
+        if ($q->num_rows() > 0) {
+            return $q->row('id');
+        }
+        return 0;
+    }
 }
