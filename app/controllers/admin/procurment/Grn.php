@@ -207,7 +207,7 @@ class Grn extends MY_Controller{
                     $products[] = array(
 					     'store_id'     =>$_POST['store_id'][$r],
 					    'product_id'      => $_POST['product_id'][$r],
-					   'variant_id'       => $_POST['product_option'][$r],
+					    'variant_id'       => $_POST['product_option'][$r],
                         'product_code'    => $_POST['product_code'][$r],
                         'product_name'    => $_POST['product_name'][$r],
 						'batch_no'        => ($_POST['batch'][$r])?$_POST['batch'][$r]:'',
@@ -229,7 +229,10 @@ class Grn extends MY_Controller{
 						'subcategory_name' =>$_POST['subcategory_name'][$r],
 						'brand_id'         =>$_POST['brand_id'][$r],
 						'brand_name'       =>$_POST['brand_name'][$r],
-						'cm_id '           =>$_POST['cm_id'][$r]
+						'cm_id '           =>$_POST['cm_id'][$r],
+						'tax_rate_id '     =>$_POST['tax_rate_id'][$r],
+						'tax_rate '        =>$_POST['tax_rate'][$r],
+						'cost_price '      =>$_POST['cost_price'][$r],
                     );
                 }
             }
@@ -316,67 +319,46 @@ class Grn extends MY_Controller{
 			$this->session->set_flashdata('error', lang("Do not allowed edit option"));
 			admin_redirect("procurment/grn");
 		}	
-        $this->form_validation->set_message('is_natural_no_zero', $this->lang->line("no_zero_required"));
-		$this->form_validation->set_rules('request_type', $this->lang->line("request_type"), 'required');
-        $this->form_validation->set_rules('warehouse', $this->lang->line("warehouse"), 'required');
+         $this->form_validation->set_rules('pi_number', $this->lang->line("pi_number"), 'required');
+		
         if ($this->form_validation->run() == true) {
-            $warehouse_id = $this->input->post('warehouse');
-            $biller_id = $this->input->post('biller');
-			$from_store_id = $this->input->post('from_store_id');
-			$to_store_id = $this->input->post('to_store_id');
-            $supplier_id = $this->input->post('supplier');
-            $status = $this->input->post('status');
-            $shipping = $this->input->post('shipping') ? $this->input->post('shipping') : 0;
-            $biller_details = $this->siteprocurment->getCompanyByID($biller_id);
-            $biller = $biller_details->company != '-' ? $biller_details->company : $biller_details->name;
-            if ($supplier_id) {
-                $supplier_details = $this->siteprocurment->getCompanyByID($supplier_id);
-                $supplier = $supplier_details->company != '-' ? $supplier_details->company : $supplier_details->name;
-            } else {
-                $supplier = NULL;
-            }
             $note = $this->sma->clear_tags($this->input->post('note'));
-            $total = 0;
-            $product_tax = 0;
-            $product_discount = 0;
-            $gst_data = [];
-            $total_cgst = $total_sgst = $total_igst = 0;
+			$date = date('Y-m-d H:i:s');
+			$status = $this->input->post('status');
             $i = isset($_POST['product_code']) ? sizeof($_POST['product_code']) : 0;
-           	for ($r = 0; $r < $i; $r++) {
-               $unit = $this->site->getUnitByID($_POST['product_unit'][$r]);
-		        $store_id = $from_store_id;
-                $item_id = $_POST['product_id'][$r];
-                $item_type = $_POST['product_type'][$r];
-                $item_code = $_POST['product_code'][$r];
-                $item_name = $_POST['product_name'][$r];
-                $item_unit_quantity = $_POST['quantity'][$r];
-                $item_unit = $_POST['product_unit'][$r];
-				$quantity = $_POST['quantity'][$r];
-                $unit_quantity = $_POST['product_base_quantity'][$r];
-		        $category_id = $_POST['category_id'][$r];
-                $category_name = $_POST['category_name'][$r];
-		        $subcategory_id = $_POST['subcategory_id'][$r];
-                $subcategory_name = $_POST['subcategory_name'][$r];
-		        $brand_id = $_POST['brand_id'][$r];
-				$brand_id = $_POST['brand_id'][$r];
-                $brand_name = $_POST['brand_name'][$r];
-				$option_id = $_POST['product_option'][$r];
-				$product_option=$this->grn_model->getrecipeOptionByID($option_id);
-               if (!empty($item_code)) {
-                    $product_details = $item_type != 'manual' ? $this->grn_model->getProductByCode($item_code) : null;
+           	       for ($r = 0; $r < $i; $r++) {
+				$unit = $this->site->getUnitByID($_POST['product_unit'][$r]);
+               if (!empty($_POST['product_code'][$r])) {
                     $products[] = array(
-                        'product_id'      => $item_id,
-                        'product_code'    => $item_code,
-                        'product_name'    => $item_name,
-                        'product_type'    => $item_type,
-                        'quantity'        => $quantity,
-						'unit_quantity'   => $unit_quantity,
-                        'product_unit_id' => $item_unit,
-						'product_unit_code'=>$unit->name,
-						'option_id'=>$option_id,
-						'option_name'=>$product_option->name
+					     'store_id'     =>$_POST['store_id'][$r],
+					    'product_id'      => $_POST['product_id'][$r],
+					    'variant_id'       => $_POST['product_option'][$r],
+                        'product_code'    => $_POST['product_code'][$r],
+                        'product_name'    => $_POST['product_name'][$r],
+						'batch_no'        => ($_POST['batch'][$r])?$_POST['batch'][$r]:'',
+                        'expiry'          => ($_POST['expiry'][$r])?$_POST['expiry'][$r]:'',
+                        'quantity'        => ($_POST['quantity'][$r])?$_POST['quantity'][$r]:0,
+						'pi_qty'          => ($_POST['pi_qty'][$r])?$_POST['pi_qty'][$r]:0,
+						'landing_cost'	  => ($_POST['landing_cost'][$r])?$_POST['landing_cost'][$r]:0,
+						'selling_price'   => ($_POST['selling_price'][$r])?$_POST['selling_price'][$r]:0,
+					//	'margin'          => $_POST['store_id'][$r],
+						//'net_amt'         => $_POST['store_id'][$r],
+						
+						'product_unit_id' => $_POST['product_unit'][$r],
+						'unit_quantity'   => $_POST['product_base_quantity'][$r],
+						'product_unit_code'=>$unit->code,
+						'expiry_type'      =>$_POST['expiry_type'][$r],
+						'category_id'      =>$_POST['category_id'][$r],
+						'category_name'    =>$_POST['category_name'][$r],
+						'subcategory_id'   =>$_POST['subcategory_id'][$r],
+						'subcategory_name' =>$_POST['subcategory_name'][$r],
+						'brand_id'         =>$_POST['brand_id'][$r],
+						'brand_name'       =>$_POST['brand_name'][$r],
+						'cm_id '           =>$_POST['cm_id'][$r],
+						'tax_rate_id '     =>$_POST['tax_rate_id'][$r],
+						'tax_rate '        =>$_POST['tax_rate'][$r],
+						'cost_price '      =>$_POST['cost_price'][$r],
                     );
-
                 }
             }
             if (empty($products)) {
@@ -384,15 +366,19 @@ class Grn extends MY_Controller{
             } else {
                 $products;
             }
-            $data = array(
-				'request_type' => $this->input->post('request_type'),
-                'warehouse_id' => $warehouse_id,
+          
+			  $data = array(
                 'note' => $note,
                 'status' => $status,
-                'updated_by' => $this->session->userdata('user_id'),
-				'total_no_items' =>$this->input->post('titems'),
-				'total_no_qty'=>$this->input->post('total_items')
-            );
+				'no_of_items' => $this->input->post('titems'),
+				'no_of_qty' => $this->input->post('total_items'),
+				'updated_by' => $this->session->userdata('user_id'),
+				'updated_on'=>$date
+				);
+				if($status=="approved"){
+		        $data['approved_by'] = $this->session->userdata('user_id');
+                $data['approved_on'] = $date;
+	        }
             if ($_FILES['document']['size'] > 0) {
                 $this->load->library('upload');
                 $config['upload_path'] = $this->digital_upload_path;
@@ -410,10 +396,11 @@ class Grn extends MY_Controller{
                 $data['attachment'] = $photo;
 	          	@unlink($this->digital_upload_path.$inv->attachment);
             }
+			
         }
-        if ($this->form_validation->run() == true && $this->grn_model->updateStore_request($id, $data, $products)) {
+        if ($this->form_validation->run() == true && $this->grn_model->updateGrn($id, $data, $products)) {
             $this->session->set_userdata('remove_quls', 1);
-            $this->session->set_flashdata('message', $this->lang->line("store_request_added"));
+            $this->session->set_flashdata('message', $this->lang->line("grn_updated"));
             admin_redirect('procurment/grn');
         } else {
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
@@ -423,69 +410,46 @@ class Grn extends MY_Controller{
             $c = rand(100000, 9999999);
             foreach ($grn_items as $item) {
                 $row = $this->siteprocurment->getRecipeByID($item->product_id);
-                if (!$row) {
-                    $row = json_decode('{}');
-                    $row->tax_method = 0;
-                } else {
-                    unset($row->details, $row->cost, $row->supplier1price, $row->supplier2price, $row->supplier3price, $row->supplier4price, $row->supplier5price);
-                }
-                $row->quantity = 0;
-                $pis = $this->siteprocurment->getPurchasedItems($item->product_id, $item->warehouse_id, $item->option_id);
-                if ($pis) {
-                    foreach ($pis as $pi) {
-                        $row->quantity += $pi->quantity_balance;
-                    }
-                }
-                $row->id            = $item->product_id;
-                $row->code          = $item->product_code;
-                $row->name          = $item->product_name;
-                $row->type          = $item->product_type;
-                $row->base_quantity = $item->quantity;
-                $row->base_unit     = $row->unit ? $row->unit : $item->product_unit_id;
-                $row->base_unit_price = $row->price ? $row->price : $item->unit_price;
-                $row->unit = $item->product_unit_id;
-                $row->qty = $item->quantity;
-                $row->discount = $row->discount ? $row->discount : '0';
-                $row->real_unit_price = $row->real_unit_price;
-                $row->tax_rate = $row->tax_rate_id;
-                $row->option = $row->option_id;
-		        $row->category_id = $row->category_id;
-                $row->category_name = $row->category_name;
-		        $row->subcategory_id = $row->subcategory_id;
-                $row->subcategory_name = $row->subcategory_name;
-		        $row->brand_id = $row->brand_id;
-                $row->brand_name = $row->brand_name;
-		        $row->purchase_cost = $row->cost_price;
-                $row->cost = $row->selling_price;
-				$row->option_id = ($item->option_id)?$item->option_id:0;
-                $options = $this->grn_model->getProductOptions($row->id, $item->warehouse_id);
-                if ($options) {
-                    $option_quantity = 0;
-                    foreach ($options as $option) {
-                        $pis = $this->siteprocurment->getPurchasedItems($row->id, $item->warehouse_id, $item->option_id);
-                        if ($pis) {
-                            foreach ($pis as $pi) {
-                                $option_quantity += $pi->quantity_balance;
-                            }
-                        }
-                        if ($option->quantity > $option_quantity) {
-                            $option->quantity = $option_quantity;
-                        }
-                    }
-                }
-
-                $combo_items = false;
-                if ($row->type == 'combo') {
-                    $combo_items = $this->grn_model->getProductComboItems($row->id, $item->warehouse_id);
-                    foreach ($combo_items as $combo_item) {
-                        $combo_item->quantity = $combo_item->qty * $item->quantity;
-                    }
-                }
-                $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
-                $tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
-                $ri = $row->id ? $row->id : $c;
-		        $item_key = $ri.'_'.$row->category_id.'_'.$row->subcategory_id.'_'.$row->brand_id.'_'.$row->option_id;
-                $pr[$item_key] = array('id' => $c, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")", 'row' => $row, 'combo_items' => $combo_items, 'tax_rate' => $tax_rate, 'units' => $units, 'options' => $options);
+				$row->name                  = $item->product_name;
+				$row->id                    = $item->product_id;
+                $row->code                  = $item->product_code;
+				$row->pi_qty                = $item->pi_qty;
+				$row->qty                   = $item->quantity;
+				$row->base_quantity         = $item->quantity;
+				$row->quantity_balance      =$item->pi_qty- $item->quantity;
+				$row->tax_rate              = $item->item_tax_method;
+				$tax                        = $this->siteprocurment->getTaxRateByID($item->item_tax_method);
+				$row->tax_rate_val          = $tax->rate;
+				$row->item_selling_price    = $item->selling_price;
+				$row->category_id           = $item->category_id;
+				$row->category_name         = $item->category_name;
+				$row->subcategory_id        = $item->subcategory_id;
+				$row->subcategory_name      = $item->subcategory_name;
+				$row->brand_id              = $item->brand_id;
+				$row->variant_id            = $item->variant_id;
+				$row->option_id             = $item->variant_id;
+				$row->brand_name            = $item->brand_name;
+				$row->unit_name             = $item->product_unit_code;
+				$row->base_unit             = $row->unit ? $row->unit : $item->product_unit_id;
+				$row->unit                  = $row->purchase_unit ? $row->purchase_unit : $row->unit;
+				$row->store_id  		    = $item->store_id;
+				$row->cost_price			= $item->cost_price;
+				$row->selling_price			= $item->selling_price;
+				$row->landing_cost			= $item->landing_cost;
+				$row->tax_rate				= $item->tax_rate;
+				$row->invoice_id			= $item->invoice_id;
+				$row->batch					= $item->batch;
+				$row->expiry				= $item->expiry;
+				$row->expiry_type			= $item->expiry_type;
+				$row->invoice_date			= $item->invoice_date;
+				$row->tax_rate_id			= $item->tax_rate_id;
+				$options                    = $this->grn_model->getProductOptions($row->id);
+				$units                      = $this->siteprocurment->getUnitsByBUID($row->base_unit);
+				$ri                         = $this->Settings->item_addition ? $row->id : $row->id;
+				
+				$item_key = $ri.'_'.$item->store_id.'_'.$item->category_id.'_'.$item->subcategory_id.'_'.$item->brand_id.'_'.$item->variant_id;
+                $pr[$item_key] = array('id' => $c,'store_id'=>$item->store_id,'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
+                    'row' => $row, 'tax_rate_id' => $item->item_tax_method,'tax_rate_val' => $item->tax_rate,'tax_rate' => $item->tax, 'units' => $units, 'options' => $options);
 				
                 $c++;
             }

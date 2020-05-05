@@ -2569,10 +2569,10 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
     }
 	
 	  public function lastidGrn(){
-        $this->db->order_by('id' , 'DESC');
+        $this->db->order_by('s_no' , 'DESC');
         $q = $this->db->get('pro_grn');
         if ($q->num_rows() > 0) {
-            return $q->row('id');
+            return $q->row('s_no');
         }
         return 0;
     }

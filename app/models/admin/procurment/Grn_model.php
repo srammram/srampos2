@@ -106,11 +106,8 @@ class Grn_model extends CI_Model{
         return false;
     }
 	}
-	
-	
-	
 	function getGRNById($id){
-		$thid->db->select("pro_grn.*");
+		$this->db->select("pro_grn.*");
 		$this->db->where("id",$id);
 		$q=$this->db->get("pro_grn");
 		if($q->num_rows()>0){
@@ -118,20 +115,53 @@ class Grn_model extends CI_Model{
 		}
 		return false;
 	}
-	
-	
 	function getGRNIitemById($id){
-		$thid->db->select("pro_grn_items.*");
+		$this->db->select("pro_grn_items.*");
 		$this->db->where("grn_id",$id);
 		$q=$this->db->get("pro_grn_items");
 		if($q->num_rows()>0){
 			foreach($q->result() as $row){
-				$data[]$row;
+				$data[]=$row;
 			}
 			return $data;
 		}
 		return false;
 	}
+	
+	public function updateGrn($id, $data, $items = array()){   
+/* $this->db->update('pro_grn', $data, array('id' => $id));
+print_r($this->db->error())	;
+die; */
+        if ($this->db->update('pro_grn', $data, array('id' => $id)) && $this->db->delete('pro_grn_items', array('grn_id' => $id))) {
+            foreach ($items as $item) {
+                $item['grn_id'] = $id;
+                $this->db->insert('pro_grn_items', $item);
+				$i_request_id = $this->db->insert_id();//p($this->db->error());
+                $i_unique_id = $this->site->generateUniqueTableID($i_request_id);
+                if ($i_request_id) {
+                    $this->site->updateUniqueTableId($i_request_id,$i_unique_id,'pro_grn_items');
+                }
+            }          
+       if($data['status']=="approved"){
+		
+	    }			
+            return true;
+        }        
+        return false;
+    }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -225,24 +255,7 @@ class Grn_model extends CI_Model{
 
 
 
-    public function updateStore_request($id, $data, $items = array()){        
-        if ($this->db->update('pro_store_request', $data, array('id' => $id)) && $this->db->delete('pro_store_request_items', array('store_request_id' => $id))) {
-            foreach ($items as $item) {
-                $item['store_request_id'] = $id;
-                $this->db->insert('pro_store_request_items', $item);
-				$i_request_id = $this->db->insert_id();//p($this->db->error());
-                $i_unique_id = $this->site->generateUniqueTableID($i_request_id);
-                if ($i_request_id) {
-                    $this->site->updateUniqueTableId($i_request_id,$i_unique_id,'pro_store_request_items');
-                }
-            }          
-       if($data['status']=="approved"){
-		$this->sync_center->sync_storeIndentRequests($unique_id);
-	    }			
-            return true;
-        }        
-        return false;
-    }
+    
 
     public function updateStatus($id, $status, $note)
     {

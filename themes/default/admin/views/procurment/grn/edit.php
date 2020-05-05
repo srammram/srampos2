@@ -5,6 +5,17 @@
         tax_rates = <?php echo json_encode($tax_rates); ?>, pi_items = {},
         audio_success = new Audio('<?= $assets ?>sounds/sound2.mp3'),
         audio_error = new Audio('<?= $assets ?>sounds/sound3.mp3');
+		
+		 <?php if ($inv) { ?>
+        localStorage.setItem('pi_number', '<?= $inv->invoice_id?>');
+        localStorage.setItem('pi_invoiceno', '<?=$inv->customer_id?>');
+        localStorage.setItem('pi_supplier', '<?=$inv->supplier_id;?>');
+        localStorage.setItem('pi_date', '<?=$inv->invoice_date?>');
+        localStorage.setItem('delivery_address', '<?=$inv->delivery_address?>');
+        localStorage.setItem('supplier_address', '<?= $inv->supplier; ?>');
+        localStorage.setItem('invoice_amt', '<?=$inv->invoice_amt?>');
+        localStorage.setItem('grn_items', JSON.stringify(<?=$grn_items;?>));
+        <?php } ?>
     $(document).ready(function () {
         $(document).on('change', '#grn_date', function (e) {
             localStorage.setItem('grn_date', $(this).val());
@@ -30,12 +41,13 @@
         }
 		if (pi_supplier = localStorage.getItem('pi_supplier')) {
             $('.pi_supplier').val(pi_supplier);
+		    $('.pi_supplier').trigger('change');
         }
 		if (currency = localStorage.getItem('currency')) {
             $('.currency').val(currency);
         }
 		
-			if (supplier_address = localStorage.getItem('supplier_address')) {
+	   if (supplier_address = localStorage.getItem('supplier_address')) {
             $('.supplier_address').val(supplier_address);
         }
 		if (pi_number = localStorage.getItem('pi_number')) {
@@ -54,7 +66,7 @@
             <div class="col-lg-12" >                
                 <?php
                 $attrib = array('data-toggle' => 'validator1', 'role' => 'form','id' => 'add_grn');
-                echo admin_form_open_multipart("procurment/grn/add", $attrib)
+                echo admin_form_open_multipart("procurment/grn/edit/". $id, $attrib)
                 ?>                
                 <div class="row">
                     <div class="col-lg-12" style="background:#b1d7fd; padding:15px 15px;">
@@ -69,18 +81,14 @@
                                         <?= lang("date", "date") ?>
                                     </td>
                                     <td>
-                                        <input type="datetime" name="date" id="grn_date" readonly class="form-control" value="<?php echo date('Y-m-d H:i:s') ?>">
+                                        <input type="datetime" name="date" id="grn_date" readonly class="form-control" value="<?php echo $inv->date; ?>">
                                     
                                     </td>                                              
                                      <td width="150px">
                                         <?= lang("reference_no", "reference_no"); ?>
                                     </td>
                                     <td>
-                                        <?php
-                                        $n = $this->siteprocurment->lastidGrn();
-                                        $n2 = str_pad($n + 1, 5, 0, STR_PAD_LEFT);
-                                        ?>
-                                        <input  name="reference_no" id="reference_no" readonly tabindex=-1 class="form-control" value="<?php echo $n2 ?>">
+                                        <input  name="reference_no" id="reference_no" readonly tabindex=-1 class="form-control" value="<?php echo $inv->reference_no; ?>">
                                     </td>                                    
                                     <td width="100px">
                                         <?= lang("Currency", "reqcurrency") ?>
@@ -117,7 +125,7 @@
                                         <?= lang("Remarks/Note", "note") ?>
                                     </td>
                                     <td>
-                                        <input  name="note" id="note" class="form-control" >
+                                        <input  name="note" id="note" class="form-control" value="<?php echo $inv->note;   ?>">
                                     </td>  
                                 </tr>
 								<tr>
@@ -129,8 +137,9 @@
                                              foreach ($invoicelist as $row) {
                                                 $pi[$row->id] = $row->reference_no;
                                              }
-                                              echo form_dropdown('pi_number', $pi, (isset($_POST['pi_number']) ? $_POST['pi_number'] : 0 ), ' class="form-control pi_number input-tip select" data-placeholder="' . lang("select") . ' ' . lang("pi_number") . '"style="width:100%;" id="pi_number"  ');
+                                              echo form_dropdown('pi_number_', $pi, $inv->invoice_id, ' class="form-control pi_number input-tip select" data-placeholder="' . lang("select") . ' ' . lang("pi_number") . '"style="width:100%;" disabled id="pi_number"  ');
                                         ?>
+									<input type="hidden" name="pi_number" id="pi_number"  class="required form-control pi_number" value="<?php echo $inv->invoice_id;   ?>">	
                                     </td>
                                     <td width="100px">
 										<?= lang("supplier", "pi_supplier"); ?>
@@ -142,7 +151,7 @@
 												foreach ($suppliers as $supplier) {
 													$sl[$supplier->id] = $supplier->name;
 												}
-												echo form_dropdown('supplier', $sl, (isset($_POST['supplier']) ? $_POST['supplier'] : 0), 'id="pi_supplier" data-placeholder="' . $this->lang->line("select") . ' ' . $this->lang->line("supplier") . '"  class="form-control pi_supplier input-tip select" readonly style="width:100%;"');
+												echo form_dropdown('supplier', $sl,$inv->supplier_id, ' data-placeholder="' . $this->lang->line("select") . ' ' . $this->lang->line("supplier") . '"  disabled class="form-control pi_supplier input-tip select" readonly style="width:100%;"');
 											?>
 											<div class="input-group-addon no-print" >
 											
@@ -154,7 +163,7 @@
                                     </td>
                                     <td>                                        
                                         <input type="datetime"   class="required form-control invoice_date" readonly>
-										   <input type="hidden" name="invoice_date" id="invoice_date"  class="required form-control invoice_date">
+										   <input type="hidden" name="invoice_date" id="invoice_date"  class="required form-control invoice_date" value="<?php echo $inv->invoice_date;   ?>">
                                     </td>
                                 </tr>
 								<tr>
@@ -163,7 +172,7 @@
                                     </td>
                                     <td> 
                                        <input type="text" name="supplier_address" id="supplier_address" class="required form-control supplier_address" readonly>
-									     <input type="hidden"   class="required form-control supplier_address" value="">
+									     <input type="hidden"   class="required form-control supplier_address" value="<?php echo $inv->supplier_address;   ?>">
                                     </td>
                                      <td>
                                         <?= lang("invoice_amt", "invoice_amt") ?>
