@@ -1123,10 +1123,6 @@ function loadItems() {
 
             bill_disc = localStorage.getItem('inv_bill_disc') ? localStorage.getItem('inv_bill_disc') : 0;
             bill_disc_percentage = localStorage.getItem('inv_bill_disc_percentage') ? localStorage.getItem('inv_bill_disc_percentage') : 0;
-
-            // bill_disc = localStorage.getItem('bill_disc') ? localStorage.getItem('bill_disc') : 0;
-            // bill_disc_percentage = localStorage.getItem('bill_disc_percentage') ? localStorage.getItem('bill_disc_percentage') : 0;
-
             item_tax_method = (item_tax_method) ? item_tax_method : 0;
 
             if (supplier == item.row.supplier1) {
@@ -1184,53 +1180,7 @@ function loadItems() {
                 }   
                 $bill_dis_val =item_bill_dis;
                 
-                /*if (bill_disc = localStorage.getItem('inv_bill_disc')) {
-                        var bill_dis = bill_disc;
-                        if (bill_dis.indexOf("%") !== -1) {
-                            var pds = bill_dis.split("%");
-                            if (!isNaN(pds[0])) {
-                                $bill_dis_val = ((((parseFloat(unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)) * parseFloat(pds[0])) / 100);
-                            } else {
-                                $bill_dis_val = formatDecimal(bill_dis);
-                            }
-                        } else {
-                            $bill_dis_val = formatDecimal(bill_dis);
-                        }
-                    }*/
-
-             /*   
-$bill_dis_val =0
-            
-            if(bill_disc_percentage = localStorage.getItem('inv_bill_disc')){ 
-                var bill_disc_percentage = bill_disc_percentage;
-                if (bill_disc_percentage.indexOf("%") !== -1) {  
-
-                    var pds = bill_disc_percentage.split("%");
-                    if (!isNaN(pds[0])) {
-                    item_bill_dis = ((((parseFloat(unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)) * parseFloat(pds[0])) / 100);
-                    } else {
-                    $per =  ((bill_disc_percentage /(parseFloat(unit_cost)* parseFloat(item_qty)))*100);                          
-                    item_bill_dis = formatDecimal(((total * parseFloat($per)) / 100), 4);                         
-                    }
-                }else{}
-            }else{
-                $bill_dis_val =0;
-            }                
-
-        if (bill_disc = localStorage.getItem('inv_bill_disc')) {
-            var bill_dis = bill_disc;
-            if (bill_dis.indexOf("%") !== -1) {
-                var pds = bill_dis.split("%");
-                if (!isNaN(pds[0])) {
-                    $bill_dis_val = ((((parseFloat(unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)) * parseFloat(pds[0])) / 100);
-                } else {
-                    $bill_dis_val = formatDecimal(bill_dis);
-                }
-            } else {
-                $bill_dis_val = formatDecimal(bill_dis);
-            }
-        }
-*/
+              
             var row_no = (new Date).getTime();
             $store_id= default_store;
             if (item.store_id) {
@@ -1241,7 +1191,7 @@ $bill_dis_val =0
 
             tr_html += '<td><input name="store_id[]" type="hidden" class="store-id" value="' + $store_id + '"><input name="product[]" type="hidden" class="rcode" value="' + item_code + '"><span>' + item_code +' <span class="label label-default">'+item_supplier_part_no+'</span></td>';
 
-            tr_html += '<td><input name="product_id[]" type="hidden" class="rid" value="' + product_id + '"><input name="variant_id[]" type="hidden" class="rvariant_id" value="' + variant_id + '"><input name="product_name[]" type="hidden" class="rname" value="' + item_name + '"><input name="product_option[]" type="hidden" class="roption" value="' + item_option + '"><input name="part_no[]" type="hidden" class="rpart_no" value="' + item_supplier_part_no + '"><span class="sname" id="name_' + row_no + '">'+ item_name +(sel_opt != '' ? ' ('+sel_opt+')' : '')+' <span class="label label-default">'+item_supplier_part_no+'</span></span></td>';
+            tr_html += '<td><input name="product_id[]" type="hidden" class="rid" value="' + product_id + '"><input name="variant_id[]" type="hidden" class="rvariant_id" value="' + variant_id + '"><input name="product_name[]" type="hidden" class="rname" value="' + item.label + '"><input name="product_option[]" type="hidden" class="roption" value="' + item_option + '"><input name="part_no[]" type="hidden" class="rpart_no" value="' + item_supplier_part_no + '"><span class="sname" id="name_' + row_no + '">'+ item.label +(sel_opt != '' ? ' ('+sel_opt+')' : '')+' <span class="label label-default">'+item_supplier_part_no+'</span></span></td>';
             //$stores ='';
             //if (item.stores) {
             //    $stores = '<div class="stores-popup"><table><tbody>';

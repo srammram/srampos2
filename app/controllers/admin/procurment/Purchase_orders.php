@@ -49,7 +49,7 @@ class Purchase_orders extends MY_Controller{
 			$row->real_unit_cost = $row->cost;
             $row->unit = $item->product_unit_id;
 			$row->unit_name = $item->unit_name;
-			$row->qty = $item->unit_quantity;
+			$row->qty = $item->quantity;
 			$row->oqty = $item->quantity;
 			$row->supplier_part_no = $item->supplier_part_no;
 			$row->received = $item->quantity_received ? $item->quantity_received : $item->quantity;
@@ -804,9 +804,10 @@ class Purchase_orders extends MY_Controller{
             $join_ref_no = $this->purchase_orders_model->getReqBYID($this->input->post('requestnumber'));
 	        $n = $this->siteprocurment->lastidPurchase();
 	        $reference = 'PO'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
+			$date=date('Y-m-d H:i:s');
             $data = array(
             'reference_no' => $reference,
-            'date' => date('Y-m-d H:i:s'),
+            'date' =>$date,
             'supplier_id' => $this->input->post('supplier'),
             'supplier' => $supplier,
             'quotation_id' => $this->input->post('requestnumber'),
@@ -833,34 +834,58 @@ class Purchase_orders extends MY_Controller{
             'total_discount' => $this->input->post('item_disc')+$this->input->post('bill_disc_val'),
             'requestdate' => $join_ref_no->date ?  $join_ref_no->date : 0,
            	'req_reference_no' => $join_ref_no->req_reference_no ?  $join_ref_no->req_reference_no : 0 ,
-		     'request_id' => $join_ref_no->request_id ?  $join_ref_no->requestdate : 0 ,	 
+		     'request_id' => $join_ref_no->request_id ?  $join_ref_no->request_id : 0 ,	 
             'processed_by' => $this->session->userdata('user_id'),
             'processed_on' => date('Y-m-d H:i:s'),
             );
-	                
-	    if($status=="approved"){
-		$data['approved_by'] = $this->session->userdata('user_id');
-                $data['approved_on'] = date('Y-m-d H:i:s');
-	    }
-	    $items =  array();
-	    if(isset($_POST['product'])){
+	        if(empty($join_ref_no)){
+				$notification = array(
+				'user_id' => $un_row->user_id,
+				'group_id' => $un_row->group_id,
+				'title' => 'Purchases Request',
+				'message' => 'The new purchase Order has been created. REF No:'.$reference.', Date:'.$date,
+				'created_by' => $this->session->userdata('user_id'),
+				'created_on' => date('Y-m-d H:i:s'),
+				);	
+				$this->siteprocurment->insertNotification($notification);
+			}else{
+				$store_requestid=explode(",",$join_ref_no->request_id);
+				foreach($store_requestid as $rno){
+				$request_de=$this->purchase_orders_model->getstoreRequestByID($rno);
+				$notification = array(
+				'user_id' => $this->session->userdata('user_id'),
+				'title' => 'Purchases Order ',
+				'message' => 'The new purchase Order  has been created('.$reference.'). Request REF No:'.   $request_de->reference_no.', Date:'.$date,
+				'created_by' => $this->session->userdata('user_id'),
+				'created_on' => date('Y-m-d H:i:s'),
+				'store_id'=>$request_de->store_id
+				);	
+				$this->siteprocurment->insertNotification($notification);
+				}
+			}  
+	        if($status=="approved"){
+		             $data['approved_by'] = $this->session->userdata('user_id');
+                     $data['approved_on'] = date('Y-m-d H:i:s');
+			}
+			$items =  array();
+			if(isset($_POST['product'])){
     		$p_count = count($_POST['product']);
     		for($i=0;$i<$p_count;$i++){
-				$unit                       = $this->site->getUnitByID($this->input->post('product_unit['.$i.']'));
+				$unit                       =  $this->site->getUnitByID($this->input->post('product_unit['.$i.']'));
 				$product_unit_code          =  $unit->code;
-    		    $items[$i]['store_id']      = $this->input->post('store_id['.$i.']');
-                $items[$i]['product_id']    = $this->input->post('product_id['.$i.']');
-    		    $items[$i]['variant_id']    = $this->input->post('variant_id['.$i.']');
-    		    $items[$i]['product_code']  = $this->input->post('product['.$i.']');
-    		    $items[$i]['product_name']  = $this->input->post('product_name['.$i.']');
-    		    $items[$i]['quantity']      = $this->input->post('quantity['.$i.']');
-    		    $items[$i]['batch_no']      = $this->input->post('batch_no['.$i.']');
-    		    $items[$i]['expiry']        = $this->input->post('expiry['.$i.']');
-    		    $items[$i]['cost']          = $this->input->post('unit_cost['.$i.']');
-    		    $items[$i]['gross']         = $this->input->post('unit_gross['.$i.']');
-    		    $items[$i]['item_disc']     = $this->input->post('item_dis['.$i.']');
-    		    $items[$i]['item_dis_type'] = @$this->input->post('item_dis_type['.$i.']');
-    		    $items[$i]['item_disc_amt'] = $this->input->post('item_disc_amt['.$i.']');
+    		    $items[$i]['store_id']      =  $this->input->post('store_id['.$i.']');
+                $items[$i]['product_id']    =  $this->input->post('product_id['.$i.']');
+    		    $items[$i]['variant_id']    =  $this->input->post('variant_id['.$i.']');
+    		    $items[$i]['product_code']  =  $this->input->post('product['.$i.']');
+    		    $items[$i]['product_name']  =  $this->input->post('product_name['.$i.']');
+    		    $items[$i]['quantity']      =  $this->input->post('quantity['.$i.']');
+    		    $items[$i]['batch_no']      =  $this->input->post('batch_no['.$i.']');
+    		    $items[$i]['expiry']        =  $this->input->post('expiry['.$i.']');
+    		    $items[$i]['cost']          =  $this->input->post('unit_cost['.$i.']');
+    		    $items[$i]['gross']         =  $this->input->post('unit_gross['.$i.']');
+    		    $items[$i]['item_disc']     =  $this->input->post('item_dis['.$i.']');
+    		    $items[$i]['item_dis_type'] =  @$this->input->post('item_dis_type['.$i.']');
+    		    $items[$i]['item_disc_amt'] =  $this->input->post('item_disc_amt['.$i.']');
     		    $items[$i]['item_bill_disc_amt'] = $this->input->post('item_bill_disc_amt['.$i.']');		    
     		    $items[$i]['total']         = $this->input->post('total['.$i.']');		    
     		    $items[$i]['item_tax_method'] = $this->input->post('tax2['.$i.']');

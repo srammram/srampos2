@@ -892,6 +892,30 @@
                                                                                         
                                        </ul>
                                     </li>
+									  <li id="procurment_grn">
+                                        <a class="dropmenu" href="javascript:void(0)">
+                                            <span class="text">  <?= lang('goods_received_note'); ?> </span>
+                                            <!--<span class="chevron closed"></span>-->
+                                        </a>
+                                        <ul class="level-3-menu">
+                                            <li id="procurment_grn_index">
+                                                <a class="submenu" href="<?= admin_url('procurment/grn'); ?>">
+                                                    <span class="text"> <?= lang('list'); ?></span>
+                                                </a>
+                                            </li>
+                                               <script type="text/javascript">
+                                                $(document).on('click','.sidebar_fadeout_pur_ret', function(){
+                                                       $("#main-menu-act").trigger("click")
+                                                });
+                                            </script>
+                                            <li id="procurment_grn_add">
+                                                <a class="submenu sidebar_fadeout_pur_ret" href="<?= admin_url('procurment/grn/add'); ?>">
+                                                    <span class="text"> <?= lang('create'); ?></span>
+                                                </a>
+                                            </li>                                          
+                                                                                        
+                                       </ul>
+                                    </li>
                                    <li id="procurment_purchase_returns">
                                         <a class="dropmenu" href="javascript:void(0)">
                                             <span class="text">  <?= lang('purchase_returns'); ?> </span>
@@ -2273,6 +2297,30 @@
                                        </ul>
                                     </li>
                                     <?php endif; ?>
+									 <li id="procurment_grn">
+                                        <a class="dropmenu" href="javascript:void(0)">
+                                            <span class="text">  <?= lang('goods_received_note'); ?> </span>
+                                            <!--<span class="chevron closed"></span>-->
+                                        </a>
+                                        <ul class="level-3-menu">
+                                            <li id="procurment_grn_index">
+                                                <a class="submenu" href="<?= admin_url('procurment/grn'); ?>">
+                                                    <span class="text"> <?= lang('list'); ?></span>
+                                                </a>
+                                            </li>
+                                               <script type="text/javascript">
+                                                $(document).on('click','.sidebar_fadeout_pur_ret', function(){
+                                                       $("#main-menu-act").trigger("click")
+                                                });
+                                            </script>
+                                            <li id="procurment_grn_add">
+                                                <a class="submenu sidebar_fadeout_pur_ret" href="<?= admin_url('procurment/grn/add'); ?>">
+                                                    <span class="text"> <?= lang('create'); ?></span>
+                                                </a>
+                                            </li>                                          
+                                                                                        
+                                       </ul>
+                                    </li>
                                     <?php 
                                      /*echo "<pre>";
                               print_r($GP);*/

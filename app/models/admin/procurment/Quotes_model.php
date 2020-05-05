@@ -656,7 +656,6 @@ class Quotes_model extends CI_Model{
 	
 	 public function getstoreRequestByID($id){
         $q = $this->db->get_where('pro_store_indent_receive', array('id' => $id), 1);
-
         if ($q->num_rows() > 0) {
             return $q->row();
         }

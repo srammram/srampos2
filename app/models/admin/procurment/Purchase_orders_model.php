@@ -727,8 +727,7 @@ class Purchase_orders_model extends CI_Model{
         return FALSE;
     }
 
-    public function getExpenseCategoryByID($id)
-    {
+    public function getExpenseCategoryByID($id){
         $q = $this->db->get_where("expense_categories", array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -736,8 +735,7 @@ class Purchase_orders_model extends CI_Model{
         return FALSE;
     }
 
-    public function updateAVCO($data)
-    {
+    public function updateAVCO($data){
         if ($wp_details = $this->getWarehouseProductQuantity($data['warehouse_id'], $data['product_id'])) {
             $total_cost = (($wp_details->quantity * $wp_details->avg_cost) + ($data['quantity'] * $data['cost']));
             $total_quantity = $wp_details->quantity + $data['quantity'];
@@ -749,6 +747,13 @@ class Purchase_orders_model extends CI_Model{
             $this->db->insert('warehouses_products', array('product_id' => $data['product_id'], 'warehouse_id' => $data['warehouse_id'], 'avg_cost' => $data['cost'], 'quantity' => 0));
         }
     }
-    
+     
+	 public function getstoreRequestByID($id){
+        $q = $this->db->get_where('pro_store_indent_receive', array('id' => $id), 1);
+        if ($q->num_rows() > 0) {
+            return $q->row();
+        }
+        return FALSE;
+    }
 
 }

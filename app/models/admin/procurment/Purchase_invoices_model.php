@@ -43,16 +43,14 @@ class Purchase_invoices_model extends CI_Model{
 		return false;
 	}
 	
-    public function getProductNames($term, $limit = 10)
-    {
-	$type = array('standard','raw');
-	$this->db->select('r.*,t.rate as purchase_tax_rate');
-	$this->db->from('recipe r');
-	$this->db->join('tax_rates t','r.purchase_tax=t.id','left');
+    public function getProductNames($term, $limit = 10){
+	    $type = array('standard','raw');
+	    $this->db->select('r.*,t.rate as purchase_tax_rate');
+	    $this->db->from('recipe r');
+	    $this->db->join('tax_rates t','r.purchase_tax=t.id','left');
         $this->db->where("(r.name LIKE '%" . $term . "%' OR r.code LIKE '%" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '%" . $term . "%')");
         $this->db->where_in('r.type',$type);
-	$this->db->limit($limit);
-	
+	    $this->db->limit($limit);
         $q = $this->db->get();
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -63,8 +61,7 @@ class Purchase_invoices_model extends CI_Model{
         return FALSE;
     }
 	
-	public function getReqBYID($id)
-    {
+	public function getReqBYID($id){
         $q = $this->db->get_where('pro_purchase_orders', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -72,8 +69,7 @@ class Purchase_invoices_model extends CI_Model{
         return FALSE;
     }
 	
-	public function getQuoteByID($id)
-    {
+	public function getQuoteByID($id){
         $q = $this->db->get_where('pro_purchase_invoices', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -82,9 +78,7 @@ class Purchase_invoices_model extends CI_Model{
     }
 	
 	
-	public function getAllQuoteItems($purchase_order_id)
-    {
-		
+	public function getAllQuoteItems($purchase_order_id){
         $this->db->select('pro_purchase_invoice_items.*, tax_rates.code as tax_code, tax_rates.name as tax_name, tax_rates.rate as tax_rate, products.unit, products.details as details, product_variants.name as variant, products.hsn_code as hsn_code')
             ->join('products', 'products.id=pro_purchase_invoice_items.product_id', 'left')
             ->join('product_variants', 'product_variants.id=pro_purchase_invoice_items.option_id', 'left')
@@ -101,8 +95,7 @@ class Purchase_invoices_model extends CI_Model{
         return FALSE;
     }
 	
-    public function getAllProducts()
-    {
+    public function getAllProducts(){
         $q = $this->db->get('products');
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -113,8 +106,7 @@ class Purchase_invoices_model extends CI_Model{
         return FALSE;
     }
 
-    public function getProductByID($id)
-    {
+    public function getProductByID($id){
         $q = $this->db->get_where('products', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -129,8 +121,7 @@ class Purchase_invoices_model extends CI_Model{
         }
         return FALSE;
 	}
-    public function getProductsByCode($code)
-    {
+    public function getProductsByCode($code){
         $this->db->select('*')->from('products')->like('code', $code, 'both');
         $q = $this->db->get();
         if ($q->num_rows() > 0) {
@@ -141,8 +132,7 @@ class Purchase_invoices_model extends CI_Model{
         }
     }
 
-    public function getProductByCode($code)
-    {
+    public function getProductByCode($code){
         $q = $this->db->get_where('products', array('code' => $code), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -150,8 +140,7 @@ class Purchase_invoices_model extends CI_Model{
         return FALSE;
     }
 
-    public function getProductByName($name)
-    {
+    public function getProductByName($name){
         $q = $this->db->get_where('products', array('name' => $name), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -159,8 +148,7 @@ class Purchase_invoices_model extends CI_Model{
         return FALSE;
     }
 
-    public function getAllPurchase_invoices()
-    {
+    public function getAllPurchase_invoices(){
         $q = $this->db->get('pro_purchase_invoices');
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -169,11 +157,8 @@ class Purchase_invoices_model extends CI_Model{
             return $data;
         }
     }
-
 	
-	
-	public function getAllRequestItems($purchase_invoices_id)
-    {
+	public function getAllRequestItems($purchase_invoices_id){
         $this->db->select('pro_purchase_order_items.*, tax_rates.code as tax_code, tax_rates.name as tax_name, tax_rates.rate as tax_rate, products.unit, products.details as details, product_variants.name as variant, products.hsn_code as hsn_code')
             ->join('products', 'products.id=pro_purchase_order_items.product_id', 'left')
             ->join('product_variants', 'product_variants.id=pro_purchase_order_items.option_id', 'left')
@@ -261,8 +246,7 @@ class Purchase_invoices_model extends CI_Model{
         return FALSE;
     }
 
-    public function getProductWarehouseOptionQty($option_id, $warehouse_id)
-    {
+    public function getProductWarehouseOptionQty($option_id, $warehouse_id){
         $q = $this->db->get_where('warehouses_products_variants', array('option_id' => $option_id, 'warehouse_id' => $warehouse_id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -270,8 +254,7 @@ class Purchase_invoices_model extends CI_Model{
         return FALSE;
     }
 
-    public function addProductOptionQuantity($option_id, $warehouse_id, $quantity, $product_id)
-    {
+    public function addProductOptionQuantity($option_id, $warehouse_id, $quantity, $product_id){
         if ($option = $this->getProductWarehouseOptionQty($option_id, $warehouse_id)) {
             $nq = $option->quantity + $quantity;
             if ($this->db->update('warehouses_products_variants', array('quantity' => $nq), array('option_id' => $option_id, 'warehouse_id' => $warehouse_id))) {
@@ -320,128 +303,23 @@ class Purchase_invoices_model extends CI_Model{
             if($po_array){
 			     $this->db->update('pro_purchase_orders', $po_array, array('id' => $data['po_number']));
             }
-            /*echo "<pre>";
-            print_r($items);die;*/
             foreach ($items as $item) {
-				if($data['status']=="approved"){
-					/*** insert stock master **/
-					$warehouse_id = $this->siteprocurment->default_warehouse_id();
-					$stock_update['store_id'] = $item['store_id'];
-                    $stock_update['product_id'] = $item['product_id'];
-					$stock_update['variant_id'] = $item['variant_id'];
-					$stock_update['category_id'] = $item['category_id'];
-					$stock_update['subcategory_id'] = $item['subcategory_id'];
-					$stock_update['brand_id'] = $item['brand_id'];
-					$stock_update['stock_in'] = $item['unit_quantity'];
-					$stock_update['stock_out'] = 0;
-					$stock_update['cost_price'] = $item['cost'];
-					$stock_update['selling_price'] = $item['selling_price'];
-					$stock_update['landing_cost'] = $item['landing_cost'];
-					$stock_update['tax_rate'] = $item['tax_rate'];
-					$stock_update['invoice_id'] = $id;
-					$stock_update['batch'] = $item['batch_no'];
-					$stock_update['expiry'] = $item['expiry'];
-					$stock_update['expiry_type'] = $item['expiry_type'];
-					$stock_update['invoice_date'] = $data['invoice_date'];
-					
-					if($item['expiry_type']=='days'){
-					$stock_update['expiry_date'] = date('Y-m-d', strtotime("+".$data['expiry']." day"));
-					}else if($item['expiry_type']=='months'){
-					$stock_update['expiry_date'] = date('Y-m-d', strtotime("+".$data['expiry']." months"));
-					}else if($item['expiry_type']=='year'){
-					$stock_update['expiry_date'] = $data['expiry'];
-					}
-					$cate['category_id'] = $stock_update['category_id'];
-					$cate['subcategory_id'] = $stock_update['subcategory_id'];
-					$cate['brand_id'] = $stock_update['brand_id'];
-					$category_mappingID = $this->siteprocurment->getCategoryMappingID($item['product_id'],$stock_update['category_id'],$stock_update['subcategory_id'],$stock_update['brand_id']);
-					$stock_update['cm_id'] = $category_mappingID ? $category_mappingID :0;
-                    $cate['cm_id'] = $stock_update['cm_id'];
-					
-					///echo "<pre>";
-                  //  print_r($stock_update);
-				  $cp = str_replace('.','_',$item['cost']);
-				     $stock_update['unique_id']=$item['store_id'].$item['product_id'].$item['batch_no'].$item['category_id'].$item['subcategory_id'].$item['brand_id'].$cp.$data['supplier_id'].$id;
-					 
-					 
-					$this->stock_master_update($stock_update);
-					$this->siteprocurment->item_cost_update($item['product_id'],$item['cost'],$item['selling_price'],$item['tax_rate_id'],$cate);			
-					$this->siteprocurment->product_stockIn($item['product_id'],$item['quantity'],$cate);
-			
-				}
-		
-		    
                 /*** insert invoice items **/
 				$item['invoice_id'] = $id;
-                $this->db->insert('pro_purchase_invoice_items', $item);//print_r($this->db->error());die;
-    
-            } //die;
-            //print_r($this->db->error());die;			
+                $this->db->insert('pro_purchase_invoice_items', $item);
+            }		
             return true;
-        }//die;
-        //print_r($this->db->error());die;
+        }
         return false;
     }
 
     public function updatePurchase_invoices($id, $data, $items,$po_array){
-	/* echo $id;
-	echo '<pre>';print_R($data);
-	echo '<pre>';print_R($items);exit; */
-	$store_default_id = $this->siteprocurment->defaultStores();
+		 $store_default_id = $this->siteprocurment->defaultStores();
         if ($this->db->update('pro_purchase_invoices', $data, array('id' => $id))) {
-	    $this->db->update('pro_purchase_orders', $po_array, array('id' => $data['po_number']));
+			$this->db->update('pro_purchase_orders', $po_array, array('id' => $data['po_number']));
             $purchase_invoices_id = $id;
-			
-        foreach ($items as $item) {
-            $item['invoice_id'] = $id;				
-    		if($data['status']=="approved"){
-                if ($this->db->delete('pro_purchase_invoice_items', array('invoice_id' => $id))) {
-                    /*$update_qty = $item['quantity']-$item['last_updated_quantity'];
-                    if($update_qty){			
-                    if($item['last_updated_quantity']<$item['quantity']){
-                    $stock_type = 'stock_in';
-                    $stock_update_qty = $update_qty;
-                    }else{
-                    $stock_type = 'return_stock_out';
-                    $stock_update_qty =  abs($update_qty);
-                    }*/
-                    $warehouse_id = $this->siteprocurment->default_warehouse_id();
-                    $stock_update['store_id'] = $item['store_id'];
-                    $stock_update['product_id'] = $item['product_id'];
-                    $stock_update['variant_id'] = $item['variant_id'];
-                    $stock_update['category_id'] = $item['category_id'];
-                    $stock_update['subcategory_id'] = $item['subcategory_id'];
-                    $stock_update['brand_id'] = $item['brand_id'];
-                    $stock_update['stock_in'] = $item['unit_quantity'];
-                    $stock_update['stock_out'] = 0;
-                    $stock_update['cost_price'] = $item['cost'];
-                    $stock_update['selling_price'] = $item['selling_price'];
-                    $stock_update['landing_cost'] = $item['landing_cost'];
-                    $stock_update['tax_rate'] = $item['tax_rate'];
-                    $stock_update['invoice_id'] = $id;
-                    $stock_update['batch'] = $item['batch_no'];
-                    $stock_update['expiry'] = $item['expiry'];
-                    $stock_update['expiry_type'] = $item['expiry_type'];
-                    $stock_update['invoice_date'] = $data['invoice_date'];
-                    if($item['expiry_type']=='days'){
-                    $stock_update['expiry_date'] = date('Y-m-d', strtotime("+".$data['expiry']." day"));
-                    }else if($item['expiry_type']=='months'){
-                    $stock_update['expiry_date'] = date('Y-m-d', strtotime("+".$data['expiry']." months"));
-                    }else if($item['expiry_type']=='year'){
-                    $stock_update['expiry_date'] = $data['expiry'];
-                    }
-                    $category_mappingID = $this->siteprocurment->getCategoryMappingID($item['product_id'],$stock_update['category_id'],$stock_update['subcategory_id'],$stock_update['brand_id']);
-                    $stock_update['cm_id'] = $category_mappingID;
-					$cp = str_replace('.','_',$item['cost']);
-				    $stock_update['unique_id']=$item['store_id'].$item['product_id'].$item['batch_no'].$item['category_id'].$item['subcategory_id'].$item['brand_id'].$cp.$data['supplier_id'].$id;
-                    $this->stock_master_update($stock_update);
-                    $cate['category_id'] = $stock_update['category_id'];
-                    $cate['subcategory_id'] = $stock_update['subcategory_id'];
-                    $cate['brand_id'] = $stock_update['brand_id'];
-                    $this->siteprocurment->item_cost_update($item['product_id'],$item['cost'],$item['selling_price'],$item['tax_rate_id'],$cate);
-                    $this->siteprocurment->product_stockIn($item['product_id'],$item['quantity'],$cate);
-    		    }
-    		}
+            foreach ($items as $item) {
+               $item['invoice_id'] = $id;				
 			   $this->db->insert('pro_purchase_invoice_items', $item);
             }       
             return true;
@@ -468,17 +346,7 @@ class Purchase_invoices_model extends CI_Model{
         $purchase = $this->getPurchase_invoicesByID($id);
         $purchase_items = $this->siteprocurment->getAllPurchase_invoicesItems($id);
         if ($this->db->delete('pro_purchase_invoice_items', array('purchase_invoices_id' => $id)) && $this->db->delete('pro_purchase_invoices', array('id' => $id))) {
-            // $this->db->delete('payments', array('purchase_order_id' => $id));
-            // if ($purchase->status == 'received' || $purchase->status == 'partial') {
-            //     foreach ($purchase_items as $oitem) {
-            //         $this->updateAVCO(array('product_id' => $oitem->product_id, 'warehouse_id' => $oitem->warehouse_id, 'quantity' => (0-$oitem->quantity), 'cost' => $oitem->real_unit_cost));
-            //         $received = $oitem->quantity_received ? $oitem->quantity_received : $oitem->quantity;
-            //         if ($oitem->quantity_balance < $received) {
-            //             $clause = array('purchase_order_id' => NULL, 'transfer_id' => NULL, 'product_id' => $oitem->product_id, 'warehouse_id' => $oitem->warehouse_id, 'option_id' => $oitem->option_id);
-            //             $this->siteprocurment->setPurchaseItem($clause, ($oitem->quantity_balance - $received));
-            //         }
-            //     }
-            // }
+         
             $this->siteprocurment->syncQuantity(NULL, NULL, $purchase_items);
             return true;
         }
@@ -843,6 +711,12 @@ class Purchase_invoices_model extends CI_Model{
         }
         return FALSE;
     }
-    
+     public function getstoreRequestByID($id){
+        $q = $this->db->get_where('pro_store_indent_receive', array('id' => $id), 1);
+        if ($q->num_rows() > 0) {
+            return $q->row();
+        }
+        return FALSE;
+    }
 
 }

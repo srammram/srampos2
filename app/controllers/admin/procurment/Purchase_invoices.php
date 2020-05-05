@@ -386,11 +386,7 @@ class Purchase_invoices extends MY_Controller{
 
     }
 
-    public function email($purchase_invoices_id = null)
-    {
-
-        //$this->sma->checkPermissions(false, true);
-
+    public function email($purchase_invoices_id = null){
         if ($this->input->get('id')) {
             $purchase_invoices_id = $this->input->get('id');
         }
@@ -444,15 +440,11 @@ class Purchase_invoices extends MY_Controller{
             }
 
         } elseif ($this->input->post('send_email')) {
-
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
             $this->session->set_flashdata('error', $this->data['error']);
             redirect($_SERVER["HTTP_REFERER"]);
-
         } else {
-
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-
             if (file_exists('./themes/' . $this->Settings->theme . '/admin/views/email_templates/purchase_invoices.html')) {
                 $purchase_invoices_temp = file_get_contents('themes/' . $this->Settings->theme . '/admin/views/email_templates/purchase_invoices.html');
             } else {
@@ -469,7 +461,6 @@ class Purchase_invoices extends MY_Controller{
                 'value' => $this->form_validation->set_value('note', $purchase_invoices_temp),
             );
             $this->data['supplier'] = $this->siteprocurment->getCompanyByID($po->customer_id);
-
             $this->data['id'] = $purchase_invoices_id;
             $this->data['modal_js'] = $this->siteprocurment->modal_js();
             $this->load->view($this->theme . 'purchase_invoices/email', $this->data);
@@ -589,16 +580,17 @@ class Purchase_invoices extends MY_Controller{
 	    $reference = 'PI'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
 	    //echo '<pre>';print_R($_POST);exit;
             $warehouse_id = $this->input->post('warehouse');
-          
             $status = $this->input->post('status');                      
             $supplier_details = $this->siteprocurment->getCompanyByID($this->input->post('supplier'));
             $supplier = $supplier_details->company != '-'  ? $supplier_details->company : $supplier_details->name;
             $dateFormat = explode('-',$this->input->post('invoice_date'));
 	        $inv_date = $dateFormat[2].'-'.$dateFormat[1].'-'.$dateFormat[0];
+			$join_ref_no = $this->purchase_invoices_model->getReqBYID($this->input->post('po_number'));
+			$date=date('Y-m-d H:i:s');
             $data = array(
             'reference_no' => $reference,
             'po_number' => $this->input->post('po_number'),
-            'date' => date('Y-m-d H:i:s'),
+            'date' => $date,
             'supplier_id' => $this->input->post('supplier'),
             'supplier' => $supplier,
             'invoice_no' => $this->input->post('invoice_no'),
@@ -626,30 +618,50 @@ class Purchase_invoices extends MY_Controller{
             'processed_by' => $this->session->userdata('user_id'),
             'processed_on' => date('Y-m-d H:i:s'),
             'total_discount' => $this->input->post('item_disc')+$this->input->post('bill_disc_val'),
+			'request_id'=>($join_ref_no->request_id)?$join_ref_no->request_id:'',
+			'req_reference_no'=>($join_ref_no->req_reference_no)?$join_ref_no->req_reference_no:''
             );
+			if(empty($join_ref_no)){
+				$notification = array(
+					'user_id' => $un_row->user_id,
+					'group_id' => $un_row->group_id,
+					'title' => 'Purchases Request',
+					'message' => 'The new purchase request has been created. REF No:'.$reference.', Date:'.$date,
+					'created_by' => $this->session->userdata('user_id'),
+					'created_on' => date('Y-m-d H:i:s'),
+				);	
+				$this->siteprocurment->insertNotification($notification);
+			}else{
+				$store_requestid=explode(",",$join_ref_no->request_id);
+				foreach($store_requestid as $rno){
+				$request_de=$this->purchase_invoices_model->getstoreRequestByID($rno);
+				$notification = array(
+				'user_id' => $this->session->userdata('user_id'),
+				'title' => 'Purchases Invoice ',
+				'message' => 'The new purchase Invoice  has been created('.$reference.'). Request REF No:'.   $request_de->reference_no.', Date:'.$date,
+				'created_by' => $this->session->userdata('user_id'),
+				'created_on' => date('Y-m-d H:i:s'),
+				'store_id'=>$request_de->store_id
+				);	
+				$this->siteprocurment->insertNotification($notification);
+				}
+				
+			}
 	    if($status=="approved"){
-		$data['approved_by'] = $this->session->userdata('user_id');
-                $data['approved_on'] = date('Y-m-d H:i:s');
+		     $data['approved_by'] = $this->session->userdata('user_id');
+             $data['approved_on'] = date('Y-m-d H:i:s');
 	    }
 	    $items =  array();
 	    if(isset($_POST['product'])){
-            // $p_count = count($_POST['product']);
-            
-            // $p_count = count($_POST['product'].$_POST['category_id'].$_POST['subcategory_id'].$_POST['brand_id']);
 			$p_count = $_POST['total_no_items'];
-            // var_dump($p_count);die;
 			for($i=0;$i<$p_count;$i++){
-				
 				$unit = $this->site->getUnitByID($this->input->post('product_unit['.$i.']'));
 				$product_unit_code=$unit->code;
-				
-				
 				$items[$i]['store_id'] = $this->input->post('store_id['.$i.']');
                 $items[$i]['product_id'] = $this->input->post('product_id['.$i.']');
 				$items[$i]['variant_id'] = $this->input->post('variant_id['.$i.']');
 				$items[$i]['product_code'] = $this->input->post('product['.$i.']');
 				$items[$i]['product_name'] = $this->input->post('product_name['.$i.']');
-				
 				$items[$i]['quantity'] = $this->input->post('quantity['.$i.']');
 				$items[$i]['po_qty'] = $this->input->post('po_quantity['.$i.']');
 				$items[$i]['batch_no'] = $this->input->post('batch_no['.$i.']');
@@ -657,12 +669,9 @@ class Purchase_invoices extends MY_Controller{
 				$items[$i]['expiry_type'] = $this->input->post('expiry_type['.$i.']');
 				$items[$i]['cost'] = $this->input->post('unit_cost['.$i.']');
 				$items[$i]['gross'] = $this->input->post('unit_gross['.$i.']');
-				
 				$items[$i]['item_disc'] = $this->input->post('item_dis['.$i.']');
 				$items[$i]['item_dis_type'] = @$this->input->post('item_dis_type['.$i.']');
 				$items[$i]['item_disc_amt'] = $this->input->post('item_disc_amt['.$i.']');
-				
-				//$items[0]['item_bill_disc'] = $this->input->post('item_bill_disc['.$i.']');
 				$items[$i]['item_bill_disc_amt'] = $this->input->post('item_bill_disc_amt['.$i.']');		    
 				$items[$i]['total'] = $this->input->post('total['.$i.']');
 				$t_rate = $this->siteprocurment->getTaxRateByID($this->input->post('tax2['.$i.']'));
@@ -680,13 +689,9 @@ class Purchase_invoices extends MY_Controller{
                 $items[$i]['brand_id'] = $_POST['brand_id'][$i];
 				$items[$i]['cm_id'] = $_POST['cm_id'][$i] ? $_POST['cm_id'][$i] : 0; 
 				$items[$i]['brand_name'] = $_POST['brand_name'][$i];
-				
 				$items[$i]['product_unit_code'] = $product_unit_code;
 				$items[$i]['unit_quantity'] = $_POST['product_base_quantity'][$i];
 				$items[$i]['product_unit_id'] = $_POST['product_unit'][$i];
-				
-				
-				
 			}
 	    }
             
@@ -706,14 +711,14 @@ class Purchase_invoices extends MY_Controller{
                 $photo = $this->upload->file_name;
                 $data['attachment'] = $photo;
             }
-	    $po_array = array();
-	    if($this->input->post('po_number') != ''){
+	        $po_array = array();
+	        if($this->input->post('po_number') != ''){
 				$po_array = array(
 					'status' => 'completed',
 				);
 			}
 		// echo '<pre>';print_R($items);exit;
-        }
+          }
 		 
         if ($this->form_validation->run() == true && $this->purchase_invoices_model->addPurchase_invoices($data,$items,$po_array)) {
             $this->session->set_userdata('remove_pols', 1);
@@ -747,6 +752,7 @@ class Purchase_invoices extends MY_Controller{
             $row->code = $item->product_code;
             $row->po_qty = $item->quantity;
             $row->qty = $item->quantity;
+			$row->base_quantity = $item->quantity;
             $row->quantity_balance = $item->quantity;
             $row->batch_no = '';
             $row->expiry = $row->value_expiry;
@@ -771,8 +777,9 @@ class Purchase_invoices extends MY_Controller{
             $row->variant_id = $item->variant_id;
             $row->brand_name = $item->brand_name;
             $row->cost = $item->selling_price;
-            $row->unit_name = $item->unit_name;
+            $row->unit_name = $item->product_unit_code;
             $row->base_unit = $row->unit ? $row->unit : $item->product_unit_id;
+			$row->unit = $row->purchase_unit ? $row->purchase_unit : $row->unit;
             $options = $this->purchase_invoices_model->getProductOptions($row->id);
             $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
             $ri = $this->Settings->item_addition ? $row->id : $row->id;
@@ -798,22 +805,15 @@ class Purchase_invoices extends MY_Controller{
 	}
 
 	
-    public function add_bk($purchase_invoices_id = null)
-    {
-         
-        //$this->sma->checkPermissions();
-        // $this->form_validation->set_message('is_natural_no_zero', $this->lang->line("no_zero_required"));
-        // $this->form_validation->set_rules('warehouse', $this->lang->line("warehouse"), 'required|is_natural_no_zero');
+    public function add_bk($purchase_invoices_id = null){
+		
         $this->form_validation->set_rules('supplier', $this->lang->line("supplier"), 'required');
-		// $this->form_validation->set_rules('po_no', $this->lang->line("po_no"), 'required');
-		/*$this->form_validation->set_rules('invoice_no', $this->lang->line("invoice_no"), 'required');
-		$this->form_validation->set_rules('purchase_invoices_no', $this->lang->line("purchase_invoices_no"), 'required');*/
+		//oices_no"), 'required');*/
 		$store_id = $this->data['default_store'];
         $this->session->unset_userdata('csrf_token');
         if ($this->form_validation->run() == true) {  
-
-	    $reference = $this->input->post('reference_no');           
-	    $date = date('Y-m-d H:i:s');			
+			$reference = $this->input->post('reference_no');           
+			$date = date('Y-m-d H:i:s');			
             $warehouse_id = $this->input->post('warehouse');
             $supplier_id = $this->input->post('supplier');
             $status = $this->input->post('status');
@@ -821,9 +821,6 @@ class Purchase_invoices extends MY_Controller{
             $supplier_details = $this->siteprocurment->getCompanyByID($supplier_id);
             $supplier = $supplier_details->company != '-'  ? $supplier_details->company : $supplier_details->name;
             $note = $this->sma->clear_tags($this->input->post('note'));
-            // $payment_term = $this->input->post('payment_term');
-            //$due_date = $payment_term ? date('Y-m-d', strtotime('+' . ' days', strtotime($date))) : null;
-
             $total = 0;
             $product_tax = 0;
             $item_discount_percent = 0;
@@ -833,15 +830,14 @@ class Purchase_invoices extends MY_Controller{
             for ($r = 0; $r < $i; $r++) {
                 $item_code = $_POST['product'][$r];
                 $item_net_cost = $this->sma->formatDecimal($_POST['net_cost'][$r]);
-		$item_batch_no = $_POST['batch_no'][$r];
-		$item_mfg = $_POST['mfg'][$r];
-		$item_expiry = $_POST['expiry'][$r];
-		$item_days = $_POST['days'][$r];				
+		        $item_batch_no = $_POST['batch_no'][$r];
+	        	$item_mfg = $_POST['mfg'][$r];
+		        $item_expiry = $_POST['expiry'][$r];
+		        $item_days = $_POST['days'][$r];				
                 $unit_cost = $this->sma->formatDecimal($_POST['unit_cost'][$r]);
 				$unit_cost_new = $this->sma->formatDecimal($_POST['unit_cost'][$r]);
                 $real_unit_cost = $this->sma->formatDecimal($_POST['unit_gross'][$r]);
                 $item_unit_quantity = $_POST['quantity'][$r];
-
                 $item_option = isset($_POST['product_option'][$r]) && !empty($_POST['product_option'][$r]) && $_POST['product_option'][$r] != 'false' ? $_POST['product_option'][$r] : null;               
                 $item_tax_rate = isset($_POST['product_tax'][$r]) ? $_POST['product_tax'][$r] : null;
                 $item_discount_percent = isset($_POST['item_discount_percent'][$r]) ? $_POST['item_discount_percent'][$r] : 0;
@@ -852,42 +848,20 @@ class Purchase_invoices extends MY_Controller{
                 $item_tax_method = isset($_POST['tax_method']) ? $_POST['tax_method'] : 0;
                 $tax_rate_id = isset($_POST['tax2'][$r]) ? $_POST['tax2'][$r] : 0;
                 $item_tax = isset($_POST['item_tax'][$r]) ? $_POST['item_tax'][$r] : 0;
-
-
                 $landcost = isset($_POST['ru_sellingprice'][$r]) ? $_POST['landcost'][$r] : 0;
                 $sellingprice = isset($_POST['ru_sellingprice'][$r]) ? $_POST['ru_sellingprice'][$r] : 0;
                 $net_cost = isset($_POST['net_cost'][$r]) ? $_POST['net_cost'][$r] : 0;
 				$net_amt = isset($_POST['net_amt']) ? $_POST['net_amt'] : 0;
-                // $item_expiry = (isset($_POST['expiry'][$r]) && !empty($_POST['expiry'][$r])) ? $this->sma->fsd($_POST['expiry'][$r]) : null;
                 $supplier_part_no = (isset($_POST['part_no'][$r]) && !empty($_POST['part_no'][$r])) ? $_POST['part_no'][$r] : null;
                 $item_unit = $_POST['product_unit'][$r];
                 $item_quantity = $_POST['quantity'][$r];
-            /*    echo "<pre>";
-                print_r($this->input->post());
-                die;*/
                 if (isset($item_code) && isset($real_unit_cost) && isset($unit_cost) && isset($item_quantity)) {
-
                     $product_details = $this->purchase_invoices_model->getProductByCode($item_code);
-                    // var_dump($product_details);die;
-                    // if ($item_expiry) {
-                    //     $today = date('Y-m-d');
-                    //     if ($item_expiry <= $today) {
-                    //         $this->session->set_flashdata('error', lang('product_expiry_date_issue') . ' (' . $product_details->name . ')');
-                    //         redirect($_SERVER["HTTP_REFERER"]);
-                    //     }
-                    // }
-                    // $unit_cost = $real_unit_cost;
-                    // $pr_discount = $this->siteprocurment->calculateDiscount($item_discount, $unit_cost);
-                    // $unit_cost = $this->sma->formatDecimal($unit_cost - $pr_discount);
-					
                     $item_net_cost = $unit_cost;
                     $pr_item_discount = $this->sma->formatDecimal($pr_discount * $item_unit_quantity);
-                    // $item_discount_percent += $pr_item_discount;
                     $pr_item_tax = 0;
                     $tax = "";
-
                     if (isset($item_tax_rate) && $item_tax_rate != 0) {
-
                         $tax_details = $this->siteprocurment->getTaxRateByID($item_tax_rate);
                         $ctax = $this->siteprocurment->calculateTax($product_details, $tax_details, $unit_cost);
                         $item_tax = $item_tax;
@@ -902,11 +876,9 @@ class Purchase_invoices extends MY_Controller{
                             $total_igst += $gst_data['igst'];
                         }
                     }
-
                     $product_tax += $pr_item_tax;
-                    // $subtotal = (($item_net_cost * $item_unit_quantity) + $pr_item_tax);
                     $unit = $this->siteprocurment->getUnitByID($item_unit);
-/*common_quote_items*/
+					/*common_quote_items*/
                     $product = array(
                         'product_id' => $product_details->id,
                         'product_code' => $item_code,
@@ -925,29 +897,16 @@ class Purchase_invoices extends MY_Controller{
                         'item_tax_method' => $item_tax_method,
                         'tax_rate_id' => $tax_rate_id,
                         'item_tax' => $item_tax,
-
                         'landing_cost' => $landcost,
                         'selling_price' => $sellingprice,
                         'net_amt' => $net_cost,
-                        
                         'product_unit_id' => $item_unit,
                         'product_unit_code' => $unit->code,
                         'unit_quantity' => $item_unit_quantity,                       
                         'warehouse_id' => $warehouse_id,
-                        'store_id' => $store_id                           
-                        // 'tax' => $tax,
-                        // 'tax_rate_id' => $item_tax_rate,
-                        // 'discount' => $item_discount,
-                        // 'item_discount' => $pr_item_discount,
-                        // 'subtotal' => $this->sma->formatDecimal($subtotal),   
-                                         
-                         //'real_unit_price' => $real_unit_cost,                      
-                        // 'status' => $status,                        
+                        'store_id' => $store_id                        
                     );
-
                     $products[] = ($product + $gst_data);
-                    
-                   
                     $total += $this->sma->formatDecimal(($item_net_cost * $item_unit_quantity), 4);
                 }
             }             
@@ -956,21 +915,16 @@ class Purchase_invoices extends MY_Controller{
             } else {
                 krsort($products);
             }
-
             $order_discount = $this->siteprocurment->calculateDiscount($this->input->post('discount'), ($total + $product_tax));
             $total_discount = $this->sma->formatDecimal(($order_discount + $item_discount_percent), 4);
             $order_tax = $this->siteprocurment->calculateOrderTax($this->input->post('order_tax'), ($total + $product_tax - $total_discount));
             $total_tax = $this->sma->formatDecimal(($product_tax + $order_tax), 4);
             $grand_total = $this->sma->formatDecimal(($total + $total_tax + $this->sma->formatDecimal($shipping) - $order_discount), 4);
-			
 			$join_ref_no = $this->purchase_invoices_model->getReqBYID($this->input->post('po_number'));
-            
             if($this->siteprocurment->GETaccessModules('')){
 				$approved_by = $this->session->userdata('user_id');
 			}
-			if($status == 'process'){
-				$un = $this->siteprocurment->getUsersnotificationWithoutSales();
-				foreach($un as $un_row)
+			if(empty($join_ref_no)){
 				$notification = array(
 					'user_id' => $un_row->user_id,
 					'group_id' => $un_row->group_id,
@@ -980,45 +934,60 @@ class Purchase_invoices extends MY_Controller{
 					'created_on' => date('Y-m-d H:i:s'),
 				);	
 				$this->siteprocurment->insertNotification($notification);
+			}else{
+				$store_requestid=explode(",",$join_ref_no->request_id);
+				foreach($store_requestid as $rno){
+				$request_de=$this->purchase_invoices_model->getstoreRequestByID($rno);
+				$notification = array(
+				'user_id' => $this->session->userdata('user_id'),
+				'title' => 'Purchases Invoice ',
+				'message' => 'The new purchase Invoice  has been created('.$reference.'). Request REF No:'.   $request_de->reference_no.', Date:'.$date,
+				'created_by' => $this->session->userdata('user_id'),
+				'created_on' => date('Y-m-d H:i:s'),
+				'store_id'=>$request_de->store_id
+				);	
+				$this->siteprocurment->insertNotification($notification);
+				}
+				
 			}
             $data = array(
-		'reference_no' => $reference,
-				'date' => $date,
-                'supplier_id' => $supplier_id,
-                'supplier' => $supplier,
-                'warehouse_id' => $warehouse_id,
-		'invoice_no' => $this->input->post('invoice_no'),
-		'supplier_invoice_no' => $this->input->post('supplier_invoice_no'),
-		'invoice_date' =>  $this->input->post('invoice_date'),
-                'note' => $note,
+		        'reference_no'        => $reference,
+				'date'                => $date,
+                'supplier_id'         => $supplier_id,
+                'supplier'            => $supplier,
+                'warehouse_id'        => $warehouse_id,
+				'invoice_no'          => $this->input->post('invoice_no'),
+				'supplier_invoice_no' => $this->input->post('supplier_invoice_no'),
+				'invoice_date'        =>  $this->input->post('invoice_date'),
+                'note'                => $note,
                 'total' => $this->input->post('final_gross_amt'),
-		'sub_total' => $this->input->post('sub_total'),   
+				'sub_total' => $this->input->post('sub_total'),   
                 'order_discount_id' => $this->input->post('discount'),
                 'order_discount' => $order_discount,
                 'total_discount' => $total_discount,
                 'product_tax' => $product_tax,
-		'item_discount' => $this->input->post('item_disc'),
-		'no_of_items' => $this->input->post('total_no_items'),
-		'no_of_qty' => $this->input->post('total_no_qty'),
+				'item_discount' => $this->input->post('item_disc'),
+				'no_of_items' => $this->input->post('total_no_items'),
+				'no_of_qty' => $this->input->post('total_no_qty'),
                 'order_tax_id' => $this->input->post('order_tax'),
-		'tax_method' => $this->input->post('tax_method'),
-		'shipping' => $this->input->post('shipping_charge'),
-		'bill_disc' => $this->input->post('bill_disc'),
-		'bill_disc_val' => $this->input->post('bill_disc_val'),
-		'round_off' => $this->input->post('round_off'),
+				'tax_method' => $this->input->post('tax_method'),
+				'shipping' => $this->input->post('shipping_charge'),
+				'bill_disc' => $this->input->post('bill_disc'),
+				'bill_disc_val' => $this->input->post('bill_disc_val'),
+				'round_off' => $this->input->post('round_off'),
                 'invoice_amt' => $this->input->post('invoice_amt'),
-		'supplier_address' => $this->input->post('supplier_address'),
-		'order_tax' => $order_tax,
+				'supplier_address' => $this->input->post('supplier_address'),
+				'order_tax' => $order_tax,
                 'total_tax' => $total_tax,
                 'shipping' => $this->sma->formatDecimal($shipping),
                 'grand_total' => $this->input->post('net_amt'),
                 'status' => $status ? $status : '',
                 'created_by' => $this->session->userdata('user_id'),
-		'approved_by' => $approved_by ? $approved_by : 0,
-		'approved_on' => $date,
-		'requestnumber' => $this->input->post('po_no') ? $this->input->post('po_no') :'',
-		'requestdate' => $join_ref_no->date ?  $join_ref_no->date : 0,
-		'req_reference_no' => $join_ref_no->reference_no ?  $join_ref_no->reference_no : 0
+				'approved_by' => $approved_by ? $approved_by : 0,
+				'approved_on' => $date,
+				'requestnumber' => $this->input->post('po_no') ? $this->input->post('po_no') :'',
+				'requestdate' => $join_ref_no->date ?  $join_ref_no->date : 0,
+				'req_reference_no' => $join_ref_no->reference_no ?  $join_ref_no->reference_no : 0
              
             );
             if ($this->Settings->indian_gst) {
@@ -1050,8 +1019,6 @@ class Purchase_invoices extends MY_Controller{
 				);
 			}
 			
-           //$this->sma->print_arrays($data, $products, $purchase_invoices_array, $this->input->post('requestnumber'));
-		   //die;
         }
 		 
         if ($this->form_validation->run() == true && $this->purchase_invoices_model->addPurchase_invoices($data, $products, $purchase_invoices_array, $this->input->post('po_no'))) {

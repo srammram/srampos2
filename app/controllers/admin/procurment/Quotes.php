@@ -495,8 +495,6 @@ class Quotes extends MY_Controller{
 			}
         
 			if(empty($join_ref_no)){
-				$un = $this->siteprocurment->getUsersnotificationWithoutSales();
-				foreach($un as $un_row)
 				$notification = array(
 				'user_id' => $un_row->user_id,
 				'group_id' => $un_row->group_id,

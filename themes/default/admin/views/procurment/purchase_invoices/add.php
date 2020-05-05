@@ -1,10 +1,9 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 <link rel="stylesheet" href="<?=$assets?>styles/jquery-ui.css">
-  <script src="<?=$assets?>js/jquery-ui.js"></script>
+<script src="<?=$assets?>js/jquery-ui.js"></script>
 
 <script type="text/javascript">
     var default_store = '<?=$default_store?>';
-    
     var count = 1, an = 1, purchase_invoices_edit = false, product_variant = 0, DT = <?= $Settings->default_tax_rate ?>, DC = '<?= @$default_currency->code ?>', shipping = 0,
         product_tax = 0, invoice_tax = 0, total_discount = 0, total = 0,
         tax_rates = <?php echo json_encode($tax_rates); ?>, pi_items = {},
@@ -16,20 +15,7 @@
             //localStorage.setItem('pi_supplier', <?=$this->input->get('supplier');?>);
         }
         <?php } ?>
-        <?php //if ($Owner || $Admin) { ?>
-        if (!localStorage.getItem('pi_date')) {
-           /* $("#pi_date").datetimepicker({
-                format: site.dateFormats.js_sdate,
-                fontAwesome: true,
-                language: 'common',
-                weekStart: 1,
-                todayBtn: 1,
-                autoclose: 1,
-                todayHighlight: 1,
-                startView: 2,
-                forceParse: 0
-            }).datetimepicker('update', new Date());*/
-        }
+     
         if (!localStorage.getItem('invoice_date')) {
             $("#invoice_date").datetimepicker({
                 /*format: site.dateFormats.js_sdate,*/
@@ -74,7 +60,7 @@
         if (iodate = localStorage.getItem('iodate')) {
             $('#iodate').val(iodate);
         }
-        <?php //} ?>
+        
         if (!localStorage.getItem('pi_tax2')) {
             localStorage.setItem('pi_tax2', <?=$Settings->default_tax_rate2;?>);
             setTimeout(function(){ $('#extras').iCheck('check'); }, 1000);
@@ -219,8 +205,8 @@
                 <div class="row">
 		        <input type="hidden" name="warehouse" id="po_warehouse" value="<?php echo $Settings->default_warehouse ?>"> 
                     <div class="col-lg-12" style="background:#b1d7fd; padding:15px 15px;">
-			<?php echo form_submit('add_purchase_invoices', $this->lang->line("save"), 'id="add_purchase_orders" class="btn col-lg-1 btn-sm btn-primary pull-right"'); ?>
-                                <button type="button" class="btn col-lg-1 btn-sm btn-danger pull-right" style="margin-right:15px;height:30px!important;font-size: 12px!important" id="reset"><?= lang('reset') ?></button>
+			           <?php echo form_submit('add_purchase_invoices', $this->lang->line("save"), 'id="add_purchase_orders" class="btn col-lg-1 btn-sm btn-primary pull-right"'); ?>
+                      <button type="button" class="btn col-lg-1 btn-sm btn-danger pull-right" style="margin-right:15px;height:30px!important;font-size: 12px!important" id="reset"><?= lang('reset') ?></button>
                         <table class="table custom_tables">
                             <tbody>
                                 <tr>
@@ -258,23 +244,21 @@
                                         <?= lang("supplier", "pi_supplier"); ?>
                                     </td>
                                     <td width="350px">
-					<div class="input-group">
+				                  	<div class="input-group">
                                         <?php
-
                                         $sl[""] = "";
                                         foreach ($suppliers as $supplier) {
                                             $sl[$supplier->id] = $supplier->name;
                                         }
                                         echo form_dropdown('supplier', $sl, (isset($_POST['supplier']) ? $_POST['supplier'] : 0), 'id="pi_supplier" data-placeholder="' . $this->lang->line("select") . ' ' . $this->lang->line("supplier") . '"  class="form-control input-tip select" style="width:100%;"');
                                         ?>
-					<div class="input-group-addon no-print" style="padding: 2px 5px;">
-					    <a href="<?= admin_url('procurment/supplier/add'); ?>" id="add-supplier1" class="external" data-toggle="modal" data-target="#myModal">
-						<i class="fa fa-2x fa-plus-square" id="addIcon1"></i>
-					    </a>
-					</div>
-					</div>
+									<div class="input-group-addon no-print" style="padding: 2px 5px;">
+									<a href="<?= admin_url('procurment/supplier/add'); ?>" id="add-supplier1" class="external" data-toggle="modal" data-target="#myModal">
+									<i class="fa fa-2x fa-plus-square" id="addIcon1"></i>
+									</a>
+								</div>
+							</div>
                                     </td>
-
                                     <td width="100px">
                                         <?= lang("Supplier Address", "supplier_address") ?>
                                     </td>
@@ -285,7 +269,7 @@
                                         <?= lang("status", "pi_status") ?>
                                     </td>
                                     <td>                                        
-                                            <?php $st['process'] = lang('process');
+                                      <?php $st['process'] = lang('process');
                                         if($this->siteprocurment->hasApprovedPermission()){
                                             $st['approved'] = lang('approved'); 
                                         }
@@ -297,9 +281,7 @@
                                         <?= lang("document", "document") ?>
                                     </td>
                                     <td>
-                                        <!-- <input id="document" type="file" data-browse-label="<?= lang('browse'); ?>" name="document" data-show-upload="false"
-                                           data-show-preview="false" class="form-control file"> -->
-                                           <input id="document" type="file" data-browse-label="" name="document" data-show-upload="false"
+                                     <input id="document" type="file" data-browse-label="" name="document" data-show-upload="false"
                                        data-show-preview="false" class="form-control file">
                                     </td>
                                     <td>
@@ -386,52 +368,7 @@
                             </tbody>
                         </table>                          
                     </div>
-                    <!-- 
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <?= lang("Request Date", "date") ?>
-                                <input type="datetime" name="requestdate" id="pi_requestdate" readonly class="form-control" value="<?php echo date('Y-m-d H:i:s') ?>">
-                                
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <?= lang("supplier", "pi_supplier"); ?>
-                                <input type="hidden" name="supplier" value="" id="pi_supplier" class="form-control" required="required" style="width:100%;" placeholder="<?= lang("select") . ' ' . lang("supplier") ?>">
-                                <input type="hidden" name="supplier_id" value="" id="supplier_id" class="form-control" >
-                            </div>
-                        </div>
-                        
-                        <input type="hidden" name="warehouse" id="pi_warehouse" value="<?php echo $Settings->default_warehouse ?>">  
-                           
-                            
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                   
-                                    <?= lang("document", "document") ?>
-                                   
-                                    <input id="document" type="file" data-browse-label="<?= lang('browse'); ?>" name="document" data-show-upload="false"
-                                           data-show-preview="false" class="form-control file">
-                                   
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <?= lang("status", "pi_status"); ?>
-                                    <?php $st['process'] = lang('process');
-								if($this->siteprocurment->GETaccessModules('purchase_invoices_approved')){
-									$st['approved'] = lang('approved');	
-								}
-                                    echo form_dropdown('status', $st, '', 'class="form-control input-tip" id="pi_status"'); ?>
-    
-                                </div>
-                            </div>
-                             
-                          <div class="clearfix"></div>	
-                        <div class="col-md-12" id="sticker">
-                        -->
+                   
                         <div class="clearfix"></div>
                          <div class="col-md-12" id="sticker">
                             <div class="well well-sm">
@@ -451,8 +388,8 @@
                                 <div class="clearfix"></div>
                             </div>
                         </div>
-<style>
-    .total_item_qty_tables tbody tr td:last-child{width: 12%;}
+					<style>
+						.total_item_qty_tables tbody tr td:last-child{width: 12%;}
 </style>
                         <div class="col-md-12">
                             <div class="control-group table-group">

@@ -145,7 +145,6 @@ if (localStorage.getItem('pi_items')) {
 
 // save and load the fields in and/or from localStorage
 var $supplier = $('#pi_supplier'), $currency = $('#pocurrency');
-
 $('#poref').change(function (e) {
     localStorage.setItem('pi_ref', $(this).val());
 });
@@ -153,7 +152,6 @@ $('#poref').change(function (e) {
 if (poref = localStorage.getItem('pi_ref')) {
     $('#poref').val(poref);
 }
-
 $('#invoice_no').change(function (e) {
     localStorage.setItem('pi_invoice_no', $(this).val());
 });
@@ -170,62 +168,10 @@ $('#pi_supplier').change(function (e) {
     localStorage.setItem('pi_supplier', $(this).val());
 });
 
-/*if (powarehouse = localStorage.getItem('pi_warehouse')) {
-    $('#powarehouse').select2("val", powarehouse);
-}
-*/
-
         if (ponote = localStorage.getItem('pi_note')) {
             // $('#ponote').redactor('set', ponote);
         }
-        /*$supplier.change(function (e) {            
-            localStorage.setItem('pi_supplier', $(this).val());            
-        });*/
 
-/*        if (pi_supplier = localStorage.getItem('pi_supplier')) {
-
-            $supplier.val(pi_supplier).select2({
-                minimumInputLength: 1,
-                data: [],
-                initSelection: function (element, callback) {
-                    $.ajax({
-                        type: "get", async: false,
-                        url: site.base_url+"suppliers/getSupplier/" + $(element).val(),
-                        dataType: "json",
-                        success: function (data) {
-                            callback(data[0]);
-                        }
-                    });
-                },
-                ajax: {
-                    url: site.base_url + "suppliers/suggestions",
-                    dataType: 'json',
-                    quietMillis: 15,
-                    data: function (term, page) {
-                        return {
-                            term: term,
-                            limit: 10
-                        };
-                    },
-                    results: function (data, page) {
-                        if (data.results != null) {
-                            return {results: data.results};
-                        } else {
-                            return {results: [{id: '', text: 'No Match Found'}]};
-                        }
-                    }
-                }
-            });
-
-} else {
-    nsSupplier();
-}*/
-
-    /*$('.rexpiry').change(function (e) {
-        var item_id = $(this).closest('tr').attr('data-item-id');
-        pi_items[item_id].row.expiry = $(this).val();
-        localStorage.setItem('pi_items', JSON.stringify(pi_items));
-    });*/
 if (localStorage.getItem('pi_extras')) {
     $('#extras').iCheck('check');
     $('#extras-con').show();
@@ -1087,7 +1033,7 @@ function loadItems() {
 				var item_mfgs = item.row.mfg;
 				var mfgdate = new Date(item_mfgs);
 				mfgdate.setDate(mfgdate.getDate() + item_days);
-				var mfgfinalDate = mfgdate.getFullYear()+'-'+ (mfgdate.getMonth() < 9 ? '0': '') + (mfgdate.getMonth()+1) +'-'(mfgdate.getDate() < 9 ? '0': '') + mfgdate.getDate();
+			var mfgfinalDate = mfgdate.getFullYear()+'-'+ (mfgdate.getMonth() < 9 ? '0': '') + (mfgdate.getMonth()+1) +'-'+ (mfgdate.getDate() < 9 ? '0': '') + mfgdate.getDate();
 				var item_mfg = mfgfinalDate;
 				var expirydate = new Date(mfgfinalDate);
 				expirydate.setDate(expirydate.getDate() + item_days);
@@ -1135,10 +1081,25 @@ function loadItems() {
             if (item.row.new_entry == 1) { item_bqty = 0;//item_qty;
 	        item_oqty = item_qty; }
             var unit_cost = item.row.unit_cost;
-            //var product_unit = item.row.unit, base_quantity = item.row.base_quantity;
+            var product_unit = item.row.unit, base_quantity = item.row.base_quantity;
             var supplier = localStorage.getItem('pi_supplier'), belong = false;
             var item_tax_method = localStorage.getItem('tax_method');
             bill_disc = localStorage.getItem('inv_bill_disc') ? localStorage.getItem('inv_bill_disc') : 0;
+			
+			 if(item.units && item.row.fup != 1 && product_unit != item.row.base_unit) {
+                $.each(item.units, function(){
+                    if (this.id == product_unit) {
+                        base_quantity = formatDecimal(unitToBaseQty(item.row.qty, this), 4);
+                      //  unit_price = formatDecimal((parseFloat(item.row.base_unit_price)*(unitToBaseQty(1, this))), 4);
+                    }
+                });
+            }
+			
+			
+			
+			
+			
+			
             if(bill_disc !=0){
                 if (bill_disc.indexOf("%") !== -1) {
                     bill_disc_per = bill_disc;

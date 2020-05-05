@@ -1,26 +1,20 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 class MY_Controller extends CI_Controller {
-    function __construct()
-    {
+    function __construct(){
         parent::__construct();
         $this->Settings = $this->site->get_setting();
         $this->pos_settings = $this->site->get_posSetting();
         ini_set('memory_limit',-1);
-        //define('SOCKET_PORT',$this->Settings->socket_port);
-        //define('SOCKET_HOST',$this->Settings->socket_host);  
         $thisStore = $this->site->getThisStore(); 
-		
         $this->isWarehouse = ($thisStore->type==1)?false:true;
         $this->isStore = ($thisStore->type==1)?true:false;
         $this->store_id = $thisStore->id;
         $this->store_name = $thisStore->name;
 		$this->myIp = getHostByName(php_uname('n'));
-		
-		  $this->centerdb_connected =  false;
+	    $this->centerdb_connected =  false;
         if($this->isStore){
             $this->center_server->connect();
-           //echo $this->centerdb_connected;exit;
         }
 		if(!empty($this->myIp)){
 			$counter = $this->site->getCounter($this->myIp);
@@ -40,7 +34,6 @@ class MY_Controller extends CI_Controller {
 		$continueShift = $this->site->continueShift($this->till_id);
 		$dontcontinueShift = $this->site->dontcontinueShift($this->till_id);
 		$getShiftmaster = $this->site->getShiftmaster();
-		
 		$this->currencies = $this->site->getAllCurrencies();
 		$this->defaultcurdata =  $this->site->defaultCurrencyData($this->Settings->default_currency);
 		if(!empty($getShiftmaster)){
@@ -109,13 +102,9 @@ class MY_Controller extends CI_Controller {
         $this->loggedIn = $this->sma->logged_in();
 
         if($this->loggedIn) {
-			
 			if($this->isStore && $this->centerdb_connected){ 
                 $this->site->start_sync();
             }
-			
-			
-			
             if($this->Settings->transaction_date==1){
                 $this->site->set_cur_transaction_date();
             }
@@ -123,14 +112,11 @@ class MY_Controller extends CI_Controller {
             if($this->session->userdata('assigned_stores')){
               $this->data['user_assigned_stores'] = $this->session->userdata('assigned_stores');  
             }
-            
             /////// autobackup //////////////
             if($this->session->userdata('admin_panel') && $this->Settings->ftp_autobackup_enable==1){
                 $this->load->library('backup');
                 @$this->backup->initiate();  
             }
-            
-            
             $this->data['default_store'] = $this->session->userdata('warehouse_id');
             $this->data['pos_store'] = $this->session->userdata('warehouse_id');
             
