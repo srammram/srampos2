@@ -23,13 +23,13 @@
                 nRow.className = "store_request_link";
                 return nRow;
             },
-            "aoColumns": [{"bSortable": false,"mRender": checkbox}, {"mRender": fld}, null,  null, null,  {"mRender": row_status}, {"bSortable": false,"mRender": procurment_attachment}, {"bSortable": false}]
+            "aoColumns": [{"bSortable": false,"mRender": checkbox}, {"mRender": fld},null,  null, null,  {"mRender": row_status}, {"bSortable": false}]
         }).fnSetFilteringDelay().dtFilter([
             {column_number: 1, filter_default_label: "[<?=lang('date');?> (yyyy-mm-dd)]", filter_type: "text", data: []},
             {column_number: 2, filter_default_label: "[<?=lang('reference_no');?>]", filter_type: "text", data: []},
-            {column_number: 3, filter_default_label: "[<?=lang('biller');?>]", filter_type: "text", data: []},
+            {column_number: 3, filter_default_label: "[<?=lang('invoice_date');?>]", filter_type: "text", data: []},
            
-            {column_number: 4, filter_default_label: "[<?=lang('supplier');?>]", filter_type: "text", data: []},
+            {column_number: 4, filter_default_label: "[<?=lang('invoice_no');?>]", filter_type: "text", data: []},
            
             {column_number: 5, filter_default_label: "[<?=lang('status');?>]", filter_type: "text", data: []},
         ], "footer");
@@ -79,11 +79,11 @@
                             </th>
                             <th><?= lang("date"); ?></th>
                             <th><?= lang("reference_no"); ?></th>
-                            <th><?= lang("from_store"); ?></th>
-                            <th><?= lang("to_store"); ?></th>
-                           
+                         
+                            <th><?= lang("Invoice_date"); ?></th>
+                              <th><?= lang("Invoice_refNo"); ?></th>
                             <th><?= lang("status"); ?></th>
-                            <th style="min-width:30px; width: 30px; text-align: center;"><i class="fa fa-chain"></i></th>
+                            
                             <th style="width:115px; text-align:center;"><?= lang("actions"); ?></th>
                         </tr>
                         </thead>
@@ -99,7 +99,7 @@
                                 <input class="checkbox checkft" type="checkbox" name="check"/>
                             </th>
                            <th></th><th></th><th></th><th></th><th></th>
-                            <th style="min-width:30px; width: 30px; text-align: center;"><i class="fa fa-chain"></i></th>
+                           
                             <th style="width:115px; text-align:center;"><?= lang("actions"); ?></th>
                         </tr>
                         </tfoot>

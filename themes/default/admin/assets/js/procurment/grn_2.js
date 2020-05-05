@@ -73,74 +73,43 @@ if (localStorage.getItem('pi_items')) {
 
     // clear localStorage and reload
     $('#reset').click(function (e) {
-        bootbox.confirm(lang.r_u_sure_reset, function (result) {
-            if (result) {
-                if (localStorage.getItem('pi_items')) {
-                    localStorage.removeItem('pi_items');
-                }
-                if (localStorage.getItem('pi_discount')) {
-                    localStorage.removeItem('pi_discount');
-                }
-                if (localStorage.getItem('pi_tax2')) {
-                    localStorage.removeItem('pi_tax2');
-                }
-                if (localStorage.getItem('pi_shipping')) {
-                    localStorage.removeItem('pi_shipping');
-                }
-                if (localStorage.getItem('pi_ref')) {
-                    localStorage.removeItem('pi_ref');
-                }
-                if (localStorage.getItem('pi_warehouse')) {
-                    localStorage.removeItem('pi_warehouse');
-                }
-                if (localStorage.getItem('pi_note')) {
-                    localStorage.removeItem('pi_note');
-                }
-                if (localStorage.getItem('pi_supplier')) {
-                    localStorage.removeItem('pi_supplier');
-                }
-                if (localStorage.getItem('pi_currency')) {
-                    localStorage.removeItem('pi_currency');
-                }
-                if (localStorage.getItem('pi_extras')) {
-                    localStorage.removeItem('pi_extras');
-                }
-                if (localStorage.getItem('pi_date')) {
-                    localStorage.removeItem('pi_date');
-                }
-                if (localStorage.getItem('pi_status')) {
-                    localStorage.removeItem('pi_status');
-                }
-                if (localStorage.getItem('pi_payment_term')) {
-                    localStorage.removeItem('pi_payment_term');
-                }
-		       if (localStorage.getItem('pi_requestnumber')) {
-                    localStorage.removeItem('pi_requestnumber');
-                }
-                if (localStorage.getItem('round_off')) {
-                    localStorage.removeItem('round_off');
-                }
-                if (localStorage.getItem('freight')) {
-                    localStorage.removeItem('freight');
-                }
-                if (localStorage.getItem('pi_invoice_no')) {
-                    localStorage.removeItem('pi_invoice_no');
-                } 
-                if (localStorage.getItem('invoice_amt')) {
-                    localStorage.removeItem('invoice_amt');
-                }
-                 if (localStorage.getItem('inv_bill_disc')) {
-                    localStorage.removeItem('inv_bill_disc');
-                }
-                if (localStorage.getItem('inv_bill_disc_percentage')) {
-                    localStorage.removeItem('inv_bill_disc_percentage');
-                }
+         bootbox.confirm(lang.r_u_sure, function (result) {
+                if (result) {
+                   if (localStorage.getItem('pi_items')) {
+						localStorage.removeItem('pi_items');
+					}
+					if (localStorage.getItem('pi_number')) {
+						localStorage.removeItem('pi_number');
+					}
+					if (localStorage.getItem('pi_invoiceno')) {
+						localStorage.removeItem('pi_invoiceno');
+					}
+					if (localStorage.getItem('pi_warehouse')) {
+						localStorage.removeItem('pi_warehouse');
+					}
+					if (localStorage.getItem('pi_supplier')) {
+						localStorage.removeItem('pi_supplier');
+					}
+					if (localStorage.getItem('pi_currency')) {
+						localStorage.removeItem('pi_currency');
+					}
+					if (localStorage.getItem('pi_date')) {
+					localStorage.removeItem('pi_date');
+					}
+					if (localStorage.getItem('delivery_address')) {
+						localStorage.removeItem('delivery_address');
+					}
+					if (localStorage.getItem('supplier_address')) {
+					localStorage.removeItem('supplier_address');
+					}
+					if (localStorage.getItem('invoice_amt')) {
+						localStorage.removeItem('invoice_amt');
+					}
 
-
-                $('#modal-loading').show();
-                location.reload();
-            }
-        });
+                    $('#modal-loading').show();
+                    location.reload();
+                }
+            });
     });
 
 // save and load the fields in and/or from localStorage
@@ -464,6 +433,7 @@ $('#pi_discount').focus(function () {
             $.each(tax_rates, function () {
                 if(this.id == pr_tax){
                     if (this.type == 1) {
+
                         if (item_tax_method == 0) {
                             pr_tax_val = formatDecimal((((unit_cost) * parseFloat(this.rate)) / (100 + parseFloat(this.rate))), 4);
                             pr_tax_rate = formatDecimal(this.rate) + '%';
@@ -472,13 +442,17 @@ $('#pi_discount').focus(function () {
                             pr_tax_val = formatDecimal((((unit_cost) * parseFloat(this.rate)) / 100), 4);
                             pr_tax_rate = formatDecimal(this.rate) + '%';
                         }
+
                     } else if (this.type == 2) {
+
                         pr_tax_val = parseFloat(this.rate);
                         pr_tax_rate = this.rate;
+
                     }
                 }
             });
         }
+
         $('#net_cost').text(formatMoney(unit_cost));
         $('#pro_tax').text(formatMoney(pr_tax_val));
     });
@@ -828,18 +802,7 @@ $('#pi_discount').focus(function () {
      return false;
  });
 
-    if (purchase_invoices_edit) {
-        $('#pi_supplier').select2("readonly", true);
-    }
-   /*$('#feright_chargers_shipping').keyup(function(){
-	$charge = $(this).val();
-	$charge = ($charge=='') ?0:$charge;
-	$charge  = parseFloat($charge).toFixed(2);
-	$('#feright_chargers_shipping').val($charge);
-	$("#feright_chargers_shipping").trigger('change');
-	localStorage.setItem('freight',$charge);	
-   });
-   */
+  
    $('#feright_chargers_shipping').keyup(function(){
     $charge = $(this).val();
     $charge = ($charge=='') ?0:$charge;
@@ -1167,7 +1130,7 @@ function loadItems() {
         }*/
 
             var row_no = (new Date).getTime();
-	        $store_id= default_store;
+	       
             if (item.store_id) {
                 $store_id = item.store_id;
             }
@@ -1314,7 +1277,7 @@ function loadItems() {
             tr_html += '<td class="text-center"><i class="fa fa-times tip podel" id="' + row_no + '" title="Remove" style="cursor:pointer;"></i></td>';
             newTr.html(tr_html);
           //  newTr.appendTo("#purchase_invoicesTable");
-			 newTr.prependTo("#purchase_invoicesTable");
+			 newTr.prependTo("#grntable");
 	       $('#total_no_items').val(++$total_no_items);
 	       $total_no_qty = parseFloat($total_no_qty)+parseFloat(item_qty);
 	        $('#total_no_qty').val($total_no_qty);

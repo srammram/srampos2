@@ -13,9 +13,8 @@ class Grn_model extends CI_Model{
 	  ->join('warehouses','warehouses.id=pro_purchase_invoice_items.store_id','left')
 	 //->where('pro_purchase_invoices.status', 'approved')
 	 ->where('pro_purchase_invoice_items.store_id',$this->store_id)
-	 ->where('pro_purchase_invoice_items.id',$id)
-	 ->group_by('pro_purchase_invoices.id')
-	 ->limit(1);
+	 ->where('pro_purchase_invoices.id',$id)
+	 ->group_by('pro_purchase_invoices.id');
         $q = $this->db->get();
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -72,12 +71,67 @@ class Grn_model extends CI_Model{
         return FALSE;
     }
 	
+	function getpi($id){
+		$this->db->select("*");
+		$this->db->where("id",$id);
+		$q=$this->db->get("pro_purchase_invoices");
+		if($q->num_rows()>0){
+		   return $q->row();
+		}
+		return false;
+	}
+	
+	    public function addGrn($data = array(), $items = array()){
+        if ($this->db->insert('pro_grn', $data)) {
+            $grn_id = $this->db->insert_id();
+        if ($grn_id) {            
+            $unique_id = $this->site->generateUniqueTableID($grn_id);
+            if ($grn_id) {
+                $this->site->updateUniqueTableId($grn_id,$unique_id,'pro_grn');
+            }
+            foreach ($items as $item) {
+                $item['grn_id'] = $unique_id;
+                $this->db->insert('pro_grn_items', $item);
+				$i_request_id = $this->db->insert_id();
+                $i_unique_id = $this->site->generateUniqueTableID($i_request_id);
+                if ($i_request_id) {
+                    $this->site->updateUniqueTableId($i_request_id,$i_unique_id,'pro_grn_items');
+                }
+            }
+			  if($data['status']=="approved"){
+		     
+	    }
+            return true;
+        }
+        return false;
+    }
+	}
 	
 	
 	
+	function getGRNById($id){
+		$thid->db->select("pro_grn.*");
+		$this->db->where("id",$id);
+		$q=$this->db->get("pro_grn");
+		if($q->num_rows()>0){
+			return $q->row();
+		}
+		return false;
+	}
 	
 	
-	
+	function getGRNIitemById($id){
+		$thid->db->select("pro_grn_items.*");
+		$this->db->where("grn_id",$id);
+		$q=$this->db->get("pro_grn_items");
+		if($q->num_rows()>0){
+			foreach($q->result() as $row){
+				$data[]$row;
+			}
+			return $data;
+		}
+		return false;
+	}
 	
 	
 	
@@ -169,32 +223,7 @@ class Grn_model extends CI_Model{
         return FALSE;
     }
 
-    public function addStore_request($data = array(), $items = array()){
-        if ($this->db->insert('pro_store_request', $data)) {
-            $store_request_id = $this->db->insert_id();
-			
-        if ($store_request_id) {            
-            $unique_id = $this->site->generateUniqueTableID($store_request_id);
-            if ($store_request_id) {
-                $this->site->updateUniqueTableId($store_request_id,$unique_id,'pro_store_request');
-            }
-            foreach ($items as $item) {
-                $item['store_request_id'] = $unique_id;
-                $this->db->insert('pro_store_request_items', $item);
-				$i_request_id = $this->db->insert_id();
-                $i_unique_id = $this->site->generateUniqueTableID($i_request_id);
-                if ($i_request_id) {
-                    $this->site->updateUniqueTableId($i_request_id,$i_unique_id,'pro_store_request_items');
-                }
-            }
-			  if($data['status']=="approved"){
-		      $this->sync_center->sync_storeIndentRequests($unique_id);
-	    }
-            return true;
-        }
-        return false;
-    }
-	}
+
 
     public function updateStore_request($id, $data, $items = array()){        
         if ($this->db->update('pro_store_request', $data, array('id' => $id)) && $this->db->delete('pro_store_request_items', array('store_request_id' => $id))) {

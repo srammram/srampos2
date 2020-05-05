@@ -1,9 +1,10 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 <script type="text/javascript">
-    var count = 1, an = 1, product_variant = 0, DT = <?= $Settings->default_tax_rate ?>, allow_discount = <?= ($Owner || $Admin || $this->session->userdata('allow_discount')) ? 1 : 0; ?>,
-    product_tax = 0, invoice_tax = 0, total_discount = 0, total = 0, shipping = 0;
-    var audio_success = new Audio('<?=$assets?>sounds/sound2.mp3');
-    var audio_error = new Audio('<?=$assets?>sounds/sound3.mp3');
+    var count = 1, an = 1, purchase_invoices_edit = false, product_variant = 0, DT = <?= $Settings->default_tax_rate ?>, DC = '<?= @$default_currency->code ?>', shipping = 0,
+        product_tax = 0, invoice_tax = 0, total_discount = 0, total = 0,
+        tax_rates = <?php echo json_encode($tax_rates); ?>, pi_items = {},
+        audio_success = new Audio('<?= $assets ?>sounds/sound2.mp3'),
+        audio_error = new Audio('<?= $assets ?>sounds/sound3.mp3');
     $(document).ready(function () {
         $(document).on('change', '#grn_date', function (e) {
             localStorage.setItem('grn_date', $(this).val());
@@ -17,8 +18,6 @@
         if (note = localStorage.getItem('note')) {
             $('#note').val(note);
         }
-		
-		
 		if (pi_date = localStorage.getItem('pi_date')) {
             $('.invoice_date').val(pi_date);
         }
@@ -42,11 +41,6 @@
 		if (pi_number = localStorage.getItem('pi_number')) {
             $('.pi_number').val(pi_number);
         }
-		
-		
-		
-		
-		
         ItemnTotals();
     });
 </script>
@@ -59,12 +53,12 @@
         <div class="row">
             <div class="col-lg-12" >                
                 <?php
-                $attrib = array('data-toggle' => 'validator1', 'role' => 'form','id' => 'add-store-request');
+                $attrib = array('data-toggle' => 'validator1', 'role' => 'form','id' => 'add_grn');
                 echo admin_form_open_multipart("procurment/grn/add", $attrib)
                 ?>                
                 <div class="row">
                     <div class="col-lg-12" style="background:#b1d7fd; padding:15px 15px;">
-                        <?php echo form_submit('add_grn', $this->lang->line("save"), 'id="add_grn" class="btn col-lg-1 btn-sm btn-primary pull-right" '); ?>
+                        <?php echo form_submit('add_grn', $this->lang->line("save"), 'id="add-grn" class="btn col-lg-1 btn-sm btn-primary pull-right" '); ?>
                         <button type="button" class="btn col-lg-1 btn-sm btn-danger pull-right" id="reset" style="margin-right:15px;height:30px!important;font-size: 12px!important"><?= lang('reset'); ?></button>
 
                         
@@ -150,10 +144,8 @@
 												}
 												echo form_dropdown('supplier', $sl, (isset($_POST['supplier']) ? $_POST['supplier'] : 0), 'id="pi_supplier" data-placeholder="' . $this->lang->line("select") . ' ' . $this->lang->line("supplier") . '"  class="form-control pi_supplier input-tip select" readonly style="width:100%;"');
 											?>
-											<div class="input-group-addon no-print" style="padding: 2px 5px;">
-											<a href="<?= admin_url('procurment/supplier/add'); ?>" id="add-supplier1" class="external" data-toggle="modal" data-target="#myModal">
-											<i class="fa fa-2x fa-plus-square" id="addIcon1"></i>
-											</a>
+											<div class="input-group-addon no-print" >
+											
 										</div>
 										</div>
 										</td>
@@ -161,7 +153,7 @@
                                         <?= lang("invoice_date", "invoice_date") ?>
                                     </td>
                                     <td>                                        
-                                        <input type="datetime"   class="required form-control invoice_date">
+                                        <input type="datetime"   class="required form-control invoice_date" readonly>
 										   <input type="hidden" name="invoice_date" id="invoice_date"  class="required form-control invoice_date">
                                     </td>
                                 </tr>
@@ -170,14 +162,14 @@
                                         <?= lang("supplier_address", "supplier_address") ?>
                                     </td>
                                     <td> 
-                                       <input type="text" name="supplier_address" id="supplier_address" class="required form-control supplier_address" value="">
+                                       <input type="text" name="supplier_address" id="supplier_address" class="required form-control supplier_address" readonly>
 									     <input type="hidden"   class="required form-control supplier_address" value="">
                                     </td>
                                      <td>
                                         <?= lang("invoice_amt", "invoice_amt") ?>
                                     </td>
                                     <td> 
-                                       <input type="text"  id="invoice_amt" class="required form-control invoice_amt numberonly" value="">
+                                       <input type="text"  id="invoice_amt" class="required form-control invoice_amt numberonly" readonly>
 									   
 									      <input type="hidden" name="invoice_amt"  class="required form-control invoice_amt numberonly" value="">
                                     </td>
@@ -221,7 +213,7 @@
                                 <label class="table-label"><?= lang("items"); ?> *</label>
 
                                 <div class="controls table-controls">
-                                    <table id="store_reqTable"
+                                    <table id="grntable"
                                             class="table items  table-bordered table-condensed sortable_table" style="background:#fff">
                                         <thead>
                                         <tr>
@@ -251,14 +243,16 @@
 					    <td>
 						<label for="titems">total no items</label>                                    </td>
 					    <td>
-						<input name="titems" id="titems" readonly="" class="form-control" autocomplete="off">
+						<input name="titems"  readonly="" class="form-control titems" autocomplete="off">
+						<input type="hidden" name="titems"   class="form-control titems" autocomplete="off">
 					    </td>
 					</tr>
 					<tr>                                    
 					    <td>
 						<label for="total_items">total no qty</label>                                    </td>
 					    <td>
-						<input name="total_items" id="total_items" readonly="" class="form-control" autocomplete="off">
+						<input   readonly="" class="form-control total_items" autocomplete="off">
+						<input name="total_items"  type="hidden"  class="form-control total_items" >
 					    </td>
 					</tr>
 				    </tbody>
@@ -274,8 +268,8 @@
 </div>
 <script>
 $(document).on('change', '#pi_number', function(){
-	if (localStorage.getItem('pi_items')) {
-        localStorage.removeItem('pi_items');
+	if (localStorage.getItem('grn_items')) {
+        localStorage.removeItem('grn_items');
     }
 	if (localStorage.getItem('pi_number')) {
         localStorage.removeItem('pi_number');
@@ -305,7 +299,6 @@ $(document).on('change', '#pi_number', function(){
         localStorage.removeItem('invoice_amt');
     }
 	
-  
 	var pi_number = $(this).val();
 	$.ajax({
 		type: 'get',
@@ -328,19 +321,15 @@ $(document).on('change', '#pi_number', function(){
 			localStorage.setItem('pi_invoiceno',purchase_invoices_value["invoice_no"]);
 			localStorage.setItem('invoice_amt',purchase_invoices_value["invoice_amt"]);
 			localStorage.setItem('delivery_address',purchase_invoices_value["address"]);
-			
 			$('.invoice_date').val(localStorage.getItem('pi_date'));
 			$('.supplier_address').val(localStorage.getItem('supplier_address'));
 			$('.invoice_amt').val(localStorage.getItem('invoice_amt'));
 			$('.delivery_address').val(localStorage.getItem('delivery_address'));
-			
 			$('.pi_supplier').val(localStorage.getItem('pi_supplier'));
 			$('.pi_supplier').change();
-			
 			$('.currency').val(localStorage.getItem('pi_currency'));
 			$('.currency').change();
 			localStorage.setItem('grn_items', items);
-			
 			loadItems();
 		}
 	});

@@ -212,9 +212,7 @@ class Purchase_invoices extends MY_Controller{
         $this->page_construct('procurment/purchase_invoices/view', $meta, $this->data);
 
     }
-    public function view($id = null)
-    {
-		
+    public function view($id = null){
     $this->sma->checkPermissions();
 	$store_id = $this->data['default_store'];        
 	$this->data['orders'] =  $this->purchase_invoices_model->getPurchase_invoicesByID($id);    
@@ -681,7 +679,6 @@ class Purchase_invoices extends MY_Controller{
 					'status' => 'completed',
 				);
 			}
-		// echo '<pre>';print_R($items);exit;
           }
 		 
         if ($this->form_validation->run() == true && $this->purchase_invoices_model->addPurchase_invoices($data,$items,$po_array)) {
@@ -690,13 +687,11 @@ class Purchase_invoices extends MY_Controller{
             admin_redirect('procurment/purchase_invoices');
         } else {
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-	    
             $this->data['suppliers'] = $this->siteprocurment->getAllCompanies('supplier');
             $this->data['categories'] = $this->siteprocurment->getAllCategories();
             $this->data['currencies'] = $this->siteprocurment->getAllCurrencies();
             $this->data['tax_rates'] = $this->siteprocurment->getAllTaxRates();
             $this->data['warehouses'] = $this->siteprocurment->getAllWarehouses();
-	    
             $this->data['purchaseorder'] = $this->siteprocurment->getAllPONumbers();
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('procurment/purchase_invoices'), 'page' => lang('purchase_invoices')), array('link' => '#', 'page' => lang('add_purchase_invoice')));
             $meta = array('page_title' => lang('add_purchase_invoice'), 'bc' => $bc);
@@ -708,7 +703,6 @@ class Purchase_invoices extends MY_Controller{
 	    $data['purchase_invoices'] = $this->purchase_invoices_model->getPurchase_ordersByID($poref);
 	    $inv_items = $this->purchase_invoices_model->getAllPurchase_ordersItems($poref);
 	    $c=1;
-	   // echo '<pre>';print_R($inv_items);exit;
 	    foreach ($inv_items as $item) {
             $row = $this->siteprocurment->getItemByID($item->product_id);
             $row->name = $item->product_name;
@@ -732,7 +726,6 @@ class Purchase_invoices extends MY_Controller{
             $tax = $this->siteprocurment->getTaxRateByID($item->item_tax_method);
             $row->tax_rate_val = $tax->rate;
             $row->item_selling_price =$item->selling_price;
-
             $row->category_id = $item->category_id;
             $row->category_name = $item->category_name;
             $row->subcategory_id = $item->subcategory_id;
@@ -754,9 +747,6 @@ class Purchase_invoices extends MY_Controller{
             }
 		
 		$data['purchase_invoicesitem'] = $pr;
-		
-		
-		
 		if(!empty($data)){
 			$response['status'] = 'success';
 			$response['value'] = $data;
