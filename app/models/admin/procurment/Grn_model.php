@@ -5,7 +5,6 @@ class Grn_model extends CI_Model{
     {
         parent::__construct();
     }
-	
 	 public function getPurchase_invoicesByID($id){
       $this->db->select('pro_purchase_invoices.*,warehouses.name,warehouses.address,warehouses.id as deliver_tostore')
 	  ->from('pro_purchase_invoices')
@@ -82,25 +81,72 @@ class Grn_model extends CI_Model{
 	}
 	
 	    public function addGrn($data = array(), $items = array()){
-        if ($this->db->insert('pro_grn', $data)) {
+           if ($this->db->insert('pro_grn', $data)) {
             $grn_id = $this->db->insert_id();
-        if ($grn_id) {            
-            $unique_id = $this->site->generateUniqueTableID($grn_id);
+           if ($grn_id) {            
+                $unique_id = $this->site->generateUniqueTableID($grn_id);
             if ($grn_id) {
                 $this->site->updateUniqueTableId($grn_id,$unique_id,'pro_grn');
             }
+			$bal_count=0;
             foreach ($items as $item) {
                 $item['grn_id'] = $unique_id;
                 $this->db->insert('pro_grn_items', $item);
-				$i_request_id = $this->db->insert_id();
-                $i_unique_id = $this->site->generateUniqueTableID($i_request_id);
-                if ($i_request_id) {
-                    $this->site->updateUniqueTableId($i_request_id,$i_unique_id,'pro_grn_items');
+				$i_grn = $this->db->insert_id();
+                $i_unique_id = $this->site->generateUniqueTableID($i_grn);
+                if ($i_grn) {
+                    $this->site->updateUniqueTableId($i_grn,$i_unique_id,'pro_grn_items');
                 }
-            }
-			  if($data['status']=="approved"){
-		     
+			 	 if($item['quantity']>=$item['pi_qty']){
+					$this->db->where("pi_uniqueId",$item['pi_uniqueId']);
+					$this->db->update("pro_purchase_invoice_items",array("is_complete"=>1));
+				}  
+				if($data['status']=="approved"){
+				    $warehouse_id = $this->siteprocurment->default_warehouse_id();
+					$stock_update['store_id']    = $item['store_id'];
+                    $stock_update['product_id']  = $item['product_id'];
+					$stock_update['variant_id']  = $item['variant_id'];
+					$stock_update['category_id'] = $item['category_id'];
+					$stock_update['subcategory_id'] = $item['subcategory_id'];
+					$stock_update['brand_id']    = $item['brand_id'];
+					$stock_update['stock_in']    = $item['unit_quantity'];
+					$stock_update['stock_out']   = 0;
+					$stock_update['cost_price']    = $item['cost_price'];
+					$stock_update['selling_price'] = $item['selling_price'];
+					$stock_update['landing_cost']  = $item['landing_cost'];
+					$stock_update['tax_rate']      = $item['tax_rate'];
+					$stock_update['invoice_id']    = $data['invoice_id'];
+					$stock_update['batch']         = $item['batch_no'];
+					$stock_update['expiry']        = $item['expiry'];
+					$stock_update['expiry_type']   = $item['expiry_type'];
+					$stock_update['invoice_date']  = $data['invoice_date'];
+					if($item['expiry_type']=='days'){
+					$stock_update['expiry_date'] = date('Y-m-d', strtotime("+".$data['expiry']." day"));
+					}else if($item['expiry_type']=='months'){
+					$stock_update['expiry_date'] = date('Y-m-d', strtotime("+".$data['expiry']." months"));
+					}else if($item['expiry_type']=='year'){
+					$stock_update['expiry_date'] = $data['expiry'];
+					}
+					$cate['category_id']       = $stock_update['category_id'];
+					$cate['subcategory_id']    = $stock_update['subcategory_id'];
+					$cate['brand_id']          = $stock_update['brand_id'];
+					$category_mappingID        = $this->siteprocurment->getCategoryMappingID($item['product_id'],$stock_update['category_id'],$stock_update['subcategory_id'],$stock_update['brand_id']);
+					$stock_update['cm_id']     = $category_mappingID ? $category_mappingID :0;
+                    $cate['cm_id']             = $stock_update['cm_id'];
+				    $stock_update['unique_id'] = $item['pi_uniqueId'];
+					
+					$this->stock_master_update($stock_update);
+					$this->siteprocurment->item_cost_update($item['product_id'],$item['cost'],$item['selling_price'],$item['tax_rate_id'],$cate);			
+					$this->siteprocurment->product_stockIn($item['product_id'],$item['quantity'],$cate);
+				 
 	    }
+            }
+		    $bal_count +=($item['quantity']>=$item['pi_qty'])?0:1;
+		 if($bal_count<=0){
+				$this->db->where("id",$data['invoice_id']);
+				$this->db->update("pro_purchase_invoices",array("status"=>"completed"));
+			}  
+			 
             return true;
         }
         return false;
@@ -128,45 +174,79 @@ class Grn_model extends CI_Model{
 		return false;
 	}
 	
-	public function updateGrn($id, $data, $items = array()){   
-/* $this->db->update('pro_grn', $data, array('id' => $id));
-print_r($this->db->error())	;
-die; */
+	public function updateGrn($id, $data, $items = array()){  
         if ($this->db->update('pro_grn', $data, array('id' => $id)) && $this->db->delete('pro_grn_items', array('grn_id' => $id))) {
+			$bal_count=0;
             foreach ($items as $item) {
                 $item['grn_id'] = $id;
                 $this->db->insert('pro_grn_items', $item);
-				$i_request_id = $this->db->insert_id();//p($this->db->error());
-                $i_unique_id = $this->site->generateUniqueTableID($i_request_id);
-                if ($i_request_id) {
-                    $this->site->updateUniqueTableId($i_request_id,$i_unique_id,'pro_grn_items');
+				$i_grn = $this->db->insert_id();
+                $i_unique_id = $this->site->generateUniqueTableID($i_grn);
+                if ($i_grn) {
+                    $this->site->updateUniqueTableId($i_grn,$i_unique_id,'pro_grn_items');
                 }
-            }          
-       if($data['status']=="approved"){
-		
-	    }			
+				if($item['quantity']>=$item['pi_qty']){
+					$this->db->where("pi_uniqueId",$item['pi_uniqueId']);
+					$this->db->update("pro_purchase_invoice_items",array("is_complete"=>1));
+				}else{
+					$this->db->where("pi_uniqueId",$item['pi_uniqueId']);
+					$this->db->update("pro_purchase_invoice_items",array("is_complete"=>0));
+				}
+				
+					if($data['status']=="approved"){
+		           $warehouse_id = $this->siteprocurment->default_warehouse_id();
+					$stock_update['store_id']    = $item['store_id'];
+                    $stock_update['product_id']  = $item['product_id'];
+					$stock_update['variant_id']  = $item['variant_id'];
+					$stock_update['category_id'] = $item['category_id'];
+					$stock_update['subcategory_id'] = $item['subcategory_id'];
+					$stock_update['brand_id']    = $item['brand_id'];
+					$stock_update['stock_in']    = $item['unit_quantity'];
+					$stock_update['stock_out']   = 0;
+					$stock_update['cost_price']    = $item['cost_price'];
+					$stock_update['selling_price'] = $item['selling_price'];
+					$stock_update['landing_cost']  = $item['landing_cost'];
+					$stock_update['tax_rate']      = $item['tax_rate'];
+					$stock_update['invoice_id']    = $data['invoice_id'];
+					$stock_update['batch']         = $item['batch_no'];
+					$stock_update['expiry']        = $item['expiry'];
+					$stock_update['expiry_type']   = $item['expiry_type'];
+					$stock_update['invoice_date']  = $data['invoice_date'];
+					if($item['expiry_type']=='days'){
+					$stock_update['expiry_date'] = date('Y-m-d', strtotime("+".$data['expiry']." day"));
+					}else if($item['expiry_type']=='months'){
+					$stock_update['expiry_date'] = date('Y-m-d', strtotime("+".$data['expiry']." months"));
+					}else if($item['expiry_type']=='year'){
+					$stock_update['expiry_date'] = $data['expiry'];
+					}
+					$cate['category_id']       = $stock_update['category_id'];
+					$cate['subcategory_id']    = $stock_update['subcategory_id'];
+					$cate['brand_id']          = $stock_update['brand_id'];
+					$category_mappingID        = $this->siteprocurment->getCategoryMappingID($item['product_id'],$stock_update['category_id'],$stock_update['subcategory_id'],$stock_update['brand_id']);
+					$stock_update['cm_id']     = $category_mappingID ? $category_mappingID :0;
+                    $cate['cm_id']             = $stock_update['cm_id'];
+				    $stock_update['unique_id'] = $item['pi_uniqueId'];
+					
+					$this->stock_master_update($stock_update);
+					$this->siteprocurment->item_cost_update($item['product_id'],$item['cost'],$item['selling_price'],$item['tax_rate_id'],$cate);			
+					$this->siteprocurment->product_stockIn($item['product_id'],$item['quantity'],$cate);
+			}	
+					
+            }   
+			$bal_count +=($item['quantity']>=$item['pi_qty'])?0:1;
+			if($bal_count<=0){
+				$this->db->where("id",$data['invoice_id']);
+				$this->db->update("pro_purchase_invoices",array("status"=>"completed"));
+			}else{
+				$this->db->where("id",$data['invoice_id']);
+				$this->db->update("pro_purchase_invoices",array("status"=>"approved"));
+
+			}				
+				
             return true;
         }        
         return false;
     }
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	
@@ -204,72 +284,19 @@ die; */
         return FALSE;
     }
 
+
+   public function deleteGrn($id){
+        if ($this->db->delete('pro_grn_items', array('grn_id' => $id)) && $this->db->delete('pro_grn', array('id' => $id))) {
+            return true;
+        }
+        return FALSE;
+    }
+
     public function getItemByID($id)
     {
         $q = $this->db->get_where('pro_store_request_items', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
-        }
-        return FALSE;
-    }
-
-    public function getAllStore_requestItemsWithDetails($store_request_id)
-    {
-        $this->db->select('pro_store_request_items.id, pro_store_request_items.product_name, pro_store_request_items.product_code, pro_store_request_items.quantity, pro_store_request_items.serial_no, pro_store_request_items.tax, pro_store_request_items.unit_price, pro_store_request_items.val_tax, pro_store_request_items.discount_val, pro_store_request_items.gross_total, recipe.details, recipe.hsn_code as hsn_code, recipe.name as second_name');
-        $this->db->join('recipe', 'recipe.id=pro_store_request_items.product_id', 'left');
-        $this->db->order_by('id', 'asc');
-        $q = $this->db->get_where('pro_store_request_items', array('store_request_id' => $store_request_id));
-
-        if ($q->num_rows() > 0) {
-            foreach (($q->result()) as $row) {
-                $data[] = $row;
-            }
-            return $data;
-        }
-    }
-
-    public function getStore_requestByID($id)
-    {
-        $q = $this->db->get_where('pro_store_request', array('id' => $id), 1);
-        if ($q->num_rows() > 0) {
-            return $q->row();
-        }
-        return FALSE;
-    }
-
-    public function getAllStore_requestItems($store_request_id){
-        $this->db->select('pro_store_request_items.*, recipe.unit, recipe.image, recipe.details as details, recipe_variants.name as variant, recipe.hsn_code as hsn_code, recipe.name as second_name')
-            ->join('recipe', 'recipe.id=pro_store_request_items.product_id', 'left')
-            ->join('recipe_variants', 'recipe_variants.id=pro_store_request_items.option_id', 'left')
-            ->group_by('pro_store_request_items.id')
-            ->order_by('id', 'asc');
-        $q = $this->db->get_where('pro_store_request_items', array('store_request_id' => $store_request_id));
-        if ($q->num_rows() > 0) {
-            foreach (($q->result()) as $row) {
-                $data[] = $row;
-            }
-            return $data;
-        }
-        return FALSE;
-    }
-
-
-
-    
-
-    public function updateStatus($id, $status, $note)
-    {
-        if ($this->db->update('pro_store_request', array('status' => $status, 'note' => $note), array('id' => $id))) {
-            return true;
-        }
-        return false;
-    }
-
-
-    public function deleteStore_request($id)
-    {
-        if ($this->db->delete('pro_store_request_items', array('store_request_id' => $id)) && $this->db->delete('pro_store_request', array('id' => $id))) {
-            return true;
         }
         return FALSE;
     }
@@ -283,8 +310,7 @@ die; */
         return FALSE;
     }
 
-    public function getWarehouseProductQuantity($warehouse_id, $product_id)
-    {
+    public function getWarehouseProductQuantity($warehouse_id, $product_id){
         $q = $this->db->get_where('warehouses_products', array('warehouse_id' => $warehouse_id, 'product_id' => $product_id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -327,5 +353,36 @@ die; */
         }
         return FALSE;
     }
+	 function stock_master_update($stock_update){
+        $date         =date('Y-m-d h:m:s');
+		$store_id 	  = $stock_update['store_id'];
+        $product_id   = $stock_update['product_id'];
+		$variant_id   = $stock_update['variant_id'];
+		$category_id  = $stock_update['category_id'];
+		$subcategory_id = $stock_update['subcategory_id'];
+		$brand_id     = $stock_update['brand_id'];
+		$cm_id        = $stock_update['cm_id']; 
+		$invoice_id   = $stock_update['invoice_id'];
+		$batch        = $stock_update['batch'];
+		$expiry       = $stock_update['expiry'];
+        $inv_date     = $stock_update['invoice_date'];
+		$qty          = $stock_update['stock_in'];
+		$this->db->select();
+		$this->db->from('pro_stock_master');
+		$this->db->where("unique_id",$stock_update['unique_id']);
+		$q = $this->db->get();
+		if($q->num_rows()>0){
+			$id = $q->row('id');
+			$this->db->where('id',$id);
+			$this->db->update('pro_stock_master',$stock_update);
+		}else{
+			$this->db->insert('pro_stock_master',$stock_update);
+			$insertID                  = $this->db->insert_id();
+			$UniqueID                  = $this->site->generateUniqueTableID($insertID);
+			$this->site->updateUniqueTableId($insertID,$UniqueID,'pro_stock_master');
+			$return_id = $this->db->insert_id();
+		}
+    }
+    
 
 }

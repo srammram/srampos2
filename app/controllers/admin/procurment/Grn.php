@@ -82,101 +82,15 @@ class Grn extends MY_Controller{
         echo $this->datatables->generate();
     }
 
-    public function modal_view($store_request_id = null){
-        if ($this->input->get('id')) {
-            $store_request_id = $this->input->get('id');
-        }
-        $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
-        $inv = $this->grn_model->getStore_requestByID($store_request_id);
-        if (!$this->session->userdata('view_right')) {
-            $this->sma->view_rights($inv->created_by, true);
-        }
-        $this->data['rows'] = $this->grn_model->getAllStore_requestItems($store_request_id);
-        $this->data['customer'] = $this->siteprocurment->getCompanyByID($inv->customer_id);
-        $this->data['biller'] = $this->siteprocurment->getCompanyByID($inv->biller_id);
-        $this->data['created_by'] = $this->siteprocurment->getUser($inv->created_by);
-        $this->data['updated_by'] = $inv->updated_by ? $this->siteprocurment->getUser($inv->updated_by) : null;
-        $this->data['warehouse'] = $this->siteprocurment->getWarehouseByID($inv->warehouse_id);
-        $this->data['inv'] = $inv;
-        $this->load->view($this->theme . 'grn/modal_view', $this->data);
-    }
+  
 
-    public function view($store_request_id = null){
+    public function view($id = null){
 	        $this->sma->checkPermissions();
-	        $id = $store_request_id;
-	        $this->data['store_req'] = $this->grn_model->getStore_requestByID($id);
-            $inv_items = $this->grn_model->getAllStore_requestItems($id);
-            krsort($inv_items);
-            $c = rand(100000, 9999999);
-            foreach ($inv_items as $item) {
-                $row = $this->siteprocurment->getRecipeByID($item->product_id);
-                if (!$row) {
-                    $row = json_decode('{}');
-                    $row->tax_method = 0;
-                } else {
-                    unset($row->details, $row->cost, $row->supplier1price, $row->supplier2price, $row->supplier3price, $row->supplier4price, $row->supplier5price);
-                }
-                $row->quantity = 0;
-                $pis = $this->siteprocurment->getPurchasedItems($item->product_id, $item->warehouse_id, $item->option_id);
-                if ($pis) {
-                    foreach ($pis as $pi) {
-                        $row->quantity += $pi->quantity_balance;
-                    }
-                }
-                $row->id = $item->product_id;
-                $row->code = $item->product_code;
-                $row->name = $item->product_name;
-                $row->type = $item->product_type;
-                $row->base_quantity = $item->quantity;
-                $row->base_unit = $row->unit ? $row->unit : $item->product_unit_id;
-                $row->base_unit_price = $row->price ? $row->price : $item->unit_price;
-                $row->unit = $item->product_unit_id;
-                $row->qty = $item->quantity;
-                $row->discount = $item->discount ? $item->discount : '0';
-                $row->price = $this->sma->formatDecimal($item->net_unit_price + $this->sma->formatDecimal($item->item_discount / $item->quantity));
-                $row->unit_price = $row->tax_method ? $item->unit_price + $this->sma->formatDecimal($item->item_discount / $item->quantity) + $this->sma->formatDecimal($item->item_tax / $item->quantity) : $item->unit_price + ($item->item_discount / $item->quantity);
-                $row->real_unit_price = $item->real_unit_price;
-                $row->tax_rate = $item->tax_rate_id;
-                $row->option = $item->option_id;
-                $options = $this->grn_model->getProductOptions($row->id, $item->warehouse_id);
-                if ($options) {
-                    $option_quantity = 0;
-                    foreach ($options as $option) {
-                        $pis = $this->siteprocurment->getPurchasedItems($row->id, $item->warehouse_id, $item->option_id);
-                        if ($pis) {
-                            foreach ($pis as $pi) {
-                                $option_quantity += $pi->quantity_balance;
-                            }
-                        }
-                        if ($option->quantity > $option_quantity) {
-                            $option->quantity = $option_quantity;
-                        }
-                    }
-                }
-                $combo_items = false;
-                if ($row->type == 'combo') {
-                    $combo_items = $this->grn_model->getProductComboItems($row->id, $item->warehouse_id);
-                    foreach ($combo_items as $combo_item) {
-                        $combo_item->quantity = $combo_item->qty * $item->quantity;
-                    }
-                }
-                $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
-                $tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
-                $ri = $this->Settings->item_addition ? $row->id : $c;
-
-                $pr[$ri] = array('id' => $c, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")", 'row' => $item, 'combo_items' => $combo_items, 'tax_rate' => $tax_rate, 'units' => $units, 'options' => $options);
-                $c++;
-            }
-            $this->data['store_req_items'] = $pr;
-            $this->data['id'] = $id;
-	        $this->data['stores'] = $this->siteprocurment->getAllStores();
-            $this->data['billers'] = ($this->Owner || $this->Admin || !$this->session->userdata('biller_id')) ? $this->siteprocurment->getAllCompanies('biller') : null;
-            $this->data['tax_rates'] = $this->siteprocurment->getAllTaxRates();
-            $this->data['warehouses'] = ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) ? $this->siteprocurment->getAllWarehouses() : null;
-            $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('procurment/store_request'), 'page' => lang('store_request')), array('link' => '#', 'page' => lang('view_store_request')));
-            $meta = array('page_title' => lang('view_store_request'), 'bc' => $bc);
+	        $this->data['grn']       = $this->grn_model->getGRNById($id);
+            $this->data['grn_items'] = $this->grn_model->getGRNIitemById($id);
+            $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('procurment/GRN'), 'page' => lang('GRN')), array('link' => '#', 'page' => lang('view_GRN')));
+            $meta = array('page_title' => lang('view_GRN'), 'bc' => $bc);
             $this->load->view($this->theme . 'procurment/grn/view',  $this->data);
-
     }
 
    
@@ -229,10 +143,12 @@ class Grn extends MY_Controller{
 						'subcategory_name' =>$_POST['subcategory_name'][$r],
 						'brand_id'         =>$_POST['brand_id'][$r],
 						'brand_name'       =>$_POST['brand_name'][$r],
-						'cm_id '           =>$_POST['cm_id'][$r],
+						'cm_id'           =>$_POST['cm_id'][$r],
 						'tax_rate_id '     =>$_POST['tax_rate_id'][$r],
-						'tax_rate '        =>$_POST['tax_rate'][$r],
-						'cost_price '      =>$_POST['cost_price'][$r],
+						'tax_rate'        =>$_POST['tax_rate'][$r],
+						'cost_price'      =>$_POST['cost_price'][$r],
+						'pi_uniqueId'      =>$_POST['unique_id'][$r]
+						
                     );
                 }
             }
@@ -319,8 +235,7 @@ class Grn extends MY_Controller{
 			$this->session->set_flashdata('error', lang("Do not allowed edit option"));
 			admin_redirect("procurment/grn");
 		}	
-         $this->form_validation->set_rules('pi_number', $this->lang->line("pi_number"), 'required');
-		
+        $this->form_validation->set_rules('pi_number', $this->lang->line("pi_number"), 'required');
         if ($this->form_validation->run() == true) {
             $note = $this->sma->clear_tags($this->input->post('note'));
 			$date = date('Y-m-d H:i:s');
@@ -335,7 +250,7 @@ class Grn extends MY_Controller{
 					    'variant_id'       => $_POST['product_option'][$r],
                         'product_code'    => $_POST['product_code'][$r],
                         'product_name'    => $_POST['product_name'][$r],
-						'batch_no'        => ($_POST['batch'][$r])?$_POST['batch'][$r]:'',
+						'batch_no'        => ($_POST['batch'][$r] && $_POST['batch'][$r] !=null)?$_POST['batch'][$r]:'',
                         'expiry'          => ($_POST['expiry'][$r])?$_POST['expiry'][$r]:'',
                         'quantity'        => ($_POST['quantity'][$r])?$_POST['quantity'][$r]:0,
 						'pi_qty'          => ($_POST['pi_qty'][$r])?$_POST['pi_qty'][$r]:0,
@@ -354,10 +269,11 @@ class Grn extends MY_Controller{
 						'subcategory_name' =>$_POST['subcategory_name'][$r],
 						'brand_id'         =>$_POST['brand_id'][$r],
 						'brand_name'       =>$_POST['brand_name'][$r],
-						'cm_id '           =>$_POST['cm_id'][$r],
-						'tax_rate_id '     =>$_POST['tax_rate_id'][$r],
-						'tax_rate '        =>$_POST['tax_rate'][$r],
-						'cost_price '      =>$_POST['cost_price'][$r],
+						'cm_id'           =>$_POST['cm_id'][$r],
+						'tax_rate_id'     =>$_POST['tax_rate_id'][$r],
+						'tax_rate'        =>$_POST['tax_rate'][$r],
+						'cost_price'      =>$_POST['cost_price'][$r],
+						'pi_uniqueId'      =>$_POST['unique_id'][$r]
                     );
                 }
             }
@@ -366,7 +282,6 @@ class Grn extends MY_Controller{
             } else {
                 $products;
             }
-          
 			  $data = array(
                 'note' => $note,
                 'status' => $status,
@@ -443,16 +358,17 @@ class Grn extends MY_Controller{
 				$row->expiry_type			= $item->expiry_type;
 				$row->invoice_date			= $item->invoice_date;
 				$row->tax_rate_id			= $item->tax_rate_id;
+				$row->uniqueid			    = $item->pi_uniqueId;
 				$options                    = $this->grn_model->getProductOptions($row->id);
 				$units                      = $this->siteprocurment->getUnitsByBUID($row->base_unit);
 				$ri                         = $this->Settings->item_addition ? $row->id : $row->id;
-				
 				$item_key = $ri.'_'.$item->store_id.'_'.$item->category_id.'_'.$item->subcategory_id.'_'.$item->brand_id.'_'.$item->variant_id;
                 $pr[$item_key] = array('id' => $c,'store_id'=>$item->store_id,'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
                     'row' => $row, 'tax_rate_id' => $item->item_tax_method,'tax_rate_val' => $item->tax_rate,'tax_rate' => $item->tax, 'units' => $units, 'options' => $options);
 				
                 $c++;
             }
+			
             $this->data['grn_items'] = json_encode($pr);
             $this->data['id'] = $id;
             $this->data['tax_rates'] = $this->siteprocurment->getAllTaxRates();
@@ -471,14 +387,14 @@ class Grn extends MY_Controller{
         if ($this->input->get('id')) {
              $id = $this->input->get('id')?$this->input->get('id'):$id;
         }
-		$inv = $this->grn_model->getStore_requestByID($id);
-		if ($inv->status == 'approved' || $inv->status == 'completed') {
+		$grn = $this->grn_model->getGRNById($id);
+		if ($grn->status == 'approved' || $grn->status == 'completed') {
 			 $this->sma->send_json(array('error' => 1, 'msg' => lang("Do not allowed edit option")));
 		}	
-        if ($this->grn_model->deleteStore_request($id)) {
-                $this->sma->send_json(array('error' => 0, 'msg' => lang("store_request_deleted")));
+        if ($this->grn_model->deleteGrn($id)) {
+                $this->sma->send_json(array('error' => 0, 'msg' => lang("GRN_deleted")));
         }else{
-			$this->sma->send_json(array('error' => 1, 'msg' => lang("store_request Unable to Delete")));
+			$this->sma->send_json(array('error' => 1, 'msg' => lang("GRN Unable to Delete")));
 		}
     }
 
@@ -498,7 +414,7 @@ class Grn extends MY_Controller{
             $row->qty                   = $item->quantity;
 			$row->base_quantity         = $item->quantity;
             $row->quantity_balance      = $item->quantity;
-            $row->tax_rate              = $item->item_tax_method;
+            
             $tax                        = $this->siteprocurment->getTaxRateByID($item->item_tax_method);
             $row->tax_rate_val          = $tax->rate;
             $row->item_selling_price    = $item->selling_price;
@@ -510,7 +426,6 @@ class Grn extends MY_Controller{
             $row->variant_id            = $item->variant_id;
 			$row->option_id             = $item->variant_id;
             $row->brand_name            = $item->brand_name;
-            
             $row->unit_name             = $item->product_unit_code;
             $row->base_unit             = $row->unit ? $row->unit : $item->product_unit_id;
 			$row->unit                  = $row->purchase_unit ? $row->purchase_unit : $row->unit;
@@ -525,6 +440,7 @@ class Grn extends MY_Controller{
 			$row->expiry_type			= $item->expiry_type;
 			$row->invoice_date			= $item->invoice_date;
 			$row->tax_rate_id			= $item->tax_rate_id;
+		    $row->uniqueid			    = $item->pi_uniqueId;
             $options                    = $this->grn_model->getProductOptions($row->id);
             $units                      = $this->siteprocurment->getUnitsByBUID($row->base_unit);
             $ri                         = $this->Settings->item_addition ? $row->id : $row->id;

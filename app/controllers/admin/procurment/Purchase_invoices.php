@@ -626,7 +626,7 @@ class Purchase_invoices extends MY_Controller{
 				$items[$i]['product_name'] = $this->input->post('product_name['.$i.']');
 				$items[$i]['quantity'] = $this->input->post('quantity['.$i.']');
 				$items[$i]['po_qty'] = $this->input->post('po_quantity['.$i.']');
-				$items[$i]['batch_no'] = $this->input->post('batch_no['.$i.']');
+				$items[$i]['batch_no'] =!empty($this->input->post('batch_no['.$i.']'))? $this->input->post('batch_no['.$i.']'):'';
 				$items[$i]['expiry'] = $this->input->post('expiry['.$i.']');
 				$items[$i]['expiry_type'] = $this->input->post('expiry_type['.$i.']');
 				$items[$i]['cost'] = $this->input->post('unit_cost['.$i.']');

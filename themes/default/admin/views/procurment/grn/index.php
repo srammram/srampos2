@@ -1,9 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 <script>
-	$(window).load(function(e) {
-        localStorage.clear();
-    });
-    $(document).ready(function () {
+	$(document).ready(function () {
         oTable = $('#QUData').dataTable({
             "aaSorting": [[1, "desc"], [2, "desc"]],
             "aLengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "<?= lang('all') ?>"]],
@@ -28,19 +25,14 @@
             {column_number: 1, filter_default_label: "[<?=lang('date');?> (yyyy-mm-dd)]", filter_type: "text", data: []},
             {column_number: 2, filter_default_label: "[<?=lang('reference_no');?>]", filter_type: "text", data: []},
             {column_number: 3, filter_default_label: "[<?=lang('invoice_date');?>]", filter_type: "text", data: []},
-           
             {column_number: 4, filter_default_label: "[<?=lang('invoice_no');?>]", filter_type: "text", data: []},
-           
             {column_number: 5, filter_default_label: "[<?=lang('status');?>]", filter_type: "text", data: []},
         ], "footer");
-        
     });
 
 </script>
 
-<?php if ($Owner || $GP['bulk_actions']) {
-    echo admin_form_open('store_request/store_request_actions', 'id="action-form"');
-} ?>
+
 <div class="box">
     <div class="box-header">
         <h2 class="blue"><i
@@ -67,9 +59,7 @@
     <div class="box-content">
         <div class="row">
             <div class="col-lg-12">
-
                 <p class="introtext"><?= lang('list_results'); ?></p>
-
                 <div class="table-responsive">
                     <table id="QUData" class="table table-bordered table-hover table-striped">
                         <thead>
@@ -79,11 +69,9 @@
                             </th>
                             <th><?= lang("date"); ?></th>
                             <th><?= lang("reference_no"); ?></th>
-                         
                             <th><?= lang("Invoice_date"); ?></th>
-                              <th><?= lang("Invoice_refNo"); ?></th>
+                            <th><?= lang("Invoice_refNo"); ?></th>
                             <th><?= lang("status"); ?></th>
-                            
                             <th style="width:115px; text-align:center;"><?= lang("actions"); ?></th>
                         </tr>
                         </thead>
@@ -109,10 +97,3 @@
         </div>
     </div>
 </div>
-<?php if ($Owner || $GP['bulk_actions']) { ?>
-    <div style="display: none;">
-        <input type="hidden" name="form_action" value="" id="form_action"/>
-        <?= form_submit('performAction', 'performAction', 'id="action-form-submit"') ?>
-    </div>
-    <?= form_close() ?>
-<?php } ?>

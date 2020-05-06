@@ -425,9 +425,10 @@ function loadItems() {
                     sel_opt = this.name;
                 }
             });
+			console.log("item"+item.row.uniqueid);
             var row_no = (new Date).getTime();
             var newTr = $('<tr id="row_' + row_no + '" class="row_' + item_id + '" data-item-id="' + item_id +'_'+item.store_id+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id +'_'+item.row.option_id+'"></tr>');
-            tr_html = '<td><input name="product_id[]" type="hidden" class="rid" value="' + product_id + '"><input name="product_type[]" type="hidden" class="rtype" value="' + item_type + '"><input name="product_code[]" type="hidden" class="rcode" value="' + item_code + '"><input name="product_name[]" type="hidden" class="rname" value="' + item_name + '"><input name="product_option[]" type="hidden" class="roption" value="' + item.row.option_id + '"><input type="hidden" name="store_id[]" value="'+item.row.store_id+'"><input type="hidden" name="cost_price[]" value="'+item.row.cost_price+'"><input type="hidden" name="selling_price[]" value="'+item.row.selling_price+'"><input type="hidden" name="landing_cost[]" value="'+item.row.landing_cost+'"><input type="hidden" name="tax_rate[]" value="'+item.row.tax_rate+'"><input type="hidden" name="invoice_id[]" value="'+item.row.invoice_id+'"><input type="hidden" name="batch[]" value="'+item.row.batch+'"><input type="hidden" name="expiry[]" value="'+item.row.expiry+'"><input type="hidden" name="expiry_type[]" value="'+item.row.expiry_type+'"><input type="hidden" name="invoice_date[]" value="'+item.row.invoice_date+'"><input type="hidden" name="tax_rate_id[]" value="'+item.row.tax_rate_id+'"><span class="sname" id="name_' + row_no + '">' + item_code +' - '+ item_name +(sel_opt != '' ? ' ('+sel_opt+')' : '')+'</span> </td>';
+            tr_html = '<td><input name="product_id[]" type="hidden" class="rid" value="' + product_id + '"><input name="product_type[]" type="hidden" class="rtype" value="' + item_type + '"><input name="product_code[]" type="hidden" class="rcode" value="' + item_code + '"><input name="product_name[]" type="hidden" class="rname" value="' + item_name + '"><input name="product_option[]" type="hidden" class="roption" value="' + item.row.option_id + '"><input type="hidden" name="store_id[]" value="'+item.row.store_id+'"><input type="hidden" name="cost_price[]" value="'+item.row.cost_price+'"><input type="hidden" name="selling_price[]" value="'+item.row.selling_price+'"><input type="hidden" name="landing_cost[]" value="'+item.row.landing_cost+'"><input type="hidden" name="tax_rate[]" value="'+item.row.tax_rate+'"><input type="hidden" name="invoice_id[]" value="'+item.row.invoice_id+'"><input type="hidden" name="batch[]" value="'+item.row.batch+'"><input type="hidden" name="expiry[]" value="'+item.row.expiry+'"><input type="hidden" name="expiry_type[]" value="'+item.row.expiry_type+'"><input type="hidden" name="invoice_date[]" value="'+item.row.invoice_date+'"><input type="hidden" name="tax_rate_id[]" value="'+item.row.tax_rate_id+'"><input type="hidden" name="unique_id[]" value="'+item.row.uniqueid+'"><span class="sname" id="name_' + row_no + '">' + item_code +' - '+ item_name +(sel_opt != '' ? ' ('+sel_opt+')' : '')+'</span> </td>';
 	    
 			if (category_name==null) {category_name ='';}if (category_id==null) {category_id =0;}
 			 tr_html +='<td>'+
@@ -534,7 +535,14 @@ if (typeof (Storage) === "undefined") {
         loadItems();
     });
 	
-	
+	if (typeof (Storage) === "undefined") {
+    $(window).bind('beforeunload', function (e) {
+        if (count > 1) {
+            var message = "You will loss data!";
+            return message;
+        }
+    });
+}
 $(document).ready(function(){
     $('#add_grn input[type="submit"]').click(function(e){
     $(window).unbind('beforeunload');

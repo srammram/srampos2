@@ -10,7 +10,7 @@
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-2x">&times;</i>
             </button>
-            <h4 class="modal-title" id="myModalLabel"><?=lang('Store_request')?> - <?=$store_req->reference_no?></h4>
+            <h4 class="modal-title" id="myModalLabel"><?=lang('GRN')?> - <?=$grn->reference_no?></h4>
         </div>
 		
         <div class="modal-body">
@@ -18,61 +18,63 @@
             <table class="custom_tables">
                 <tr>
                     <td colspan=2 ><?=lang('date')?> : </td>
-                    <td colspan=2 class="td-value"><?=$store_req->date?></td>
+                    <td colspan=2 class="td-value"><?=$grn->date?></td>
                     
                     <td colspan=2 ><?=lang('quotation_no')?> : </td>
-                    <td colspan=2 class="td-value"><?=$store_req->reference_no?></td>
+                    <td colspan=2 class="td-value"><?=$grn->reference_no?></td>
                     
                      <td colspan=2 ><?=lang('status')?>: </td>
-                    <td colspan=2  class="td-value"><?=$store_req->status?></td>
+                    <td colspan=2  class="td-value"><?=$grn->status?></td>
                 </tr>
                 <tr>
                     
-                    <?php
-                    $from_store = '';
-                    $to_store = '';
-					foreach ($stores as $store) {
-						 if($store_req->from_store_id==$store->id){
-					    	$from_store = $store->name;
-						 }      
-					}
-					echo $from_store;
-                    foreach($stores as $k => $row) :
-                        if($store_req->to_store_id==$row->id){
-                            $to_store = $row->name;
-                        }                    
-                    endforeach; ?>
-                    <td colspan=2 ><?=lang('From_store')?>: </td>
-                    <td colspan=2  class="td-value"><?=$from_store?></td>
+                   
+                    <td colspan=2 ><?=lang('PI_No')?>: </td>
+                    <td colspan=2  class="td-value"><?=$grn->invoice_referenceno?></td>
+					<td colspan=2 ><?=lang('invoice_date')?>: </td>
+                    <td colspan=2  class="td-value"><?=$grn->invoice_date?></td>
+					<td colspan=2 ><?=lang('invoice_amt')?>: </td>
+                    <td colspan=2  class="td-value"><?=$grn->invoice_amt?></td>
                     
-                    <td colspan=2 ><?=lang('to_store')?>: </td>
-                    <td colspan=2  class="td-value"><?=$to_store?></td>
+                  
                     
                 </tr>
                 <tr>
-                    <td colspan=2 ><?=lang('note')?>: </td>
-                    <td colspan=2  class="td-value"><?=$store_req->note?></td>
+                   <td colspan=2 ><?=lang('Supplier')?>: </td>
+                    <td colspan=2  class="td-value"><?=$grn->supplier?></td>
+					<td colspan=2 ><?=lang('supplier_address')?>: </td>
+                    <td colspan=2  class="td-value"><?=$grn->supplier_address?></td>
+				    <td colspan=2 ><?=lang('delivery_address')?>: </td>
+                    <td colspan=2  class="td-value"><?=$grn->delivery_address?></td>
                 </tr>
                 
-              
                 
             </table>
                     <table id="ItemData" class="table table-bordered table-condensed table-hover table-striped">
                         <thead>
                         <tr>
-                                            <th ><?= lang('s.no'); ?></th>
-                                            <th><?= lang('code'); ?></th>
-                                            <th ><?= lang("description"); ?></th>
-                                            <th ><?= lang("qty"); ?></th>
+                                            <th class="col-md-1" ><?= lang('s.no'); ?></th>
+                                            <th class="col-md-2"><?= lang('Product_name'); ?></th>
+											<th class="col-md-2"><?= lang('batch'); ?></th>
+                                           <th class="col-md-2"><?= lang("Category"); ?></th>
+                                            <th class="col-md-2"><?= lang("Subcategory"); ?></th>
+                                            <th class="col-md-2"><?= lang("Brand"); ?></th>
+                                            <th class="col-md-1"><?= lang("PI.Quantity"); ?></th>
+											<th class="col-md-1"><?= lang("received_quantity"); ?></th>
+                
                                         </tr>
                         </thead>
                         <tbody>
-                        <?php $i =1; foreach($store_req_items as $k => $row) : ?>
+                        <?php $i =1; foreach($grn_items as $k => $row) : ?>
                         <tr>
                             <td><?=$i?></td>
-                            <td><?=$row['row']->product_code?></td>
-                            <td><?=$row['row']->product_name?></td>
-                            <td><?=$row['row']->quantity?></td>
+                            <td><?=$row->product_name; ?></td>
+                            <td><?= !empty($row->batch_no && $row->batch_no !='null')?$row->batch_no:''; ?></td>
+                            <td><?=$row->category_name; ?></td>
+							<td><?=$row->subcategory_name; ?></td>
+							<td><?=$row->brand_name; ?></td>
+                            <td><?=$row->pi_qty; ?></td>
+                            <td><?= $this->sma->formatDecimal($row->quantity); ?></td>
                         </tr>
                         <?php $i++;endforeach; ?>
                         </tbody>
