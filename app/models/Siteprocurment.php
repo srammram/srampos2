@@ -2076,6 +2076,7 @@ class Siteprocurment extends CI_Model{
 	}
     public function lastidPurchaseInv(){
         $this->db->order_by('id' , 'DESC');
+		$this->db->where('id' , 'DESC');
         $q = $this->db->get('pro_purchase_invoices');
         if ($q->num_rows() > 0) {
             return $q->row('id');

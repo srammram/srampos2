@@ -553,6 +553,7 @@ class Purchase_invoices extends MY_Controller{
             'reference_no' => $reference,
             'po_number' => $this->input->post('po_number'),
             'date' => $date,
+			'store_id'=>$this->store_id,
             'supplier_id' => $this->input->post('supplier'),
             'supplier' => $supplier,
             'invoice_no' => $this->input->post('invoice_no'),
@@ -1093,13 +1094,12 @@ class Purchase_invoices extends MY_Controller{
         $store_id = $this->data['default_store'];
         $this->session->unset_userdata('csrf_token');
         $this->data['inv'] = $this->purchase_invoices_model->getPurchase_invoicesByID($id);        
-        if ($this->data['inv']->status == 'approved' || $this->data['inv']->status == 'completed') {
+        if ($this->data['inv']->status == 'approved' || $this->data['inv']->status == 'completed'  ||$this->isStore !=$this->data['store_id']->status) {
         $this->session->set_flashdata('error', lang("Do not allowed edit option"));
         admin_redirect("procurment/purchase_invoices");
         }
 	
         if ($this->form_validation->run() == true) {  
-	    		
             $warehouse_id = $this->input->post('warehouse');
             $status = $this->input->post('status');     
     	    $dateFormat = explode('-',$this->input->post('invoice_date'));
@@ -1270,27 +1270,10 @@ class Purchase_invoices extends MY_Controller{
 			$row->base_quantity = $item->unit_quantity ? $item->unit_quantity : $item->unit;
 			$row->base_unit = $row->unit;
             $row->base_unit_cost = $row->cost;
-            $row->unit = $row->purchase_unit ? $row->purchase_unit : $row->unit;
-			
-            //                $row->base_unit_cost = $row->cost ? $row->cost : $item->unit_price;
-            //                
-            //                $row->oqty = $item->quantity;                
-            //                
-            //                
-            //                
+                     
             $options = $this->purchase_invoices_model->getProductOptions($row->id);
-            //		
-            //		$row->mfg = $item->item_mfg;
-            //		$row->days = $item->item_days;
-            //                $row->option = $item->option_id;
-            //                
-            //                $row->cost = $this->sma->formatDecimal($item->net_unit_price + ($item->item_discount / $item->quantity));
-            //               
-            //                
-            //		$row->tax_method = $item->item_tax_method ? $item->item_tax_method : 0;
-            //                unset($row->details, $row->product_details, $row->price, $row->file, $row->product_group_id);
+          
             $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
-            //                $tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
             $ri = $this->Settings->item_addition ? $row->id : $row->id;
             $row->category_id = $item->category_id;
             $row->category_name = $item->category_name;
@@ -1320,15 +1303,7 @@ class Purchase_invoices extends MY_Controller{
 			$this->session->set_flashdata('error', lang("Do not allowed edit option"));
 			admin_redirect("procurment/purchase_invoices");
 		}
-       /* if ($inv->status == 'returned' || $inv->return_id || $inv->return_purchase_ref) {
-            $this->session->set_flashdata('error', lang('purchase_x_action'));
-            admin_redirect(isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : 'welcome');
-        }*/
-        /*if (!$this->session->userdata('edit_right')) {
-            $this->sma->view_rights($inv->created_by);
-        }*/
-        // $this->form_validation->set_message('is_natural_no_zero', $this->lang->line("no_zero_required"));
-        //$this->form_validation->set_rules('reference_no', $this->lang->line("ref_no"), 'required');
+      
        $this->form_validation->set_rules('supplier', $this->lang->line("supplier"), 'required|is_natural_no_zero');
         //$this->form_validation->set_rules('supplier', $this->lang->line("supplier"), 'required');
 		//$this->form_validation->set_rules('requestnumber', $this->lang->line("requestnumber"), 'required');
@@ -1925,7 +1900,7 @@ print_r($inv_items);die;*/
                 $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
                 $tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
 				$label = $row->name . " (" . $row->code . ") CAT - ".$row->category_name." | SUBCAT - ".$row->subcategory_name." | BRAND - ".$row->brand_name;
-                $pr[] = array('id' => ($c + $r), 'item_id' => $row->id, 'label' => $label,
+                $pr[] = array('id' => ($c + $r),'store_id'=>$this->store_id, 'item_id' => $row->id, 'label' => $label,
                     'row' => $row, 'tax_rate' => $tax_rate, 'units' => $units, 'options' => $options);
                 $r++;
             }

@@ -19,6 +19,14 @@ class Main extends MY_Shop_Controller
         $this->data['page_desc'] = $this->shop_settings->description;
         $this->page_construct('index', $this->data);
     }
+	
+	function index1(){
+		  $this->center_server->connect();
+	      $this->site->update_sync_startTime();
+		  $this->sync_both->sync_purchase_invoice();
+		  $this->site->update_sync_endTime();
+		
+	}
 
     function profile($act = NULL) {
         if (!$this->loggedIn) { redirect('/'); }

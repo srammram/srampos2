@@ -96,15 +96,16 @@ class Sync extends MY_Controller{
 			    $this->sync_store->sync_grouppermission();
 			    break;
 				
-				
-			case 'store_indent_request':
+				case 'store_indent_request':
 			    $this->sync_center->sync_storeIndentRequests();
 			    break;
-			case 'stock_request':
+				case 'stock_request':
 			    $this->sync_store->sync_StockRequests();
 			    break;
 			
-			
+			    case 'purchase_invoice':
+			    $this->sync_both->sync_purchase_invoice();
+			    break;
 			
 			
 			

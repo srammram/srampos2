@@ -146,7 +146,10 @@ class Grn_model extends CI_Model{
 				$this->db->where("id",$data['invoice_id']);
 				$this->db->update("pro_purchase_invoices",array("status"=>"completed"));
 			}  
-			 
+			 if($this->isStore && $data['status']=="approved"){	
+			
+			$this->sync_center->sync_grn($unique_id);
+			}
             return true;
         }
         return false;
@@ -242,7 +245,9 @@ class Grn_model extends CI_Model{
 				$this->db->update("pro_purchase_invoices",array("status"=>"approved"));
 
 			}				
-				
+				if($this->isStore && $data['status']=="approved"){	
+			$this->sync_center->sync_purchase_invoice($id);
+			}
             return true;
         }        
         return false;

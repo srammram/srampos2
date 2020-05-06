@@ -300,17 +300,23 @@ class Purchase_invoices_model extends CI_Model{
 	$store_default_id = $this->siteprocurment->defaultStores();
         if ($this->db->insert('pro_purchase_invoices', $data)) {
             $id = $this->db->insert_id();
+			$UniqueID                  = $this->site->generateUniqueTableID($id);
+			$this->site->updateUniqueTableId($id,$UniqueID,'pro_purchase_invoices');
             if($po_array){
 			     $this->db->update('pro_purchase_orders', $po_array, array('id' => $data['po_number']));
             }
             foreach ($items as $item) {
                 /*** insert invoice items **/
-				$item['invoice_id'] = $id;
+				$item['invoice_id'] = $UniqueID;
 				$cp = str_replace('.','_',$item['cost']);
 				$item['pi_uniqueId']=$item['store_id'].$item['product_id'].$item['variant_id'].$item['batch_no'].$item['category_id'].$item['subcategory_id'].$item['brand_id'].$cp.$data['supplier_id'].$id;
 				
                 $this->db->insert('pro_purchase_invoice_items', $item);
             }		
+			
+			if($this->isStore && $data['status']=="approved"){	
+			$this->sync_center->sync_purchase_invoice($UniqueID);
+			}
             return true;
         }
         return false;
@@ -326,6 +332,9 @@ class Purchase_invoices_model extends CI_Model{
 				$item['pi_uniqueId']=$item['store_id'].$item['product_id'].$item['variant_id'].$item['batch_no'].$item['category_id'].$item['subcategory_id'].$item['brand_id'].$cp.$data['supplier_id'].$id;			   
 			   $this->db->insert('pro_purchase_invoice_items', $item);
             }       
+			if($this->isStore && $data['status']=="approved"){	
+			$this->sync_center->sync_purchase_invoice($id);
+			}
             return true;
         }
         return false;

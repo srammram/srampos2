@@ -26,9 +26,9 @@ class Sync_both
 	foreach($fromDB as $key => $val) { 
 	    $key = $val['id'];
 	    if(isset($toDB[$key])){
+			
 		if($access['update']){
 		    if(is_array($val)  && is_array($toDB[$key])){
-			
 			$array_diff = array_diff($val, $toDB[$key]);
 			if(!empty($array_diff)){
 			    if(isset($val['s_no'])){unset($val['s_no']);}
@@ -53,7 +53,7 @@ class Sync_both
 	    }
 	}
 	//*************** sync table ************//
-	$store_id = $this->CI->store_id;
+//	$store_id = $this->CI->store_id;
 	$this->sync_table($result,$table,$update_db);
 	//echo $update_db;
 	//p($result);
@@ -137,10 +137,6 @@ class Sync_both
 		$access['center']['delete'] = true;
 		$this->sync_tables($table,$access);
     }
-	
-	
-	
-	
     function sync_giftvoucher_status(){
 		$table = 'giftvouchers_status';
 		$access['store']['insert'] = false;
@@ -152,6 +148,79 @@ class Sync_both
 		$access['center']['delete'] = false;
 		$this->sync_tables($table,$access);
     }
+	function sync_purchase_invoice(){
+	/** tables
+	 * pro_purchase_invoices
+	 * pro_purchase_invoice_items
+	 * */
+	
+	$table = 'pro_purchase_invoices';
+	$table_items = 'pro_purchase_invoice_items';
+	
+	//center
+	$access['store']['insert'] = true;
+	$access['store']['update'] = false;
+	$access['store']['delete'] = false;
+	///store 
+	$access['center']['insert'] = true;
+	$access['center']['update'] = true;
+	$access['center']['delete'] = false;
+	if($this->CI->centerdb_connected){
+	    $this->sync_tables_invoice($table,$access);
+	   $this->sync_tables($table_items,$access);
+	   
+	}
+    }
+	
+	function sync_tables_invoice($table_name,$access){
+	$this->CI->centerdb->select('pro_purchase_invoices.*')
+	->from('pro_purchase_invoices')
+	->join('pro_purchase_invoice_items','pro_purchase_invoice_items.invoice_id=pro_purchase_invoices.id','left')
+	->where('pro_purchase_invoice_items.store_id',$this->CI->store_id)
+	->where('pro_purchase_invoices.status', 'approved')
+//	->or_where('pro_purchase_invoices.status', 'completed')
+	->group_by('pro_purchase_invoices.id');
+    $q = $this->CI->centerdb->get();
+	$center = $q->result_array();
+	
+	 $this->CI->db->select('pro_purchase_invoices.*')
+	->from('pro_purchase_invoices')
+	->join('pro_purchase_invoice_items','pro_purchase_invoice_items.invoice_id=pro_purchase_invoices.id','left')
+	->where('pro_purchase_invoice_items.store_id',$this->CI->store_id)
+	->or_where('pro_purchase_invoices.status', 'approved')
+	->or_where('pro_purchase_invoices.status', 'completed')
+	->group_by('pro_purchase_invoices.id');
+     $q = $this->CI->db->get();
+	 $store = $q->result_array();
+	
+	$update_db = 'centerdb';
+	$a = $this->compare_server_local($store,$center,$table_name,$access['store'],$update_db);
+	//if($a){
+	 $update_db = 'db';
+	 $this->CI->centerdb->select('pro_purchase_invoices.*')
+	->from('pro_purchase_invoices')
+	->join('pro_purchase_invoice_items','pro_purchase_invoice_items.invoice_id=pro_purchase_invoices.id','left')
+	->where('pro_purchase_invoice_items.store_id',$this->CI->store_id)
+	->where('pro_purchase_invoices.status', 'approved')
+//	->or_where('pro_purchase_invoices.status', 'completed')
+	->group_by('pro_purchase_invoices.id');
+    $q = $this->CI->centerdb->get();
+	$center = $q->result_array();
+	 $b = $this->compare_server_local($center,$store,$table_name,$access['center'],$update_db);   
+	//}
+	//echo $table_name.'-start-<br>';echo '<pre>';print_R($a);
+    }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -250,13 +319,15 @@ class Sync_both
 	$store = $this->CI->db->get_where($table_name,array('store_id'=>$this->CI->store_id))->result_array();
 	$update_db = 'centerdb';
 	$a = $this->compare_server_local($store,$center,$table_name,$access['store'],$update_db);
-	if($a){
+	//if($a){
 	 $update_db = 'db';
 	 $center = $this->CI->centerdb->get_where($table_name,array('store_id'=>$this->CI->store_id))->result_array();	
 	 $a = $this->compare_server_local($center,$store,$table_name,$access['center'],$update_db);   
-	}
+	//}
 	//echo $table_name.'-start-<br>';echo '<pre>';print_R($a);
     }
+	
+	
    
 
 /////////////// FROM CENTER - END /////////////////////  

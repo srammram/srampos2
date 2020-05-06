@@ -1443,7 +1443,7 @@ function loadItems() {
         return;
     
    // var item_id = site.settings.item_addition == 1 ? item.item_id : item.id;
-   var item_id = item.item_id+'_'+default_store+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id+'_'+item.row.variant_id;
+   var item_id = item.item_id+'_'+item.store_id+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id+'_'+item.row.variant_id;
    
     if (pi_items[item_id]) {
 		

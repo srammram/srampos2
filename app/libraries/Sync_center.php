@@ -59,6 +59,59 @@ class Sync_center{
 	   
 	}
     }
+	
+ function sync_purchase_invoice($id=false){
+	/** tables
+	 * pro_purchase_invoices
+	 * pro_purchase_invoice_items
+	 * */
+	if($this->CI->centerdb_connected){
+	    $i_table_name = 'pro_purchase_invoices';
+	    $i_table_items = 'pro_purchase_invoice_items';
+	    /* sync store to center purchase invoice */
+		$db1 = $this->CI->db->get_where($i_table_name,array('store_id'=>$this->CI->store_id,'id'=>$id,'status'=>'approved'))->result_array();
+		$db2 = $this->CI->centerdb->get_where($i_table_name,array('store_id'=>$this->CI->store_id,'id'=>$id))->result_array();	
+	    $data = $this->compare_server_local($db1,$db2);
+	    if(isset($data['insert']) && !empty($data['insert'])){
+		foreach($data['insert'] as $k => $insert_data){
+		    unset($insert_data->s_no);
+		    $this->CI->centerdb->insert($i_table_name,$insert_data);
+		    $id = $insert_data['id'];
+		    $item_details = $this->getPI_Items($id);
+		    $this->CI->centerdb->insert_batch($i_table_items,$item_details);
+		}
+	    }
+	  
+	}
+    }
+	
+	
+	 function sync_grn($id=false){
+	/** tables
+	 * pro_grn
+	 * pro_grn_items
+	 * */
+	if($this->CI->centerdb_connected){
+	    $i_table_name = 'pro_grn';
+	    $i_table_items = 'pro_grn_items';
+	    /* sync store to center purchase invoice */
+		$db1 = $this->CI->db->get_where($i_table_name,array('store_id'=>$this->CI->store_id,'id'=>$id,'status'=>'approved'))->result_array();
+		$db2 = $this->CI->centerdb->get_where($i_table_name,array('store_id'=>$this->CI->store_id,'id'=>$id))->result_array();	
+	    $data = $this->compare_server_local($db1,$db2);
+	    if(isset($data['insert']) && !empty($data['insert'])){
+		foreach($data['insert'] as $k => $insert_data){
+		    unset($insert_data->s_no);
+		    $this->CI->centerdb->insert($i_table_name,$insert_data);
+		    $id = $insert_data['id'];
+		    $item_details = $this->getGRN_Items($id);
+		    $this->CI->centerdb->insert_batch($i_table_items,$item_details);
+		}
+	    }
+	  
+	}
+    }
+	
+	
 	   function compare_server_local($DB1,$DB2,$table=false){
 		  $result = array();$localkeys = array();
 		  $localDB =  array();
@@ -116,14 +169,34 @@ class Sync_center{
 	    $this->delete_table($deleteIDS,$table);
 	}
     }
-	  function getSR_Items_id($id){
-	$q = $this->CI->db->get_where('pro_store_request_items',array('store_request_id'=>$id));
-	$data =  array();
-	foreach($q->result() as $k => $row){
-	    unset($row->s_no);
-	    $data[$k] = $row;
-	}
-	return $data;
+   function getSR_Items_id($id){
+		$q = $this->CI->db->get_where('pro_store_request_items',array('store_request_id'=>$id));
+		$data =  array();
+		foreach($q->result() as $k => $row){
+			unset($row->s_no);
+			$data[$k] = $row;
+		}
+		return $data;
+    }
+	
+	function getPI_Items($id){
+		$q = $this->CI->db->get_where('pro_purchase_invoice_items',array('invoice_id'=>$id));
+		$data =  array();
+		foreach($q->result() as $k => $row){
+			unset($row->s_no);
+			$data[$k] = $row;
+		}
+		return $data;
+    }
+	
+	function getGRN_Items($id){
+		$q = $this->CI->db->get_where('pro_grn_items',array('grn_id'=>$id));
+		$data =  array();
+		foreach($q->result() as $k => $row){
+			unset($row->s_no);
+			$data[$k] = $row;
+		}
+		return $data;
     }
 	
 }
