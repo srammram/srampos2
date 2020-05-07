@@ -158,8 +158,8 @@ class Sync_both
 	$table_items = 'pro_purchase_invoice_items';
 	
 	//center
-	$access['store']['insert'] = true;
-	$access['store']['update'] = false;
+	$access['store']['insert'] = false;
+	$access['store']['update'] = true;
 	$access['store']['delete'] = false;
 	///store 
 	$access['center']['insert'] = true;

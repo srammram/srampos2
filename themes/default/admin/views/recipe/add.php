@@ -304,9 +304,7 @@ if (!empty($variants)) {
     </div>
     <div class="box-content">
         <div class="row">
-	   
             <div class="col-lg-12">
-
                 <p class="introtext"><!-- <?php echo lang('enter_info'); ?> --></p>
 
                 <?php
@@ -528,12 +526,7 @@ if (!empty($variants)) {
 				       data-show-preview="false" accept="image/*" class="form-control file">
 			    </div>
 	
-			    <!--<div class="form-group all">
-				<?= lang("recipe_gallery_images", "images") ?>
-				<input id="images" type="file" data-browse-label="<?= lang('browse'); ?>" name="userfile[]" multiple data-show-upload="false"
-				       data-show-preview="false" class="form-control file" accept="image/*">
-			    </div>
-			    <div id="img-details"></div>-->
+			 
 			    <?php if($this->Settings->recipe_time_management) : ?>
 				<div class="form-group preparation_time_block">
 				    <?= lang("preparation_time", "preparation_time") ?>
@@ -546,49 +539,7 @@ if (!empty($variants)) {
 		    </div>
 		</fieldset>
 		
-		<!--
-		<fieldset class="scheduler-border">
-		    <legend class="scheduler-border"><?=lang('purchase_items')?></legend>
-		    <div class="standard" style="display: none;">
-				<div class="form-group standard">
-				    <div class="form-group">
-					<?= lang("products", "products") ?>
-					<!--<button type="button" class="btn btn-primary btn-xs" id="addRecipe_product"><i class="fa fa-plus"></i>
-					</button>
-				    </div>
-				    <div class="row" id="supplier-con">
-					<div class="col-xs-12">
-					    <div class="form-group">
-						<?php
-						echo form_input('recipe_product[]', set_value('recipe_product'), 'class="search-purchase-items form-control" id="recipe_product_1"  placeholder="' . lang("select") . ' ' . lang("products") . '" style="width:100%;" ');
-						?>
-					    </div>
-					</div>                            
-					<div class="row col-xs-12">
-					    <table class="purchase-item-container">              
-						<thead>
-					
-						<th class="col-sm-4"><?=lang('Item_Name')?></th>
-						<th class="col-sm-2"><?=lang('quanity')?></th>
-						<th class="col-sm-2"><?=lang('unit')?></th>
-						<!--<th class="col-sm-2"><?=lang('cost')?></th>
-						<th class="col-sm-2"><?=lang('remove')?></th>
-						</thead>
-						<tbody>
-						
-						</tbody>
-					    </table>
-					</div>
-					                         
-					                           
-					
-					
-				    
-				    </div>
-				    <div id="ex-recipe_product"></div>
-				</div>	
-			    </div>
-		</fieldset> -->
+	
 			<fieldset class="scheduler-border">
 		    <legend class="scheduler-border"><?=lang('batch_and_expiry_config')?></legend>
 		    <div class="col-md-12">
@@ -875,6 +826,20 @@ if (!empty($variants)) {
 				<?= form_input('piece', (isset($_POST['piece']) ? $_POST['piece'] : ($recipe ? $recipe->piece : '')), 'class="form-control tip numberonly" maxlength="3" id="piece"') ?>
 			    </div>
 			</div>
+			<div class="col-md-6">
+			    <div class="form-group">
+				<?= lang("weight", "weight") ?>
+				<?= form_input('weight', (isset($_POST['weight']) ? $_POST['weight'] : ($recipe ? $recipe->weight : '')), 'class="form-control tip numberonly" maxlength="3" id="weight"') ?>
+			    </div>
+			</div>
+			 <div class="col-md-6">
+					 <?= lang("sale_type", "sale_type") ?>
+                            <?php
+                            $tm = array('1' => lang('unit'), '2' => lang('pieces'));
+                            echo form_dropdown('sales_type', $tm, (isset($_POST['sales_type']) ? $_POST['sales_type'] : ($product ? $product->sales_type : '')), 'class="form-control select" id="sales_type" placeholder="' . lang("select") . ' ' . lang("sales_type") . '" style="width:100%"');
+                            ?>
+					
+					 </div>
 		    </div>
 		</fieldset>
 		<fieldset class="scheduler-border">

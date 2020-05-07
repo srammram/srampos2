@@ -221,10 +221,11 @@
                                     </td>
                                     <td>
                                         <?php
-                                        $n = $this->siteprocurment->lastidPurchaseInv();
-                                        $n2 = str_pad($n + 1, 5, 0, STR_PAD_LEFT);
+                                       $n = $this->siteprocurment->lastidPurchaseInv();
+									   $n=($n !=0)?$n+1:$this->store_id .'1';
+									   $reference = 'PI'.str_pad($n, 8, 0, STR_PAD_LEFT);
                                         ?>
-                                        <input  name="reference_no" id="reference_no" readonly tabindex=-1 class="form-control" value="<?php echo $n2 ?>">
+                                        <input  name="reference_no" id="reference_no" readonly tabindex=-1 class="form-control" value="<?php echo $reference ?>">
                                     </td>                                    
                                     <td width="100px">
                                         <?= lang("Currency", "reqcurrency") ?>
@@ -293,7 +294,7 @@
                                             foreach ($purchaseorder as $purchaseorder_row) {
                                                 $po[$purchaseorder_row->id] = $purchaseorder_row->reference_no;
                                             }
-                                            echo form_dropdown('po_number', $po, (isset($_POST['po_number']) ? $_POST['po_number'] : 0 ), ' class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("po_number") . '"style="width:100%;" id="pi_requestnumber"  ');
+                                            echo form_dropdown('po_number', $po, (isset($_POST['po_number']) ? $_POST['po_number'] : 0 ), ' class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("po_number") . '"style="width:100%;" id="pi_requestnumber"  '.( $this->isStore)?"disabled":"".'   ');
                                         ?>
                                     </td>
                                     <td>

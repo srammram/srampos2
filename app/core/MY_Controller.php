@@ -9,6 +9,7 @@ class MY_Controller extends CI_Controller {
         $thisStore = $this->site->getThisStore(); 
         $this->isWarehouse = ($thisStore->type==1)?false:true;
         $this->isStore = ($thisStore->type==1)?true:false;
+	
         $this->store_id = $thisStore->id;
         $this->store_name = $thisStore->name;
 		$this->myIp = getHostByName(php_uname('n'));

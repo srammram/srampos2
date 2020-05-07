@@ -737,8 +737,10 @@
                                     <span class="text"> <?= lang('inventory'); ?> </span>
                                     <span class="chevron closed"></span>
                                 </a>
-                                <ul class="level-2-menu">                                    
+                                <ul class="level-2-menu"> 
+							<?php  if($this->isStore):  ?>								
                                     <?php if($this->Settings->supply_chain) : ?>
+									
                                     <li id="procurment_store_request">
                                         <a class="dropmenu" href="javascript:void(0)">
                                             <span class="text">  <?= lang('store_indent_request'); ?> </span>
@@ -758,6 +760,7 @@
                                        </ul>
                                     </li>
                                    <?php endif; ?>
+	<?php endif;  ?>
 								   <!--
                                     <li id="procurment_request">
                                         <a class="dropmenu" href="javascript:void(0)">
@@ -817,7 +820,7 @@
 									 <?php endif; ?>
 									
 									
-									
+									<?php if($this->isWarehouse) : ?>
                                     <li id="procurment_quotes">
                                         <a class="dropmenu" href="javascript:void(0)">
                                             <span class="text">  <?= lang('purchase_quotation'); ?> </span>
@@ -837,13 +840,13 @@
                                             
                                        </ul>
                                     </li>
-                                    
+                                     <?php endif; ?>
 									
 									
 									 
 									
 									
-									
+									<?php if($this->isWarehouse) : ?>
                                     <li id="procurment_purchase_orders">
                                         <a class="dropmenu" href="javascript:void(0)">
                                             <span class="text">  <?= lang('purchase_orders'); ?> </span>
@@ -867,7 +870,7 @@
                                             </li>
                                        </ul>
                                     </li>
-                                    
+                                     <?php endif; ?>
                                     <li id="procurment_purchase_invoices">
                                         <a class="dropmenu" href="javascript:void(0)">
                                             <span class="text">  <?= lang('purchase_invoices'); ?> </span>
@@ -998,11 +1001,11 @@
                                                </li>
                                           </ul>
                                        </li>
-                                       
+                                       <!--
                                        <li id="procurment_store_returns">
                                            <a class="dropmenu" href="javascript:void(0)">
                                                <span class="text">  <?= lang('store_returns'); ?> </span>
-                                               <!--<span class="chevron closed"></span> -->
+                                               <!--<span class="chevron closed"></span> 
                                            </a>
                                            <ul class="level-3-menu">
                                                <li id="procurment_store_returns_index">
@@ -1021,7 +1024,7 @@
                                         <li id="procurment_store_return_receivers">
                                            <a class="dropmenu" href="javascript:void(0)">
                                                <span class="text">  <?= lang('store_return_receivers'); ?> </span>
-                                               <!--<span class="chevron closed"></span> -->
+                                               <!--<span class="chevron closed"></span> 
                                            </a>
                                            <ul class="level-3-menu">
                                                <li id="procurment_store_return_receivers_index">
@@ -1035,7 +1038,7 @@
                                                    </a>
                                                </li>
                                           </ul>
-                                       </li> 
+                                       </li> -->
                                     <?php  endif; ?> 
                                  
                                 </ul>
@@ -2123,8 +2126,10 @@
                                             <span class="text"> <?= lang('stores'); ?></span>
                                         </a>
                                     </li>-->
+									<?php   if($this->isStore){  ?>
                                     <?php if($this->Settings->supply_chain) : ?>
                                     <?php if($GP['store_request_add'] || $GP['store_request_index']) : ?>
+
                                     <li id="procurment_store_request">
                                         <a class="dropmenu" href="javascript:void(0)">
                                             <span class="text">  <?= lang('store_indent_request'); ?> </span>
@@ -2149,6 +2154,7 @@
                                     </li>
                                     <?php endif; ?>
                                     <?php endif; ?>
+									<?php  }  ?>
                                     <!-- <?php if($GP['production-add'] || $GP['production-index']) : ?>
                                     <li id="procurment_production">
                                         <a class="dropmenu" href="javascript:void(0)">

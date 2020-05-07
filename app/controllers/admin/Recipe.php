@@ -49,13 +49,11 @@ class Recipe extends MY_Controller{
             . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i> "
             . lang('delete_recipe') . "</a>";
         $single_barcode = anchor('admin/recipe/print_barcodes/$1', '<i class="fa fa-print"></i> ' . lang('print_barcode_label'));
-        // $single_label = anchor_popup('recipe/single_label/$1/' . ($warehouse_id ? $warehouse_id : ''), '<i class="fa fa-print"></i> ' . lang('print_label'), $this->popup_attributes);
         $action = '<div class="text-center"><div class="btn-group text-left">'
             . '<button type="button" class="btn btn-default btn-xs btn-primary dropdown-toggle" data-toggle="dropdown">'
             . lang('actions') . ' <span class="caret"></span></button>
         <ul class="dropdown-menu pull-right" role="menu">
             <li>' . $detail_link . '</li>
-           
             <li><a href="' . admin_url('recipe/edit/$1') . '"><i class="fa fa-edit"></i> ' . lang('edit_recipe') . '</a></li>';
         if ($warehouse_id) {
             $action .= '<li><a href="' . admin_url('recipe/set_rack/$1/' . $warehouse_id) . '" data-toggle="modal" data-target="#myModal"><i class="fa fa-bars"></i> '
@@ -63,34 +61,12 @@ class Recipe extends MY_Controller{
         }
         $action .= '<li><a href="' . base_url() . 'assets/uploads/$2" data-type="image" data-toggle="lightbox"><i class="fa fa-file-photo-o"></i> '
             . lang('view_image') . '</a></li>
-            
             <li class="divider"></li>
             <li>' . $delete_link . '</li>
             </ul>
         </div></div>';
         $this->load->library('datatables');
-		if ($warehouse_id) {            
-//            $this->datatables
-//            ->select("'sno',".$this->db->dbprefix('recipe') . ".id as recipeid,{$this->db->dbprefix('recipe')}.name as name,{$this->db->dbprefix('recipe')}.khmer_name as khmer_name,{$this->db->dbprefix('recipe_categories')}.name as cname,{$this->db->dbprefix('recipe')}.image as image, price as price, CASE WHEN dbprefix('recipe')}.recipe_standard = 1 THEN 'Alakat'  WHEN dbprefix('recipe')}.recipe_standard = 2 THEN 'BBQ'  ELSE 'Alakat & BBQ' END  as recipe_standard, active", FALSE)
-//            ->from('recipe');
-//	    $this->datatables->join('warehouses_recipe', 'recipe.id=warehouses_recipe.recipe_id', 'left');
-//	    $this->datatables->join('warehouses', 'warehouses.id=warehouses_recipe.warehouse_id');
-//            if ($this->Settings->display_all_products) {
-//		
-//                $this->datatables->join("( SELECT recipeid, quantity, rack from {$this->db->dbprefix('warehouses_recipe')} WHERE warehouse_id = {$warehouse_id}) wp", 'recipe.id=wp.recipe_id', 'left');
-//            } else {
-//                //$this->datatables->join('warehouses_recipe wp', 'recipe.id=wp.recipe_id', 'left')
-//                $this->datatables->where('warehouses_recipe.warehouse_id', $warehouse_id);
-//                //->where('wp.quantity !=', 0);
-//            }
-//            $this->datatables->join('recipe_categories', 'recipe.category_id=recipe_categories.id', 'left')
-//            //->join('units', 'products.unit=units.id', 'left')
-//            //->join('brands', 'products.brand=brands.id', 'left')
-//            ->group_by("recipe.id")
-//                ->order_by('recipe.id desc')
-//            ->edit_column('active', '$1__$2', 'active, recipeid')
-//            ->edit_column('image', '$1__$2__$3', 'active, recipeid,image');
-//            // ->group_by("products.id");
+		if ($warehouse_id) {   
 	    $this->datatables
                 ->select("'sno',".$this->db->dbprefix('recipe') . ".id as recipeid,".$this->db->dbprefix('recipe') . ".type as item_type, (CASE WHEN {$this->db->dbprefix('recipe')}.recipe_standard = '1' THEN  'Alakat' WHEN {$this->db->dbprefix('recipe')}.recipe_standard = '2' THEN  'BBQ' ELSE 'Alakat and BBQ' END) as recipe_standard, {$this->db->dbprefix('recipe')}.name as name,{$this->db->dbprefix('recipe')}.khmer_name as khmer_name,{$this->db->dbprefix('recipe_categories')}.name as cname,{$this->db->dbprefix('recipe')}.image as image,".$this->db->dbprefix('recipe') . ".id as stock_r_id, minimum_quantity,maximum_quantity, price as price,  active", FALSE)
                 ->from('recipe')
@@ -114,20 +90,15 @@ class Recipe extends MY_Controller{
                 ->edit_column('active', '$1__$2', 'active, recipeid')
                 ->edit_column('image', '$1__$2__$3', 'active, recipeid,image');
         }
-        
         $this->datatables->add_column("Actions", $action, "recipeid, image, name");
-		
         echo $this->datatables->generate();
     }
 	
 	
 
-    function set_rack($recipe_id = NULL, $warehouse_id = NULL)
-    {
+    function set_rack($recipe_id = NULL, $warehouse_id = NULL){
         $this->sma->checkPermissions('edit', true);
-
         $this->form_validation->set_rules('rack', lang("rack_location"), 'trim|required');
-
         if ($this->form_validation->run() == true) {
             $data = array('rack' => $this->input->post('rack'),
                 'recipe_id' => $recipe_id,
@@ -137,7 +108,6 @@ class Recipe extends MY_Controller{
             $this->session->set_flashdata('error', validation_errors());
             admin_redirect("recipe");
         }
-
         if ($this->form_validation->run() == true && $this->recipe_model->setRack($data)) {
             $this->session->set_flashdata('message', lang("rack_set"));
             admin_redirect("recipe/" . $warehouse_id);
@@ -153,8 +123,7 @@ class Recipe extends MY_Controller{
         }
     }
 
-    function barcode($recipe_code = NULL, $bcs = 'code128', $height = 40)
-    {
+    function barcode($recipe_code = NULL, $bcs = 'code128', $height = 40){
         if ($this->Settings->barcode_img) {
             header('Content-Type: image/png');
         } else {
@@ -163,14 +132,10 @@ class Recipe extends MY_Controller{
         echo $this->sma->barcode($recipe_code, $bcs, $height, true, false, true);
     }
 
-    function print_barcodes($recipe_id = NULL)
-    {
+    function print_barcodes($recipe_id = NULL){
         $this->sma->checkPermissions('barcode', true);
-
         $this->form_validation->set_rules('style', lang("style"), 'required');
-
         if ($this->form_validation->run() == true) {
-
             $style = $this->input->post('style');
             $bci_size = ($style == 10 || $style == 12 ? 50 : ($style == 14 || $style == 18 ? 30 : 20));
             $currencies = $this->site->getAllCurrencies();
@@ -194,7 +159,6 @@ class Recipe extends MY_Controller{
                                 'barcode' => $recipe->code . $this->Settings->barcode_separator . $option->id,
                                 'bcs' => 'code128',
                                 'bcis' => $bci_size,
-                                // 'barcode' => $this->recipe_barcode($recipe->code . $this->Settings->barcode_separator . $option->id, 'code128', $bci_size),
                                 'price' => $this->input->post('price') ?  $this->sma->formatMoney($option->price != 0 ? ($recipe->price+$option->price) : $recipe->price) : FALSE,
                                 'unit' => $this->input->post('unit') ? $recipe->unit : FALSE,
                                 'category' => $this->input->post('category') ? $recipe->category : FALSE,
@@ -209,7 +173,6 @@ class Recipe extends MY_Controller{
                         'site' => $this->input->post('site_name') ? $this->Settings->site_name : FALSE,
                         'name' => $this->input->post('recipe_name') ? $recipe->name : FALSE,
                         'image' => $this->input->post('recipe_image') ? $recipe->image : FALSE,
-                        // 'barcode' => $this->recipe_barcode($recipe->code, $recipe->barcode_symbology, $bci_size),
                         'barcode' => $recipe->code,
                         'bcs' => $recipe->barcode_symbology,
                         'bcis' => $bci_size,
@@ -230,9 +193,7 @@ class Recipe extends MY_Controller{
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('recipe'), 'page' => lang('recipe')), array('link' => '#', 'page' => lang('print_barcodes')));
             $meta = array('page_title' => lang('print_barcodes'), 'bc' => $bc);
             $this->page_construct('recipe/print_barcodes', $meta, $this->data);
-
         } else {
-
             if ($this->input->get('purchase') || $this->input->get('transfer')) {
                 if ($this->input->get('purchase')) {
                     $purchase_id = $this->input->get('purchase', TRUE);
@@ -259,7 +220,6 @@ class Recipe extends MY_Controller{
 
             if ($recipe_id) {
                 if ($row = $this->site->getrecipeByID($recipe_id)) {
-
                     $selected_variants = false;
                     if ($variants = $this->recipe_model->getrecipeOptions($row->id)) {
                         foreach ($variants as $variant) {
@@ -267,7 +227,6 @@ class Recipe extends MY_Controller{
                         }
                     }
                     $pr[$row->id] = array('id' => $row->id, 'label' => $row->name . " (" . $row->code . ")", 'code' => $row->code, 'name' => $row->name, 'price' => $row->price, 'qty' => $row->quantity, 'variants' => $variants, 'selected_variants' => $selected_variants);
-
                     $this->data['message'] = lang('recipe_added_to_list');
                 }
             }
@@ -319,51 +278,32 @@ class Recipe extends MY_Controller{
 
 
     /* ------------------------------------------------------- */
-
     function add($id = NULL){
         $this->sma->checkPermissions(); 
         $this->load->helper('security');
         $warehouses = $this->site->getAllWarehouses();
-        //$this->form_validation->set_rules('category', lang("category"), 'required|is_natural_no_zero');
         $warehouse = $this->input->post('warehouse');
         $recipe_standard = ($this->input->post('recipe_standard'))?$this->input->post('recipe_standard'):0;
         if(!empty($warehouse)){            
             foreach($warehouse as $id => $ware){
-                $this->form_validation->set_rules('warehouse[' . $id . ']', 'Warehouse', 'required');                
-            }
-        }
-        else{
+            $this->form_validation->set_rules('warehouse[' . $id . ']', 'Warehouse', 'required');
+			}
+        }else{
             $this->form_validation->set_rules('warehouse', 'Warehouse', 'required');  
         }
         if($recipe_standard == 2){     
-            $this->form_validation->set_rules('piece', lang("piece"), 'required');            
+            $this->form_validation->set_rules('piece', lang("piece"), 'required');
         } 
-       
 		$this->form_validation->set_rules('code', lang("recipe_code"), 'is_unique[recipe.code]');
-		$this->form_validation->set_rules('name', lang("recipe_name"), 'is_unique[recipe.name]');        
-        /*$this->form_validation->set_rules('slug', lang("slug"), 'required|is_unique[recipe.slug]|alpha_dash');*/
+		$this->form_validation->set_rules('name', lang("recipe_name"), 'is_unique[recipe.name]');    
         $this->form_validation->set_rules('recipe_image', lang("recipe_image"), 'xss_clean');
         $this->form_validation->set_rules('digital_file', lang("digital_file"), 'xss_clean');
-        $this->form_validation->set_rules('userfile', lang("recipe_gallery_images"), 'xss_clean');        
-		//$this->form_validation->set_rules('stock_quantity', lang("stock_quantity"), 'required');		
+        $this->form_validation->set_rules('userfile', lang("recipe_gallery_images"), 'xss_clean');     
         if ($this->form_validation->run() == true) {
-			//            echo "<pre>";
-		//	print_r($_POST);exit;
-
-			//	    $recipe_pro =array();
-			//	    for($j=0; $j<count($this->input->post('purchase_item[id]')); $j++){
-			//					$recipe_pro[] = array(
-			//						'product_id' => $this->input->post('purchase_item[id]['.$j.']'),
-			//						'quantity' => $this->input->post('purchase_item[quantity]['.$j.']'),
-			//						'unit_id' => $this->input->post('purchase_item[unit_id]['.$j.']'),						
-			//					);
-			//				}
-			//				
-            //echo '<pre>';print_R($recipe_pro);print_R($_POST);exit;
             $tax_rate = $this->input->post('tax_rate') ? $this->site->getTaxRateByID($this->input->post('tax_rate')) : NULL;
             $data = array(
 				'code' => $this->input->post('code'),
-                'special_item' => $this->input->post('special_item') ? $this->input->post('special_item') : 0,
+               'special_item' => $this->input->post('special_item') ? $this->input->post('special_item') : 0,
                 'item_customizable' => $this->input->post('item_customizable') ? $this->input->post('item_customizable') : 0,
 				'recipe_standard' => $recipe_standard,
 				'piece' => $this->input->post('piece'),
@@ -381,7 +321,6 @@ class Recipe extends MY_Controller{
                 'details' => $this->input->post('details'),
                 'recipe_details' => $this->input->post('recipe_details'),
                 'suppliers'=>implode(',',$this->input->post('supplier')) ? implode(',',$this->input->post('supplier')) : '',
-				//'supplier1' => $this->input->post('supplier'),
                 'supplier1price' => $this->sma->formatDecimal($this->input->post('supplier_price')),
                 'supplier2' => $this->input->post('supplier_2'),
                 'supplier2price' => $this->sma->formatDecimal($this->input->post('supplier_2_price')),
@@ -419,16 +358,18 @@ class Recipe extends MY_Controller{
 				'unit' => $this->input->post('unit'),
 				'sale_unit' => $this->input->post('default_sale_unit'),
                 'purchase_unit' => $this->input->post('default_purchase_unit'),
-				  'stock_unit' => $this->input->post('stock_unit'),
+				'stock_unit' => $this->input->post('stock_unit'),
 				'maximum_quantity' => $this->input->post('maximum_quantity'),
 				'batch_required' => $this->input->post('batch_required'),		
 				'expiry_date_required' => $this->input->post('expiry_date_required'),
 				'purchase_tax' => $this->input->post('purchase_tax'),
+				'weight'  =>$this->input->post('weight'),
+				'sales_type'=>$this->input->post('sales_type')
             );
-	    $sales_type = array('standard','production','combo','quick_service','addon');
-		$stock_unit=!empty($this->input->post('stock_unit'))?$this->input->post('stock_unit'):$this->input->post('unit');
-		$unit = $this->site->getUnitByID($stock_unit);
-	    $cat_mapping_data = array();
+			$sales_type = array('standard','production','combo','quick_service','addon');
+			$stock_unit=!empty($this->input->post('stock_unit'))?$this->input->post('stock_unit'):$this->input->post('unit');
+			$unit = $this->site->getUnitByID($stock_unit);
+			$cat_mapping_data = array();
 	    if(in_array($_POST['type'],$sales_type)){
             $varients = $_POST['varients'];
             $cnt = count($varients['id']);
@@ -438,7 +379,7 @@ class Recipe extends MY_Controller{
                     $cat_mapping_data[$i]['category_id'] = $this->input->post('category');
                     $cat_mapping_data[$i]['subcategory_id'] = $this->input->post('subcategory') ? $this->input->post('subcategory') : NULL;
                     $cat_mapping_data[$i]['brand_id'] = $this->input->post('brand');
-                    $cat_mapping_data[$i]['purchase_cost'] = $varients['price'][$i];
+                    $cat_mapping_data[$i]['purchase_cost'] =$this->sma->formatDecimal( $varients['price'][$i]);
                     $cat_mapping_data[$i]['selling_price'] = $varients['price'][$i];
 					$stock=$this->site->unitToBaseQty($this->input->post('stock'),$unit->operator,$unit->operation_value);
                     $cat_mapping_data[$i]['stock'] = $stock;
@@ -448,7 +389,7 @@ class Recipe extends MY_Controller{
                 $cat_mapping_data[0]['category_id'] = $this->input->post('category');
                 $cat_mapping_data[0]['subcategory_id'] = $this->input->post('subcategory') ? $this->input->post('subcategory') : NULL;
                 $cat_mapping_data[0]['brand_id'] = $this->input->post('brand');
-                $cat_mapping_data[0]['purchase_cost'] = $this->input->post('purchase_cost');
+                $cat_mapping_data[0]['purchase_cost'] = $this->sma->formatDecimal($this->input->post('purchase_cost'));
                 $cat_mapping_data[0]['selling_price'] = $this->input->post('selling_price');
 				$stock=$this->site->unitToBaseQty($this->input->post('stock'),$unit->operator,$unit->operation_value);
                 $cat_mapping_data[0]['stock'] = $stock;
@@ -457,7 +398,7 @@ class Recipe extends MY_Controller{
 			$data['subcategory_id'] = $this->input->post('subcategory') ? $this->input->post('subcategory') : NULL;
 			$data['brand'] = $this->input->post('brand');
 			$data['purchase_cost'] = $this->input->post('purchase_cost');
-			$data['cost'] = $this->input->post('purchase_cost');
+			$data['cost'] = $this->sma->formatDecimal($this->input->post('purchase_cost'));
 			$data['price'] = $this->input->post('selling_price');
 			$data['stock_quantity'] = $this->input->post('stock') ? $this->input->post('stock') : 0;
 	    }else{
@@ -468,7 +409,7 @@ class Recipe extends MY_Controller{
 						$cat_mapping_data[$ind]['category_id'] = $catid;
 						$cat_mapping_data[$ind]['subcategory_id'] = $sub_catid;
 						$cat_mapping_data[$ind]['brand_id'] = $brand_id;
-						$cat_mapping_data[$ind]['purchase_cost'] = $brands['purchase_cost'][$b];
+						$cat_mapping_data[$ind]['purchase_cost'] = $this->sma->formatDecimal($brands['purchase_cost'][$b]);
 						$cat_mapping_data[$ind]['selling_price'] = $brands['selling_price'][$b];
 						$cat_mapping_data[$ind]['stock'] = $brands['stock'][$b];
 						$ind++;
@@ -485,17 +426,6 @@ class Recipe extends MY_Controller{
 						'warehouse_id' => $this->input->post('warehouse['.$i.']'),
 					);
 				}
-			
-		/*	if ($this->input->post('type') != 'addon') {
-				if(array_filter($this->input->post('recipe_addon[]'))){
-					for($j=0; $j<count($this->input->post('recipe_addon[]')); $j++){
-						$recipe_aon[] = array(
-							'recipe_addon' => $this->input->post('recipe_addon['.$j.']'),
-						);
-					}
-				}
-			}*/
-			
 			
             if ($this->input->post('type') == 'addon' || $this->input->post('type') == 'production' || $this->input->post('type') == 'semi_finished') {
 				for($j=0; $j<count($this->input->post('purchase_item[id]')); $j++){
@@ -631,8 +561,10 @@ class Recipe extends MY_Controller{
         }else{
 	    $this->data['sub_cate'] = $this->recipe_model->getrecipeSubCategories($_POST['category']);
 	    $this->data['sub_units'] = $this->site->getUnitsByBUID($_POST['unit']);
+		
 	}
-	
+	/* 	print_r($_POST);
+		die; */
         if ($this->form_validation->run() == true && $this->recipe_model->addrecipe_new($data, $warehouse_qty, $recipe_pro,  $items, $photos,$cat_mapping_data)) 			{
             $this->session->set_flashdata('message', lang("recipe_added"));
             admin_redirect('recipe');
@@ -828,11 +760,8 @@ function clean($string) {
         $this->form_validation->set_rules('recipe_image', lang("recipe_image"), 'xss_clean');
         $this->form_validation->set_rules('digital_file', lang("digital_file"), 'xss_clean');
         $this->form_validation->set_rules('userfile', lang("recipe_gallery_images"), 'xss_clean');
-		//$this->form_validation->set_rules('stock_quantity', lang("stock_quantity"), 'required');
         if ($this->form_validation->run('recipe/edit') == true) {
-/* 		echo "<pre>";
-		print_r($_POST);exit; 
- */            $data = array(
+           $data = array(
 				'code' => $this->input->post('code'),
                 'special_item' => $this->input->post('special_item') ? $this->input->post('special_item') : 0,
                 'item_customizable' => $this->input->post('item_customizable') ? $this->input->post('item_customizable') : 0,
@@ -899,14 +828,9 @@ function clean($string) {
 				'expiry_date_required' => $this->input->post('expiry_date_required'),
                 'purchase_tax' => $this->input->post('purchase_tax'),
 				'active' => $this->input->post('is_status'),
+				'weight'  =>$this->input->post('weight'),
+				'sales_type'=>$this->input->post('sales_type')
 				
-				/* 'category' => $this->input->post('category'),
-				'subcategory_id' => $this->input->post('subcategory'),
-				'brand_id' => $this->input->post('brand'),
-				'purchase_cost' => $this->input->post('purchase_cost'),
-				'selling_price' => $this->input->post('selling_price'),
-				'stock' => $this->input->post('stock'),
-				*/
             );
 			$stock_unit=!empty($this->input->post('stock_unit'))?$this->input->post('stock_unit'):$this->input->post('unit');
 		    $unit = $this->site->getUnitByID($stock_unit);
@@ -921,7 +845,7 @@ function clean($string) {
                     $cat_mapping_data[$i]['category_id'] = $this->input->post('category');
                     $cat_mapping_data[$i]['subcategory_id'] = $this->input->post('subcategory') ? $this->input->post('subcategory') : NULL;
                     $cat_mapping_data[$i]['brand_id'] = $this->input->post('brand');
-                    $cat_mapping_data[$i]['purchase_cost'] = $varients['price'][$i];
+                    $cat_mapping_data[$i]['purchase_cost'] = $this->sma->formatDecimal($varients['price'][$i]);
                     $cat_mapping_data[$i]['selling_price'] = $varients['price'][$i];
 					$stock=$this->site->unitToBaseQty($this->input->post('stock'),$unit->operator,$unit->operation_value);
                     $cat_mapping_data[$i]['stock'] = $stock;
@@ -931,7 +855,7 @@ function clean($string) {
         			$cat_mapping_data[0]['category_id'] = $this->input->post('category');
         			$cat_mapping_data[0]['subcategory_id'] = $this->input->post('subcategory') ? $this->input->post('subcategory') : NULL;
         			$cat_mapping_data[0]['brand_id'] = $this->input->post('brand');
-        			$cat_mapping_data[0]['purchase_cost'] = $this->input->post('purchase_cost');
+        			$cat_mapping_data[0]['purchase_cost'] = $this->sma->formatDecimal( $this->input->post('purchase_cost'));
         			$cat_mapping_data[0]['selling_price'] = $this->input->post('selling_price');
 					$stock=$this->site->unitToBaseQty($this->input->post('stock'),$unit->operator,$unit->operation_value);
         			$cat_mapping_data[0]['stock'] = $stock;
@@ -940,7 +864,7 @@ function clean($string) {
 			$data['category_id'] = $this->input->post('category');
 			$data['subcategory_id'] = $this->input->post('subcategory') ? $this->input->post('subcategory') : NULL;
 			$data['brand'] = $this->input->post('brand');
-			$data['cost'] = $this->input->post('purchase_cost');
+			$data['cost'] = $this->sma->formatDecimal($this->input->post('purchase_cost'));
 			$data['price'] = $this->input->post('selling_price');
 			$data['stock_quantity'] = $this->input->post('stock') ? $this->input->post('stock') : 0;
 	    }else{
@@ -956,7 +880,7 @@ function clean($string) {
 						$cat_mapping_data[$ind]['category_id'] = $catid;
 						$cat_mapping_data[$ind]['subcategory_id'] = $sub_catid;
 						$cat_mapping_data[$ind]['brand_id'] = $brand_id;
-						$cat_mapping_data[$ind]['purchase_cost'] = $brands['purchase_cost'][$b];
+						$cat_mapping_data[$ind]['purchase_cost'] =$this->sma->formatDecimal( $brands['purchase_cost'][$b]);
 						$cat_mapping_data[$ind]['selling_price'] = $brands['selling_price'][$b];
 						$cat_mapping_data[$ind]['stock'] = $brands['stock'][$b];
 						$ind++;
@@ -2943,7 +2867,7 @@ function edit_item_with_varient($id){
 	function stock_details($id){
         $this->load->library('datatables');
 		$this->datatables
-				->select("'sno',".$this->db->dbprefix('warehouses') . ".name as store_name,rc.name as category_name,rsc.name as subcategory_name,b.name as brand_name,stock_in,stock_out,(stock_in-stock_out) as stock,(stock_in_piece-stock_out_piece) as stock_piece,batch,cm.purchase_cost as cost_price,cm.selling_price as selling_price,expiry_date", FALSE)
+				->select("'sno',".$this->db->dbprefix('warehouses') . ".name as store_name,rc.name as category_name,rsc.name as subcategory_name,b.name as brand_name,IFNULL(rv.name, '') as variant,batch,stock_in,stock_out,(stock_in-stock_out) as stock,(stock_in_piece-stock_out_piece) as stock_piece,pro_stock_master.cost_price as cost_price,pro_stock_master.selling_price as selling_price,expiry_date", FALSE)
 				->from('pro_stock_master')		
                 ->join('category_mapping as cm','cm.product_id=pro_stock_master.product_id','left')
 				->join('recipe as r','r.id=pro_stock_master.product_id','left')
@@ -2951,6 +2875,7 @@ function edit_item_with_varient($id){
 				->join('recipe_categories rsc','rsc.id=pro_stock_master.subcategory_id','left')	
 				->join('brands b','b.id=pro_stock_master.brand_id','left')
 				->join('warehouses','warehouses.id=pro_stock_master.store_id')
+				->join('recipe_variants rv','rv.id=pro_stock_master.variant_id','left') 	
                 ->order_by("pro_stock_master.id desc")
                 ->group_by("pro_stock_master.id")
 				->where('pro_stock_master.product_id',$id);

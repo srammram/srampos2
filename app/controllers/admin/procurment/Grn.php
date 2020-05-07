@@ -82,7 +82,6 @@ class Grn extends MY_Controller{
         echo $this->datatables->generate();
     }
 
-  
 
     public function view($id = null){
 	        $this->sma->checkPermissions();
@@ -93,16 +92,14 @@ class Grn extends MY_Controller{
             $this->load->view($this->theme . 'procurment/grn/view',  $this->data);
     }
 
-   
-
  
     public function add(){
             $this->sma->checkPermissions();
 		    $this->form_validation->set_rules('pi_number', $this->lang->line("pi_number"), 'required');
-			
          if ($this->form_validation->run() == true) {
 			$n = $this->siteprocurment->lastidGrn();
-			$reference = 'GRN'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
+			$n=($n !=0)?$n+1:$this->store_id .'1';
+			$reference = 'GRN'.str_pad($n, 8, 0, STR_PAD_LEFT);
 			$date = date('Y-m-d H:i:s');
 			$supplier_id = $this->input->post('supplier');
 			$status = $this->input->post('status');

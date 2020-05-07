@@ -1,5 +1,4 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
-
 class Reports_model extends CI_Model{
     public function __construct()
     {
@@ -36,8 +35,7 @@ class Reports_model extends CI_Model{
         }
         return FALSE;
     }
-    public function getStaff()
-    {
+    public function getStaff(){
         if ($this->Admin) {
             $this->db->where('group_id !=', 1);
         }
@@ -5841,13 +5839,14 @@ public function check_reportview_access($pass_code){
 				WHEN '+' THEN (stock_out)-operation_value
 				WHEN '-' THEN (stock_out)+operation_value
 				ELSE (stock_out)
-				END AS 'stock_out'", FALSE);
+				END AS 'stock_out' ,IFNULL(rv.name, '') as variant", FALSE);
                 $this->db->from('pro_stock_master');
                 $this->db->join('recipe as r','r.id=pro_stock_master.product_id');
                 $this->db->join('recipe_categories as rc','pro_stock_master.category_id=rc.id');
                 $this->db->join('recipe_categories as rsc','pro_stock_master.subcategory_id=rsc.id');
                 $this->db->join('brands as b','pro_stock_master.brand_id=b.id') ;
-                $this->db->join('units u','u.id=r.stock_unit','left')       ;        
+                $this->db->join('units u','u.id=r.stock_unit','left')       ;    
+				$this->db->join('recipe_variants rv','rv.id=pro_stock_master.variant_id','left') 	;				
                 $this->db->group_by("pro_stock_master.id");
 			    $this->db->where('pro_stock_master.product_id',$row->id);
                 if($store_id){

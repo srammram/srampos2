@@ -2076,7 +2076,7 @@ class Siteprocurment extends CI_Model{
 	}
     public function lastidPurchaseInv(){
         $this->db->order_by('id' , 'DESC');
-		$this->db->where('id' , 'DESC');
+		$this->db->where('store_id' ,$this->store_id);
         $q = $this->db->get('pro_purchase_invoices');
         if ($q->num_rows() > 0) {
             return $q->row('id');
@@ -2570,10 +2570,11 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
     }
 	
 	  public function lastidGrn(){
-        $this->db->order_by('s_no' , 'DESC');
+        $this->db->order_by('id' , 'DESC');
+		$this->db->where('store_id' ,$this->store_id);
         $q = $this->db->get('pro_grn');
         if ($q->num_rows() > 0) {
-            return $q->row('s_no');
+            return $q->row('id');
         }
         return 0;
     }

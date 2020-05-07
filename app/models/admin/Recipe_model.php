@@ -368,9 +368,6 @@ public function getProductWithRecipe($recipe_id)
     {
         if ($this->db->insert('recipe', $data)) {
             $recipe_id = $this->db->insert_id();
-			
-			
-
             if ($items) {
                 foreach ($items as $item) {
                     $item['recipe_id'] = $recipe_id;
@@ -389,8 +386,6 @@ public function getProductWithRecipe($recipe_id)
 
             if ($warehouse_qty && !empty($warehouse_qty)) {
                 foreach ($warehouse_qty as $wh_qty) {
-					
-                   
                         $this->db->insert('warehouses_recipe', array('recipe_id' => $recipe_id, 'warehouse_id' => $wh_qty['warehouse_id']));
 
                     
@@ -552,17 +547,40 @@ public function getProductWithRecipe($recipe_id)
 	public function addrecipe_new($data, $warehouse_qty, $recipe_pro,  $items, $photos,$cat_mapping_data){	
         $this->db->insert('recipe', $data);
         $recipe_id = $this->db->insert_id();
-
 	if ($recipe_id) {
+		foreach ($warehouse_qty as $wh_qty) {
+			
     	foreach($cat_mapping_data as $k => $row){
+			$cp                           = str_replace('.','_',$row['purchase_cost']);
+			$category_id                  = $row['category_id']  ;
+			$subcategory_id               = $row['subcategory_id'];
+			$brand_id                     = $row['brand_id'];
+			$batch                        ='';
+			$supplier                     = 0;
+			$invoice_id                   = 0;
+			$variant_id                   =($row['variant_id'])?$row['variant_id']:0;
+			$unique_id                    =$wh_qty['warehouse_id'].$recipe_id.$variant_id.$batch.$category_id.$subcategory_id.$brand_id.$cp.$supplier;
+			
+			$row['store_id'] =$wh_qty['warehouse_id'];
+			$row['batch_no'] ='';
+			$row['vendor_id'] =0;
+			$row['invoice_id'] =0;
+			$row['pieces_selling_price'] =0;
     	    $row['product_id'] = $recipe_id;
-			/* echo '<pre>';
-		 	print_r($row);  */
 			$row['status'] = 1;
+			$row['unique_id'] = $unique_id;
+			
     	    $this->db->insert('category_mapping', $row);	
 			$cm_id = $this->db->insert_id();
-			$store_id                     =$this->session->userdata('warehouse_id');
-    	    $stock_data['store_id']       = $store_id;
+			$UniqueID = $this->site->generateUniqueTableID($cm_id);
+            $this->site->updateUniqueTableId($cm_id,$UniqueID,'category_mapping');
+			
+			$this->db->where("id",$cm_id);
+			$this->db->update("category_mapping",array("unique_id"=>$unique_id));
+			
+			//	echo 'warhouse'. $wh_qty['warehouse_id'].'<pre>';
+			$stock_data['cm_id']          = $cm_id;
+    	    $stock_data['store_id']       = $wh_qty['warehouse_id'];
     	    $stock_data['product_id']     = $recipe_id;	    
     	    $stock_data['category_id']    = $row['category_id'];
     	    $stock_data['subcategory_id'] = $row['subcategory_id'];
@@ -572,38 +590,22 @@ public function getProductWithRecipe($recipe_id)
     	    $stock_data['stock_in']       = $row['stock'];
 			$stock_data['stock_in_piece'] = $row['stock'] * $data['piece'];
     	    $stock_data['stock_out']      = 0;
-    	    $stock_data['cm_id']          = $cm_id;
-		/* 	echo '<pre>';
-		 	print_r($stock_data);
-			die;  */
-			//if($row['stock'] != 0){
-               // $this->site->addStockMaster($stock_data);
-            //}
-			$cp              = str_replace('.','_',$row['purchase_cost']);
-			$category_id     = $row['category_id']  ;
-			$subcategory_id  = $row['subcategory_id'];
-			$brand_id        = $row['brand_id'];
-			$batch            ='';
-			$supplier        =0;
-			$invoice_id      =0;
-			 $stock_data['unique_id']=$store_id.$recipe_id.$batch.$category_id.$subcategory_id.$brand_id.$cp.$supplier.$invoice_id;
+			$stock_data['unique_id']      =$unique_id;
+		    $stock_data['variant_id']      =$variant_id;
+			
 			if($data['type'] !='quick_service'){
 				 $this->site->addStockMaster($stock_data);
 			}
+			}
     	}
+	
 		   if($warehouse_qty && !empty($warehouse_qty)) {
 				foreach ($warehouse_qty as $wh_qty) {
 					$this->db->insert('warehouses_recipe', array('recipe_id' => $recipe_id, 'warehouse_id' => $wh_qty['warehouse_id']));
 				}
 			}			
-			/*if($data['type'] == 'standard' || $data['type'] == 'production' || $data['type'] == 'combo'){
-				if ($recipe_aon && !empty($recipe_aon)) {
-					foreach ($recipe_aon as $addon_row) {
-						$this->db->insert('recipe_addon', array('recipe_id' => $recipe_id, 'addon_id' => $addon_row['recipe_addon']));
-					}	
-				}
-			}*/				
-			if ($data['type'] == 'addon' || $data['type'] == 'production' || $data['type'] == 'semi_finished') {				
+					
+	     if ($data['type'] == 'addon' || $data['type'] == 'production' || $data['type'] == 'semi_finished') {				
 				if ($recipe_pro && !empty($recipe_pro)) {
 					foreach ($recipe_pro as $re_pro) {
 					    $re_pro['recipe_id'] = $recipe_id;
@@ -664,9 +666,6 @@ public function getProductWithRecipe($recipe_id)
                         $add_varient[$i]['image'] = '';
                     }  
                 }
-                // echo "<pre>";
-                // print_r($this->input->post());
-                // print_r($add_varient);
                 if(!empty($add_varient)){
                     $this->AddRecipeVarient($add_varient);
                 }     
@@ -685,8 +684,7 @@ public function getProductWithRecipe($recipe_id)
         return true;
     }
 
-    public function getPrductVariantByPIDandName($recipe_id, $name)
-    {
+    public function getPrductVariantByPIDandName($recipe_id, $name){
         $q = $this->db->get_where('recipe_variants', array('recipe_id' => $recipe_id, 'name' => $name), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -694,8 +692,7 @@ public function getProductWithRecipe($recipe_id)
         return FALSE;
     }
 
-    public function addAjaxrecipe($data)
-    {
+    public function addAjaxrecipe($data){
         if ($this->db->insert('recipe', $data)) {
             $recipe_id = $this->db->insert_id();
             return $this->getrecipeByID($recipe_id);
@@ -933,63 +930,99 @@ public function getProductWithRecipe($recipe_id)
 			$this->db->update('category_mapping',$ucm);
 			/* echo $this->db->last_query();
 			die; */			
+			   foreach ($warehouse_qty as $wh_qty) {
 			foreach($cat_mapping_data as $k => $row){
                 if(!empty($row['variant_id'])){
                     //echo "1";die;
-                    $cm = $this->db->get_where('category_mapping',array('product_id'=>$id,'category_id'=>$row['category_id'],'subcategory_id'=>$row['subcategory_id'],'brand_id'=>$row['brand_id'],'variant_id'=>$row['variant_id']));
+                    $cm = $this->db->get_where('category_mapping',array('product_id'=>$id,'category_id'=>$row['category_id'],'subcategory_id'=>$row['subcategory_id'],'brand_id'=>$row['brand_id'],'variant_id'=>$row['variant_id'],'store_id'=>$wh_qty['warehouse_id'],'vendor_id'=>0,'invoice_id'=>0));
+				
                 }else{
                    // echo "2";die;
-                    $cm = $this->db->get_where('category_mapping',array('product_id'=>$id,'category_id'=>$row['category_id'],'subcategory_id'=>$row['subcategory_id'],'brand_id'=>$row['brand_id']));
+                    $cm = $this->db->get_where('category_mapping',array('product_id'=>$id,'category_id'=>$row['category_id'],'subcategory_id'=>$row['subcategory_id'],'brand_id'=>$row['brand_id'],'store_id'=>$wh_qty['warehouse_id'],'vendor_id'=>0,'invoice_id'=>0));
                 }
 			    
+				$cp                           = str_replace('.','_',$row['purchase_cost']);
+				$category_id                  = $row['category_id']  ;
+				$subcategory_id               = $row['subcategory_id'];
+				$brand_id                     = $row['brand_id'];
+				$batch                        ='';
+				$supplier                     = 0;
+				$invoice_id                   = 0;
+			
 				// print_r($cm->result());				
 			    if($cm->num_rows()>0){
-                    // echo "1";die;
+					$cm_id=$cm->row('id');
+					$variant_id                   =($row['variant_id'])?$row['variant_id']:0;
+					$unique_id                    =$wh_qty['warehouse_id'].$id.$variant_id.$batch.$category_id.$subcategory_id.$brand_id.$cp.$supplier;
 					$urow['purchase_cost'] = $row['purchase_cost'];
 					$urow['selling_price'] = $row['selling_price'];
 					$urow['stock'] = $row['stock'];
 					$urow['status'] = 1;
+					$urow['store_id'] =$wh_qty['warehouse_id'];
+					$urow['batch_no'] ='';
+					$urow['vendor_id'] =0;
+					$urow['invoice_id'] =0;
+					$urow['pieces_selling_price'] =0;
+					$urow['product_id'] = $id;
+					$urow['status'] = 1;
+					$urow['unique_id'] = $unique_id;
                     if(!empty($row['variant_id'])){
                          $this->db->where('variant_id',$cm->row('variant_id'));
                          $this->db->where('product_id',$cm->row('product_id'));
+						  $this->db->where('store_id',$wh_qty['warehouse_id']);
+						 
                     }else{
                         $this->db->where('product_id',$cm->row('product_id'));
+						$this->db->where('store_id',$wh_qty['warehouse_id']);
                     }
                     $this->db->where('brand_id',$cm->row('brand_id'));
-					
 					$this->db->update('category_mapping', $urow);
+					
 			    }else{
-                    // echo "11";die;
+				
 					$row['product_id'] = $id;
 					$row['status'] = 1;
-					$cm_id = $this->db->insert('category_mapping', $row);					
-				
-					/* echo 'test';
-					die; */			
+					$variant_id                   =($row['variant_id'])?$row['variant_id']:0;
+					$unique_id                    =$wh_qty['warehouse_id'].$id.$variant_id.$batch.$category_id.$subcategory_id.$brand_id.$cp.$supplier;
+					$row['purchase_cost'] = $row['purchase_cost'];
+					$row['selling_price'] = $row['selling_price'];
+					$row['stock'] = $row['stock'];
+					$row['status'] = 1;
+					$row['store_id'] =$wh_qty['warehouse_id'];
+					$row['batch_no'] ='';
+					$row['vendor_id'] =0;
+					$row['invoice_id'] =0;
+					$row['pieces_selling_price'] =0;
+					$row['product_id'] = $id;
+					$row['status'] = 1;
+					$row['unique_id'] = $unique_id;
+				    $this->db->insert('category_mapping', $row);			
+					$cm_id = $this->db->insert_id();
+					$UniqueID = $this->site->generateUniqueTableID($cm_id);
+					$this->site->updateUniqueTableId($cm_id,$UniqueID,'category_mapping');
+							
 			    }		
 
-					$stock_data['store_id'] = $this->session->userdata('warehouse_id');
-					$stock_data['product_id'] = $id;	    
-					$stock_data['category_id'] = $row['category_id'];
+					$stock_data['cm_id']          = $cm_id;
+					$stock_data['store_id']       = $wh_qty['warehouse_id'];
+					$stock_data['product_id']     = $id;	    
+					$stock_data['category_id']    = $row['category_id'];
 					$stock_data['subcategory_id'] = $row['subcategory_id'];
-					$stock_data['brand_id'] = $row['brand'];
-					$stock_data['selling_price'] = $row['selling_price'];
-					$stock_data['cost_price'] = $row['purchase_cost'];	    
-					$stock_data['stock_in'] = $row['stock'];
-					$stock_data['stock_out'] = 0;					
-					$stock_data['cm_id'] = $cm_id;
-					$cp              = str_replace('.','_',floatval($row['purchase_cost']));
-					$category_id     = $row['category_id']  ;
-					$subcategory_id  = $row['subcategory_id'];
-					$brand_id        = $row['brand_id'];
-					$batch            ='';
-					$supplier        =0;
-					$invoice_id      =0;
-					$recipe_id=$id;
-					$store_id=$this->session->userdata('warehouse_id');
-					$stock_data['unique_id']=$store_id.$recipe_id.$batch.$category_id.$subcategory_id.$brand_id.$cp.$supplier.$invoice_id;
-					$this->site->addStockMaster($stock_data);				
+					$stock_data['brand_id']       = $row['brand_id']; // $row['brand']
+					$stock_data['selling_price']  = $row['selling_price'];
+					$stock_data['cost_price']     = $row['purchase_cost'];	    
+					$stock_data['stock_in']       = $row['stock'];
+					$stock_data['stock_in_piece'] = $row['stock'] * $data['piece'];
+					$stock_data['stock_out']      = 0;
+					$stock_data['unique_id']      =$unique_id;
+					$stock_data['variant_id']      =$variant_id;
+				    if($data['type'] !='quick_service'){
+				        $this->site->updateStockMaster_product($stock_data);
+				}	
 			}	//die;
+			   }
+			   
+			   
 			if ($warehouse_qty && !empty($warehouse_qty)) {
 					foreach ($warehouse_qty as $wh_qty) {
 						$this->db->insert('warehouses_recipe', array('recipe_id' => $id, 'warehouse_id' => $wh_qty['warehouse_id']));
@@ -1027,7 +1060,8 @@ public function getProductWithRecipe($recipe_id)
                 foreach ($photos as $photo) {
                     $this->db->insert('recipe_photos', array('recipe_id' => $id, 'photo' => $photo));
                 }
-            }           
+            }    
+			
         return true;
         } else {            
             return false;

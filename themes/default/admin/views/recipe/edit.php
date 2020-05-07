@@ -444,7 +444,7 @@ function wrapText(context, text, x, y, maxWidth, lineHeight,canvasHeight) {
 						<td class="col-sm-4"><input class="form-control" type="text" value="<?=$row->name?>" disabled>
 						<input class="form-control" type="hidden" name="varients[id][]" value="<?=$row->attr_id?>">
 						<input class="form-control" type="hidden" name="varients[val_id][]" value="<?=$row->id?>"></td>
-						<td class="col-sm-4"><input class="form-control" type="text" name="varients[price][]" value="<?=$row->price?>"></td>
+						<td class="col-sm-4"><input class="form-control" type="text" name="varients[price][]" value="<?= $row->price?>"></td>
 						<td class="col-sm-2">
 						<input id="varients_file" type="file" name="varients_file[]" style="display:none">
 						<input type="hidden" value="1" name="varients[status][]"><input type="checkbox" value="1" name="varients[status_<?=$row->id?>]" <?php if($row->status==1) { echo "checked";}?>></td>
@@ -859,6 +859,20 @@ function wrapText(context, text, x, y, maxWidth, lineHeight,canvasHeight) {
 			    </div>
 			</div>
 		    </div>
+			<div class="col-md-6">
+			    <div class="form-group">
+				<?= lang("weight", "weight") ?>
+				<?= form_input('weight', (isset($_POST['weight']) ? $_POST['weight'] : ($recipe ? $recipe->weight : '')), 'class="form-control tip numberonly" maxlength="3" id="weight"') ?>
+			    </div>
+			</div>
+			 <div class="col-md-6">
+					 <?= lang("sales_type", "sales_type") ?>
+                            <?php
+                            $tm = array('1' => lang('unit'), '2' => lang('pieces'));
+                            echo form_dropdown('sales_type', $tm, (isset($_POST['sales_type']) ? $_POST['sales_type'] : ($product ? $product->sales_type : '')), 'class="form-control select" id="sales_type" placeholder="' . lang("select") . ' ' . lang("sales_type") . '" style="width:100%"');
+                            ?>
+					
+					 </div>
 		</fieldset>
 		<fieldset class="scheduler-border">
 		    <legend class="scheduler-border"><?=lang('stock_details')?></legend>

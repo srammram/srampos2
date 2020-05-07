@@ -78,9 +78,10 @@
                                     <td>
                                         <?php
                                         $n = $this->siteprocurment->lastidGrn();
-                                        $n2 = str_pad($n + 1, 5, 0, STR_PAD_LEFT);
+										$n=($n !=0)?$n+1:$this->store_id .'1';
+                                       	$reference = 'GRN'.str_pad($n, 8, 0, STR_PAD_LEFT);
                                         ?>
-                                        <input  name="reference_no" id="reference_no" readonly tabindex=-1 class="form-control" value="<?php echo $n2 ?>">
+                                        <input  name="reference_no" id="reference_no" readonly tabindex=-1 class="form-control" value="<?php echo $reference ?>">
                                     </td>                                    
                                     <td width="100px">
                                         <?= lang("Currency", "reqcurrency") ?>

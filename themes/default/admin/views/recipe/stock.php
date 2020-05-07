@@ -32,7 +32,7 @@
                 return nRow;
             },
 			 "aoColumns": [
-			 	null,null, null,null,null, null,null,null,null,null,null,null,null
+			 	null,null, null,null,null, null,null,null,null,null,null,null,null,null
 			 ],
 		}).fnSetFilteringDelay().dtFilter([
             
@@ -65,13 +65,15 @@
 							<th><?= lang("category") ?></th>
 							<th><?= lang("subcategory") ?></th>
 							<th><?= lang("brand") ?></th>
+						    <th><?= lang("variant") ?></th>
+							<th><?= lang("batch") ?></th>
                             <th><?= lang("stock_in") ?></th>
                             <th><?= lang("stock_out") ?></th>
                             <th><?= lang("current_stock") ?></th>
 							<th><?= lang("stock_piece") ?></th>
                             <!-- <th><?= lang("stock_out") ?></th>
 							<th><?= lang("stock_out_piece") ?></th> -->
-                            <th><?= lang("batch") ?></th>
+                            
                             <th><?= lang("cost_price") ?></th>
                             <th><?= lang("selling_price") ?></th>
                             <th><?= lang("expiry") ?></th>

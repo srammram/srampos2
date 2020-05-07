@@ -1,8 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
-
 class Grn_model extends CI_Model{
-    public function __construct()
-    {
+    public function __construct(){
         parent::__construct();
     }
 	 public function getPurchase_invoicesByID($id){
@@ -10,7 +8,6 @@ class Grn_model extends CI_Model{
 	  ->from('pro_purchase_invoices')
 	  ->join('pro_purchase_invoice_items','pro_purchase_invoice_items.invoice_id=pro_purchase_invoices.id','left')
 	  ->join('warehouses','warehouses.id=pro_purchase_invoice_items.store_id','left')
-	 //->where('pro_purchase_invoices.status', 'approved')
 	 ->where('pro_purchase_invoice_items.store_id',$this->store_id)
 	 ->where('pro_purchase_invoices.id',$id)
 	 ->group_by('pro_purchase_invoices.id');
@@ -35,14 +32,13 @@ class Grn_model extends CI_Model{
 		return false;
 	}
 	
-	 public function getPurchase_invoicelist(){
+ public function getPurchase_invoicelist(){
      $this->db->select('pro_purchase_invoices.id,reference_no')
 	->from('pro_purchase_invoices')
 	->join('pro_purchase_invoice_items','pro_purchase_invoice_items.invoice_id=pro_purchase_invoices.id','left')
 	->where('pro_purchase_invoices.status', 'approved')
 	->where('pro_purchase_invoice_items.store_id',$this->store_id)
 	->group_by('pro_purchase_invoices.id');
-   //  echo $this->db->get_compiled_select();
         $q = $this->db->get();
         if ($q->num_rows() > 0) {
            foreach($q->result() as $row){
@@ -55,7 +51,6 @@ class Grn_model extends CI_Model{
 	 public function getProductOptions($product_id, $warehouse_id){
         $this->db->select('product_variants.id as id, product_variants.name as name, product_variants.price as price, product_variants.quantity as total_quantity, warehouses_products_variants.quantity as quantity')
             ->join('warehouses_products_variants', 'warehouses_products_variants.option_id=product_variants.id', 'left')
-            //->join('warehouses', 'warehouses.id=product_variants.warehouse_id', 'left')
             ->where('product_variants.product_id', $product_id)
             ->where('warehouses_products_variants.warehouse_id', $warehouse_id)
             ->where('warehouses_products_variants.quantity >', 0)
@@ -69,8 +64,7 @@ class Grn_model extends CI_Model{
         }
         return FALSE;
     }
-	
-	function getpi($id){
+   function getpi($id){
 		$this->db->select("*");
 		$this->db->where("id",$id);
 		$q=$this->db->get("pro_purchase_invoices");
@@ -80,10 +74,10 @@ class Grn_model extends CI_Model{
 		return false;
 	}
 	
-	    public function addGrn($data = array(), $items = array()){
-           if ($this->db->insert('pro_grn', $data)) {
+   public function addGrn($data = array(), $items = array()){
+            if ($this->db->insert('pro_grn', $data)) {
             $grn_id = $this->db->insert_id();
-           if ($grn_id) {            
+            if ($grn_id) {            
                 $unique_id = $this->site->generateUniqueTableID($grn_id);
             if ($grn_id) {
                 $this->site->updateUniqueTableId($grn_id,$unique_id,'pro_grn');
@@ -97,7 +91,7 @@ class Grn_model extends CI_Model{
                 if ($i_grn) {
                     $this->site->updateUniqueTableId($i_grn,$i_unique_id,'pro_grn_items');
                 }
-			 	 if($item['quantity']>=$item['pi_qty']){
+			 	if($item['quantity']>=$item['pi_qty']){
 					$this->db->where("pi_uniqueId",$item['pi_uniqueId']);
 					$this->db->update("pro_purchase_invoice_items",array("is_complete"=>1));
 				}  
@@ -134,21 +128,18 @@ class Grn_model extends CI_Model{
 					$stock_update['cm_id']     = $category_mappingID ? $category_mappingID :0;
                     $cate['cm_id']             = $stock_update['cm_id'];
 				    $stock_update['unique_id'] = $item['pi_uniqueId'];
-					
 					$this->stock_master_update($stock_update);
 					$this->siteprocurment->item_cost_update($item['product_id'],$item['cost'],$item['selling_price'],$item['tax_rate_id'],$cate);			
 					$this->siteprocurment->product_stockIn($item['product_id'],$item['quantity'],$cate);
-				 
-	    }
+	            }
             }
 		    $bal_count +=($item['quantity']>=$item['pi_qty'])?0:1;
-		 if($bal_count<=0){
+		    if($bal_count<=0){
 				$this->db->where("id",$data['invoice_id']);
 				$this->db->update("pro_purchase_invoices",array("status"=>"completed"));
 			}  
-			 if($this->isStore && $data['status']=="approved"){	
-			
-			$this->sync_center->sync_grn($unique_id);
+			if($this->isStore && $data['status']=="approved"){	
+			    $this->sync_center->sync_grn($unique_id);
 			}
             return true;
         }
@@ -178,7 +169,7 @@ class Grn_model extends CI_Model{
 	}
 	
 	public function updateGrn($id, $data, $items = array()){  
-        if ($this->db->update('pro_grn', $data, array('id' => $id)) && $this->db->delete('pro_grn_items', array('grn_id' => $id))) {
+     if ($this->db->update('pro_grn', $data, array('id' => $id)) && $this->db->delete('pro_grn_items', array('grn_id' => $id))) {
 			$bal_count=0;
             foreach ($items as $item) {
                 $item['grn_id'] = $id;
@@ -197,7 +188,7 @@ class Grn_model extends CI_Model{
 				}
 				
 					if($data['status']=="approved"){
-		           $warehouse_id = $this->siteprocurment->default_warehouse_id();
+	   	            $warehouse_id = $this->siteprocurment->default_warehouse_id();
 					$stock_update['store_id']    = $item['store_id'];
                     $stock_update['product_id']  = $item['product_id'];
 					$stock_update['variant_id']  = $item['variant_id'];
@@ -234,7 +225,6 @@ class Grn_model extends CI_Model{
 					$this->siteprocurment->item_cost_update($item['product_id'],$item['cost'],$item['selling_price'],$item['tax_rate_id'],$cate);			
 					$this->siteprocurment->product_stockIn($item['product_id'],$item['quantity'],$cate);
 			}	
-					
             }   
 			$bal_count +=($item['quantity']>=$item['pi_qty'])?0:1;
 			if($bal_count<=0){
@@ -243,10 +233,9 @@ class Grn_model extends CI_Model{
 			}else{
 				$this->db->where("id",$data['invoice_id']);
 				$this->db->update("pro_purchase_invoices",array("status"=>"approved"));
-
 			}				
 				if($this->isStore && $data['status']=="approved"){	
-			$this->sync_center->sync_purchase_invoice($id);
+			    $this->sync_center->sync_purchase_invoice($id);
 			}
             return true;
         }        
@@ -254,9 +243,8 @@ class Grn_model extends CI_Model{
     }
 	
 	
-	
     public function getProductNames($term, $warehouse_id, $limit = 10){
-        $this->db->select('recipe.*, warehouses_recipe.quantity')
+			$this->db->select('recipe.*, warehouses_recipe.quantity')
             ->join('warehouses_recipe', 'warehouses_recipe.recipe_id=recipe.id', 'left')
             ->group_by('recipe.id');
             $this->db->where("(name LIKE '%" . $term . "%' OR code LIKE '%" . $term . "%' OR  concat(name, ' (', code, ')') LIKE '%" . $term . "%')");
@@ -297,8 +285,7 @@ class Grn_model extends CI_Model{
         return FALSE;
     }
 
-    public function getItemByID($id)
-    {
+    public function getItemByID($id){
         $q = $this->db->get_where('pro_store_request_items', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -306,8 +293,7 @@ class Grn_model extends CI_Model{
         return FALSE;
     }
 
-    public function getProductByName($name)
-    {
+    public function getProductByName($name){
         $q = $this->db->get_where('products', array('name' => $name), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -323,8 +309,7 @@ class Grn_model extends CI_Model{
         return FALSE;
     }
 
-    public function getProductComboItems($pid, $warehouse_id)
-    {
+    public function getProductComboItems($pid, $warehouse_id){
         $this->db->select('products.id as id, combo_items.item_code as code, combo_items.quantity as qty, products.name as name, products.type as type, warehouses_products.quantity as quantity')
             ->join('products', 'products.code=combo_items.item_code', 'left')
             ->join('warehouses_products', 'warehouses_products.product_id=products.id', 'left')
@@ -335,7 +320,6 @@ class Grn_model extends CI_Model{
             foreach (($q->result()) as $row) {
                 $data[] = $row;
             }
-
             return $data;
         }
         return FALSE;
@@ -386,6 +370,9 @@ class Grn_model extends CI_Model{
 			$UniqueID                  = $this->site->generateUniqueTableID($insertID);
 			$this->site->updateUniqueTableId($insertID,$UniqueID,'pro_stock_master');
 			$return_id = $this->db->insert_id();
+		}
+		if($this->isStore){
+			$this->sync_center->sync_stock_auto($stock_update['unique_id']);
 		}
     }
     

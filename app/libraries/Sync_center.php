@@ -198,5 +198,92 @@ class Sync_center{
 		}
 		return $data;
     }
+  function sync_stock_auto($unique_id){
+	$table_name = 'pro_stock_master';
+	$this->CI->db->select("*");
+	$this->CI->db->where("store_id",$this->CI->store_id);
+  	$this->CI->db->where("unique_id",$unique_id);
+	$q=$this->CI->db->get($table_name);
+	$db1 =$q->result_array();
+	$this->CI->centerdb->select("*");
+	$this->CI->centerdb->where("store_id",$this->CI->store_id);
+ 	$this->CI->centerdb->where("unique_id",$unique_id);
+	$q1=$this->CI->centerdb->get($table_name);
+	$db2 =$q1->result_array();	
+	$data = $this->compare_server_local_stock($db1,$db2,$table_name);
+	return true;
+	}
+	function compare_server_local_stock($DB1,$DB2,$table=false){
+	$result = array();$localkeys = array();
+	$localDB =  array();
+	$serverDB = array();
+	//*************** change Auto increment ID as array Key ****************//
+	    foreach($DB1 as $key => $val) {
+		$k = $val['id'];
+		$localDB[$k] = $val; 
+	    }
+	    foreach($DB2 as $key => $val) {
+		$k = $val['id'];
+		$serverDB[$k] = $val; 
+	    }
+		
+	//*************** Compare ServerDB and LocalDB  - For update and Insert ****************//
+	foreach($localDB as $key => $val) { 
+	    $key = $val['id'];
+	    if(isset($serverDB[$key])){
+		if(is_array($val)  && is_array($serverDB[$key])){		
+		    $array_diff = array_diff($val, $serverDB[$key]);
+		    if(!empty($array_diff)){
+			if(isset($val['s_no'])){unset($val['s_no']);}
+			$result['update'][$key] = $val;
+		    }
+		  }
+		
+	    }else{
+		if(isset($val['s_no'])){unset($val['s_no']);}
+		$result['insert'][$key] = $val;
+	    }
+	    $localkeys[$key] = true;	
+	    //// check for delete	
+	}
+	//*************** Compare ServerDB and LocalDB  - For Delete ****************//
+	$l = array_diff_key($serverDB,$localkeys); 
+	foreach($l as $k => $lk){ 
+	    $result['delete'][] = $k;
+	}
+	//*************** sync table ************//
+	$store_id = $this->CI->store_id;
+	if($table){
+	   $this->sync_table($result,$table); 
+	}
+	return $result;
+    }
+	function sync_stock(){
+	$table_name = 'pro_stock_master';
+	$this->CI->db->select("*");
+	$this->CI->db->where("store_id",$this->CI->store_id);
+//	$this->CI->db->where("store_id",2);
+	$q=$this->CI->db->get($table_name);
+	$db1 =$q->result_array();
 	
+	$this->CI->centerdb->select("*");
+	$this->CI->centerdb->where("store_id",$this->CI->store_id);
+//	$this->CI->centerdb->where("store_id",2);
+	$q1=$this->CI->centerdb->get($table_name);
+	
+	$db2 =$q1->result_array();	
+	$data = $this->compare_server_local_stock($db1,$db2,$table_name);
+	
+	return true;
+	}
+	 function update_table($data,$table){
+	$this->CI->centerdb->update_batch($table,$data,'id');
+    }
+    function insert_table($data,$table){
+	$this->CI->centerdb->insert_batch($table,$data);
+    }
+    function delete_table($deleteIds,$table){
+	$this->CI->centerdb->where_in('id',$deleteIds);
+	$this->CI->centerdb->delete($table);
+    }
 }

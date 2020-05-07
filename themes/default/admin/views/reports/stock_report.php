@@ -205,6 +205,7 @@ if ($this->input->post('subcategory_id')) {
                             <th><?= lang("category") ?></th>
                             <th><?= lang("subcategory") ?></th>
                             <th><?= lang("brand") ?></th>
+							<th><?= lang("variant") ?></th>
                             <th><?= lang("batch") ?></th>
                             <th><?= lang("stock_in") ?></th>
                             <th><?= lang("stock_out") ?></th>
@@ -229,6 +230,7 @@ if ($this->input->post('subcategory_id')) {
                             <th></th>
                             <th></th>
                             <th></th>
+							  <th></th>
                             <th></th>
                             <th></th>
                             <th></th>
@@ -408,6 +410,7 @@ function GetData($url){
 									$html +='<td>'+b.category_name+'</td>';
 									$html +='<td>'+b.subcategory_name+'</td>';
 									$html +='<td>'+b.brand_name+'</td>';
+									$html +='<td>'+b.variant+'</td>';
 									$html +='<td>'+b.batch+'</td>';
 									$html +='<td>'+b.stock_in+'</td>';
 									$html +='<td>'+b.stock_out+'</td>';

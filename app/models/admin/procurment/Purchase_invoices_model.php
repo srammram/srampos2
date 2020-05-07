@@ -297,7 +297,6 @@ class Purchase_invoices_model extends CI_Model{
     }
 
     public function addPurchase_invoices($data, $items,$po_array){
-	$store_default_id = $this->siteprocurment->defaultStores();
         if ($this->db->insert('pro_purchase_invoices', $data)) {
             $id = $this->db->insert_id();
 			$UniqueID                  = $this->site->generateUniqueTableID($id);
@@ -323,7 +322,7 @@ class Purchase_invoices_model extends CI_Model{
     }
 
     public function updatePurchase_invoices($id, $data, $items,$po_array){
-		 $store_default_id = $this->siteprocurment->defaultStores();
+		 
         if ($this->db->update('pro_purchase_invoices', $data, array('id' => $id))) {
 			$this->db->update('pro_purchase_orders', $po_array, array('id' => $data['po_number']));
             $purchase_invoices_id = $id;

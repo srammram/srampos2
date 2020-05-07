@@ -6796,10 +6796,29 @@ public function getOrderStatus($split_id){
 		if($q->num_rows()>0){
 			$this->db->where("unique_id",$data["unique_id"]);
 			$this->db->update("pro_stock_master",$data);
+			echo $this->db->last_query();
 		}else{
 			$this->db->insert('pro_stock_master',$data);
-		    $return_id = $this->db->insert_id();
+		    $stock_id = $this->db->insert_id();
+			$UniqueID = $this->site->generateUniqueTableID($stock_id);
+            $this->site->updateUniqueTableId($stock_id,$UniqueID,'pro_stock_master');
+				echo $this->db->last_query();
 		}
+		return true;
+    }
+	
+	function updateStockMaster_product($data){
+		$q=$this->db->get_where("pro_stock_master",array("unique_id"=>$data["unique_id"]));
+		if($q->num_rows()>0){
+			$this->db->where("unique_id",$data["unique_id"]);
+			$this->db->update("pro_stock_master",$data);
+		}else{
+			$this->db->insert('pro_stock_master',$data);
+		    $stock_id = $this->db->insert_id();
+			$UniqueID = $this->site->generateUniqueTableID($stock_id);
+            $this->site->updateUniqueTableId($stock_id,$UniqueID,'pro_stock_master');
+		}
+		return true;
     }
     
    public function Check_item_Discount_customer($itemid,$dis_id){

@@ -539,7 +539,8 @@ class Purchase_invoices extends MY_Controller{
         $this->session->unset_userdata('csrf_token');
         if ($this->form_validation->run() == true) {  
 	    $n = $this->siteprocurment->lastidPurchaseInv();
-	    $reference = 'PI'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
+		  $n=($n !=0)?$n+1:$this->store_id .'1';
+	    $reference = 'PI'.str_pad($n , 8, 0, STR_PAD_LEFT);
 	    //echo '<pre>';print_R($_POST);exit;
             $warehouse_id = $this->input->post('warehouse');
             $status = $this->input->post('status');                      
