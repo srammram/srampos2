@@ -226,61 +226,25 @@ class Purchase_returns_model extends CI_Model{
         }
         return FALSE;
     }
-    public function getAllPurchase_invoicesItems_storeID($purchase_invoices_id)
-    {	
-    /*JOIN `srampos_pro_purchase_invoices` ON `srampos_pro_purchase_invoices`.`id`=`srampos_pro_purchase_invoice_items`.`invoice_id`
-JOIN `srampos_pro_stock_master` ON `srampos_pro_stock_master`.`invoice_id`=`srampos_pro_purchase_invoices`.`id` AND srampos_pro_stock_master.stock_status  != 'closed'*/
-
-
-/*SELECT srampos_recipe.name as product_name, ST.id as stif, ST.product_id as ssproduct_id, `srampos_pro_purchase_invoice_items`.id, `ST`.`stock_in`, `ST`.`stock_out`
-FROM `srampos_pro_purchase_invoice_items`
-JOIN `srampos_pro_purchase_invoices` ON `srampos_pro_purchase_invoices`.`id`=`srampos_pro_purchase_invoice_items`.`invoice_id`
-JOIN `srampos_pro_stock_master` `ST` ON `ST`.`invoice_id`=`srampos_pro_purchase_invoices`.`id`
-JOIN `srampos_recipe` ON `srampos_recipe`.`id`=`ST`.`product_id`
-LEFT JOIN `srampos_recipe_variants` ON `srampos_recipe_variants`.`id`=`srampos_pro_purchase_invoice_items`.`option_id`
-LEFT JOIN `srampos_tax_rates` ON `srampos_tax_rates`.`id`=`srampos_pro_purchase_invoice_items`.`tax_rate_id`
-WHERE `stock_status` NOT IN('closed')
-AND `srampos_pro_purchase_invoice_items`.`store_id` = '1'
-AND `srampos_pro_purchase_invoice_items`.`invoice_id` = '2'
-GROUP BY `ST`.`id`
-ORDER BY srampos_pro_purchase_invoice_items.`id` ASC*/
-
-	$store_id = $this->data['pos_store'];
-    $this->db->select('PII.id,PII.invoice_id,PII.batch_no,PII.expiry,PII.po_qty,PII.item_disc,PII.item_disc_amt,PII.subtotal,PII.item_bill_disc_amt,PII.item_tax_method,PII.tax_rate,PII.tax_rate_id,PII.tax,PII.landing_cost,PII.selling_price,PII.margin,PII.net_amt,PII.warehouse_id,PII.store_id,PII.cost,PII.gross,PII.item_dis_type,PII.total,PII.option_id,PII.product_unit_id,PII.expiry_type,PII.category_id,PII.category_name,PII.subcategory_id,PII.subcategory_name,PII.brand_id,PII.brand_name,ST.id as stock_id,ST.stock_in,ST.stock_out,PII.product_id,PII.product_code,PII. product_name,PII.quantity,PII.unit_quantity');
-
-    /* $this->db->select('PII.id,PII.invoice_id,PII.batch_no,PII.expiry,PII.po_qty,PII.item_disc,PII.item_disc_amt,PII.subtotal,PII.item_bill_disc_amt,PII.item_tax_method,PII.tax_rate,PII.tax_rate_id,PII.tax,PII.landing_cost,PII.selling_price,PII.margin,PII.net_amt,PII.warehouse_id,PII.store_id,PII.cost,PII.gross,PII.item_dis_type,PII.total,PII.option_id,PII.product_unit_id,PII.expiry_type,PII.category_id,PII.category_name,PII.subcategory_id,PII.subcategory_name,PII.brand_id,PII.brand_name,ST.id as stock_id,ST.stock_in,ST.stock_out,R.id as product_id,R.code as product_code,R.name as product_name');*/
-    $this->db->from('pro_purchase_invoice_items  as PII');
-    $this->db->join('pro_purchase_invoices PI', 'PI.id=PII.invoice_id');
-    $this->db->join('pro_stock_master ST', 'ST.invoice_id=PI.id');
-    $this->db->join('recipe R', 'R.id=ST.product_id', 'left');
-    $this->db->join('recipe_variants RV', 'RV.id=PII.option_id', 'left');
-    $this->db->join('tax_rates', 'tax_rates.id=PII.tax_rate_id', 'left');
-    $this->db->where_not_in('ST.stock_status','closed');
-    $this->db->where('PII.store_id',$store_id);
-    $this->db->where('PII.invoice_id', $purchase_invoices_id);
-    $this->db->group_by('PII.product_id');
-    $this->db->order_by('PII.id', 'asc');
-    $q = $this->db->get();    
-
-    /*$this->db->select('pro_purchase_invoice_items.*,ST.stock_in,ST.stock_out')
-        ->join('pro_purchase_invoices', 'pro_purchase_invoices.id=pro_purchase_invoice_items.invoice_id')
-        ->join('pro_stock_master ST', 'ST.invoice_id=pro_purchase_invoices.id')
-        ->join('recipe', 'recipe.id=pro_purchase_invoice_items.product_id', 'left')
-        ->join('recipe_variants', 'recipe_variants.id=pro_purchase_invoice_items.option_id', 'left')
-        ->join('tax_rates', 'tax_rates.id=pro_purchase_invoice_items.tax_rate_id', 'left')            
-        ->where_not_in('stock_status','closed')
-        ->group_by('ST.id')
-        ->order_by('id', 'asc');
-    $q = $this->db->get_where('pro_purchase_invoice_items', array('pro_purchase_invoice_items.store_id'=>$store_id,'pro_purchase_invoice_items.invoice_id' => $purchase_invoices_id));*/
-
-		// echo '<pre>';print_r($this->db->last_query());exit;
+    public function getAllPurchase_invoicesItems_storeID($purchase_invoices_id){	
+		$store_id = $this->data['pos_store'];
+		$this->db->select('PII.id,PII.invoice_id,PII.batch_no,PII.expiry,PII.po_qty,PII.item_disc,PII.item_disc_amt,PII.subtotal,PII.item_bill_disc_amt,PII.item_tax_method,PII.tax_rate,PII.tax_rate_id,PII.tax,PII.landing_cost,PII.selling_price,PII.margin,PII.net_amt,PII.warehouse_id,PII.store_id,PII.cost,PII.gross,PII.item_dis_type,PII.total,PII.option_id,PII.product_unit_id,PII.expiry_type,PII.category_id,PII.category_name,PII.subcategory_id,PII.subcategory_name,PII.brand_id,PII.brand_name,ST.id as stock_id,ST.stock_in,ST.stock_out,PII.product_id,PII.product_code,PII. product_name,PII.quantity,PII.unit_quantity,PII.variant_id');
+		$this->db->from('pro_purchase_invoice_items  as PII');
+		$this->db->join('pro_purchase_invoices PI', 'PI.id=PII.invoice_id');
+		$this->db->join('pro_stock_master ST', 'ST.invoice_id=PI.id');
+		$this->db->join('recipe R', 'R.id=ST.product_id', 'left');
+		$this->db->join('recipe_variants RV', 'RV.id=PII.option_id', 'left');
+		$this->db->join('tax_rates', 'tax_rates.id=PII.tax_rate_id', 'left');
+		$this->db->where_not_in('ST.stock_status','closed');
+		$this->db->where('PII.store_id',$store_id);
+		$this->db->where('PII.invoice_id', $purchase_invoices_id);
+		$this->db->group_by('PII.product_id');
+		$this->db->order_by('PII.id', 'asc');
+		$q = $this->db->get();    
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
-               // $row->quantity = $row->stock_in - $row->stock_out;
                 $data[] = $row;
             }
-           /* echo "<pre>";
-            print_r($data);die;*/
             return $data;
         }
         return FALSE;
@@ -382,131 +346,131 @@ ORDER BY srampos_pro_purchase_invoice_items.`id` ASC*/
     }
 
     public function addPurchase_returns($data, $items,$pi_array){
-	$this->db->insert('pro_purchase_returns', $data);//file_put_contents('return.txt',$this->db->error(),FILE_APPEND);
-	$id = $this->db->insert_id();
+	     $this->db->insert('pro_purchase_returns', $data);
+	     $id = $this->db->insert_id();
+	     $UniqueID                  = $this->site->generateUniqueTableID($id);
+	     $this->site->updateUniqueTableId($id,$UniqueID,'pro_purchase_returns');
         if ($id) {	   
              if($data['invoice_id']!=''){
-                        $this->db->update('pro_purchase_invoices', $pi_array, array('id' => $data['invoice_id']));
+                  $this->db->update('pro_purchase_invoices', $pi_array, array('id' => $data['invoice_id']));
                 }
-
-            foreach ($items as $item) {
-                  // echo "<pre>";  print_r($this->input->post());die;
-                if($data['status']=="approved"){
-                  // echo "<pre>";  print_r($this->input->post());die;
-                /*** insert stock master **/
-                $stock_update['store_id'] = $item['store_id'];
-                $stock_update['product_id'] = $item['product_id'];
-                $stock_update['category_id'] = $item['category_id'];
-                $stock_update['subcategory_id'] = $item['subcategory_id'];
-                $stock_update['brand_id'] = $item['brand_id'];
-                $stock_update['stock_in'] = 0;
-                $stock_update['stock_out'] = $item['unit_quantity'];		    
-                $stock_update['invoice_id'] = $data['invoice_id'];
-                $stock_update['batch'] = $item['batch_no'];
-                $stock_update['expiry'] = $item['expiry'];
-                $stock_update['invoice_date'] = $data['invoice_date'];
-                if($item['expiry_type']=='days'){
-                $stock_update['expiry_date'] = date('Y-m-d', strtotime("+".$data['expiry']." day"));
-                }else if($item['expiry_type']=='months'){
-                $stock_update['expiry_date'] = date('Y-m-d', strtotime("+".$data['expiry']." months"));
-                }else if($item['expiry_type']=='year'){
-                $stock_update['expiry_date'] = $data['expiry'];
-                }
-                $cate['category_id'] = $stock_update['category_id'];
-                $cate['subcategory_id'] = $stock_update['subcategory_id'];
-                $cate['brand_id'] = $stock_update['brand_id'];
-                $category_mappingID = $this->siteprocurment->getCategoryMappingID($item['product_id'],$stock_update['category_id'],$stock_update['subcategory_id'],$stock_update['brand_id']);
-                // var_dump($category_mappingID);die;
-                $stock_update['cm_id'] = $category_mappingID;
-                if($data['invoice_id']!=''){
-                $this->stock_master_return_update($stock_update,'invoice');
-                    // echo "1";die;
-                }else{
-                    // echo "2";die;
-                $this->stock_master_return_update($stock_update);
-                }
-                // (category mapping) master updation
-                $this->siteprocurment->product_stockOut($item['product_id'],$stock_update['stock_out'],$cate);
-                }
-                /*** insert invoice items **/
+				$purchaseOrder_item=array();
+                foreach ($items as $item) {
+				$cp = str_replace('.','_',$item['cost']);
+				$item['variant_id']=!empty($item['variant_id'])?$item['variant_id']:0;
+				$invoiceid=!empty($data["invoice_id"])?$data["invoice_id"]:0;
+				$item['unique_id']=$item['store_id'].$item['product_id'].$item['variant_id'].$item['batch_no'].$item['category_id'].$item['subcategory_id'].$item['brand_id'].$cp.$data['supplier_id'].$invoiceid;
+				if($data['status']=="approved"){
+				$stock_update['unique_id']      = $item['unique_id'];
+				$stock_update['quantity']       = $item['unit_quantity'];
+			    $this->stockReturnUpdate($stock_update);
                 $item['return_id'] = $id;
-                $this->db->insert('pro_purchase_return_items', $item); 
-            }	
-            return true;
+                $this->db->insert('pro_purchase_return_items', $item);
+				$purchaseOrder_item[]=$item;
+               }	
+			}
+	   if($data['return_type']=='Qty Adjustment' && $data['status']=="approved"){
+			 unset($data['invoice_id'],$data['invoice_date'],$data['status'],$data['return_type']);
+			 // purchase order master generate 
+			  $n = $this->siteprocurment->lastidPurchase();
+			  $n=($n !=0)?$n+1:$this->store_id .'1';
+              $reference = 'PO'.str_pad($n , 8, 0, STR_PAD_LEFT);
+			  $data['status']          ="process";
+			  $data['is_return']       =1;
+			  $data['return_reference_no']=$data['reference_no'];
+			  $data['reference_no']       =$reference;
+			  $data['created_by']=$this->session->userdata('user_id');
+			  $data['created_on']= date('Y-m-d H:i:s');
+			  $data['processed_by']=$this->session->userdata('user_id');
+			  $data['processed_on']=date('Y-m-d H:i:s');
+			  $this->db->insert('pro_purchase_orders', $data);
+			  $id = $this->db->insert_id();
+			  $UniqueID                  = $this->site->generateUniqueTableID($id);
+			  $this->site->updateUniqueTableId($id,$UniqueID,'pro_purchase_orders');
+			 // purchase order item generate
+			 foreach($purchaseOrder_item as $item){
+				  unset($item['received_quantity'],$item['tax'],$item['unique_id'],$item['expiry_type'],$item['return_id']);
+				  $item['purchase_order_id']=$UniqueID;
+				  $this->db->insert("pro_purchase_order_items",$item);
+				  $this->db->insert_id();
+			 }
+			 
+		}	
+	   if($data['return_type']=='Debit Note' && $data['status']=="approved"){
+           $supplier=$this->site->getCompanyByID($data['supplier_id']);
+		   $debite_note_amount=$supplier_id->debite_note_amount+$data['total'];
+		   $this->db->where("id",$data['supplier_id']);
+		   $this->db->update("companies",array("debite_note_amount"=>$debite_note_amount));
+		}	
+		
+		 return true;
         }
         return false;
     }
 
     public function updatePurchase_returns($id, $data, $items,$pi_array){
-		
         if ($this->db->update('pro_purchase_returns', $data, array('id' => $id)) && $this->db->delete('pro_purchase_return_items', array('return_id' => $id))) {
-	    if($data['invoice_id']!=''){
-	    $this->db->update('pro_purchase_invoices', $pi_array, array('id' => $data['invoice_id']));
-	    }
+	       if($data['invoice_id']!=''){
+	           $this->db->update('pro_purchase_invoices', $pi_array, array('id' => $data['invoice_id']));
+	       }
             $purchase_invoices_id = $id;
-			
+			$purchaseOrder_item=array();
             foreach ($items as $item) {
                 $item['return_id'] = $id;
-		if($data['status']=="approved"){
-		    $update_qty = $item['quantity']-$item['last_updated_quantity'];
-		    if($update_qty){			
-			if($item['last_updated_quantity']<$item['quantity']){
-			    $stock_type = 'stock_in';
-			    $stock_update_qty = $update_qty;
-			}else{
-			    $stock_type = 'return_stock_out';
-			    $stock_update_qty =  abs($update_qty);
-			}
-			$warehouse_id = $this->siteprocurment->default_warehouse_id();
-			$stock_update['store_id'] = $item['store_id'];
-			$stock_update['product_id'] = $item['product_id'];
-			$stock_update['category_id'] = $item['category_id'];
-			$stock_update['subcategory_id'] = $item['subcategory_id'];
-			$stock_update['brand_id'] = $item['brand_id'];
-			$stock_update['stock_in'] = 0;
-			$stock_update['stock_out'] = $item['unit_quantity'];
-			$stock_update['cost_price'] = $item['cost'];
-			$stock_update['selling_price'] = $item['selling_price'];
-			$stock_update['landing_cost'] = $item['landing_cost'];
-			$stock_update['tax_rate'] = $item['tax_rate'];
-			$stock_update['invoice_id'] = $data['invoice_id'];
-			$stock_update['batch'] = $item['batch_no'];
-			$stock_update['expiry'] = $item['expiry'];
-			$stock_update['expiry_type'] = $item['expiry_type'];
-			$stock_update['invoice_date'] = $data['invoice_date'];
-			if($item['expiry_type']=='days'){
-			    $stock_update['expiry_date'] = date('Y-m-d', strtotime("+".$data['expiry']." day"));
-			}else if($item['expiry_type']=='months'){
-			    $stock_update['expiry_date'] = date('Y-m-d', strtotime("+".$data['expiry']." months"));
-			}else if($item['expiry_type']=='year'){
-			    $stock_update['expiry_date'] = $data['expiry'];
-			}
-			$category_mappingID = $this->siteprocurment->getCategoryMappingID($item['product_id'],$stock_update['category_id'],$stock_update['subcategory_id'],$stock_update['brand_id']);
-		    $stock_update['cm_id'] = $category_mappingID;
-			if($data['invoice_id']!=''){
-			    $this->stock_master_return_update($stock_update,'invoice');
-			}else{
-				$this->stock_master_return_update($stock_update);
-			}
-			$cate['category_id'] = $stock_update['category_id'];
-			$cate['subcategory_id'] = $stock_update['subcategory_id'];
-			$cate['brand_id'] = $stock_update['brand_id'];
-			//$this->siteprocurment->item_cost_update($item['product_id'],$item['cost'],$item['selling_price'],$item['tax_rate_id']);
-			$this->siteprocurment->product_stockOut($item['product_id'],$stock_update['stock_out'],$cate);
-		    }
-		}
-		  unset($item['last_updated_quantity']);
-		  $this->db->insert('pro_purchase_return_items', $item);//file_put_contents('invoice_insert.txt',json_encode($this->db->error()),FILE_APPEND);                	
+		        $cp = str_replace('.','_',$item['cost']);
+				$item['variant_id']=!empty($item['variant_id'])?$item['variant_id']:0;
+				$invoiceid=!empty($data["invoice_id"])?$data["invoice_id"]:0;
+				$item['unique_id']=$item['store_id'].$item['product_id'].$item['variant_id'].$item['batch_no'].$item['category_id'].$item['subcategory_id'].$item['brand_id'].$cp.$data['supplier_id'].$invoiceid;
+				if($data['status']=="approved"){
+				$stock_update['unique_id']      = $item['unique_id'];
+				$stock_update['quantity']       = $item['unit_quantity'];
+			    $this->stockReturnUpdate($stock_update);
+                $item['return_id'] = $id;
+                $this->db->insert('pro_purchase_return_items', $item);
+				$purchaseOrder_item[]=$item;
+             }	
+		         unset($item['last_updated_quantity']);
+		         $this->db->insert('pro_purchase_return_items', $item);        	
         }      
+		 if($data['return_type']=='Qty Adjustment' && $data['status']=="approved"){
+			 unset($data['invoice_id'],$data['invoice_date'],$data['status'],$data['return_type']);
+			 // purchase order master generate 
+			  $n = $this->siteprocurment->lastidPurchase();
+			  $n=($n !=0)?$n+1:$this->store_id .'1';
+              $reference = 'PO'.str_pad($n , 8, 0, STR_PAD_LEFT);
+			  $data['status']          ="process";
+			  $data['is_return']       =1;
+			  $data['return_reference_no']=$data['reference_no'];
+			  $data['reference_no']       =$reference;
+			  $data['created_by']=$this->session->userdata('user_id');
+			  $data['created_on']= date('Y-m-d H:i:s');
+			  $data['processed_by']=$this->session->userdata('user_id');
+			  $data['processed_on']=date('Y-m-d H:i:s');
+			  $this->db->insert('pro_purchase_orders', $data);
+			  $id = $this->db->insert_id();
+			  $UniqueID                  = $this->site->generateUniqueTableID($id);
+			  $this->site->updateUniqueTableId($id,$UniqueID,'pro_purchase_orders');
+			 // purchase order item generate
+			  foreach($purchaseOrder_item as $item){
+				  unset($item['received_quantity'],$item['tax'],$item['unique_id'],$item['expiry_type'],$item['return_id']);
+				  $item['purchase_order_id']=$UniqueID;
+				  $this->db->insert("pro_purchase_order_items",$item);
+				  $this->db->insert_id();
+			  }
+		}	
+	    if($data['return_type']=='Debit Note' && $data['status']=="approved"){
+           $supplier=$this->site->getCompanyByID($data['supplier_id']);
+		   $debite_note_amount=$supplier_id->debite_note_amount+$data['total'];
+		   $this->db->where("id",$data['supplier_id']);
+		   $this->db->update("companies",array("debite_note_amount"=>$debite_note_amount));
+		 }	
             return true;
         }
         return false;
     }
 
     public function updateStatus($id, $status, $note){
-        // $purchase = $this->getPurchase_invoicesByID($id);
-        $items = $this->siteprocurment->getAllPurchase_invoicesItems($id);
-
+		$items = $this->siteprocurment->getAllPurchase_invoicesItems($id);
         if ($this->db->update('pro_purchase_return_items', array('status' => $status, 'note' => $note), array('id' => $id))) {
             foreach ($items as $item) {
                 $qb = $status == 'completed' ? ($item->quantity_balance + ($item->quantity - $item->quantity_received)) : $item->quantity_balance;
@@ -900,15 +864,14 @@ ORDER BY srampos_pro_purchase_invoice_items.`id` ASC*/
         return FALSE;
     }
     function stock_master_return_update($stockdata,$isinvoice=false){		
-
-		$store_id 	= $stockdata['store_id'];
-		$product_id = $stockdata['product_id'];
-		$category_id = $stockdata['category_id'];
-		$cm_id = $stockdata['cm_id'];
+		$store_id 	    = $stockdata['store_id'];
+		$product_id     = $stockdata['product_id'];
+		$category_id    = $stockdata['category_id'];
+		$cm_id          = $stockdata['cm_id'];
 		$subcategory_id = $stockdata['subcategory_id'];
-		$brand_id = $stockdata['brand_id'];   
-		$invoice_id = $stockdata['invoice_id'];
-		$batch=$stockdata['batch'];
+		$brand_id       = $stockdata['brand_id'];   
+		$invoice_id     = $stockdata['invoice_id'];
+		$batch          = $stockdata['batch'];
 		if($stockdata['expiry'] != '' && $stockdata['expiry'] != 0){
 			$expiry=$stockdata['expiry'];
 		}else{
@@ -916,16 +879,11 @@ ORDER BY srampos_pro_purchase_invoice_items.`id` ASC*/
 		}
 		$inv_date=$stockdata['invoice_date'];
 		$stockout = $stockdata['stock_out'];
-	
 		if($isinvoice){            
 		    $this->db->select();
 			$this->db->from('pro_stock_master');
-			$this->db->where(array('store_id'=>$store_id,'product_id'=>$product_id,'cm_id'=>$cm_id,'invoice_id'=>$invoice_id)); // 'invoice_date'=>$inv_date, ,'batch'=>$batch,'expiry'=>$expiry
+			$this->db->where(array('store_id'=>$store_id,'product_id'=>$product_id,'cm_id'=>$cm_id,'invoice_id'=>$invoice_id)); 
 			$q = $this->db->get();
-            // print_r($this->db->last_query());die;
-            /*echo "<pre>";
-            print_r($q->result());die;  */
-			
 			if($q->num_rows()>0){
 				$id = $q->row('id');
 				$this->site->stockout_stockMaster_ID($id,$stockout);	
@@ -934,5 +892,15 @@ ORDER BY srampos_pro_purchase_invoice_items.`id` ASC*/
 		   $this->site->updateStockMaster($product_id,$stockout,$cm_id);
 		}
     }
+	
+	function stockReturnUpdate($stock){
+		$stock_unique_id=$stock['unique_id'];
+		$query = 'update '.$this->db->dbprefix('pro_stock_master').'
+			set stock_in = stock_in - '.$stock['quantity'].' ,
+			    stock_out = stock_out + '.$stock['quantity'].'
+			where unique_id="'.$stock_unique_id.'"';
+	    $this->db->query($query);
+		return $stock_unique_id;
+	}
 
 }

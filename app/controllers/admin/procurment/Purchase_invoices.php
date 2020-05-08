@@ -1,5 +1,4 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
-
 class Purchase_invoices extends MY_Controller{
     public function __construct(){
         parent::__construct();
@@ -54,7 +53,6 @@ class Purchase_invoices extends MY_Controller{
 			$row->option = $item->option_id;
             $row->real_unit_cost = $item->real_unit_price;
             $row->cost = $this->sma->formatDecimal($item->net_unit_price + ($item->item_discount / $item->quantity));
-				
             $row->tax_rate = $item->tax_rate_id;
 		    $row->tax_method = $item->item_tax_method;
             unset($row->details, $row->product_details, $row->price, $row->file, $row->product_group_id);
@@ -65,7 +63,6 @@ class Purchase_invoices extends MY_Controller{
 				'row' => $row, 'tax_rate' => $row->tax_rate, 'units' => $units, 'options' => $options);
 			$c++;
 		}
-		
 		$data['purchase_invoicesitem'] = $pr;
 		if(!empty($data)){
 			$response['status'] = 'success';
@@ -1864,9 +1861,11 @@ print_r($inv_items);die;*/
             foreach ($rows as $row) {
                 $option = false;
                 $row->item_tax_method = $row->tax_method;
-                $options = $this->purchase_invoices_model->getProductOptions($row->id);
+                $options = $this->purchase_invoices_model->getProductOptionvalueByID($row->id);
+
                 if ($options) {
-                    $opt = $option_id && $r == 0 ? $this->purchase_invoices_model->getProductOptionByID($option_id) : current($options);
+                   // $opt = $option_id && $r == 0 ? $this->purchase_invoices_model->getProductOptionByID($option_id) : current($options);
+				    $opt = $option_id && $r == 0 ? $this->purchase_invoices_model->getProductOptionvalueByID($option_id) : current($options);
                     if (!$option_id || $r > 0) {
                         $option_id = $opt->id;
                     }
@@ -1875,11 +1874,12 @@ print_r($inv_items);die;*/
                     $opt->cost = 0;
                     $option_id = FALSE;
                 }
-                $row->option = $option_id;
+                $row->option = ($row->variant_id !=0)?$row->variant_id:$option_id;
                 $row->supplier_part_no = '';
                 if ($opt->cost != 0) {
                     $row->cost = $opt->cost;
                 }
+				
                 $row->cost = $supplier_id ? $this->getSupplierCost($supplier_id, $row) : $row->cost;
                 $row->unit_cost = $row->cost;
                 $row->real_unit_cost = $row->cost;
@@ -1913,21 +1913,15 @@ print_r($inv_items);die;*/
 
     /* -------------------------------------------------------------------------------- */
 
-    public function purchase_invoices_actions()
-    {
+    public function purchase_invoices_actions(){
         if (!$this->Owner && !$this->GP['bulk_actions']) {
             $this->session->set_flashdata('warning', lang('access_denied'));
             redirect($_SERVER["HTTP_REFERER"]);
         }
-
         $this->form_validation->set_rules('form_action', lang("form_action"), 'required');
-
         if ($this->form_validation->run() == true) {
-
             if (!empty($_POST['val'])) {
                 if ($this->input->post('form_action') == 'delete') {
-
-                    //$this->sma->checkPermissions('delete');
                     foreach ($_POST['val'] as $id) {
                         $this->purchase_invoices_model->deletePurchase_invoices($id);
                     }
@@ -1935,11 +1929,8 @@ print_r($inv_items);die;*/
                     redirect($_SERVER["HTTP_REFERER"]);
 
                 } elseif ($this->input->post('form_action') == 'combine') {
-
                     $html = $this->combine_pdf($_POST['val']);
-
                 } elseif ($this->input->post('form_action') == 'export_excel') {
-
                     $this->load->library('excel');
                     $this->excel->setActiveSheetIndex(0);
                     $this->excel->getActiveSheet()->setTitle(lang('purchase_invoices'));

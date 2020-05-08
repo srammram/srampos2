@@ -245,6 +245,16 @@ class Purchase_invoices_model extends CI_Model{
         }
         return FALSE;
     }
+	public function getProductOptionvalueByID($id){
+        $q = $this->db->get_where('recipe_variants_values', array('recipe_id' => $id));
+        if ($q->num_rows() > 0) {
+            foreach($q->result() as $row){
+				$data[]=$row;
+			}
+		return $data;
+        }
+        return FALSE;
+    }
 
     public function getProductWarehouseOptionQty($option_id, $warehouse_id){
         $q = $this->db->get_where('warehouses_products_variants', array('option_id' => $option_id, 'warehouse_id' => $warehouse_id), 1);
@@ -308,8 +318,7 @@ class Purchase_invoices_model extends CI_Model{
                 /*** insert invoice items **/
 				$item['invoice_id'] = $UniqueID;
 				$cp = str_replace('.','_',$item['cost']);
-				$item['pi_uniqueId']=$item['store_id'].$item['product_id'].$item['variant_id'].$item['batch_no'].$item['category_id'].$item['subcategory_id'].$item['brand_id'].$cp.$data['supplier_id'].$id;
-				
+				$item['pi_uniqueId']=$item['store_id'].$item['product_id'].$item['variant_id'].$item['batch_no'].$item['category_id'].$item['subcategory_id'].$item['brand_id'].$cp.$data['supplier_id'].$UniqueID;
                 $this->db->insert('pro_purchase_invoice_items', $item);
             }		
 			

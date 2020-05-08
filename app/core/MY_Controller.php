@@ -9,7 +9,6 @@ class MY_Controller extends CI_Controller {
         $thisStore = $this->site->getThisStore(); 
         $this->isWarehouse = ($thisStore->type==1)?false:true;
         $this->isStore = ($thisStore->type==1)?true:false;
-	
         $this->store_id = $thisStore->id;
         $this->store_name = $thisStore->name;
 		$this->myIp = getHostByName(php_uname('n'));
@@ -30,38 +29,34 @@ class MY_Controller extends CI_Controller {
 			$this->till_name = 'N/A';
 			$this->till_id = 0;
 		}
-		
-		$exitShift = $this->site->exitShift($this->till_id);
-		$continueShift = $this->site->continueShift($this->till_id);
-		$dontcontinueShift = $this->site->dontcontinueShift($this->till_id);
-		$getShiftmaster = $this->site->getShiftmaster();
-		$this->currencies = $this->site->getAllCurrencies();
+		$exitShift            = $this->site->exitShift($this->till_id);
+		$continueShift        = $this->site->continueShift($this->till_id);
+		$dontcontinueShift    = $this->site->dontcontinueShift($this->till_id);
+		$getShiftmaster       = $this->site->getShiftmaster();
+		$this->currencies     = $this->site->getAllCurrencies();
 		$this->defaultcurdata =  $this->site->defaultCurrencyData($this->Settings->default_currency);
 		if(!empty($getShiftmaster)){
 			$this->currentShift = $getShiftmaster;	
 		}else{
 			$this->currentShift = 0;
 		}
-		
 		if(!empty($exitShift)){
 			$this->isShiftCreated = 1;	
 			$this->exitShift = $exitShift;	
 		}else{
 			$this->isShiftCreated = 0;
 		}
-		$this->exitShift->id;
+		   $this->exitShift->id;
 		if(!empty($continueShift)){
 			$this->iscontinueShift = 1;	
 		}else{
 			$this->iscontinueShift = 0;
 		}
-		
 		if(!empty($dontcontinueShift)){
 			$this->dontcontinueShift = 1;	
 		}else{
 			$this->dontcontinueShift = 0;
 		}
-		
 		if($this->isShiftCreated == 1){
 			$this->ShiftID = $exitShift->id;
 		}else{
@@ -72,37 +67,35 @@ class MY_Controller extends CI_Controller {
 			}
 		}
 
-        if($sma_language = $this->input->cookie('sma_language', TRUE)) {
+			if($sma_language = $this->input->cookie('sma_language', TRUE)) {
             $this->config->set_item('language', $sma_language);
             $this->lang->admin_load('sma', $sma_language);
             $this->Settings->user_language = $sma_language;
-        } else {
+			} else {
             $this->config->set_item('language', $this->Settings->language);
             $this->lang->admin_load('sma', $this->Settings->language);
             $this->Settings->user_language = $this->Settings->language;
-        }
-        if($rtl_support = $this->input->cookie('sma_rtl_support', TRUE)) {
+			}
+			if($rtl_support = $this->input->cookie('sma_rtl_support', TRUE)) {
             $this->Settings->user_rtl = $rtl_support;
-        } else {
+			} else {
             $this->Settings->user_rtl = $this->Settings->rtl;
-        }
-        $this->theme = $this->Settings->theme.'/admin/views/';
-        if(is_dir(VIEWPATH.$this->Settings->theme.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR)) {
+			}
+		   $this->theme = $this->Settings->theme.'/admin/views/';
+           if(is_dir(VIEWPATH.$this->Settings->theme.DIRECTORY_SEPARATOR.'assets'.DIRECTORY_SEPARATOR)) {
             $this->data['assets'] = base_url() . 'themes/' . $this->Settings->theme . '/assets/';
-        } else {
+           } else {
             $this->data['assets'] = base_url() . 'themes/default/admin/assets/';
-        }
-        if(empty($this->Settings->excel_header_color)) {
+           }
+           if(empty($this->Settings->excel_header_color)) {
             $this->Settings->excel_header_color = 'd28f16';
-        } 
-        if(empty($this->Settings->excel_footer_color)) {
+           } 
+           if(empty($this->Settings->excel_footer_color)) {
             $this->Settings->excel_footer_color = 'ffc000';
-        }
-        
-        $this->data['Settings'] = $this->Settings;
-        $this->loggedIn = $this->sma->logged_in();
-
-        if($this->loggedIn) {
+           }
+           $this->data['Settings'] = $this->Settings;
+           $this->loggedIn = $this->sma->logged_in();
+           if($this->loggedIn) {
 			if($this->isStore && $this->centerdb_connected){ 
                 $this->site->start_sync();
             }
@@ -120,7 +113,6 @@ class MY_Controller extends CI_Controller {
             }
             $this->data['default_store'] = $this->session->userdata('warehouse_id');
             $this->data['pos_store'] = $this->session->userdata('warehouse_id');
-            
             $this->data['pos_store_name'] = $this->session->userdata('store_name');
             /////// autobackup - end//////////////
 			
@@ -187,8 +179,6 @@ class MY_Controller extends CI_Controller {
             $this->dateFormats = $dateFormats;
             $this->data['dateFormats'] = $dateFormats;
             $this->load->language('calendar');
-            //$this->default_currency = $this->Settings->currency_code;
-            //$this->data['default_currency'] = $this->default_currency;
             $this->m = strtolower($this->router->fetch_class());
             $this->v = strtolower($this->router->fetch_method());
             $this->data['m']= $this->m;

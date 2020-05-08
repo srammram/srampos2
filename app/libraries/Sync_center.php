@@ -112,10 +112,10 @@ class Sync_center{
     }
 	
 	
-	   function compare_server_local($DB1,$DB2,$table=false){
-		  $result = array();$localkeys = array();
-		  $localDB =  array();
-	      $serverDB = array();
+	function compare_server_local($DB1,$DB2,$table=false){
+		$result = array();$localkeys = array();
+		$localDB =  array();
+	    $serverDB = array();
 	//*************** change Auto increment ID as array Key ****************//
 	    foreach($DB1 as $key => $val) {
 		$k = $val['id'];
@@ -270,20 +270,26 @@ class Sync_center{
 	$this->CI->centerdb->where("store_id",$this->CI->store_id);
 //	$this->CI->centerdb->where("store_id",2);
 	$q1=$this->CI->centerdb->get($table_name);
-	
 	$db2 =$q1->result_array();	
 	$data = $this->compare_server_local_stock($db1,$db2,$table_name);
-	
 	return true;
 	}
-	 function update_table($data,$table){
-	$this->CI->centerdb->update_batch($table,$data,'id');
-    }
+	
+	
+   function update_table($data,$table){
+	   $this->CI->centerdb->update_batch($table,$data,'id');
+   }
+   
     function insert_table($data,$table){
-	$this->CI->centerdb->insert_batch($table,$data);
+	    $this->CI->centerdb->insert_batch($table,$data);
     }
+	
     function delete_table($deleteIds,$table){
-	$this->CI->centerdb->where_in('id',$deleteIds);
-	$this->CI->centerdb->delete($table);
+	  $this->CI->centerdb->where_in('id',$deleteIds);
+	  $this->CI->centerdb->delete($table);
     }
+	
+	
+	
+	
 }

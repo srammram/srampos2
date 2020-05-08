@@ -3,7 +3,7 @@ class Grn_model extends CI_Model{
     public function __construct(){
         parent::__construct();
     }
-	 public function getPurchase_invoicesByID($id){
+  public function getPurchase_invoicesByID($id){
       $this->db->select('pro_purchase_invoices.*,warehouses.name,warehouses.address,warehouses.id as deliver_tostore')
 	  ->from('pro_purchase_invoices')
 	  ->join('pro_purchase_invoice_items','pro_purchase_invoice_items.invoice_id=pro_purchase_invoices.id','left')
@@ -32,13 +32,13 @@ class Grn_model extends CI_Model{
 		return false;
 	}
 	
- public function getPurchase_invoicelist(){
+	public function getPurchase_invoicelist(){
      $this->db->select('pro_purchase_invoices.id,reference_no')
-	->from('pro_purchase_invoices')
-	->join('pro_purchase_invoice_items','pro_purchase_invoice_items.invoice_id=pro_purchase_invoices.id','left')
-	->where('pro_purchase_invoices.status', 'approved')
-	->where('pro_purchase_invoice_items.store_id',$this->store_id)
-	->group_by('pro_purchase_invoices.id');
+	 ->from('pro_purchase_invoices')
+	 ->join('pro_purchase_invoice_items','pro_purchase_invoice_items.invoice_id=pro_purchase_invoices.id','left')
+	 ->where('pro_purchase_invoices.status', 'approved')
+	 ->where('pro_purchase_invoice_items.store_id',$this->store_id)
+	 ->group_by('pro_purchase_invoices.id');
         $q = $this->db->get();
         if ($q->num_rows() > 0) {
            foreach($q->result() as $row){
@@ -50,8 +50,8 @@ class Grn_model extends CI_Model{
     }
 	 public function getProductOptions($product_id, $warehouse_id){
         $this->db->select('product_variants.id as id, product_variants.name as name, product_variants.price as price, product_variants.quantity as total_quantity, warehouses_products_variants.quantity as quantity')
-            ->join('warehouses_products_variants', 'warehouses_products_variants.option_id=product_variants.id', 'left')
-            ->where('product_variants.product_id', $product_id)
+        ->join('warehouses_products_variants', 'warehouses_products_variants.option_id=product_variants.id', 'left')
+        ->where('product_variants.product_id', $product_id)
             ->where('warehouses_products_variants.warehouse_id', $warehouse_id)
             ->where('warehouses_products_variants.quantity >', 0)
             ->group_by('product_variants.id');

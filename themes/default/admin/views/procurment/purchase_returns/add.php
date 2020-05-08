@@ -4,21 +4,6 @@
 
 <script type="text/javascript">
     var default_store = '<?=$default_store?>';
-    
-//    <?php if($purchase_invoices_id) { ?>
-//    localStorage.setItem('pi_warehouse', '<?= $purchase_invoices->warehouse_id ?>');
-//	localStorage.setItem('pi_requestnumber', '<?= $purchase_invoices->requestnumber ?>');
-//	localStorage.setItem('pi_requestdate', '<?= $purchase_invoices->requestdate ?>');
-//    localStorage.setItem('pi_note', '<?= str_replace(array("\r", "\n"), "", $this->sma->decode_html($purchase_invoices->note)); ?>');
-//    localStorage.setItem('pi_discount', '<?= $purchase_invoices->order_discount_id ?>');
-//    localStorage.setItem('pi_tax2', '<?= $purchase_invoices->order_tax_id ?>');
-//    localStorage.setItem('pi_shipping', '<?= $purchase_invoices->shipping ?>');
-//    <?php if ($purchase_invoices->supplier_id) { ?>
-//        localStorage.setItem('pi_supplier', '<?= $purchase_invoices->supplier_id ?>');
-//    <?php } ?>
-//    localStorage.setItem('pi_items', JSON.stringify(<?= $quote_items; ?>));
-//    <?php } ?>
-
     var count = 1, an = 1, purchase_invoices_edit = false, product_variant = 0, DT = <?= $Settings->default_tax_rate ?>, DC = '<?= @$default_currency->code ?>', shipping = 0,
         product_tax = 0, invoice_tax = 0, total_discount = 0, total = 0,
         tax_rates = <?php echo json_encode($tax_rates); ?>, pi_items = {},
@@ -230,9 +215,8 @@
                 echo admin_form_open_multipart("procurment/purchase_returns/add", $attrib)
                 ?>
                 <div class="row">
-		    
-                    <div class="col-lg-12" style="background:#b1d7fd; padding:15px 15px;">
-			<?php echo form_submit('add_purchase_returns', $this->lang->line("save"), 'id="add_purchase_orders" class="btn col-lg-1 btn-sm btn-primary pull-right"'); ?>
+		    <div class="col-lg-12" style="background:#b1d7fd; padding:15px 15px;">
+					<?php echo form_submit('add_purchase_returns', $this->lang->line("save"), 'id="add_purchase_orders" class="btn col-lg-1 btn-sm btn-primary pull-right"'); ?>
                                 <button type="button" class="btn col-lg-1 btn-sm btn-danger pull-right" style="margin-right:15px;height:30px!important;font-size: 12px!important" id="reset"><?= lang('reset') ?></button>
                         <table class="table custom_tables">
                             <tbody>
@@ -248,10 +232,11 @@
                                     </td>
                                     <td>
                                         <?php
-                                        $n = $this->siteprocurment->lastidPurchaseInv();
-                                        $n2 = str_pad($n + 1, 5, 0, STR_PAD_LEFT);
+                                        $n = $this->siteprocurment->lastidPurchaseReturn();
+										$n=($n !=0)?$n+1:$this->store_id .'1';
+										$reference = 'PR'.str_pad($n , 8, 0, STR_PAD_LEFT);
                                         ?>
-                                        <input  name="reference_no" id="reference_no" readonly tabindex=-1 class="form-control" value="<?php echo $n2 ?>">
+                                        <input  name="reference_no" id="reference_no" readonly tabindex=-1 class="form-control" value="<?php echo $reference ?>">
                                     </td>                                    
                                     <td width="100px">
                                         <?= lang("Currency", "reqcurrency") ?>
@@ -271,23 +256,20 @@
                                         <?= lang("supplier", "pi_supplier"); ?>
                                     </td>
                                     <td width="350px">
-					<div class="input-group">
-                                        <?php
-
-                                        $sl[""] = "";
+					                 <div class="input-group">
+                                        <?php  $sl[""] = "";
                                         foreach ($suppliers as $supplier) {
                                             $sl[$supplier->id] = $supplier->name;
                                         }
                                         echo form_dropdown('supplier', $sl, (isset($_POST['supplier']) ? $_POST['supplier'] : 0), 'id="pi_supplier" data-placeholder="' . $this->lang->line("select") . ' ' . $this->lang->line("supplier") . '"  class="form-control input-tip select" style="width:100%;"');
                                         ?>
-					<div class="input-group-addon no-print" style="padding: 2px 5px;">
-					    <a href="<?= admin_url('procurment/supplier/add'); ?>" id="add-supplier1" class="external" data-toggle="modal" data-target="#myModal">
-						<i class="fa fa-2x fa-plus-square" id="addIcon1"></i>
-					    </a>
-					</div>
-					</div>
-                                    </td>
-
+				               	  <div class="input-group-addon no-print" style="padding: 2px 5px;">
+					              <a href="<?= admin_url('procurment/supplier/add'); ?>" id="add-supplier1" class="external" data-toggle="modal" data-target="#myModal">
+						           <i class="fa fa-2x fa-plus-square" id="addIcon1"></i>
+					              </a>
+					              </div>
+					              </div>
+                                  </td>
                                     <td width="100px">
                                         <?= lang("Supplier Address", "supplier_address") ?>
                                     </td>
@@ -298,7 +280,7 @@
                                         <?= lang("status", "pi_status") ?>
                                     </td>
                                     <td>                                        
-                                            <?php $st['process'] = lang('process');
+                                      <?php $st['process'] = lang('process');
                                         if($this->siteprocurment->hasApprovedPermission()){
                                             $st['approved'] = lang('approved'); 
                                         }
@@ -310,25 +292,32 @@
                                         <?= lang("document", "document") ?>
                                     </td>
                                     <td>
-                                        <!-- <input id="document" type="file" data-browse-label="<?= lang('browse'); ?>" name="document" data-show-upload="false"
-                                           data-show-preview="false" class="form-control file"> -->
-                                           <input id="document" type="file" data-browse-label="" name="document" data-show-upload="false"
-                                       data-show-preview="false" class="form-control file">
+                                     <input id="document" type="file" data-browse-label="" name="document" data-show-upload="false" data-show-preview="false" class="form-control file">
                                     </td>
                                     <td>
                                         <?= lang("load_invoice", "load_invoice") ?>
                                     </td>
                                     <td>
-                                        <?php 
-                                           $po[''] = '';
-                                            foreach ($purchaseinvoice as $k => $purchaseinvoice_row) {
-						
-						$po[$purchaseinvoice_row->id] = $purchaseinvoice_row->reference_no;
-                                            }
-                                            echo form_dropdown('invoice_id', $po, (isset($_POST['invoice_id']) ? $_POST['invoice_id'] : 0 ), ' class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("invoice_number") . '"style="width:100%;" id="pi_requestnumber"  ');
+                                        <?php  $po[''] = '';
+                                              foreach ($purchaseinvoice as $k => $purchaseinvoice_row) {
+											  $po[$purchaseinvoice_row->id] = $purchaseinvoice_row->reference_no;
+                                              }
+                                              echo form_dropdown('invoice_id', $po, (isset($_POST['invoice_id']) ? $_POST['invoice_id'] : 0 ), ' class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("invoice_number") . '"style="width:100%;" id="pi_requestnumber"  ');
                                         ?>
+										</td>
+								    <td>
+                                        <?= lang("return_type", "return_type") ?>
                                     </td>
-                                    <td>
+										<td>
+										<?php   
+										 $tm = array('None' => lang('None'), 'Qty Adjustment' => lang('Qty Adjustment'),'Debit Note' => lang('Debit Note'));
+                                          echo form_dropdown('return_type', $tm,"", 'id="return_type" class="form-control pos-input-tip" style="width:100%"');
+										?>
+										
+                                    </td>
+                                </tr>
+                                <tr>
+								 <td>
                                         <?= lang("tax_type", "tax_type") ?>
                                     </td>
                                     <td>
@@ -337,15 +326,12 @@
                                         echo form_dropdown('tax_method', $tm, "1", 'id="tax_method" class="form-control pos-input-tip" style="width:100%"');
                                         ?>
                                     </td>
-                                </tr>
-                                <tr>
                                     <td>
                                         <?= lang("invoice_date", "invoice_date") ?>
                                     </td>
                                     <td>                                        
                                         <input type="datetime" name="invoice_date" id="invoice_date"  class="form-control" readonly value="">
                                     </td>
-                                    
                                 </tr>
                                 <tr>                                   
                                     <td>

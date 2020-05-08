@@ -233,7 +233,6 @@ $(document).on('change', '.rexpiry', function () {
 });
 
 $(document).on('change', '.rdays', function () {
-	
 	var row = $(this).attr('data-id');
 	var day_val = parseInt($(this).val());
 	 var item_id = $(this).closest('tr').attr('data-item-id');
@@ -267,37 +266,6 @@ $(document).on('click', '.rmfg', function () {
     localStorage.setItem('pi_items', JSON.stringify(pi_items));
 });
 
-/*$(document).on('change', '.rmfg', function () {
-	alert('a');
-    var item_id = $(this).closest('tr').attr('data-item-id');
-	var total_expiry = $(this).closest('tr').attr('data-total-expiry');
-	
-	var mfg_date = $(this).val().split('-');  
-	mfg_date = 	mfg_date[2] +'-'+ mfg_date[1] +'-'+ mfg_date[0]; 
-
-	var today = new Date(mfg_date);
-	var tomorrow = new Date();
-	tomorrow.setDate(today.getDate() + parseInt(total_expiry) );
-	
-	var dd = tomorrow.getDate();
-	var mm = tomorrow.getMonth()+1; //January is 0!
-	
-	var yyyy = tomorrow.getFullYear();
-	if(dd<10){
-		dd='0'+dd;
-	} 
-	if(mm<10){
-		mm='0'+mm;
-	} 
-	
-	var expiry_date = dd+'-'+mm+'-'+yyyy;
-
-	$('.rexpiry[data-item='+item_id+']').val(expiry_date);
-	
-    pi_items[item_id].row.mfg = $(this).val();
-	pi_items[item_id].row.expiry = expiry_date;
-    localStorage.setItem('poitems', JSON.stringify(pi_items));
-});*/
 
 $(document).on('change', '.rbatch_no', function () {
     var item_id = $(this).closest('tr').attr('data-item-id');
@@ -401,7 +369,6 @@ $('#pi_discount').focus(function () {
                 $.each(tax_rates, function () {
                     if(this.id == pr_tax){
                         if (this.type == 1) {
-
                             if (pi_items[item_id].row.tax_method == 0) {
                                 pr_tax_val = formatDecimal((((real_unit_cost-item_discount) * parseFloat(this.rate)) / (100 + parseFloat(this.rate))), 4);
                                 pr_tax_rate = formatDecimal(this.rate) + '%';
@@ -410,9 +377,7 @@ $('#pi_discount').focus(function () {
                                 pr_tax_val = formatDecimal((((real_unit_cost-item_discount) * parseFloat(this.rate)) / 100), 4);
                                 pr_tax_rate = formatDecimal(this.rate) + '%';
                             }
-
                         } else if (this.type == 2) {
-
                             pr_tax_val = parseFloat(this.rate);
                             pr_tax_rate = this.rate;
 
@@ -663,6 +628,7 @@ $('#pi_discount').focus(function () {
         pi_items[item_id].row.base_quantity = new_qty;
         if(pi_items[item_id].row.unit != pi_items[item_id].row.base_unit) {
             $.each(pi_items[item_id].units, function(){
+				//console.log(pi_items[item_id].row.unit);
                 if (this.id == pi_items[item_id].row.unit) {
                     pi_items[item_id].row.base_quantity = unitToBaseQty(new_qty, this);
                 }
@@ -1079,14 +1045,15 @@ function loadItems() {
 			item_expiry = (item_expiry!='0000-00-00')?item_expiry:'';
 			
 			
+			
+			
 			var item_received_qty = item.row.r_qty;
             if (item_ds) {
 				$disType = item.row.item_dis_type;
 				var itemdiscount = item_ds+(($disType=="p")?'%':'');
 				item_ds_amt = calculateDiscount(itemdiscount, ((parseFloat(item.row.unit_cost)) * parseFloat(item_qty))); 
 				item_ds_amt = format2Decimals(item_ds_amt);
-         }
- 
+			}
 			var qty_received = (item.row.received >= 0) ? item.row.received : item.row.qty;
             var item_supplier_part_no = item.row.supplier_part_no ? item.row.supplier_part_no : '';
             if (item.row.new_entry == 1) { item_bqty = 0;//item_qty;
@@ -1131,10 +1098,12 @@ function loadItems() {
                         sel_opt = this.name;
                     }
                 });
-				console.log(item.row.base_unit);
+				
 				if( product_unit != item.row.base_unit) {
                 $.each(item.units, function(){
+					console.log(this.id);
                     if (this.id == product_unit) {
+						
                         base_quantity = formatDecimal(unitToBaseQty(item.row.qty, this), 4);
                       //  unit_price = formatDecimal((parseFloat(item.row.base_unit_price)*(unitToBaseQty(1, this))), 4);
                     }

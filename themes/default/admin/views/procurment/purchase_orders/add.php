@@ -1,7 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 <script type="text/javascript">
     var default_store = '<?=$default_store?>';
-    
     <?php if($purchase_orders_id) { ?>
     localStorage.setItem('po_warehouse', '<?= $purchase_orders->warehouse_id ?>');
     localStorage.setItem('po_requestnumber', '<?= $purchase_orders->requestnumber ?>');
@@ -15,19 +14,18 @@
     <?php } ?>
     localStorage.setItem('po_items', JSON.stringify(<?= $quote_items; ?>));
     <?php } ?>
-
     var count = 1, an = 1, purchase_orders_edit = false, product_variant = 0, DT = <?= $Settings->default_tax_rate ?>, DC = '<?= $default_currency->code ?>', shipping = 0,
         product_tax = 0, invoice_tax = 0, total_discount = 0, total = 0,
         tax_rates = <?php echo json_encode($tax_rates); ?>, po_items = {},
         audio_success = new Audio('<?= $assets ?>sounds/sound2.mp3'),
         audio_error = new Audio('<?= $assets ?>sounds/sound3.mp3');
-    $(document).ready(function () {
+	$(document).ready(function () {
         <?php if($this->input->get('supplier')) { ?>
         if (!localStorage.getItem('po_items')) {
             localStorage.setItem('po_supplier', <?=$this->input->get('supplier');?>);
         }
         <?php } ?>
-        <?php //if ($Owner || $Admin) { ?>
+    
         if (!localStorage.getItem('po_date')) {
             $("#po_date").datetimepicker({
                 format: site.dateFormats.js_ldate,
@@ -69,14 +67,13 @@
         if (iodate = localStorage.getItem('iodate')) {
             $('#iodate').val(iodate);
         }
-        <?php //} ?>
+        
         if (!localStorage.getItem('po_tax2')) {
             localStorage.setItem('po_tax2', <?=$Settings->default_tax_rate2;?>);
             setTimeout(function(){ $('#extras').iCheck('check'); }, 1000);
         }
         ItemnTotals();
         $("#add_item").autocomplete({
-            // source: '<?= admin_url('procurment/purchase_orders/suggestions'); ?>',
             source: function (request, response) {
                 $.ajax({
                     type: 'get',
@@ -97,21 +94,13 @@
             delay: 250,
             response: function (event, ui) {
                 if ($(this).val().length >= 16 && ui.content[0].id == 0) {
-                    //audio_error.play();
                     bootbox.alert('<?= lang('no_match_found') ?>', function () {
                         $('#add_item').focus();
                     });
                     $(this).removeClass('ui-autocomplete-loading');
                     $(this).val('');
                 }
-               /* else if (ui.content.length == 1 && ui.content[0].id != 0) {
-                    ui.item = ui.content[0];
-                    $(this).data('ui-autocomplete')._trigger('select', 'autocompleteselect', ui);
-                    $(this).autocomplete('close');
-                    $(this).removeClass('ui-autocomplete-loading');
-                }*/
                 else if (ui.content.length == 1 && ui.content[0].id == 0) {
-                    //audio_error.play();
                     bootbox.alert('<?= lang('no_match_found') ?>', function () {
                         $('#add_item').focus();
                     });
@@ -126,14 +115,12 @@
                     if (row)
                         $(this).val('');
                 } else {
-                    //audio_error.play();
                     bootbox.alert('<?= lang('no_match_found') ?>');
                 }
             }
         });
 
         $(document).on('click', '#addItemManually', function (e) {
-            
             if (!$('#mcode').val()) {
                 $('#mError').text('<?= lang('product_code_is_required') ?>');
                 $('#mError-con').show();
@@ -192,7 +179,6 @@
             });
             if (row) {
                 $('#mModal').modal('hide');
-                //audio_success.play();
             } else {
                 $('#mError').text(msg);
                 $('#mError-con').show();
@@ -241,9 +227,10 @@
                                         $date = date('Y-m-d H:i:s');*/
                                         
                                         $n = $this->siteprocurment->lastidPurchase();
-                                        $n2 = str_pad($n + 1, 5, 0, STR_PAD_LEFT);
+										$n=($n !=0)?$n+1:$this->store_id .'1';
+                                        $reference = 'PO'.str_pad($n , 8, 0, STR_PAD_LEFT);
                                         ?>
-                                        <input  name="reference_no" id="reference_no" readonly class="form-control" value="<?php echo $n2 ?>">
+                                        <input  name="reference_no" id="reference_no" readonly class="form-control" value="<?php echo $reference ?>">
                                     </td>
                                        
                                     <td width="100px">

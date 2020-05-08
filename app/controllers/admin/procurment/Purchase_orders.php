@@ -803,7 +803,7 @@ class Purchase_orders extends MY_Controller{
             $supplier = $supplier_details->company != '-'  ? $supplier_details->company : $supplier_details->name;
             $join_ref_no = $this->purchase_orders_model->getReqBYID($this->input->post('requestnumber'));
 	        $n = $this->siteprocurment->lastidPurchase();
-	        $reference = 'PO'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
+	        $reference = 'PO'.str_pad($n + 1, 8, 0, STR_PAD_LEFT);
 			$date=date('Y-m-d H:i:s');
             $data = array(
             'reference_no' => $reference,

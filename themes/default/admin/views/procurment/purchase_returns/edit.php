@@ -13,38 +13,23 @@
     localStorage.setItem('pi_tax2', '<?= $purchase_invoices->order_tax_id ?>');
     localStorage.setItem('pi_shipping', '<?= $purchase_invoices->shipping ?>');
     <?php if ($purchase_invoices->supplier_id) { ?>
-        localStorage.setItem('pi_supplier', '<?= $purchase_invoices->supplier_id ?>');
+     localStorage.setItem('pi_supplier', '<?= $purchase_invoices->supplier_id ?>');
     <?php } ?>
     localStorage.setItem('pi_items', JSON.stringify(<?= $quote_items; ?>));
     <?php } ?>
 
-    var count = 1, an = 1, purchase_invoices_edit = false, product_variant = 0, DT = <?= $Settings->default_tax_rate ?>, DC = '<?= $default_currency->code ?>', shipping = 0,
+        var count = 1, an = 1, purchase_invoices_edit = false, product_variant = 0, DT = <?= $Settings->default_tax_rate ?>, DC = '<?= $default_currency->code ?>', shipping = 0,
         product_tax = 0, invoice_tax = 0, total_discount = 0, total = 0,
         tax_rates = <?php echo json_encode($tax_rates); ?>, pi_items = {},
         audio_success = new Audio('<?= $assets ?>sounds/sound2.mp3'),
         audio_error = new Audio('<?= $assets ?>sounds/sound3.mp3');
-    $(document).ready(function () {
+        $(document).ready(function () {
         <?php if($this->input->get('supplier')) { ?>
         if (!localStorage.getItem('pi_items')) {
             localStorage.setItem('pi_supplier', <?=$this->input->get('supplier');?>);
         }
         <?php } ?>
-		
-		
-        <?php //if ($Owner || $Admin) { ?>
-        if (!localStorage.getItem('pi_date')) {
-           /* $("#pi_date").datetimepicker({
-                format: site.dateFormats.js_sdate,
-                fontAwesome: true,
-                language: 'common',
-                weekStart: 1,
-                todayBtn: 1,
-                autoclose: 1,
-                todayHighlight: 1,
-                startView: 2,
-                forceParse: 0
-            }).datetimepicker('update', new Date());*/
-        }
+      
         if (!localStorage.getItem('invoice_date')) {
             $("#invoice_date").datetimepicker({
                 /*format: site.dateFormats.js_sdate,*/
@@ -57,7 +42,6 @@
                 endDate: new Date(),                
             }).datetimepicker('update', new Date());
         }
-
         $(document).on('change', '#pi_date', function (e) {
             localStorage.setItem('pi_date', $(this).val());
         });
@@ -66,7 +50,6 @@
         }
 		$("#pi_requestnumber").val(localStorage.getItem('pi_requestnumber'));
 		$("#pi_requestdate").val(localStorage.getItem('pi_requestdate'));
-		
 		if (!localStorage.getItem('iodate')) {
             $("#iodate").datetimepicker({
                 format: site.dateFormats.js_ldate,
@@ -120,12 +103,7 @@
                     $(this).removeClass('ui-autocomplete-loading');
                     $(this).val('');
                 }
-               /* else if (ui.content.length == 1 && ui.content[0].id != 0) {
-                    ui.item = ui.content[0];
-                    $(this).data('ui-autocomplete')._trigger('select', 'autocompleteselect', ui);
-                    $(this).autocomplete('close');
-                    $(this).removeClass('ui-autocomplete-loading');
-                }*/
+               
                 else if (ui.content.length == 1 && ui.content[0].id == 0) {
                     //audio_error.play();
                     bootbox.alert('<?= lang('no_match_found') ?>', function () {
@@ -275,7 +253,7 @@
                                         <?= lang("supplier", "pi_supplier"); ?>
                                     </td>
                                     <td width="350px">
-					<div class="input-group">
+										<div class="input-group">
                                         <?php
 
                                         $sl[""] = "";
@@ -331,7 +309,20 @@
                                             echo form_dropdown('invoice_id', $po, (isset($inv->invoice_id) ? $inv->invoice_id : '' ), ' class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("invoice_number") . '"style="width:100%;" id="po_number"  ');
                                         ?>
                                     </td>
-                                    <td>
+									 <td>
+                                        <?= lang("return_type", "return_type") ?>
+                                    </td>
+										<td>
+										
+										<?php   
+										 $tm = array('None' => lang('None'), 'Qty Adjustment' => lang('Qty Adjustment'),'Debit Note' => lang('Debit Note'));
+                                          echo form_dropdown('return_type', $tm,$inv->return_type, 'id="return_type" class="form-control pos-input-tip" style="width:100%"');
+										?>
+                                    </td>
+                                    
+                                </tr>
+                                <tr>
+								<td>
                                         <?= lang("tax_type", "tax_type") ?>
                                     </td>
                                     <td>
@@ -340,8 +331,6 @@
                                         echo form_dropdown('tax_method', $tm,  (isset($inv->tax_method) ? $inv->tax_method : '' ), 'id="tax_method" class="form-control pos-input-tip" style="width:100%"');
                                         ?>
                                     </td>
-                                </tr>
-                                <tr>
                                     <td>
                                         <?= lang("invoice_date", "invoice_date") ?>
                                     </td>

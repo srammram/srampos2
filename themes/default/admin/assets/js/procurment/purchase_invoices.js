@@ -1063,7 +1063,7 @@ function loadItems() {
                     }
                 });
             }
-			console.log(base_quantity);
+			
             if (item_ds) {
 		     $disType = item.row.item_dis_type;
 		     var itemdiscount = item_ds+(($disType=="p")?'%':'');
@@ -1092,7 +1092,15 @@ function loadItems() {
             }
 			
 			
-			
+			 var sel_opt = '';
+                $.each(item.options, function () {
+                    if(this.attr_id == item_option) {
+                        sel_opt = '';
+						unit_cost =this.price;
+						item.row.unit_cost=this.price;
+						
+                    }
+                });
 			
 			
 			
@@ -1128,12 +1136,7 @@ function loadItems() {
                 var ds = item_ds ? item_ds : '0';
                 item_discount = calculateDiscount(ds, unit_cost);
                 product_discount += parseFloat(item_discount * item_qty);                
-                var sel_opt = '';
-                $.each(item.options, function () {
-                    if(this.id == item_option) {
-                        sel_opt = this.name;
-                    }
-                });
+               
 				$bill_dis_val =0
                if(localStorage.getItem('inv_bill_disc_percentage')){ 
                 if (bill_disc_percentage.indexOf("%") !== -1) {            
