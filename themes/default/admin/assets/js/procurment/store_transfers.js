@@ -8,7 +8,6 @@ if (site.settings.set_focus != 1) {
 ////////////////// store _select  /////////////////
 $('#store_transfrom_store_id').change(function (e) {
         localStorage.setItem('store_transfrom_store_id', $(this).val());
-	
 	$('#store_transto_store_id option').attr('disabled',false)
 	$('#store_transto_store_id option[value="'+$(this).val()+'"]').attr('disabled',true)
 });
@@ -26,7 +25,6 @@ $("#add_item").autocomplete({
                     url: site.base_url+'procurment/store_transfers/suggestions',
                     dataType: "json",
                     data: {
-			
                         term: request.term,
                         supplier_id: $("#store_transsupplier").val()
                     },
@@ -388,7 +386,7 @@ $('#store_transdiscount').focus(function () {
 
      $(document).on('click', '.podel', function () {
         var row = $(this).closest('tr');
-        var item_id = row.attr('data-item-id');
+        var item_id = row.attr('data-item');
         delete store_transitems[item_id];
         row.remove();
         if(store_transitems.hasOwnProperty(item_id)) { } else {
@@ -440,35 +438,7 @@ $('#store_transdiscount').focus(function () {
     });
 
    
-    /* --------------------------
-     * Edit Row Quantity Method
-     -------------------------- */
-     var old_row_qty;
-     $(document).on("focus", '.rquantity', function () {
-        old_row_qty = $(this).val();
-    }).on("change", '.rquantity', function () {
-        var row = $(this).closest('tr');
-        if (!is_numeric($(this).val()) || parseFloat($(this).val()) < 0) {
-            $(this).val(old_row_qty);
-            bootbox.alert(lang.unexpected_value);
-            return;
-        }
-        var new_qty = parseFloat($(this).val()),
-        item_id = row.attr('data-item-id');
-        store_transitems[item_id].row.base_quantity = new_qty;
-        if(store_transitems[item_id].row.unit != store_transitems[item_id].row.base_unit) {
-            $.each(store_transitems[item_id].units, function(){
-                if (this.id == store_transitems[item_id].row.unit) {
-                    store_transitems[item_id].row.base_quantity = unitToBaseQty(new_qty, this);
-                }
-            });
-        }
-        store_transitems[item_id].row.qty = new_qty;
-        store_transitems[item_id].row.received = new_qty;
-        localStorage.setItem('store_transitems', JSON.stringify(store_transitems));
-        loadItems();
-    });
-	
+
 	
 
     var old_received;
@@ -535,7 +505,6 @@ $('#store_transdiscount').focus(function () {
 
 // hellper function for supplier if no localStorage value
 function nsSupplier() {
-	
     $('#store_transsupplier').select2({
         minimumInputLength: 1,
         ajax: {
@@ -543,7 +512,6 @@ function nsSupplier() {
             dataType: 'json',
             quietMillis: 15,
             data: function (term, page) {
-				
                 return {
                     term: term,
                     limit: 10
@@ -560,12 +528,8 @@ function nsSupplier() {
     });
 }
 
-
-
 function loadItems() {
-	
     if (localStorage.getItem('store_transitems')) {
-        
         total = 0;
         count = 1;
         an = 1;
@@ -575,196 +539,148 @@ function loadItems() {
         order_discount = 0;
         total_discount = 0;
         $("#store_transfersTable tbody").empty();
-		
         store_transitems = JSON.parse(localStorage.getItem('store_transitems'));
-
 		sortedItems = store_transitems;
-       // sortedItems = (site.settings.item_addition == 1) ? _.sortBy(store_transitems, function(o){return [parseInt(o.order)];}) : store_transitems;
+		$row_index = 0;
+		$total_no_items = 0;
+		$total_no_qty = parseInt(0);$transfer_qty=0;
         var order_no = new Date().getTime();
-		
-        $.each(sortedItems, function () {			
-			
-            var item = this;
-            //var item_id = site.settings.item_addition == 1 ? item.item_id : item.id;
-			 var item_id = item.item_id;
-			 
-			 var item_available_qty = item.row.current_quantity ? item.row.current_quantity : 0;
-			 var item_transfer_qty = item.row.transfer_quantity ? item.row.transfer_quantity : 0;
-			 var item_pending_qty = item.row.pending_quantity ? item.row.pending_quantity : 0;
-			
-            item.order = item.order ? item.order : order_no++;
-            
-			var product_id = item.row.id, item_type = item.row.type, combo_items = item.combo_items, item_cost = item.row.cost, net_item_cost, item_oqty = item.row.oqty, item_qty = item.row.qty, item_available_qty = item.row.available_qty, item_batch_no = item.row.batch_no, item_mfg = item.row.mfg, item_expiry = item.row.expiry, item_tax_method = item.row.tax_method, item_tax1 = item.row.tax1, item_tax2 = item.row.tax2, item_ds = item.row.discount, item_discount = 0, item_option = item.row.option, item_code = item.row.code, item_name = item.row.name.replace(/"/g, "&#034;").replace(/'/g, "&#039;"),selected_taxincl,selected_taxexcl,selected_taxrate;
-            var item_req_qty = item.row.req_quantity
-			var qty_received = (item.row.received >= 0) ? item.row.received : item.row.qty;
-            var item_supplier_part_no = item.row.supplier_part_no ? item.row.supplier_part_no : '';
-            if (item.row.new_entry == 1) { item_available_qty = item_qty; item_oqty = item_qty; }
-            var unit_cost = item.row.real_unit_cost;
-	   
-            var product_unit = item.row.unit, base_quantity = item.row.base_quantity;
-            var supplier = localStorage.getItem('store_transsupplier'), belong = false;
-			
-			item_tax_method = (item_tax_method) ? item_tax_method : 0;
-
-                if (supplier == item.row.supplier1) {
-                    belong = true;
-                } else
-                if (supplier == item.row.supplier2) {
-                    belong = true;
-                } else
-                if (supplier == item.row.supplier3) {
-                    belong = true;
-                } else
-                if (supplier == item.row.supplier4) {
-                    belong = true;
-                } else
-                if (supplier == item.row.supplier5) {
-                    belong = true;
-                }
-                var unit_qty_received = qty_received;
-                /*if(item.row.fup != 1 && product_unit != item.row.base_unit) {
-                    $.each(item.units, function(){
-                        if (this.id == product_unit) {
-                            base_quantity = formatDecimal(unitToBaseQty(item.row.qty, this), 4);
-                            unit_qty_received = item.row.unit_received ? item.row.unit_received : formatDecimal(baseToUnitQty(qty_received, this), 4);
-                            unit_cost = formatDecimal((parseFloat(item.row.base_unit_cost)*(unitToBaseQty(1, this))), 4);
-                        }
-                    });
-                }*/
-                var ds = item_ds ? item_ds : '0';
-                item_discount = calculateDiscount(ds, unit_cost);
-                product_discount += parseFloat(item_discount * item_qty);
-                
-                
-                unit_cost = formatDecimal(unit_cost-item_discount);
-                var pr_tax = item.tax_rate;
+        $.each(sortedItems, function () {
+	    console.log(sortedItems)
+	    var item = this;
+	    $product_grand_total_amt = 0;
+	    $product_gross_amt=0;
+	    $product_tax=0;
+       var item_id = item.item_id;
+	    item.order = item.order ? item.order : new Date().getTime();
+            $sno = ++$row_index;
+            $id = item.row.id;
+            $product_name = item.row.name;
+            $product_code = item.row.code;
+            $product_type = item.row.type;
+			item_tax_method = item.row.tax_method;
+			$product_tax_per = item.row.tax;
+			$product_tax_method = item.row.tax_method;
+            $qty = item.row.qty;
+			$ex_qty = (item.row.ex_qty!=undefined)?item.row.ex_qty:0;
+			$request_qty =item.row.request_qty ? item.row.request_qty : 0;
+			$html = '<tr class="order-item-row warning" data-item="'+item_id+'">';
+            $html += '<td>'+$sno+'<input type="hidden" name="product_id[]" value="'+$id+'"></td>';
+            $html += '<td>'+$product_code+'<input type="hidden" name="product_code[]" value="'+$product_code+'"></td>';
+            $html += '<td>'+$product_name+'<input type="hidden" name="product_name[]" value="'+$product_name+'"><input type="hidden" name="product_type[]" value="'+$product_type+'"><input type="hidden" name="variant_id[]" value="'+item.row.variant_id+'"></td>';
+			$html += '<td><input type="text" name="request_qty[]" value="'+formatDecimals($request_qty)+'" class="form-control text-center request-qty" readonly></td>';
+			$html +='<td colspan="11">';
+			console.log(item.row);
+	    if (item.row.batches) {
+	    $.each(item.row.batches,function(n,v){
+			var product_unit = item.row.unit, base_quantity = item.row.base_quantity;
+			$recipe_price = v.selling_price;
+			$recipe_stock_id = v.unique_id;
+			$expiry =(v.expiry_date!=null)?v.expiry_date:'';
+			$landingCost =v.landing_cost ? v.landing_cost : 0;
+			$cost =v.cost_price;
+			$batch_label = (v.batch=='' || v.batch==null	|| v.batch=='null')?'No batch':v.batch;
+			$batch  = (v.batch=='' || v.batch==null	|| v.batch=='null')?'':v.batch_no;
+			$available_qty =v.stock_in ? formatDecimal(v.stock_in) : 0;
+			$transfer_qty =v.transfer_qty ? v.transfer_qty : 0;
+			$vendor = (v.vendor_id)?v.vendor_id:0;
+			$pending_qty =v.pending_qty ? v.pending_qty : '';
+			$gross_amt = $transfer_qty*$recipe_price;
+			$tax=0;
+			$tax_per = v.tax;
+			$tax_method = v.tax_method;
+				var pr_tax = item.tax_rate;
                 var pr_tax_val = pr_tax_rate = 0;
-                if (site.settings.tax1 == 1 && (ptax = calculateTax(pr_tax, unit_cost, item_tax_method))) {
+                if (site.settings.tax1 == 1 && (ptax = calculateTax(pr_tax, $cost, item_tax_method))) {
                     pr_tax_val = ptax[0];
                     pr_tax_rate = ptax[1];
-                    product_tax += pr_tax_val * item_qty;
+                    $tax += pr_tax_val * item_qty;
                 }
-               item_cost = item_tax_method == 0 ? formatDecimal(unit_cost-pr_tax_val, 4) : formatDecimal(unit_cost);
-               unit_cost = formatDecimal(unit_cost+item_discount, 4);
-                var sel_opt = '';
-                $.each(item.options, function () {
-                    if(this.id == item_option) {
-                        sel_opt = this.name;
+				if(item.row.variant_id !=0){
+					if(v.variant_id!=item.row.variant_id){
+						return true;
+					}
+				}
+				 if( product_unit != item.row.base_unit) {
+                $.each(item.units, function(){
+                    if (this.id == product_unit) {
+                        base_quantity = formatDecimal(unitToBaseQty(item.row.qty, this), 4);
                     }
                 });
+            }
+			$grand_total_amt = $gross_amt+$tax;
+			$batch_html ='<table style="width: 100%;" class="table items  table-bordered table-condensed batch-table"><thead>';
+			$batch_html +='<th>batch</th>';
+			$batch_html +='<th>a.qty</th>';
+			$batch_html +='<th>t.qty</th>';
+			$batch_html +='<th>p.qty</th>';
+	    
+			$batch_html +='<th>expiry</th>';
+			$batch_html +='<th>c.price</th>';
+			$batch_html +='<th>s.price</th>';
+			$batch_html +='<th>tax</th>';
+			$batch_html +='<th>tax amt</th>';
+			$batch_html +='<th>gross</th>';
+	 
+			$batch_html +='<th>total</th>';
+			$batch_html +='</thead><tbody>';
+			$batch_html +='<tr class="batch-row" data-item='+item_id+' data-batch='+n+'>';
+			$batch_html += '<td style="width: 78px;font-size: 13px;">'+$batch_label+'<input type="hidden" name="batch['+item_id+']['+n+'][stock_id]" value="'+$recipe_stock_id+'"><input type="hidden" name="batch['+item_id+']['+n+'][landing_cost]" value="'+$landingCost+'"><input type="hidden" name="batch['+item_id+']['+n+'][batch_no]" value="'+$batch+'"><input type="hidden" name="batch['+item_id+']['+n+'][vendor_id]" value="'+$vendor+'"><input type="hidden" name="batch['+item_id+']['+n+'][invoice_id]" value="'+v.invoice_id+'"></td>';
+			$batch_html += '<td  style="width: 78px;"><input type="text" name="batch['+item_id+']['+n+'][available_qty]" value="'+$available_qty+'" class="form-control text-center available-qty" readonly></td>';
+			$batch_html += '<td  style="width: 78px;"><input type="text" name="batch['+item_id+']['+n+'][transfer_qty]" value="'+$transfer_qty+'" class="numberonly form-control text-center transfer-qty"><input type="hidden" name="batch['+item_id+']['+n+'][product_unit]  value="'+product_unit+'""><input type="hidden"  name="batch['+item_id+']['+n+'][base_quantity] value="'+base_quantity+'""></td>';
 
-            var row_no = (new Date).getTime();
-            var newTr = $('<tr id="row_' + row_no + '" class="row_' + item_id + '" data-item-id="' + item_id + '"></tr>');
-			
-            tr_html = '<td><input name="product_id[]" type="hidden" class="rid" value="' + product_id + '"><input name="product[]" type="hidden" class="rcode" value="' + item_code + '"><input name="product_name[]" type="hidden" class="rname" value="' + item_name + '"><input name="cost[]" type="hidden" class="cost" value="' + item_cost + '"><input name="product_option[]" type="hidden" class="roption" value="' + item_option + '"><input name="part_no[]" type="hidden" class="rpart_no" value="' + item_supplier_part_no + '"><span class="sname" id="name_' + row_no + '">' + item_code +' - '+ item_name +(sel_opt != '' ? ' ('+sel_opt+')' : '')+' <span class="label label-default">'+item_supplier_part_no+'</span></span></td>';
-			
-		
-			tr_html += '<td><input class="form-control text-center rquantity" readonly name="quantity[]" type="text" tabindex="'+((site.settings.set_focus == 1) ? an : (an+1))+'" value="' + formatQuantity2(item_req_qty) + '" data-id="' + row_no + '" data-item="' + item_id + '" id="quantity_' + row_no + '" onClick="this.select();"><input name="product_unit[]" type="hidden" class="runit" value="' + product_unit + '"><input name="product_base_quantity[]" type="hidden" class="rbase_quantity" value="' + base_quantity + '"></td>';
-			
-			
-			if(item_tax_method == 1) {
-				selected_taxincl = "";
-				selected_taxexcl = "selected";
-			} else {
-				selected_taxincl = "selected";
-				selected_taxexcl = "";
-			}
-			
-			
-			
-			 
-			 //tr_html += '</select></td>';
-			
-            
-			
-           
-            if (site.settings.product_discount == 1) {
-             
-            }
-	    if (site.settings.tax1 == 1) {
-             
-            }
-           
-			
-			
-			 tr_html += '<td><input class="form-control ravailable_qty" readonly name="available_qty[]" type="text" value="' + item_available_qty + '" data-id="' + row_no + '" data-item="' + item_id + '" id="available_qty_' + row_no + '"></td>';
-			 
-			  tr_html += '<td><input class="form-control rtransfer_qty" name="transfer_qty[]" type="text" value="' + item_transfer_qty + '" data-id="' + row_no + '" data-item="' + item_id + '" id="transfer_qty_' + row_no + '"></td>';
-			  
-			  tr_html += '<td><input class="form-control rpending_qty" readonly name="pending_qty[]" type="text" value="' + item_pending_qty + '" data-id="' + row_no + '" data-item="' + item_id + '" id="pending_qty_' + row_no + '"></td>';
-			
-            tr_html += '<td class="text-center"><i class="fa fa-times tip podel" id="' + row_no + '" title="Remove" style="cursor:pointer;"></i></td>';
-            newTr.html(tr_html);
-            newTr.appendTo("#store_transfersTable");
-            total += formatDecimal(((parseFloat(item_cost) + parseFloat(pr_tax_val)) * parseFloat(item_qty)), 4);
-            count += parseFloat(item_qty);
-            an++;
-            if(!belong)
-                $('#row_' + row_no).addClass('warning');
+	    
+			$batch_html += '<td  style="width: 78px;"><input type="text" name="batch['+item_id+']['+n+'][pending_qty]" value="'+$pending_qty+'" readonly class="form-control text-center pending-qty"></td>';
+	    
+			$batch_html += '<td style="width:62px;font-size: 8px;">'+$expiry+'<input type="hidden" name="batch['+item_id+']['+n+'][expiry]" value="'+$expiry+'"></td>';
+	    
+	    $batch_html += '<td><input type="text" name="batch['+item_id+']['+n+'][cost_price]" readonly value="'+$cost+'" class="form-control text-center cost-price"></td>';
+	    $batch_html += '<td><input type="text" name="batch['+item_id+']['+n+'][selling_price]" readonly value="'+$recipe_price+'" class="form-control text-center selling-price"></td>';
+	    $batch_html += '<td>'+formatDecimal($tax_per)+'%<input type="hidden" name="batch['+item_id+']['+n+'][tax]" value="'+$tax_per+'" class="form-control text-center recipe-tax-per"><input type="hidden" name="batch['+item_id+']['+n+'][tax_method]" value="'+$tax_method+'"></td>';
+		$batch_html += '<td><span class="recipe-tax-amt-label">'+formatDecimal($tax)+'</span><input type="hidden" name="batch['+item_id+']['+n+'][tax_amount]" value="'+$tax+'" class="form-control text-center recipe-tax-amt"></td>';
+	    $batch_html += '<td><span class="recipe-gross-amt-label">'+formatDecimal($gross_amt)+'</span><input type="hidden" name="batch['+item_id+']['+n+'][gross]" value="'+$gross_amt+'" class="form-control text-center recipe-gross"></td>';
+	    
+	    $batch_html += '<td><span class="recipe-grand-total-label">'+formatDecimal($grand_total_amt)+'</span><input type="hidden" name="batch['+item_id+']['+n+'][grand_total]" value="'+$grand_total_amt+'" class="form-control text-center recipe-grand-total"></td>';
+	    
+	    $batch_html +='</tr>';
+	    
+	    $batch_html +'</tbody>';
+	    $batch_html +='</table>';
+	    $html +=$batch_html;
+	    $total_no_qty+=parseInt($transfer_qty);
+	    });
+	}
+	    $html +='</td>';
+	    $html += '<td class="text-center"><i class="fa fa-times tip podel" id="' + item_id + '" title="Remove" style="cursor:pointer;"></i></td>';
+	    $html +='</tr>';
+	    
+            $('#store_transfersTable>tbody').append($html);
+	    $total_no_items++;
+	    
         });
 		
-
-        var col = 1;
-        // if (site.settings.product_expiry == 1) { col++; }
-        var tfoot = '<tr id="tfoot" class="tfoot active"><th colspan="'+col+'">Total</th><th class="text-center">' + formatQty(parseFloat(count) - 1) + '</th>';
-        
-        if (site.settings.product_discount == 1) {
-           // tfoot += '<th colspan="3" class="text-right">'+formatMoney(product_discount)+'</th>';
-        }
-        if (site.settings.tax1 == 1) {
-            tfoot += '<th colspan="3"  class="text-right"></th>';
-        }
-        tfoot += '<th class="text-center" colspan="3"><i class="fa fa-trash-o" style="opacity:0.5; filter:alpha(opacity=50);"></i></th></tr>';
-        $('#store_transfersTable tfoot').html(tfoot);
-
-        // Order level discount calculations
-        if (store_transdiscount = localStorage.getItem('store_transdiscount')) {
-            var ds = store_transdiscount;
-            if (ds.indexOf("%") !== -1) {
-                var pds = ds.split("%");
-                if (!isNaN(pds[0])) {
-                    order_discount = formatDecimal(((total * parseFloat(pds[0])) / 100), 4);
-                } else {
-                    order_discount = formatDecimal(ds);
-                }
-            } else {
-                order_discount = formatDecimal(ds);
-            }
-        }
-
-       
+         $('#total_no_items').val($total_no_items);
+	    $('#total_no_qty').val($total_no_qty);
         set_page_focus();
     }
 }
 
 
 /* -----------------------------
- * Add Purchase Iten Function
+ * Add Purchase Item Function
  * @param {json} item
  * @returns {Boolean}
  ---------------------------- */
  function add_store_transfers_item(item) {
-    //if (count == 1) {
-    //    store_transitems = {};
-    //    if ($('#store_transsupplier').val()) {
-    //         
-    //        $('#store_transsupplier').select2("readonly", true);
-    //    } else {
-    //        bootbox.alert(lang.select_above);
-    //        item = null;
-    //        return;
-    //    }
-    //}
+	 if ($('#store_transto_store_id').val()=='') {
+	bootbox.alert('Select To Store');
+	return false;
+    }
     if (item == null)
         return;
-
-   // var item_id = site.settings.item_addition == 1 ? item.item_id : item.id;
    var item_id = item.item_id;
-   
     if (store_transitems[item_id]) {
-		
 		bootbox.confirm('This item is already added. Do you want to add it again?', function (result) {
-			
 			if (result) {
 				var new_qty = parseFloat(store_transitems[item_id].row.qty) + 1;
 				store_transitems[item_id].row.base_quantity = new_qty;
@@ -775,17 +691,11 @@ function loadItems() {
 						}
 					});
 				}
-				//store_transitems[item_id].row.qty = new_qty;
-				
 				localStorage.setItem('store_transitems', JSON.stringify(store_transitems));
 				loadItems();
 				return true;
-				
 			}
 		});
-		
-		
-
     } else {
         store_transitems[item_id] = item;
 		console.log(store_transitems)
@@ -805,3 +715,42 @@ if (typeof (Storage) === "undefined") {
         }
     });
 }
+
+
+
+$(document).on('change', '.transfer-qty', function () {
+    var item_id = $(this).closest('tr').attr('data-item');
+    $row = $(this).closest('tr');
+    $index =  $(this).closest('tr').attr('data-batch');
+	var row = $(this).closest('tr').attr('id');
+	var tquantity = 0;
+	var pquantity = $row.find('.pending-qty').val();
+	var aquantity = $row.find('.available-qty').val();
+	if(parseInt(aquantity) < parseInt($(this).val())){
+		tquantity = 0;
+		bootbox.alert('Transfer quantity is greater than availabel quantity!', function(){
+		$row.find('.transfer_qty').val(tquantity);
+		store_transitems[item_id].row.batches[$index].transfer_qty = tquantity;
+    		localStorage.setItem('store_transitems', JSON.stringify(store_transitems));
+		});
+	}else{
+	    tquantity = $(this).val();
+	    $p_qty = aquantity - tquantity;
+	    $row.find('.pending-qty').val($p_qty);
+		store_transitems[item_id].row.base_quantity = tquantity;
+        if(store_transitems[item_id].row.unit != store_transitems[item_id].row.base_unit) {
+            $.each(store_transitems[item_id].units, function(){
+                if (this.id == store_transitems[item_id].row.unit) {
+						console.log(unitToBaseQty(tquantity, this));
+                    store_transitems[item_id].row.base_quantity = unitToBaseQty(tquantity, this);
+                }
+            });
+        }
+	    store_transitems[item_id].row.batches[$index].transfer_qty = tquantity;
+	    store_transitems[item_id].row.batches[$index].pending_qty = $p_qty;
+    	localStorage.setItem('store_transitems', JSON.stringify(store_transitems));
+	    
+       // return;	
+	}
+    loadItems();
+});

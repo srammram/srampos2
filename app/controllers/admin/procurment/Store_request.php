@@ -46,57 +46,47 @@ class Store_request extends MY_Controller{
     }
 
     public function getStore_request($warehouse_id = null){
-        //$this->sma->checkPermissions('index');
-
         if ((!$this->Owner || !$this->Admin) && !$warehouse_id) {
             $user = $this->siteprocurment->getUser();
             $warehouse_id = $user->warehouse_id;
         }
 	    $view_link = '<a href="'.admin_url('procurment/store_request/view/$1').'" data-toggle="modal" data-target="#myModal"><i class="fa fa-edit"></i>'.lang('view_store_request').'</a>';
-       
         $detail_link = anchor('admin/procurment/store_request/view/$1/', '<i class="fa fa-file-text-o"></i> ' . lang('store_request_details'));
         $email_link = anchor('admin/procurment/store_request/email/$1', '<i class="fa fa-envelope"></i> ' . lang('email_store_request'), 'data-toggle="modal" data-target="#myModal"');
-		
-		
 		$edit_link = anchor('admin/procurment/store_request/edit/$1', '<i class="fa fa-edit"></i> ' . lang('edit_store_request'));
         $pdf_link = anchor('admin/procurment/store_request/pdf/$1', '<i class="fa fa-file-pdf-o"></i> ' . lang('download_pdf'));
         $delete_link = "<a href='#' class='po' title='<b>" . $this->lang->line("delete_store_request") . "</b>' data-content=\"<p>"
         . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete' href='" . admin_url('procurment/store_request/delete/$1') . "'>"
         . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i> "
         . lang('delete_store_request') . "</a>";
-
 		$action = '<div class="text-center"><div class="btn-group text-left">'
         . '<button type="button" class="btn btn-default btn-xs btn-primary dropdown-toggle" data-toggle="dropdown">'
         . lang('actions') . ' <span class="caret"></span></button>
                     <ul class="dropdown-menu pull-right" role="menu">
                         <li>' . $edit_link . '</li>
-			<li>' . $view_link . '</li>
+						<li>' . $view_link . '</li>
                         <li>' . $delete_link . '</li>
                     </ul>
                 </div></div>';
-       
         $this->load->library('datatables');
         if ($warehouse_id) {
-            $this->datatables
+				$this->datatables
                 ->select("pro_store_request.id, pro_store_request.date, pro_store_request.reference_no,   pro_store_request.status, pro_store_request.attachment")
-				
                 ->from('pro_store_request')
                 ->where('pro_store_request.warehouse_id', $warehouse_id);
         } else {
-            $this->datatables
+				$this->datatables
                 ->select("pro_store_request.id, pro_store_request.date, pro_store_request.reference_no, f.name as from_name, t.name as to_name, pro_store_request.status, pro_store_request.attachment as attachment")
                 ->from('pro_store_request')
 				->join('warehouses f', 'f.id = pro_store_request.from_store_id', 'left')
 				->join('warehouses t', 't.id = pro_store_request.to_store_id', 'left');
         }
-      
-	$this->datatables->edit_column('attachment', '$1__$2', $this->digital_upload_path.', attachment');
+		$this->datatables->edit_column('attachment', '$1__$2', $this->digital_upload_path.', attachment');
         $this->datatables->add_column("Actions", $action, "pro_store_request.id,pro_store_request.status");
         echo $this->datatables->generate();
     }
 
     public function modal_view($store_request_id = null){
-      
         if ($this->input->get('id')) {
             $store_request_id = $this->input->get('id');
         }
@@ -206,7 +196,6 @@ class Store_request extends MY_Controller{
 		  $this->form_validation->set_rules('to_store_id', $this->lang->line("to_store"), 'required');
 		  $this->form_validation->set_rules('request_type', $this->lang->line("request_type"), 'required');
           if ($this->form_validation->run() == true) {
-			  
 	      $n = $this->siteprocurment->lastidStoreRequest();
           $reference = 'SR'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
 		  $date = date('Y-m-d H:i:s');

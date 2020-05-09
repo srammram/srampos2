@@ -176,26 +176,7 @@
                                             foreach ($all_stores as $store) {
                                                 $tst[$store->id] = $store->name;
                                             }
-										/* 	print_r($tst);
-											die; */
-											
-											// Search
-										//	 echo $_POST['from_store_id'];
-										//	$pos = array_search($_POST['from_store_id'], $tst);
-
-										//	echo $_POST['from_store_id']. 'found at: ' . $pos;
-
-											// Remove from array
-											//unset($tst[$pos]);
-
-											//print_r($tst); 
-											/*
-											 if(in_array($_POST['from_store_id'], $tst))
-											{
-												echo 'yes';
-											}else{
-												echo 'no';
-											}  */
+										
                                             echo form_dropdown('to_store_id', $tst, (isset($_POST['to_store_id']) ? $_POST['to_store_id'] : ''), 'id="store_reqto_store_id" class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("to_store") . '"   style="width:100%;" ');
                                             ?>
                                     </td>

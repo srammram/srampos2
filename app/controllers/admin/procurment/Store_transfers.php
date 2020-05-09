@@ -1,10 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
-
-class Store_transfers extends MY_Controller
-{
-
-    public function __construct()
-    {
+class Store_transfers extends MY_Controller{
+    public function __construct(){
         parent::__construct();
         if (!$this->loggedIn) {
             $this->session->set_userdata('requested_page', $this->uri->uri_string());
@@ -24,25 +20,17 @@ class Store_transfers extends MY_Controller
         $this->digital_file_types = 'zip|psd|ai|rar|pdf|doc|docx|xls|xlsx|ppt|pptx|gif|jpg|jpeg|png|tif|txt';
         $this->allowed_file_size = '1024';
         $this->data['logo'] = true;
-		
 		$this->Muser_id = $this->session->userdata('user_id');
 		$this->Maccess_id = 8;
-
     }
 	
 	public function store_transfers_list(){
 		$poref =  $this->input->get('poref');
-		
 		$data['store_transfers'] = $this->store_transfers_model->getRequestByID($poref);
-		
 		$store_req_items = $this->store_transfers_model->getAllRequestItems($poref);
-		
 		//echo '<pre>';print_r($store_req_items);exit;
 		$c = rand(100000, 9999999);
 		foreach ($store_req_items as $item) {
-			
-			
-			
 			$row = $this->siteprocurment->getItemByID($item->product_id);
 			$row->available_qty = $this->siteprocurment->getAvailableQty($item->product_id);
 			$row->req_quantity = $item->quantity;
@@ -53,11 +41,7 @@ class Store_transfers extends MY_Controller
 				'row' => $row,  'options' => $options);
 			$c++;
 		}
-		
 		$data['store_transfersitem'] = $pr;
-		
-		
-		
 		if(!empty($data)){
 			$response['status'] = 'success';
 			$response['value'] = $data;
@@ -116,76 +100,45 @@ class Store_transfers extends MY_Controller
 
     }
 
-    public function getStore_transfers($warehouse_id = null)
-    { 
-
-               
-        $detail_link = anchor('admin/procurment/store_transfers/view/$1', '<i class="fa fa-file-text-o"></i> ' . lang('store_transfers_details'));
-        $payments_link = anchor('admin/procurment/store_transfers/payments/$1', '<i class="fa fa-money"></i> ' . lang('view_payments'), 'data-toggle="modal" data-target="#myModal"');
-        $add_payment_link = anchor('admin/procurment/store_transfers/add_payment/$1', '<i class="fa fa-money"></i> ' . lang('add_payment'), 'data-toggle="modal" data-target="#myModal"');
-        $email_link = anchor('admin/procurment/store_transfers/email/$1', '<i class="fa fa-envelope"></i> ' . lang('email_store_transfers'), 'data-toggle="modal" data-target="#myModal"');
+    public function getStore_transfers($warehouse_id = null){ 
+		$view_link = '<a href="'.admin_url('procurment/store_transfers/view/$1').'" data-toggle="modal" data-target="#myModal"><i class="fa fa-edit"></i>'.lang('view_store_transfer').'</a>';
         $edit_link = anchor('admin/procurment/store_transfers/edit/$1', '<i class="fa fa-edit"></i> ' . lang('edit_store_transfers'));
-        $pdf_link = anchor('admin/procurment/store_transfers/pdf/$1', '<i class="fa fa-file-pdf-o"></i> ' . lang('download_pdf'));
-        $print_barcode = anchor('admin/procurment/products/print_barcodes/?purchase=$1', '<i class="fa fa-print"></i> ' . lang('print_barcodes'));
-        $return_link = anchor('admin/procurment/store_transfers/return_purchase/$1', '<i class="fa fa-angle-double-left"></i> ' . lang('return_purchase'));
         $delete_link = "<a href='#' class='po' title='<b>" . $this->lang->line("delete_quotation") . "</b>' data-content=\"<p>"
         . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete' href='" . admin_url('procurment/store_transfers/delete/$1') . "'>"
         . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i> "
         . lang('delete_store_transfers') . "</a>";
-        /*$action = '<div class="text-center"><div class="btn-group text-left">'
-        . '<button type="button" class="btn btn-default btn-xs btn-primary dropdown-toggle" data-toggle="dropdown">'
-        . lang('actions') . ' <span class="caret"></span></button>
-        <ul class="dropdown-menu pull-right" role="menu">
-            <li>' . $detail_link . '</li>            
-            <li>' . $edit_link . '</li>
-            <li>' . $pdf_link . '</li>
-            <li>' . $email_link . '</li>            
-            <li>' . $delete_link . '</li>
-        </ul>
-    </div></div>';*/
-	$action = '<div class="text-center"><div class="btn-group text-left">'
+		$action = '<div class="text-center"><div class="btn-group text-left">'
         . '<button type="button" class="btn btn-default btn-xs btn-primary dropdown-toggle" data-toggle="dropdown">'
         . lang('actions') . ' <span class="caret"></span></button>
         <ul class="dropdown-menu pull-right" role="menu">
             <li>' . $edit_link . '</li>
+			<li>' . $view_link . '</li>
             <li>' . $delete_link . '</li>
         </ul>
-    </div></div>';
-        //$action = '<div class="text-center">' . $detail_link . ' ' . $edit_link . ' ' . $email_link . ' ' . $delete_link . '</div>';
-// echo "string";exit;
+		</div></div>';
+        
         $this->load->library('datatables');
         if ($warehouse_id) {        
-        // echo "fg";exit;    
 		 $this->datatables
-			 ->select("pro_store_transfers.id, pro_store_transfers.processed_on, pro_store_transfers.reference_no, f.reference_no, wf.name as from_name, wt.name as to_name, SUM(sti.transfer_quantity) as transfer_quantity, pro_store_transfers.status")
+			 ->select("pro_store_transfers.id, pro_store_transfers.processed_on, pro_store_transfers.reference_no, f.reference_no, wf.name as from_name, wt.name as to_name, SUM(sti.transfer_qty) as transfer_quantity, pro_store_transfers.status")
                 ->from('pro_store_transfers')
-				->join('pro_store_request f', 'f.id = pro_store_transfers.intend_request_id', 'left')
+				->join('pro_store_indent_receive f', 'f.id = pro_store_transfers.store_indent_id', 'left')
 				->join('pro_store_transfer_items sti', 'sti.store_transfer_id = pro_store_transfers.id', 'left')
 				->join('warehouses wf', 'wf.id = f.from_store_id', 'left')
 				->join('warehouses wt', 'wt.id = f.to_store_id', 'left')
-				 ->where('pro_store_transfers.warehouse_id', $warehouse_id);
-           /* $this->datatables
-                ->select("st.id, DATE_FORMAT(st.date, '%Y-%m-%d %T') as date, st.reference_no, st.req_reference_no, st.supplier, st.total, st.total_discount, st.total_tax,  SUM(sti.transfer_quantity) as transfer_quantity, st.status")
-                ->from('store_transfers st')
-				->join('store_transfer_items sti', 'sti.store_transfer_id = st.id', 'left')
-                ->where('st.warehouse_id', $warehouse_id)->group_by('st.id');*/
+				 ->where('pro_store_transfers.warehouse_id', $warehouse_id)
+				  ->where('pro_store_transfers.total_no_items !=',0);
         } else {
-            // echo "sdsd";exit;
            $this->datatables
-			 ->select("pro_store_transfers.id, pro_store_transfers.processed_on, pro_store_transfers.reference_no, f.reference_no as store_req_no, wf.name as from_name, wt.name as to_name, SUM(sti.transfer_quantity) as transfer_quantity, pro_store_transfers.status")
+			 ->select("pro_store_transfers.id, pro_store_transfers.created_on, pro_store_transfers.reference_no, f.reference_no as store_req_no, wf.name as from_name, wt.name as to_name, SUM(sti.transfer_qty) as transfer_quantity, pro_store_transfers.status")
                 ->from('pro_store_transfers')
-				->join('pro_store_request f', 'f.id = pro_store_transfers.intend_request_id', 'left')
+					->join('pro_store_indent_receive f', 'f.id = pro_store_transfers.store_indent_id', 'left')
 				->join('pro_store_transfer_items sti', 'sti.store_transfer_id = pro_store_transfers.id', 'left')
-				->join('warehouses wf', 'wf.id = f.from_store_id', 'left')
-				->join('warehouses wt', 'wt.id = f.to_store_id', 'left');
+				->join('warehouses wf', 'wf.id = pro_store_transfers.from_store', 'left')
+				->join('warehouses wt', 'wt.id = pro_store_transfers.to_store', 'left')
+				->where('pro_store_transfers.total_no_items !=',0);
                 
         }
-        // $this->datatables->where('status !=', 'returned');
-        /*if (!$this->Customer && !$this->Supplier && !$this->Owner && !$this->Admin && !$this->session->userdata('view_right')) {
-            $this->datatables->where('pro_store_transfers.created_by', $this->session->userdata('user_id'));
-        } elseif ($this->Supplier) {
-            $this->datatables->where('pro_store_transfers.customer_id', $this->session->userdata('user_id'));
-        }*/
 		$this->datatables->group_by('pro_store_transfers.id');
         $this->datatables->add_column("Actions", $action, "pro_store_transfers.id");
 
@@ -250,217 +203,96 @@ class Store_transfers extends MY_Controller
 
     }
 
-    /* ----------------------------------------------------------------------------- */
-
-//generate pdf and force to download
-
-    public function pdf($store_transfers_id = null, $view = null, $save_bufffer = null)
-    {
-        //$this->sma->checkPermissions();
-
-        if ($this->input->get('id')) {
-            $store_transfers_id = $this->input->get('id');
-        }
-
-        $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
-        $po = $this->store_transfers_model->getStore_transfersByID($store_transfers_id);
-
-        if (!$this->session->userdata('view_right')) {
-            $this->sma->view_rights($po->created_by);
-        }
-        $this->data['rows'] = $this->store_transfers_model->getAllStore_transfersItems($store_transfers_id);
-        $this->data['supplier'] = $this->siteprocurment->getCompanyByID($po->customer_id);
-        $this->data['warehouse'] = $this->siteprocurment->getWarehouseByID($po->warehouse_id);
-        $this->data['created_by'] = $this->siteprocurment->getUser($po->created_by);
-        $this->data['inv'] = $po;
-        $this->data['return_purchase'] = $po->return_id ? $this->store_transfers_model->getStore_transfersByID($po->return_id) : NULL;
-        $this->data['return_rows'] = $po->return_id ? $this->store_transfers_model->getAllStore_transfersItems($po->return_id) : NULL;
-        $name = $this->lang->line("store_transfers") . "_" . str_replace('/', '_', $po->reference_no) . ".pdf";
-        $html = $this->load->view($this->theme . 'store_transfers/pdf', $this->data, true);
-        if (! $this->Settings->barcode_img) {
-            $html = preg_replace("'\<\?xml(.*)\?\>'", '', $html);
-        }
-        if ($view) {
-            $this->load->view($this->theme . 'store_transfers/pdf', $this->data);
-        } elseif ($save_bufffer) {
-            return $this->sma->generate_pdf($html, $name, $save_bufffer);
-        } else {
-            $this->sma->generate_pdf($html, $name);
-        }
-
-    }
-
-    public function combine_pdf($store_transfers_id)
-    {
-        //$this->sma->checkPermissions('pdf');
-
-        foreach ($store_transfers_id as $store_transfers_id) {
-
-            $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
-            $inv = $this->store_transfers_model->getStore_transfersByID($store_transfers_id);
-            if (!$this->session->userdata('view_right')) {
-                $this->sma->view_rights($inv->created_by);
-            }
-            $this->data['rows'] = $this->store_transfers_model->getAllStore_transfersItems($store_transfers_id);
-            $this->data['supplier'] = $this->siteprocurment->getCompanyByID($inv->supplier_id);
-            $this->data['warehouse'] = $this->siteprocurment->getWarehouseByID($inv->warehouse_id);
-            $this->data['created_by'] = $this->siteprocurment->getUser($inv->created_by);
-            $this->data['inv'] = $inv;
-            $this->data['return_purchase'] = $inv->return_id ? $this->store_transfers_model->getStore_transfersByID($inv->return_id) : NULL;
-            $this->data['return_rows'] = $inv->return_id ? $this->store_transfers_model->getAllStore_transfersItems($inv->return_id) : NULL;
-            $inv_html = $this->load->view($this->theme . 'store_transfers/pdf', $this->data, true);
-            if (! $this->Settings->barcode_img) {
-                $inv_html = preg_replace("'\<\?xml(.*)\?\>'", '', $inv_html);
-            }
-            $html[] = array(
-                'content' => $inv_html,
-                'footer' => '',
-            );
-        }
-
-        $name = lang("store_transfers") . ".pdf";
-        $this->sma->generate_pdf($html, $name);
-
-    }
-
-    public function email($store_transfers_id = null)
-    {
-
-        //$this->sma->checkPermissions(false, true);
-
-        if ($this->input->get('id')) {
-            $store_transfers_id = $this->input->get('id');
-        }
-        $po = $this->store_transfers_model->getStore_transfersByID($store_transfers_id);
-        $this->form_validation->set_rules('to', $this->lang->line("to") . " " . $this->lang->line("email"), 'trim|required|valid_email');
-        $this->form_validation->set_rules('subject', $this->lang->line("subject"), 'trim|required');
-        $this->form_validation->set_rules('cc', $this->lang->line("cc"), 'trim|valid_emails');
-        $this->form_validation->set_rules('bcc', $this->lang->line("bcc"), 'trim|valid_emails');
-        $this->form_validation->set_rules('note', $this->lang->line("message"), 'trim');
-
-        if ($this->form_validation->run() == true) {
-            if (!$this->session->userdata('view_right')) {
-                $this->sma->view_rights($po->created_by);
-            }
-            $to = $this->input->post('to');
-            $subject = $this->input->post('subject');
-            if ($this->input->post('cc')) {
-                $cc = $this->input->post('cc');
-            } else {
-                $cc = null;
-            }
-            if ($this->input->post('bcc')) {
-                $bcc = $this->input->post('bcc');
-            } else {
-                $bcc = null;
-            }
-            $supplier = $this->siteprocurment->getCompanyByID($po->customer_id);
-            $this->load->library('parser');
-            $parse_data = array(
-                'reference_number' => $po->reference_no,
-                'contact_person' => $supplier->name,
-                'company' => $supplier->company,
-                'site_link' => base_url(),
-                'site_name' => $this->Settings->site_name,
-                'logo' => '<img src="' . base_url() . 'assets/uploads/logos/' . $this->Settings->logo . '" alt="' . $this->Settings->site_name . '"/>',
-            );
-            $msg = $this->input->post('note');
-            $message = $this->parser->parse_string($msg, $parse_data);
-            $attachment = $this->pdf($store_transfers_id, null, 'S');
-
-            try {
-                if ($this->sma->send_email($to, $subject, $message, null, null, $attachment, $cc, $bcc)) {
-                    delete_files($attachment);
-                    $this->db->update('store_transfers', array('status' => 'ordered'), array('id' => $store_transfers_id));
-                    $this->session->set_flashdata('message', $this->lang->line("email_sent"));
-                    admin_redirect("procurment/store_transfers");
-                }
-            } catch (Exception $e) {
-                $this->session->set_flashdata('error', $e->getMessage());
-                redirect($_SERVER["HTTP_REFERER"]);
-            }
-
-        } elseif ($this->input->post('send_email')) {
-
-            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-            $this->session->set_flashdata('error', $this->data['error']);
-            redirect($_SERVER["HTTP_REFERER"]);
-
-        } else {
-
-            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-
-            if (file_exists('./themes/' . $this->Settings->theme . '/admin/views/email_templates/store_transfers.html')) {
-                $store_transfers_temp = file_get_contents('themes/' . $this->Settings->theme . '/admin/views/email_templates/store_transfers.html');
-            } else {
-                $store_transfers_temp = file_get_contents('./themes/default/admin/views/email_templates/store_transfers.html');
-            }
-            $this->data['subject'] = array('name' => 'subject',
-                'id' => 'subject',
-                'type' => 'text',
-                'value' => $this->form_validation->set_value('subject', lang('store_transfers').' (' . $po->reference_no . ') '.lang('from').' ' . $this->Settings->site_name),
-            );
-            $this->data['note'] = array('name' => 'note',
-                'id' => 'note',
-                'type' => 'text',
-                'value' => $this->form_validation->set_value('note', $store_transfers_temp),
-            );
-            $this->data['supplier'] = $this->siteprocurment->getCompanyByID($po->customer_id);
-
-            $this->data['id'] = $store_transfers_id;
-            $this->data['modal_js'] = $this->siteprocurment->modal_js();
-            $this->load->view($this->theme . 'store_transfers/email', $this->data);
-
-        }
-    }
 
     /* -------------------------------------------------------------------------------------------------------------------------------- */
 
-    public function add($store_transfers_id = null)
-    {
-        
+    public function add($store_transfers_id = null){
         $this->form_validation->set_rules('from_store_id', $this->lang->line("from_store_id"), 'required');
         $this->session->unset_userdata('csrf_token');
-        if ($this->form_validation->run() == true) {          
-            
-			$n = $this->siteprocurment->lastidStoreTransafer();
-				$reference = 'SR'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
-			
-			$date = date('Y-m-d H:i:s');
+         if ($this->form_validation->run() == true) {          
+         //   p($_POST,1);
+	    $n = $this->siteprocurment->lastidStoreTransafer();
+		 $n=($n !=0)?$n+1:$this->store_id .'1';
+	    $reference = 'ST'.str_pad($n + 1, 8, 0, STR_PAD_LEFT);
+	    $date = date('Y-m-d H:i:s');
+	    $i = count($_POST['product_id']);
+	    $products = array();
+	    for($r = 0; $r < $i; $r++){
+		$total_t_qty = 0;
+		    $products[$r] = array(
+			    'product_id' => $_POST["product_id"][$r],
+			    'product_code' => $_POST['product_code'][$r],
+			    'product_type' => $_POST['product_type'][$r],
+			    'product_name' => $_POST['product_name'][$r],			    
+			    'request_qty' => $_POST['request_qty'][$r],
+			    'store_id' =>$this->store_id,
+			    );
+		    
+		    foreach($_POST['batch'][$_POST["product_id"][$r]] as $k => $row){
+			if($row['transfer_qty']!=0){
+				$unit = $this->site->getUnitByID($row['product_unit']);
 				
-			$i = sizeof($_POST['product']);
-			$products = array();
-			for($r = 0; $r < $i; $r++){
-				$products[] = array(
-					'product_id' => $_POST["product_id"][$r],
-					'product_code' => $_POST['product'][$r],
-					'unit_price' => $_POST['cost'][$r],
-					'product_name' => $_POST['product_name'][$r],
-					'total' => $this->sma->formatDecimal($_POST['cost'][$r] * $_POST['quantity'][$r]),
-					'req_quantity' => $_POST['quantity'][$r],
-					'available_quantity' => $_POST['available_qty'][$r],
-					'transfer_quantity' => $_POST['transfer_qty'][$r],
-					'pending_quantity' => $_POST['pending_qty'][$r],
-				);
+				$product_unit_code=$unit->code;
+			$products[$r]['batches'][] = array(
+			    'available_qty' => $row['available_qty'],
+				'variant_id' =>  $_POST['variant_id'][$r],
+			    'transfer_qty' => $row['transfer_qty'],
+			    'pending_qty' => $row['pending_qty'],
+			    'batch' => $row['batch_no'],
+			    'vendor_id' => $row['vendor_id'],
+			    'expiry' => $row['expiry'],
+			    'cost_price' => $row['cost_price'],
+			    'selling_price' => $row['selling_price'],
+			    'landing_cost' => $row['landing_cost'],
+			    'unit_price' => $row['selling_price'],
+			    'net_unit_price' => $row['selling_price']*$row['request_qty'],
+			    //'tax' => $row['tax'],
+			   // 'tax_method' => $row['tax_method'],
+			    'gross_amount' => $row['gross'],
+			    'tax_amount' => $row['tax_amount'],
+			    'net_amount' => $row['grand_total'],
+			    'store_id' =>$this->store_id,
+			    'stock_id' => $row['stock_id'],
+				'product_unit_id' => $row['product_unit'],
+				'unit_quantity' => $row['base_quantity'],
+				'product_unit_code' => $unit->code,
+				      
+			);
 			}
-            
+			$total_t_qty +=$row['transfer_qty'];
+		    }
+		    $products[$r]['transfer_qty'] = $total_t_qty;
+	    }
             if (empty($products)) {
                 $this->form_validation->set_rules('product', lang("order_items"), 'required');
             } else {
                 krsort($products);
             }
-
             $data = array(
 			  'reference_no' =>$reference,
+			  'store_id' =>$this->store_id,
 			  'intend_request_id' =>($this->input->post('intend_request_id'))?$this->input->post('intend_request_id'):0,
 			  'intend_request_date' =>($this->input->post('intend_request_date'))?$this->input->post('intend_request_date'):0,
 			  'from_store' => $this->input->post('from_store_id'),
 			  'to_store' =>$this->input->post('to_store_id'),
-			  'processed_by' => $this->session->userdata('user_id'),
-			  'processed_on' => date('Y-m-d H:i:s'),
+			  'total_no_items'=>$this->input->post('total_no_items'),
+			  'total_no_qty'=>$this->input->post('total_no_qty'),
 			  'status' =>$this->input->post('status'),
+			  'remarks'=>$this->input->post('remarks')
             );
-            
+	    if($data['intend_request_id']!=''){
+		$store_indent = $this->store_transfers_model->getStoreindentData($data['intend_request_id']);
+		$data['store_indent_id'] = $store_indent->store_indent_id;
+		$data['store_indent_date'] = $store_indent->store_indent_date;
+	    }
+	    if($data['status']=='process'){
+		$data['processed_by'] = $this->session->userdata('user_id');
+		$data['processed_on']=date('Y-m-d H:i:s');
+	    }else{
+		$data['approved_by'] = $this->session->userdata('user_id');
+		$data['approved_on']=date('Y-m-d H:i:s');
+	    }
+            //p($data,1);
             if ($_FILES['document']['size'] > 0) {
                 $this->load->library('upload');
                 $config['upload_path'] = $this->digital_upload_path;
@@ -480,7 +312,6 @@ class Store_transfers extends MY_Controller
 			
 			$store_transfers_array = array();	
 			if($this->input->post('requestnumber') != ''){
-				
 				if(in_array(1, $check_quantity)){
 					$rstatus = 'partial_complete';
 				}else{
@@ -491,12 +322,9 @@ class Store_transfers extends MY_Controller
 				);
 				
 			}
-	    
-			//  echo '<pre>';print_R($data);print_R($products);exit;
+	     // p($data,1);
+			// echo '<pre>';print_R($data);print_R($products);exit;
         }
-		
-		
-		 
         if ($this->form_validation->run() == true && $this->store_transfers_model->addStore_transfers($data, $products, $store_transfers_array, $this->input->post('requestnumber'))) {
             
             $this->session->set_userdata('remove_pols', 1);
@@ -504,18 +332,15 @@ class Store_transfers extends MY_Controller
             admin_redirect('procurment/store_transfers');
         } else {
 			
-			
-            
-
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
             $this->data['store_transfers_id'] = $store_transfers_id;
             $this->data['suppliers'] = $this->siteprocurment->getAllCompanies('supplier');
             $this->data['categories'] = $this->siteprocurment->getAllCategories();
             $this->data['tax_rates'] = $this->siteprocurment->getAllTaxRates();
             $this->data['warehouses'] = $this->siteprocurment->getAllWarehouses();
-	   
-	    $this->data['store_req'] = $this->siteprocurment->getAll_respectiveSTOREREQUESTNUMBER();
-	    $this->data['stores'] = $this->siteprocurment->getAllWarehouses_Stores();
+			$this->data['all_stores'] = $this->siteprocurment->getAllWarehouses_Storeslist();
+			$this->data['store_req'] = $this->siteprocurment->getAll_respectiveSTOREREQUESTNUMBER();
+			$this->data['stores'] = $this->siteprocurment->getAllWarehouses_Stores();
             $this->load->helper('string');
             $value = random_string('alnum', 20);
             $this->session->set_userdata('user_csrf', $value);
@@ -528,37 +353,30 @@ class Store_transfers extends MY_Controller
 
     /* ------------------------------------------------------------------------------------- */
 
-    public function edit($id = null)
-    {
+    public function edit_bk($id = null){
         $stransfer = $this->store_transfers_model->getStore_transfersByID($id);
         if ($stransfer->status == 'approved' || $stransfer->status == 'completed') {
 	    $this->session->set_flashdata('error', lang("Do not allowed edit option"));
 	    admin_redirect("procurment/store_transfers");
-	}
+			}
         $this->form_validation->set_rules('status', $this->lang->line("status"), 'required');
-	
         $this->session->unset_userdata('csrf_token');
         if ($this->form_validation->run() == true) {          
-            
-	    $n = $this->siteprocurment->lastidStoreTransafer();
-            $reference = 'SR'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
 	    
 	    $date = date('Y-m-d H:i:s');
-			
-           
-            $i = sizeof($_POST['product']);
-	    $products = array();
-	    for($r = 0; $r < $i; $r++){
-		$products[] = array(
+           $i = sizeof($_POST['product']);
+	       $products = array();
+	       for($r = 0; $r < $i; $r++){
+		   $products[] = array(
                         'product_id' => $_POST["product_id"][$r],
                         'product_code' => $_POST['product'][$r],
                         'unit_price' => $_POST['cost'][$r],
                         'product_name' => $_POST['product_name'][$r],
-			'total' => $this->sma->formatDecimal($_POST['cost'][$r] * $_POST['quantity'][$r]),
+						'total' => $this->sma->formatDecimal($_POST['cost'][$r] * $_POST['quantity'][$r]),
                         'req_quantity' => $_POST['quantity'][$r],
-			'available_quantity' => $_POST['available_qty'][$r],
-			'transfer_quantity' => $_POST['transfer_qty'][$r],
-			'pending_quantity' => $_POST['pending_qty'][$r],
+						'available_quantity' => $_POST['available_qty'][$r],
+						'transfer_quantity' => $_POST['transfer_qty'][$r],
+						'pending_quantity' => $_POST['pending_qty'][$r],
                     );
 	    }
             
@@ -567,19 +385,13 @@ class Store_transfers extends MY_Controller
             } else {
                 krsort($products);
             }
-
-            
             $data = array(
-		
 			  'reference_no' =>$reference,
 			  'intend_request_id' =>($this->input->post('intend_request_id'))?$this->input->post('intend_request_id'):0,
 			  'intend_request_date' =>($this->input->post('intend_request_date'))?$this->input->post('intend_request_date'):0,
-			  //'from_store' => $this->input->post('from_store_id'),
-			  //'to_store' =>$this->input->post('to_store_id'),
 			  'processed_by' => $this->session->userdata('user_id'),
 			  'processed_on' => date('Y-m-d H:i:s'),
 			  'status' =>$this->input->post('status'),
-			   
             );
             
             if ($_FILES['document']['size'] > 0) {
@@ -600,7 +412,6 @@ class Store_transfers extends MY_Controller
             }
 	    $store_transfers_array = array();	
 	    if($this->input->post('requestnumber') != ''){
-		    
 		    if(in_array(1, $check_quantity)){
 			    $rstatus = 'partial_complete';
 		    }else{
@@ -665,8 +476,171 @@ class Store_transfers extends MY_Controller
             $this->page_construct('procurment/store_transfers/edit', $meta, $this->data);
         }
     }
+ public function edit($id = null){
+		$this->sma->checkPermissions();
+        $stransfer = $this->store_transfers_model->getStore_transfersByID($id);
+        if ($stransfer->status == 'approved' || $stransfer->status == 'completed') {
+	    $this->session->set_flashdata('error', lang("Do not allowed edit option"));
+	    admin_redirect("procurment/store_transfers");
+		}
+        $this->form_validation->set_rules('status', $this->lang->line("status"), 'required');
+        $this->session->unset_userdata('csrf_token');
+        if ($this->form_validation->run() == true) { 
+	    $date = date('Y-m-d H:i:s');           
+        $i = count($_POST['product_id']);
+	    $products = array();
+	    for($r = 0; $r < $i; $r++){
+		$total_t_qty = 0;
+		    $products[$r] = array(
+			    'product_id' => $_POST["product_id"][$r],
+			    'product_code' => $_POST['product_code'][$r],
+			    'product_type' => $_POST['product_type'][$r],
+			    'product_name' => $_POST['product_name'][$r],			    
+			    'request_qty' => $_POST['request_qty'][$r],
+			    'store_id' =>$this->store_id,
+			    );
+		    foreach($_POST['batch'][$this->store_id.$_POST["product_id"][$r]] as $k => $row){
+			if($row['transfer_qty']!=0){
+			$products[$r]['batches'][] = array(
+			    'available_qty' => $row['available_qty'],
+			    'transfer_qty' => $row['transfer_qty'],
+			    'pending_qty' => $row['pending_qty'],
+			    'batch' => $row['batch_no'],
+			    'vendor_id' => $row['vendor_id'],
+			    'expiry' => $row['expiry'],
+			    'cost_price' => $row['cost_price'],
+			    'selling_price' => $row['selling_price'],
+			    'landing_cost' => $row['landing_cost'],
+			    'unit_price' => $row['selling_price'],
+			    'net_unit_price' => $row['selling_price']*$row['request_qty'],
+			    'tax' => $row['tax'],
+			    'tax_method' => $row['tax_method'],
+			    'gross_amount' => $row['gross'],
+			    'tax_amount' => $row['tax_amount'],
+			    'net_amount' => $row['product_grand_total'],
+			    'store_id' =>$this->store_id,
+			    'stock_id' => $row['stock_id'],
+				 'invoice_id' => $row['invoice_id'],
+			);
+			}
+			$total_t_qty +=$row['transfer_qty'];
+		    }
+		    $products[$r]['transfer_qty'] = $total_t_qty;
+	     }   
+            if (empty($products)) {
+                $this->form_validation->set_rules('product', lang("transfer_items"), 'required');
+            } else {
+                krsort($products);
+            }
+			$data = array(
+				'intend_request_id' =>($this->input->post('intend_request_id'))?$this->input->post('intend_request_id'):0,
+				'intend_request_date' =>($this->input->post('intend_request_date'))?$this->input->post('intend_request_date'):0,
+				'to_store' =>$this->input->post('tostoreid'),
+				'total_no_items'=>$this->input->post('total_no_items'),
+				'total_no_qty'=>$this->input->post('total_no_qty'),
+				'status' =>$this->input->post('status'),
+				);
+			if($data['intend_request_id']!=''){
+			$store_indent = $this->store_transfers_model->getStoreindentData($data['intend_request_id']);
+			$data['store_indent_id'] = $store_indent->store_indent_id;
+			$data['store_indent_date'] = $store_indent->store_indent_date;
+			}
+			if($data['status']=='process'){
+			$data['processed_by'] = $this->session->userdata('user_id');
+			$data['processed_on']=date('Y-m-d H:i:s');
+			}else{
+			$data['approved_by'] = $this->session->userdata('user_id');
+			$data['approved_on']=date('Y-m-d H:i:s');
+			}
+			$data['remarks']=$this->input->post('remarks');
+            if ($_FILES['document']['size'] > 0) {
+                $this->load->library('upload');
+                $config['upload_path'] = $this->digital_upload_path;
+                $config['allowed_types'] = $this->digital_file_types;
+                $config['max_size'] = $this->allowed_file_size;
+                $config['overwrite'] = false;
+                $config['encrypt_name'] = true;
+                $this->upload->initialize($config);
+                if (!$this->upload->do_upload('document')) {
+                    $error = $this->upload->display_errors();
+                    $this->session->set_flashdata('error', $error);
+                    redirect($_SERVER["HTTP_REFERER"]);
+                }
+                $photo = $this->upload->file_name;
+                $data['attachment'] = $photo;
+            }
+	    $store_transfers_array = array();	
+	    if($this->input->post('requestnumber') != ''){
+		    if(in_array(1, $check_quantity)){
+			    $rstatus = 'partial_complete';
+		    }else{
+			    $rstatus = 'completed';
+		    }
+		    $store_transfers_array = array(
+			    'status' => $rstatus,
+		    );
+		    
+	    }
+        }
+        if ($this->form_validation->run() == true && $this->store_transfers_model->updateStore_transfers($id,$data, $products)) {
+            
+            $this->session->set_userdata('remove_pols', 1);
+            $this->session->set_flashdata('message', $this->lang->line("store_transfers_updated"));
+            admin_redirect('procurment/store_transfers');
+        } else {
+			$store_transfer_items = $this->store_transfers_model->getAllStore_transfersItems($id);
+			$pr = array();
+			foreach ($store_transfer_items as $item) {
+			$row = $this->siteprocurment->getItemByID($item->product_id);
+			$row->available_qty = $this->siteprocurment->getAvailableQty($item->product_id);
+			$row->request_qty = $item->request_qty;
+			$row->transfer_qty = $item->transfer_qty;
+			$row->pending_qty = $item->pending_qty;
+			$row->batch_no = $item->batch;
+			$row->expiry = $item->expiry;
+			$row->cost_price = $item->cost_price;
+			$row->price = $item->selling_price;
+			$row->tax = $item->tax;
+			$row->tax_method = $item->tax_method;
+			$p_ids= array($item->product_id);$s_ids =  array($this->store_id); 
+			$batches =  $this->store_transfers_model->getbatchStockData($item->id);
+			$row->batches = $batches;
+			$unique_item_id = $this->store_id.$item->product_id.$item->batch;
+			$ri = $row->id;
+			$options = array();
+			$pr[$ri] = array('unique_id'=>$unique_item_id,'id' => $row->id, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
+				'row' => $row,  'options' => $options);
+		}
+		
+			$this->data['store_transfersitem'] = json_encode($pr);
+            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
+            $this->data['store_transfers_id'] = $id;
+            $this->data['suppliers'] = $this->siteprocurment->getAllCompanies('supplier');
+            $this->data['categories'] = $this->siteprocurment->getAllCategories();
+            $this->data['tax_rates'] = $this->siteprocurment->getAllTaxRates();
+            $this->data['warehouses'] = $this->siteprocurment->getAllWarehouses();
+	    $this->data['store_transfer'] = $stransfer;
+	    $this->data['store_req'] = $this->store_transfers_model->getStockReference($id);
+	    if(!$this->data['store_req']){
+		$this->data['store_req'] = $this->siteprocurment->getAll_respectiveSTOREREQUESTNUMBER();
+	    }
+	    
+	    $this->data['stores'] = $this->siteprocurment->getAllWarehouses_Stores();
+	    
+            $this->load->helper('string');
+            $value = random_string('alnum', 20);
+            $this->session->set_userdata('user_csrf', $value);
+            $this->data['csrf'] = $this->session->userdata('user_csrf');
+            $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('procurment/store_transfers'), 'page' => lang('store_transfers')), array('link' => '#', 'page' => lang('edit_store_transfers')));
+            $meta = array('page_title' => lang('edit_store_transfers'), 'bc' => $bc);
+	    //echo '<pre>';print_R($this->date['store_transfer']);exit;
+            $this->page_construct('procurment/store_transfers/edit', $meta, $this->data);
+        }
+    }
 
     /* ----------------------------------------------------------------------------------------------------------- */
+
+  
 
     public function store_transfers_by_csv()
     {
@@ -918,21 +892,16 @@ class Store_transfers extends MY_Controller
     
     /* --------------------------------------------------------------------------- */
 
-    public function suggestions()
-    {
+    public function suggestions(){
         $term = $this->input->get('term', true);
         $supplier_id = $this->input->get('supplier_id', true);
-
         if (strlen($term) < 1 || !$term) {
             die("<script type='text/javascript'>setTimeout(function(){ window.top.location.href = '" . admin_url('procurment/welcome') . "'; }, 10);</script>");
         }
-
         $analyzed = $this->sma->analyze_term($term);
         $sr = $analyzed['term'];
         $option_id = $analyzed['option_id'];
-
         $rows = $this->siteprocurment->getProductNames($sr);
-		
         if ($rows) {
             $c = str_replace(".", "", microtime(true));
             $r = 0;
@@ -955,24 +924,25 @@ class Store_transfers extends MY_Controller
                 if ($opt->cost != 0) {
                     $row->cost = $opt->cost;
                 }
-                $row->cost = $supplier_id ? $this->getSupplierCost($supplier_id, $row) : $row->cost;
-                $row->real_unit_cost = $row->cost;
-                $row->base_quantity = 1;
-                $row->base_unit = $row->unit;
-                $row->base_unit_cost = $row->cost;
-                $row->unit = $row->purchase_unit ? $row->purchase_unit : $row->unit;
-                $row->new_entry = 1;
-                $row->expiry = '';
-                $row->qty = 1;
+                $row->cost             = $supplier_id ? $this->getSupplierCost($supplier_id, $row) : $row->cost;
+                $row->real_unit_cost   = $row->cost;
+                $row->base_quantity    = 1;
+                $row->base_unit        = $row->unit;
+                $row->base_unit_cost   = $row->cost;
+                $row->unit             = $row->purchase_unit ? $row->purchase_unit : $row->unit;
+                $row->new_entry        = 1;
+                $row->expiry           = '';
+                $row->qty              = 1;
                 $row->quantity_balance = '';
                 $row->discount = '0';
+				$unique_item_id = $this->store_id.$row->id.$row->variant_id.$row->batch.$row->category_id.$row->subcategory_id.$row->brand_id.$row->invoice_id;
                 unset($row->details, $row->product_details, $row->price, $row->file, $row->supplier1price, $row->supplier2price, $row->supplier3price, $row->supplier4price, $row->supplier5price, $row->supplier1_part_no, $row->supplier2_part_no, $row->supplier3_part_no, $row->supplier4_part_no, $row->supplier5_part_no);
-
                 $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
                 $tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
-
-                $pr[] = array('id' => ($c + $r), 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
-                    'row' => $row, 'tax_rate' => $tax_rate, 'units' => $units, 'options' => $options);
+				$batches =  $this->store_transfers_model->loadbatches($row->id);
+				$row->batches = $batches;
+                $pr[] = array('id' => $unique_item_id, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
+                    'row' => $row, 'unique_id'=>$unique_item_id,'tax_rate' => $tax_rate, 'units' => $units, 'options' => $options);
                 $r++;
             }
             $this->sma->send_json($pr);
@@ -983,33 +953,24 @@ class Store_transfers extends MY_Controller
 
     /* -------------------------------------------------------------------------------- */
 
-    public function store_transfers_actions()
-    {
+    public function store_transfers_actions(){
         if (!$this->Owner && !$this->GP['bulk_actions']) {
             $this->session->set_flashdata('warning', lang('access_denied'));
             redirect($_SERVER["HTTP_REFERER"]);
         }
-
         $this->form_validation->set_rules('form_action', lang("form_action"), 'required');
-
         if ($this->form_validation->run() == true) {
-
             if (!empty($_POST['val'])) {
                 if ($this->input->post('form_action') == 'delete') {
-
                     //$this->sma->checkPermissions('delete');
                     foreach ($_POST['val'] as $id) {
                         $this->store_transfers_model->deleteStore_transfers($id);
                     }
                     $this->session->set_flashdata('message', $this->lang->line("store_transfers_deleted"));
                     redirect($_SERVER["HTTP_REFERER"]);
-
                 } elseif ($this->input->post('form_action') == 'combine') {
-
                     $html = $this->combine_pdf($_POST['val']);
-
                 } elseif ($this->input->post('form_action') == 'export_excel') {
-
                     $this->load->library('excel');
                     $this->excel->setActiveSheetIndex(0);
                     $this->excel->getActiveSheet()->setTitle(lang('store_transfers'));
@@ -1049,17 +1010,13 @@ class Store_transfers extends MY_Controller
 
     /* -------------------------------------------------------------------------------- */
 
-    public function payments($id = null)
-    {
-        //$this->sma->checkPermissions(false, true);
-
+    public function payments($id = null){
         $this->data['payments'] = $this->store_transfers_model->getPurchasePayments($id);
         $this->data['inv'] = $this->store_transfers_model->getStore_transfersByID($id);
         $this->load->view($this->theme . 'store_transfers/payments', $this->data);
     }
 
-    public function payment_note($id = null)
-    {
+    public function payment_note($id = null){
         //$this->sma->checkPermissions('payments', true);
         $payment = $this->store_transfers_model->getPaymentByID($id);
         $inv = $this->store_transfers_model->getStore_transfersByID($payment->purchase_id);
@@ -1072,8 +1029,7 @@ class Store_transfers extends MY_Controller
         $this->load->view($this->theme . 'store_transfers/payment_note', $this->data);
     }
 
-    public function email_payment($id = null)
-    {
+    public function email_payment($id = null){
         //$this->sma->checkPermissions('payments', true);
         $payment = $this->store_transfers_model->getPaymentByID($id);
         $inv = $this->store_transfers_model->getStore_transfersByID($payment->purchase_id);
@@ -1116,9 +1072,7 @@ class Store_transfers extends MY_Controller
         }
     }
 
-    public function add_payment($id = null)
-    {
-        //$this->sma->checkPermissions('payments', true);
+    public function add_payment($id = null){
         $this->load->helper('security');
         if ($this->input->get('id')) {
             $id = $this->input->get('id');
@@ -1128,8 +1082,6 @@ class Store_transfers extends MY_Controller
             $this->session->set_flashdata('error', lang("purchase_already_paid"));
             $this->sma->md();
         }
-
-        //$this->form_validation->set_rules('reference_no', lang("reference_no"), 'required');
         $this->form_validation->set_rules('amount-paid', lang("amount"), 'required');
         $this->form_validation->set_rules('paid_by', lang("paid_by"), 'required');
         $this->form_validation->set_rules('userfile', lang("attachment"), 'xss_clean');

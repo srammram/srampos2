@@ -1056,11 +1056,8 @@ if (typeof (Storage) === "undefined") {
 
 $(document).ready(function(){
     $('#add-store-request input[type="submit"]').click(function(e){
-
     $(window).unbind('beforeunload');
     $error = false;
-   
-    
   if($('#store_reqTable tbody tr').length==0){
     bootbox.alert('Add Items');
     return false;

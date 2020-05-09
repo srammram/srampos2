@@ -266,10 +266,7 @@ class Purchase_orders extends MY_Controller{
 
 //generate pdf and force to download
 
-    public function pdf($purchase_orders_id = null, $view = null, $save_bufffer = null)
-    {
-        //$this->sma->checkPermissions();
-
+    public function pdf($purchase_orders_id = null, $view = null, $save_bufffer = null){
         if ($this->input->get('id')) {
             $purchase_orders_id = $this->input->get('id');
         }

@@ -299,6 +299,12 @@ class Siteprocurment extends CI_Model{
         }
         return FALSE;
     }
+	function  get_all_warehouse(){
+		$this->db->select("");
+		$this->db->get_where("store_request");
+		$this->db->get();
+		
+	}
 	public function getAllStores() {
         $this->db->where('type', 1);
         $q = $this->db->get('warehouses');
@@ -2202,6 +2208,42 @@ class Siteprocurment extends CI_Model{
         }
         return FALSE;
     }
+	
+	 public function getProductNames_new($term, $limit = 10){
+		$type = array('standard','raw');
+		$this->db->select('r.*,t.rate as purchase_tax_rate,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,cm.category_id,cm.subcategory_id,cm.id as cm_id,cm.brand_id,cm.purchase_cost as cost,cm.selling_price as price,u.name as unit_name,us.name as purchase_unitName,COALESCE(rv.id,0) as variant_id,(CASE WHEN r.variants = 1 THEN CONCAT(r.name,"-",rv.name) ELSE r.name END) AS name,cm.selling_price AS price,cm.purchase_cost AS cost,rvv.attr_id as option_id');
+		$this->db->from('recipe r');
+		$this->db->join('category_mapping as cm','cm.product_id=r.id','left'); // 
+		$this->db->join('recipe_categories as rc','rc.id=cm.category_id','left');
+		$this->db->join('recipe_categories rsc','rsc.id=cm.subcategory_id','left');	
+		$this->db->join('brands b','b.id=cm.brand_id','left');
+		$this->db->join('tax_rates t','r.purchase_tax=t.id','left');
+		$this->db->join('units u','u.id=r.unit','left');
+		$this->db->join('units us','us.id=r.purchase_unit','left');
+		$this->db->join('recipe_variants_values rvv','rvv.recipe_id=r.id','left');
+		$this->db->join('recipe_variants rv','rv.id=rvv.attr_id','left');
+		$this->db->join('pro_stock_master','pro_stock_master.product_id=r.id AND pro_stock_master.store_id='.$this->store_id);
+		if($this->Settings->item_search ==0){
+		$this->db->where("(r.name LIKE '" . $term . "%' OR r.code LIKE '" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '" . $term . "%')");
+		}else{
+		$this->db->where("(r.name LIKE '%" . $term . "%' OR r.code LIKE '%" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '%" . $term . "%')"); 
+	  }
+		$this->db->where_in('r.type',$type);
+		$this->db->group_by('r.id,rv.id,rc.id,rsc.id,b.id');
+		$this->db->limit($limit);
+        $q = $this->db->get();
+/* 	echo $this->db->last_query();
+	die; */
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {		
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return FALSE;
+    }
+	
+	
 	
     function item_cost_update($product_id,$cost,$selling_price,$tax_id,$cate){
 	$data['cost'] = $selling_price;

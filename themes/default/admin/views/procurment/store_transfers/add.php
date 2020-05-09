@@ -39,14 +39,10 @@
                 $attrib = array('data-toggle' => 'validator1', 'role' => 'form','id'=>'store-transfer-form');
                 echo admin_form_open_multipart("procurment/store_transfers/add", $attrib)
                 ?>
-
-
                 <div class="row">
                     <div class="col-lg-12">
-			<?php echo form_submit('add_store_transfers', $this->lang->line("save"), 'id="add_store_transfers" class="btn col-lg-1 btn-sm btn-primary pull-right"'); ?>
+		                   	<?php echo form_submit('add_store_transfers', $this->lang->line("save"), 'id="add_store_transfers" class="btn col-lg-1 btn-sm btn-primary pull-right"'); ?>
                                 <button type="button" class="btn col-lg-1 btn-sm btn-danger pull-right" style="margin-right:15px;height:30px!important;font-size: 12px!important" id="reset"><?= lang('reset') ?></button>
-				
-                       
                         <h2>Store_transfers Details</h2>
 
                         <div class="col-md-4">
@@ -56,16 +52,31 @@
                                 
                             </div>
                         </div>
-                      
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <?= lang("from_warehouse", "store_transfrom_store_id"); ?>
+                              <input type="text" name="from_store_name" id="from_store_name" readonly class="form-control" value="<?=$this->store_name?>">
+							  <input type="hidden" name="from_store_id" id="from_store_id" readonly class="form-control" value="<?=$this->store_id?>">
+                            </div>
+                        </div>
+                        
+						 <div class="col-md-4">
+                            <div class="form-group">
+                                <?= lang("to_store", "store_transto_store_id"); ?>
+                                <?php
+                                $tst[''] = '';
+                                            foreach ($all_stores as $store) {
+                                                $tst[$store->id] = $store->name;
+                                            }
+                                echo form_dropdown('to_store_id', $tst, (isset($_POST['to_store_id']) ? $_POST['to_store_id'] : ''), 'id="store_transto_store_id" class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("to_store") . '" required="required" style="width:100%;" ');
+                                ?>
+                            </div>
+                        </div>
                     
                     <div class="col-md-4">
                         <div class="form-group">
-                           
                             <?= lang("store_request_no", "store_transrequestnumber"); ?>
-                            
-                           
                             <?php
-                        
                            $qn[''] = '';
                             foreach ($store_req as $store_req_row) {
                                 $qn[$store_req_row->id] = $store_req_row->reference_no;
@@ -75,9 +86,10 @@
                             </div>
                         
                     </div>
+					
                     
                     
-                    <div class="col-md-4">
+						<div class="col-md-4">
                             <div class="form-group">
                                 <?= lang("intend_request_date", "date") ?>
                                 <input type="text" name="intend_request_date" id="intend_request_date" readonly class="form-control" value="">
@@ -87,47 +99,18 @@
                        
                        
                          <input type="hidden" name="request_type" id="store_transtype" value="<?php echo 'new' ?>">
-                        
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <?= lang("from_warehouse", "store_transfrom_store_id"); ?>
-                                <?php
-                                $fst[''] = '';
-                                foreach ($stores as $store) {
-                                    $fst[$store->id] = $store->name;
-                                }
-                                echo form_dropdown('from_store_id', $fst, (isset($_POST['from_store_id']) ? $_POST['from_store_id'] : ''), 'id="store_transfrom_store_id" class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("from_store") . '" required="required" style="width:100%;" ');
-                                ?>
-                            </div>
-                        </div>
-                        
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <?= lang("to_store", "store_transto_store_id"); ?>
-                                <?php
-                                $tst[''] = '';
-                                foreach ($stores as $store) {
-                                    $tst[$store->id] = $store->name;
-                                }
-                                echo form_dropdown('to_store_id', $tst, (isset($_POST['to_store_id']) ? $_POST['to_store_id'] : ''), 'id="store_transto_store_id" class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("to_store") . '" required="required" style="width:100%;" ');
-                                ?>
-                            </div>
-                        </div>
+                      
+                       
                         
                         <input type="hidden" name="warehouse" id="store_transwarehouse" value="<?php echo $Settings->default_warehouse ?>">  
-                         
-                            
                             <div class="col-md-4">
                                 <div class="form-group">
-                                   
                                     <?= lang("document", "document") ?>
-                                   
-                                    <input id="document" type="file" data-browse-label="<?= lang('browse'); ?>" name="document" data-show-upload="false"
+                                  <input id="document" type="file" data-browse-label="<?= lang('browse'); ?>" name="document" data-show-upload="false"
                                            data-show-preview="false" class="form-control file">
                                    
                                 </div>
                             </div>
-                            
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <?= lang("status", "store_transstatus"); ?>
@@ -139,13 +122,16 @@
     
                                 </div>
                             </div>
-                             
+                             <div class="col-md-4">
+                                <div class="form-group">
+                                    <?= lang("remarks", "remarks"); ?>
+                                 <input type="text" name="remarks" class="form-control">
+                                </div>
+                            </div>
                           <div class="clearfix"></div>	
                       
 
-
                         <div class="col-md-12" id="sticker">
-                       
                             <div class="well well-sm">
                               
                                 <div class="form-group" style="margin-bottom:0;">
@@ -163,7 +149,7 @@
                                 <div class="clearfix"></div>
                             </div>
                         </div>
-
+							
                         <div class="col-md-12">
                             <div class="control-group table-group">
                                 <label class="table-label"><?= lang("items"); ?></label>
@@ -173,21 +159,24 @@
                                             class="table items  table-bordered table-condensed sortable_table" style="background:#fff">
                                         <thead>
                                         <tr>
-                                            <th width="200"><?= lang('product') . ' (' . lang('code') .' - '.lang('name') . ')'; ?></th>
-											
-                                            <th class="col-md-1"><?= lang("request_quantity"); ?></th>
-                                            
-                                             <th class="col-md-2"><?= lang("available_quantity"); ?></th>
-                                              <th class="col-md-2"><?= lang("transfer_quantity"); ?></th>
-                                              <th class="col-md-2"><?= lang("pending_quantity"); ?></th>
-                                              
-                                        
-                                           
-											
-											
+                                          	<th><?=lang('s_no')?></th>
+											<th><?=lang('code')?></th>
+											<th><?=lang('product_name')?></th>					   
+                                            <th><?= lang("request_quantity"); ?></th>
+                                            <th><?=lang('batch')?></th>
+                                            <th><?= lang("available_quantity"); ?></th>
+                                            <th><?= lang("transfer_quantity"); ?></th>
+                                            <th><?= lang("pending_quantity"); ?></th>
+											<th><?=lang('expiry')?></th>
+											<th><?=lang('cost_price')?></th>
+											<th><?=lang('selling_price')?></th>
+											<th><?=lang('tax')?></th>
+											<th><?=lang('tax_amount')?></th>
+											<th><?=lang('gross')?></th>
+											<th><?=lang('total')?></th>
                                             <th style="width: 30px !important; text-align: center;"><i
-                                                    class="fa fa-trash-o"
-                                                    style="opacity:0.5; filter:alpha(opacity=50);"></i></th>
+                                            class="fa fa-trash-o"
+                                            style="opacity:0.5; filter:alpha(opacity=50);"></i></th>
                                         </tr>
                                         </thead>
                                         <tbody></tbody>
@@ -203,7 +192,24 @@
                         </div>
                         <div class="clearfix"></div>
                         
-                        
+                          <table class="table " style="padding: 4px;border-top: none!important;width:30%;">
+				    <tbody>
+					<tr>                                    
+					    <td>
+						<label for="total_no_items"><?=lang('total_no_items')?></label>                                    </td>
+					    <td>
+						<input name="total_no_items" id="total_no_items" readonly class="form-control">
+					    </td>
+					</tr>
+					<tr>                                    
+					    <td>
+						<label for="total_no_qty"><?=lang('total_no_qty')?></label>                                    </td>
+					    <td>
+						<input name="total_no_qty" id="total_no_qty" readonly class="form-control">
+					    </td>
+					</tr>
+				    </tbody>
+				    </table>
                         
                     </div>
                 </div>

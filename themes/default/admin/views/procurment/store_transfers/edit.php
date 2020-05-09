@@ -137,6 +137,12 @@
     
                                 </div>
                             </div>
+							  <div class="col-md-4">
+                                <div class="form-group">
+                                    <?= lang("remarks", "remarks"); ?>
+                                 <input type="text" name="remarks" class="form-control">
+                                </div>
+                            </div>
                              
                           <div class="clearfix"></div>	
                       
@@ -170,22 +176,25 @@
                                     <table id="store_transfersTable"
                                             class="table items  table-bordered table-condensed sortable_table" style="background:#fff">
                                         <thead>
-                                        <tr>
-                                            <th width="200"><?= lang('product') . ' (' . lang('code') .' - '.lang('name') . ')'; ?></th>
-											
-                                            <th class="col-md-1"><?= lang("request_quantity"); ?></th>
-                                            
-                                             <th class="col-md-2"><?= lang("available_quantity"); ?></th>
-                                              <th class="col-md-2"><?= lang("transfer_quantity"); ?></th>
-                                              <th class="col-md-2"><?= lang("pending_quantity"); ?></th>
-                                              
-                                        
-                                           
-											
-											
+                                      <tr>
+                                          	<th><?=lang('s_no')?></th>
+											<th><?=lang('code')?></th>
+											<th><?=lang('product_name')?></th>					   
+                                            <th><?= lang("request_quantity"); ?></th>
+                                            <th><?=lang('batch')?></th>
+                                            <th><?= lang("available_quantity"); ?></th>
+                                            <th><?= lang("transfer_quantity"); ?></th>
+                                            <th><?= lang("pending_quantity"); ?></th>
+											<th><?=lang('expiry')?></th>
+											<th><?=lang('cost_price')?></th>
+											<th><?=lang('selling_price')?></th>
+											<th><?=lang('tax')?></th>
+											<th><?=lang('tax_amount')?></th>
+											<th><?=lang('gross')?></th>
+											<th><?=lang('total')?></th>
                                             <th style="width: 30px !important; text-align: center;"><i
-                                                    class="fa fa-trash-o"
-                                                    style="opacity:0.5; filter:alpha(opacity=50);"></i></th>
+                                            class="fa fa-trash-o"
+                                            style="opacity:0.5; filter:alpha(opacity=50);"></i></th>
                                         </tr>
                                         </thead>
                                         <tbody></tbody>

@@ -1,15 +1,11 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Store_transfers_model extends CI_Model
-{
-
+class Store_transfers_model extends CI_Model{
     public function __construct()
     {
         parent::__construct();
     }
-
-    public function getProductNames($term, $limit = 10)
-    {
+    public function getProductNames($term, $limit = 10){
         $this->db->where("(name LIKE '%" . $term . "%' OR code LIKE '%" . $term . "%' OR  concat(name, ' (', code, ')') LIKE '%" . $term . "%')");
         $this->db->limit($limit);
         $q = $this->db->get('products');
@@ -22,8 +18,7 @@ class Store_transfers_model extends CI_Model
         return FALSE;
     }
 	
-	public function getReqBYID($id)
-    {
+	public function getReqBYID($id){
         $q = $this->db->get_where('pro_store_request', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -31,8 +26,7 @@ class Store_transfers_model extends CI_Model
         return FALSE;
     }
 	
-	public function getStore_transferByID($id)
-    {
+	public function getStore_transferByID($id){
         $q = $this->db->get_where('pro_store_transfers', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -41,7 +35,6 @@ class Store_transfers_model extends CI_Model
     }
 	
 	public function checkPendingQTY($product_id, $quantity, $requestnumber){
-		
 		$q = $this->db->select('id')->where('requestnumber', $requestnumber)->order_by('id', 'DESC')->limit(1)->get('pro_store_transfers');
 		if ($q->num_rows() > 0) {
 			$s = $this->db->select('pending_quantity')->where('product_id', $product_id)->where('store_transfer_id', $q->row('id'))->get('pro_store_transfer_items');
@@ -194,17 +187,15 @@ class Store_transfers_model extends CI_Model
     }
    
 	
-    public function getAllStore_transfersItems($store_transfers_id)
-    {
-        $this->db->select('pro_store_transfer_items.*')
-	    ->from('pro_store_transfer_items')
-            ->join('recipe', 'recipe.id=pro_store_transfer_items.product_id', 'left')
-            ->join('recipe_variants', 'recipe_variants.id=pro_store_transfer_items.option_id', 'left')
-            ->where('store_transfer_id' ,$store_transfers_id)
+    public function getAllStore_transfersItems($store_transfers_id){
+        $this->db->select('pro_store_transfer_items.*,pid.batch,pid.cost_price,pid.landing_cost,pid.selling_price,pid.tax,pid.tax_method,pid.expiry,pid.pending_qty ')
+	    ->from('pro_store_transfer_items')      
+		->join('pro_store_transfer_item_details pid','pid.store_transfer_item_id=pro_store_transfer_items.id','left')
+        ->where('pro_store_transfer_items.store_transfer_id' ,$store_transfers_id)
 	    ->group_by('pro_store_transfer_items.id')
-            ->order_by('id', 'asc');
-	   // echo $this->db->get_compiled_select();
+        ->order_by('id', 'asc');
         $q = $this->db->get();
+		
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -214,8 +205,7 @@ class Store_transfers_model extends CI_Model
         return FALSE;
     }
 
-    public function getItemByID($id)
-    {
+    public function getItemByID($id){
         $q = $this->db->get_where('pro_store_transfer_items', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -312,25 +302,65 @@ class Store_transfers_model extends CI_Model
         return FALSE;
     }
 
-    public function addStore_transfers($data, $items, $store_transfers, $order_id)
-    {
+       public function addStore_transfers($data, $items, $store_transfers, $order_id){
+	     $this->db->insert('pro_store_transfers', $data);
+        $store_transfers_id = $this->db->insert_id();
 		
-	$this->db->insert('pro_store_transfers', $data);
-       $store_transfers_id = $this->db->insert_id();
-	    if ($store_transfers_id) {
-             
+	    $unique_id = $this->site->generateUniqueTableID($store_transfers_id);
+	if ($store_transfers_id) {
+	    $this->site->updateUniqueTableId($store_transfers_id,$unique_id,'pro_store_transfers');
+	}
+	if ($unique_id) {
+	    if($data['intend_request_id']!=''){
+		$u_data['is_processed'] =1;
+		$this->db->where('id',$data['intend_request_id']);
+		$this->db->update('pro_stock_request',$u_data);
+	    }
+	    $store_transfers['is_processed'] = 1;
+	    $this->db->update('pro_stock_request', $store_transfers, array('id' => $order_id));
+	    foreach ($items as $item) {
+			if($item['batches'] !=0){
+		    $batches = $item['batches'];unset($item['batches']);
+		    $item['store_transfer_id'] = $unique_id;
+		    $this->db->insert('pro_store_transfer_items', $item);
+		    $item_insert_id = $this->db->insert_id();
+			$i_unique_id = $this->site->generateUniqueTableID($item_insert_id);
+			if ($item_insert_id) {
+		       $this->site->updateUniqueTableId($item_insert_id,$i_unique_id,'pro_store_transfer_items');
+			}
+		foreach ($batches as $k => $batch) {
+		    $stock_id = $batch['stock_id'];//unset($batch['stock_id']);
+		    $batch['store_transfer_item_id'] = $i_unique_id;
+		    $batch['store_transfer_id'] = $unique_id;
+			$invoice_id = $batch['invoice_id'];
+		//	unset($batch['invoice_id']);
+		    $this->db->insert('pro_store_transfer_item_details', $batch);
 			
-				$this->db->update('pro_store_request', $store_transfers, array('id' => $order_id));
+		    $item_d_insert_id = $this->db->insert_id();
 			
-            foreach ($items as $item) {
-                $item['store_transfer_id'] = $store_transfers_id;
-                $this->db->insert('pro_store_transfer_items', $item);
-				
-				
-            }
-			
+		    $id_unique_id = $this->site->generateUniqueTableID($item_d_insert_id);
+		    if ($item_d_insert_id) {
+			$this->site->updateUniqueTableId($item_d_insert_id,$id_unique_id,'pro_store_transfer_item_details');
+			if($data['status']=="approved"){
+            // $this->stock_model->price_master_update($data['to_store'],$item['product_id'],$batch['batch'],$batch['cost_price'],$batch['vendor_id'],$invoice_id,$batch['selling_price']);
+			//    $this->stock_model->TransferStockOut($data['product_id'],$batch['transfer_qty'],$stock_id);  
+			}
+		    }
+		}
+			}
+	    }
+	    if($data['status']=="approved"){
+		if($this->isStore){		
+		   // $this->sync_center->sync_store_transfers($unique_id);	
+              //   $sync_now = true;
+              //   $this->site->start_sync($sync_now);		
+		}else{
+		   // $this->sync_store_receivers($unique_id);
+		}
+	    }
             return true;
         }
+	
         return false;
     }
 
@@ -681,18 +711,56 @@ class Store_transfers_model extends CI_Model
         return FALSE;
     }
 
-    public function updateAVCO($data)
-    {
-        if ($wp_details = $this->getWarehouseProductQuantity($data['warehouse_id'], $data['product_id'])) {
-            $total_cost = (($wp_details->quantity * $wp_details->avg_cost) + ($data['quantity'] * $data['cost']));
-            $total_quantity = $wp_details->quantity + $data['quantity'];
-            if (!empty($total_quantity)) {
-                $avg_cost = ($total_cost / $total_quantity);
-                $this->db->update('warehouses_products', array('avg_cost' => $avg_cost), array('product_id' => $data['product_id'], 'warehouse_id' => $data['warehouse_id']));
+  
+ public function loadbatches($productid){
+		$type = array('standard','raw');
+		$this->db->select('pro_stock_master.*,r.id');
+		$this->db->from('recipe r');
+		$this->db->join('tax_rates t','r.purchase_tax=t.id','left');
+		$this->db->join('pro_stock_master','pro_stock_master.product_id=r.id AND pro_stock_master.store_id='.$this->store_id);
+		$this->db->where('r.id',$productid);
+		$this->db->where_in('r.type',$type);
+        $q = $this->db->get();
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $k=> $row) {	
+			if($row->batch==null){$row->batch="No Batch";}
+		      $row->available_stock = $row->stock_in;			
+              $data[] = $row;
             }
-        } else {
-            $this->db->insert('warehouses_products', array('product_id' => $data['product_id'], 'warehouse_id' => $data['warehouse_id'], 'avg_cost' => $data['cost'], 'quantity' => 0));
+            return $data;
         }
+        return FALSE;
     }
-
+	function getbatchStockData($item_transfer_id){
+		$this->db->select('pi.product_id as id,i.transfer_qty,i.tax_method,i.pending_qty,i.tax,pro_stock_master.stock_in as available_stock,pro_stock_master.unique_id as stock_id,pro_stock_master.supplier_id,pro_stock_master.invoice_id,pro_stock_master.selling_price,pro_stock_master.batch,pro_stock_master.expiry,pro_stock_master.cost_price,pro_stock_master.landing_cost,DATE(i.expiry) as expiry_date');
+		$this->db->from('pro_store_transfer_item_details as i');
+		$this->db->join('pro_store_transfer_items pi', 'pi.id=i.store_transfer_item_id and pi.store_id='.$this->store_id);
+		$this->db->join('warehouses_recipe wr', 'wr.recipe_id=pi.product_id and warehouse_id='.$this->store_id,'left');
+		$this->db->join('pro_stock_master','pro_stock_master.unique_id=i.stock_id AND pro_stock_master.store_id='.$this->store_id);
+		$this->db->where('i.store_transfer_item_id',$item_transfer_id);
+		$q = $this->db->get();
+		if($q->num_rows()>0){
+			  foreach (($q->result()) as $k=> $row) {	
+			if($row->batch==null){$row->batch="No Batch";}
+		      $row->available_stock = $row->available_stock;			
+              $data[] = $row;
+	    }
+	    return $data;
+	}
+	return false;
+     
+    }
+	 function getStockReference($id){
+	 $this->db->select('id,reference_no,date');
+        $this->db->from('pro_stock_request');
+        $this->db->where('id',$id);
+	//echo $this->db->get_compiled_select();
+        $q = $this->db->get();$data= array();
+        if($q->num_rows()>0){
+            $data = $q->result();
+	    
+	    return $data;
+	}
+	return false;
+    }
 }
