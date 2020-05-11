@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_pro_purchase_order_items` ADD `unit_quantity` DECIMAL(15,6) NULL DEFAULT '0.00' AFTER `product_unit_id`, ADD `product_unit_code` VARCHAR(50) NULL DEFAULT NULL AFTER `unit_quantity`;

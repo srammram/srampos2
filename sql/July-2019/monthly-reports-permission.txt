@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_permissions` ADD `reports-monthly_reports` TINYINT NOT NULL AFTER `reports-items_mapping_for_modify_bills`;

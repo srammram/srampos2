@@ -1,7 +1,0 @@
-ALTER TABLE `srampos_pos_settings` ADD `kot_enable_disable` TINYINT(1) NOT NULL AFTER `customer_discount_editable`;
-
-ALTER TABLE `srampos_bbq` ADD `bbq_menu_id` TINYINT(4) NOT NULL AFTER `reference_no`;
-
-ALTER TABLE `srampos_sales_type` ADD `type` ENUM('alacarte','bbq') NOT NULL AFTER `name`;
-
-

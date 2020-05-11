@@ -1,1 +1,0 @@
-DROP TABLE `srampos`.`srampos_bbq_process`;

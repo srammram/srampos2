@@ -1,2 +1,0 @@
-
-ALTER TABLE `srampos_permissions` ADD `pos-qsr` TINYINT(4) NOT NULL DEFAULT '0' AFTER `pos-billing`, ADD `pos-bbq` TINYINT(4) NOT NULL DEFAULT '0' AFTER `pos-qsr`;

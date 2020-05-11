@@ -1,3 +1,0 @@
-ALTER TABLE `srampos_orders` ADD `waiter_id` TINYINT NOT NULL AFTER `ordered_by`;
-
-ALTER TABLE `srampos_archive_orders` ADD `waiter_id` TINYINT NOT NULL AFTER `ordered_by`;

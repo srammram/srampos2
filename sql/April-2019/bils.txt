@@ -1,2 +1,0 @@
-ALTER TABLE `srampos_bils` ADD `print_count` INT NOT NULL AFTER `delete_action`;
-ALTER TABLE `srampos_archive_bils` ADD `print_count` INT NOT NULL AFTER `delete_action`;

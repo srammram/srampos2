@@ -1,7 +1,10 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 <script type="text/javascript">
       
-    
+    var store_rec_items = {};
+    localStorage.setItem('store_rec_items', JSON.stringify(<?= $inv_items; ?>));
+   
+   
     <?php if($inv) { ?>
     localStorage.setItem('store_rec_warehouse', '<?= $inv->warehouse_id ?>');
 	localStorage.setItem('store_rec_to_store_id', '<?= $inv->to_store_id ?>');
@@ -19,15 +22,11 @@
 
     var count = 1, an = 1, store_receivers_edit = false, product_variant = 0, DT = <?= $Settings->default_tax_rate ?>, DC = '<?= $default_currency->code ?>', shipping = 0,
         product_tax = 0, invoice_tax = 0, total_discount = 0, total = 0,
-        tax_rates = <?php echo json_encode($tax_rates); ?>, store_rec_items = {},
+        tax_rates = <?php echo json_encode($tax_rates); ?>, 
         audio_success = new Audio('<?= $assets ?>sounds/sound2.mp3'),
         audio_error = new Audio('<?= $assets ?>sounds/sound3.mp3');
     $(document).ready(function () {
-        <?php if($this->input->get('supplier')) { ?>
-        if (!localStorage.getItem('store_rec_items')) {
-            localStorage.setItem('store_rec_supplier', <?=$this->input->get('supplier');?>);
-        }
-        <?php } ?>
+      
         <?php //if ($Owner || $Admin) { ?>
         if (!localStorage.getItem('store_rec_date')) {
             $("#podate").datetimepicker({
@@ -238,18 +237,17 @@
                 $attrib = array('data-toggle' => 'validator1', 'role' => 'form');
                 echo admin_form_open_multipart("procurment/store_receivers/edit/".$id, $attrib)
                 ?>
-
+				  <?php echo form_submit('add_store_transfers', $this->lang->line("save"), 'id="add_store_transfers" class="btn col-lg-1 btn-sm btn-primary pull-right"'); ?>
+					<button type="button" class="btn col-lg-1 btn-sm btn-danger pull-right" style="margin-right:15px;height:30px!important;font-size: 12px!important" id="reset"><?= lang('reset') ?></button>
 
                 <div class="row">
                     <div class="col-lg-12">
-						
-                       
                         <h2>Store_receivers Details</h2>
 
                         <div class="col-md-4">
                             <div class="form-group">
                                 <?= lang("Date", "date") ?>
-                                <input type="datetime" name="date" id="store_rec_date" readonly class="form-control" value="<?php echo $inv->date ?>">
+                                <input type="datetime" name="date" id="store_rec_date" readonly class="form-control" value="<?php echo $store_receivers->date ?>">
                                 
                             </div>
                         </div> 
@@ -263,11 +261,11 @@
                            
                             <?php
                         
-                           $qn[''] = '';
-                            foreach ($requestnumber as $requestnumber_row) {
-                                $qn[$requestnumber_row->id] = $requestnumber_row->reference_no;
+                          $qn[''] = '';
+                            foreach ($store_req as $store_req_row) {
+                                $qn[$store_req_row->id] = $store_req_row->reference_no;
                             }
-                            echo form_dropdown('requestnumber', $qn, $inv->requestnumber, ' class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("request_number") . '"style="width:100%;" id="store_rec_requestnumber" disabled  ');
+                            echo form_dropdown('requestnumber', $qn, $store_receivers->intend_request_id, ' class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("request_number") . '"style="width:100%;" id="store_rec_requestnumber" disabled  ');
                             ?>
                             </div>
                         
@@ -276,13 +274,13 @@
                     <div class="col-md-4">
                             <div class="form-group">
                                 <?= lang("Request Date", "date") ?>
-                                <input type="datetime" name="requestdate" id="store_rec_requestdate" readonly class="form-control" value="<?php echo $inv->requestdate ?>">
+                                <input type="datetime" name="requestdate" id="store_rec_requestdate" readonly class="form-control" value="<?php echo $store_receivers->requestdate ?>">
                                 
                             </div>
                         </div>
                         
                          
-                    	<input type="hidden" name="request_type" id="store_rec_type" value="<?php echo $inv->request_type ?>">
+                    	<input type="hidden" name="request_type" id="store_rec_type" value="<?php echo $store_receivers->request_type ?>">
                        
                        <div class="col-md-4">
                             <div class="form-group">
@@ -292,7 +290,7 @@
                                 foreach ($stores as $store) {
                                     $fst[$store->id] = $store->name;
                                 }
-                                echo form_dropdown('from_store_id', $fst, (isset($_POST['from_store_id']) ? $_POST['from_store_id'] : $inv->from_store_id), 'id="store_rec_from_store_id" disabled class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("from_store") . '" required="required" style="width:100%;" ');
+                                echo form_dropdown('from_store_id', $fst, (isset($_POST['from_store_id']) ? $_POST['from_store_id'] : $store_receivers->from_store), 'id="store_rec_from_store_id" disabled class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("from_store") . '" required="required" style="width:100%;" ');
                                 ?>
                             </div>
                         </div>
@@ -305,21 +303,14 @@
                                 foreach ($stores as $store) {
                                     $tst[$store->id] = $store->name;
                                 }
-                                echo form_dropdown('to_store_id', $tst, (isset($_POST['to_store_id']) ? $_POST['to_store_id'] : $inv->to_store_id), 'id="store_rec_to_store_id" disabled class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("to_store") . '" required="required" style="width:100%;" ');
+                                echo form_dropdown('to_store_id', $tst, (isset($_POST['to_store_id']) ? $_POST['to_store_id'] : $store_receivers->to_store), 'id="store_rec_to_store_id" disabled class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("to_store") . '" required="required" style="width:100%;" ');
                                 ?>
                             </div>
                         </div>
                         
-                        
-                        <input type="hidden" name="warehouse" id="store_rec_warehouse" value="<?php echo $inv->warehouse_id ?>">
-                        
-                            
-                            
                             <div class="col-md-4">
                                 <div class="form-group">
-                                   
                                     <?= lang("document", "document") ?>
-                                   
                                     <input id="document" type="file" data-browse-label="<?= lang('browse'); ?>" name="document" data-show-upload="false"
                                            data-show-preview="false" class="form-control file">
                                    
@@ -330,11 +321,8 @@
                                 <div class="form-group">
                                     <?= lang("status", "store_rec_status"); ?>
                                     <?php $st['process'] = lang('process');
-								if($this->siteprocurment->GETaccessModules('store_received_approved')){
 									$st['approved'] = lang('approved');	
-									$st['completed'] = lang('completed');	
-								}
-                                    echo form_dropdown('status', $st, $inv->status, 'class="form-control input-tip" id="store_rec_status"'); ?>
+                                    echo form_dropdown('status', $st, $store_receivers->status, 'class="form-control input-tip" id="store_rec_status"'); ?>
     
                                 </div>
                             </div>
@@ -345,22 +333,7 @@
 
                         <div class="col-md-12" id="sticker">
                        
-                            <div class="well well-sm">
-                              
-                                <div class="form-group" style="margin-bottom:0;">
-                                    <div class="input-group wide-tip">
-                                        <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
-                                            <i class="fa fa-2x fa-barcode addIcon"></i></a></div>
-                                        <?php echo form_input('add_item', '', 'class="form-control input-lg" id="add_item" placeholder="' . $this->lang->line("add_Purchase Items_to_order") . '"'); ?>
-                                        <?php if ($Owner || $Admin || $GP['products-add']) { ?>
-                                        <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
-                                            <a href="<?= admin_url('procurment/products/add') ?>" id="addManually1"><i
-                                                    class="fa fa-2x fa-plus addIcon" id="addIcon"></i></a></div>
-                                        <?php } ?>
-                                    </div>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div>
+                            
                         </div>
 
                         <div class="col-md-12">
@@ -370,20 +343,22 @@
                                 <div class="controls table-controls">
                                     <table id="store_receiversTable"
                                             class="table items  table-bordered table-condensed sortable_table" style="background:#fff">
-                                        <thead>
-                                        <tr>
-                                            <th width="200"><?= lang('product') . ' (' . lang('code') .' - '.lang('name') . ')'; ?></th>
-											
-                                            <th class="col-md-1"><?= lang("request_quantity"); ?></th>
-                                            
-                                             <th class="col-md-2"><?= lang("available_quantity"); ?></th>
-                                              <th class="col-md-2"><?= lang("transfer_quantity"); ?></th>
-                                              <th class="col-md-2"><?= lang("pending_quantity"); ?></th>
-                                              
-                                        
-                                           
-											
-											
+											<thead>
+											<tr>
+                                            <th><?=lang('s_no')?></th>
+											<th><?=lang('code')?></th>
+											<th><?=lang('product_name')?></th>
+                                            <th><?= lang("request_quantity"); ?></th>    
+                                            <th><?= lang("transfer_quantity"); ?></th>
+                                            <th><?= lang("pending_quantity"); ?></th>
+											<th><?=lang('batch')?></th>
+											<th><?=lang('expiry')?></th>
+											<th><?=lang('cost_price')?></th>
+											<th><?=lang('selling_price')?></th>
+											<th><?=lang('tax')?></th>
+											<th><?=lang('gross')?></th>
+											<th><?=lang('tax_amount')?></th>
+											<th><?=lang('total')?></th>
                                             <th style="width: 30px !important; text-align: center;"><i
                                                     class="fa fa-trash-o"
                                                     style="opacity:0.5; filter:alpha(opacity=50);"></i></th>
@@ -397,17 +372,27 @@
                                 </div>
                             </div>
 							
-								
-				
                         </div>
                         <div class="clearfix"></div>
                      
-                        <div class="col-md-12">
-                            <div
-                                class="from-group"><?php echo form_submit('add_store_receivers', $this->lang->line("submit"), 'id="add_store_receivers" class="btn btn-primary" style="padding: 6px 15px; margin:15px 0;"'); ?>
-                                <button type="button" class="btn btn-danger" id="reset"><?= lang('reset') ?></button>
-                            </div>
-                        </div>
+                          <table class="table " style="padding: 4px;border-top: none!important;width:30%;">
+				    <tbody>
+					<tr>                                    
+					    <td>
+						<label for="total_no_items"><?=lang('total_no_items')?></label>                                    </td>
+					    <td>
+						<input name="total_no_items" id="total_no_items" readonly class="form-control">
+					    </td>
+					</tr>
+					<tr>                                    
+					    <td>
+						<label for="total_no_qty"><?=lang('total_no_qty')?></label>                                    </td>
+					    <td>
+						<input name="total_no_qty" id="total_no_qty" readonly class="form-control">
+					    </td>
+					</tr>
+				    </tbody>
+				    </table>
                     </div>
                 </div>
                 

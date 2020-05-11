@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_permissions` ADD `pos-member_discount` TINYINT(4) NOT NULL AFTER `pos-change_customer`;

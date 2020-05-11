@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_pos_settings` ADD `item_search` INT NULL DEFAULT '0' COMMENT '0=both search 1=item search 2=name search' AFTER `kot_font_size`;

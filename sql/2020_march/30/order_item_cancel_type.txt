@@ -1,2 +1,0 @@
-
-ALTER TABLE `srampos_order_items` ADD `item_cancel_type` VARCHAR(25) NULL DEFAULT NULL AFTER `order_item_cancel_note`;

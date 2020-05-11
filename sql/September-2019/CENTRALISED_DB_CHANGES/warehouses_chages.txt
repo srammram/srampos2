@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_warehouses` ADD `price_group_id` INT NOT NULL AFTER `parent_warehouses`, ADD `this_store` INT NOT NULL AFTER `price_group_id`, ADD `last_update` DATETIME NOT NULL AFTER `this_store`, ADD `sync_time` DATETIME NOT NULL AFTER `last_update`;

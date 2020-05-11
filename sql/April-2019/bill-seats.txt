@@ -1,2 +1,0 @@
-ALTER TABLE `srampos_bils` ADD `seats` INT NOT NULL AFTER `print_count`;
-ALTER TABLE `srampos_archive_bils` ADD `seats` INT NOT NULL AFTER `print_count`;

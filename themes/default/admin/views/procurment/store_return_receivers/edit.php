@@ -370,23 +370,22 @@
                                 <div class="controls table-controls">
                                     <table id="store_return_receiversTable"
                                             class="table items  table-bordered table-condensed sortable_table" style="background:#fff">
-                                        <thead>
+                                      <thead>
                                         <tr>
-                                            <th width="200"><?= lang('product') . ' (' . lang('code') .' - '.lang('name') . ')'; ?></th>
-											<th class="col-md-1"><?= lang("batch_no"); ?></th>
-                                            
-                                             <th class="col-md-2"><?= lang("available_quantity"); ?></th>
-                                              <th class="col-md-2"><?= lang("transfer_quantity"); ?></th>
-                                              
-                                        
-                                           
-											
-											
-                                            <th style="width: 30px !important; text-align: center;"><i
-                                                    class="fa fa-trash-o"
-                                                    style="opacity:0.5; filter:alpha(opacity=50);"></i></th>
-                                        </tr>
-                                        </thead>
+                                            <th><?=lang('s_no')?></th>
+											<th><?=lang('code')?></th>
+											<th><?=lang('product_name')?></th>
+                                            <th><?= lang("request_quantity"); ?></th>    
+                                            <th><?= lang("transfer_quantity"); ?></th>
+                                            <th><?= lang("pending_quantity"); ?></th>
+											<th><?=lang('batch')?></th>
+											<th><?=lang('expiry')?></th>
+											<th><?=lang('cost_price')?></th>
+											<th><?=lang('selling_price')?></th>
+											<th><?=lang('tax')?></th>
+											<th><?=lang('gross')?></th>
+											<th><?=lang('tax_amount')?></th>
+											<th><?=lang('total')?></th>
                                         <tbody></tbody>
                                         <tfoot>
 										

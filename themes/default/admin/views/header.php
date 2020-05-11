@@ -994,11 +994,11 @@
                                                        <span class="text"> <?= lang('list'); ?></span>
                                                    </a>
                                                </li>
-                                               <li id="procurment_store_receivers_add">
+                                             <!--  <li id="procurment_store_receivers_add">
                                                    <a class="submenu" href="<?= admin_url('procurment/store_receivers/add'); ?>">
                                                        <span class="text"> <?= lang('create'); ?></span>
                                                    </a>
-                                               </li>
+                                               </li>-->
                                           </ul>
                                        </li>
                                        <!--
@@ -2421,13 +2421,13 @@
                                                     </a>
                                                 </li>
                                                 <?php endif; ?>
-                                                <?php if($GP['store_receivers_add']) : ?>
+                                               <!--
                                                 <li id="procurment_store_receivers_add">
                                                     <a class="submenu" href="<?= admin_url('procurment/store_receivers/add'); ?>">
                                                         <span class="text"> <?= lang('create'); ?></span>
                                                     </a>
                                                 </li>
-                                                <?php endif; ?>
+                                               -->
                                            </ul>
                                         </li>
                                         <?php endif; ?>

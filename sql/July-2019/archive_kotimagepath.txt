@@ -1,3 +1,0 @@
-ALTER TABLE `srampos_archive_order_items` ADD `image_path` TEXT NOT NULL AFTER `stock_out_data`;
-
-ALTER TABLE `srampos_archive_order_items` ADD `recipe_name_img` TEXT NOT NULL AFTER `image_path`;

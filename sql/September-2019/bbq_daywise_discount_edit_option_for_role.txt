@@ -1,4 +1,0 @@
-ALTER TABLE `srampos_permissions` ADD `bbq_daywise_discount_edit_permission` TINYINT NOT NULL AFTER `system_settings-delete_bbq_menu`;
-
-ALTER TABLE `srampos_recipe_categories` ADD `status` TINYINT NOT NULL AFTER `type`;
-

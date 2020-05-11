@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_users` ADD `area_id` VARCHAR(500) NOT NULL AFTER `max_discount_percent`;

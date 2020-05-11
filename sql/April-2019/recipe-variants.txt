@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_recipe_variants_values` ADD `preferred` TINYINT(1) NOT NULL AFTER `status`;

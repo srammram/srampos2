@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_order_items` ADD `parent_order_item_id` INT NOT NULL AFTER `unwanted_ingredients`;

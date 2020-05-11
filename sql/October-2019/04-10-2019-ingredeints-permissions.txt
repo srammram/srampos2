@@ -1,2 +1,0 @@
-ALTER TABLE `srampos_permissions` ADD `recipe-list_ingredients` TINYINT NOT NULL AFTER `recipe-csv`, ADD `recipe-add_ingredients` TINYINT NOT NULL AFTER `recipe-list_ingredients`, ADD `recipe-ingredients_import_csv` TINYINT NOT NULL AFTER `recipe-add_ingredients`;
-ALTER TABLE `srampos_permissions` ADD `recipe-ingredients_edit` TINYINT NOT NULL AFTER `recipe-add_ingredients`, ADD `recipe-ingredients_delete` TINYINT NOT NULL AFTER `recipe-ingredients_edit`;

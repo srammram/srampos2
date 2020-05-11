@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_latest_bill` ADD `dont_print_billnumber` VARCHAR(200) NOT NULL AFTER `bill_number`;

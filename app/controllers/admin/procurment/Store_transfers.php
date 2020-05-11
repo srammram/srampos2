@@ -111,11 +111,7 @@ class Store_transfers extends MY_Controller{
 	}
     /* ------------------------------------------------------------------------- */
 
-    public function index($warehouse_id = null)
-    {
-         
-       // //$this->sma->checkPermissions();
-
+    public function index($warehouse_id = null){
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         if ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) {
             $this->data['warehouses'] = $this->siteprocurment->getAllWarehouses();
@@ -135,7 +131,7 @@ class Store_transfers extends MY_Controller{
 
     public function getStore_transfers($warehouse_id = null){ 
 		$view_link = '<a href="'.admin_url('procurment/store_transfers/view/$1').'" data-toggle="modal" data-target="#myModal"><i class="fa fa-edit"></i>'.lang('view_store_transfer').'</a>';
-        $edit_link = anchor('admin/procurment/store_transfers/edit/$1', '<i class="fa fa-edit"></i> ' . lang('edit_store_transfers'));
+        $edit_link = anchor('admin/procurment/store_transfers/edit/$1', '<i class="fa fa-edit"></i> ' . lang('edit_store_transfer'));
         $delete_link = "<a href='#' class='po' title='<b>" . $this->lang->line("delete_quotation") . "</b>' data-content=\"<p>"
         . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete' href='" . admin_url('procurment/store_transfers/delete/$1') . "'>"
         . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i> "
@@ -211,24 +207,29 @@ class Store_transfers extends MY_Controller{
              $store_transfers_id = $this->input->get('id');
         }
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
-        $po = $this->store_transfers_model->getStore_transfersByID($store_transfers_id);
-		
+        $this->data['store_tranf_details']=$po = $this->store_transfers_model->getStore_transfersByID($store_transfers_id);
+		$store_transfer_items = $this->store_transfers_model->getAllStore_transfersItems($store_transfers_id);
         if (!$this->session->userdata('view_right')) {
             $this->sma->view_rights($po->created_by);
         }
-        $this->data['rows'] = $this->store_transfers_model->getAllStore_transfersItems($store_transfers_id);
-        $this->data['supplier'] = $this->siteprocurment->getCompanyOrderByID($po->customer_id);
-        $this->data['warehouse'] = $this->siteprocurment->getWarehouseOrderByID($po->warehouse_id);
-        $this->data['inv'] = $po;
-        //$this->data['payments'] = $this->store_transfers_model->getPaymentsForStore_transfers($store_transfers_id);
-        $this->data['created_by'] = $this->siteprocurment->getUser($po->created_by);
-        $this->data['updated_by'] = $po->updated_by ? $this->siteprocurment->getUser($po->updated_by) : null;
-        $this->data['return_purchase'] = $po->return_id ? $this->store_transfers_model->getStore_transfersByID($po->return_id) : NULL;
-        $this->data['return_rows'] = $po->return_id ? $this->store_transfers_model->getAllStore_transfersItems($po->return_id) : NULL;
-
+		   krsort($store_transfer_items);
+            $c = rand(100000, 9999999);
+			 foreach ($store_transfer_items as $item) {
+                $row = $this->siteprocurment->getRecipeByID($item->product_id);
+                $row->id = $item->product_id;
+                $row->code = $item->product_code;
+                $row->name = $item->product_name;
+                $row->type = $item->product_type;
+                $ri = $this->Settings->item_addition ? $row->id : $c;
+                $pr[$ri] = array('id' => $c, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")", 'row' => $item);
+                $c++;
+            }
+        $this->data['store_tranf_items'] = $pr;
+	    $this->data['fromstore'] = $this->siteprocurment->getWarehouseByID($po->from_store);
+		$this->data['to_store'] = $this->siteprocurment->getWarehouseByID($po->to_store);
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('procurment/store_transfers'), 'page' => lang('store_transfers')), array('link' => '#', 'page' => lang('view')));
         $meta = array('page_title' => lang('view_store_transfers_details'), 'bc' => $bc);
-        $this->page_construct('procurment/store_transfers/view', $meta, $this->data);
+        $this->load->view($this->theme . 'procurment/store_transfers/view',  $this->data);
 
     }
 

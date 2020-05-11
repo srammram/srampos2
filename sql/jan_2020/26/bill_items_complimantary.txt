@@ -1,2 +1,0 @@
-ALTER TABLE `srampos_bil_items` ADD `item_type` VARCHAR(50) NOT NULL AFTER `grand_total`;
-ALTER TABLE `srampos_bil_items_archival` ADD `item_type` VARCHAR(50) NOT NULL AFTER `grand_total`;

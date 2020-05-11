@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_settings` ADD `item_search` TINYINT NOT NULL DEFAULT '0' AFTER `archival_report`;

@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_user_logins` ADD `group_id` INT NOT NULL AFTER `login_type`;

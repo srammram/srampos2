@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_sale_return_item` ADD `return_uom` INT NOT NULL AFTER `return_piece`;

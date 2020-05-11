@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_warehouses` ADD `vat_number` VARCHAR(30) NULL DEFAULT NULL AFTER `email`;

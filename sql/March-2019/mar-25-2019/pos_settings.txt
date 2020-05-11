@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_pos_settings` ADD `billgeneration_screen` TINYINT NOT NULL DEFAULT '1' AFTER `consolidated_reprint_print`;

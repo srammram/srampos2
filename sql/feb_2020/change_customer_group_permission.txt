@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_permissions` ADD `pos-change_customer` TINYINT(4) NOT NULL AFTER `pos-shift_reprint`;

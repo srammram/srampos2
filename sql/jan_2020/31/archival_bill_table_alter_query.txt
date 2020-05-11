@@ -1,2 +1,0 @@
-ALTER TABLE `srampos_bils_archival` ADD `member_dis_cardno` VARCHAR(50) NOT NULL AFTER `shift_id`, ADD `member_dscount` DECIMAL(12,2) NOT NULL DEFAULT '0.00' AFTER `member_dis_cardno`, ADD `member_discount_type` VARCHAR(50) NOT NULL AFTER `member_dscount`;
-ALTER TABLE `srampos_order_items_archival` ADD `parent_order_item_id` INT(11) NOT NULL AFTER `unwanted_ingredients`;

@@ -1,4 +1,0 @@
-ALTER TABLE `srampos_units` CHANGE `id` `id` INT(11) NOT NULL AUTO_INCREMENT;
-
-ALTER TABLE `srampos_pro_stock_master` ADD `stock_status` ENUM('available','open','closed') NOT NULL AFTER `expiry_date`;
-

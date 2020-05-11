@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_pro_production_items` ADD `cm_id` INT NOT NULL AFTER `brand_name`;

@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_memeber_discount_card_details` ADD `valid_req` VARCHAR(50) NOT NULL AFTER `discount_val`;

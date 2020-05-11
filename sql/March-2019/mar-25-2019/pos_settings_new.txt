@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_pos_settings` ADD `customer_discount_editable` TINYINT NOT NULL AFTER `billgeneration_screen`;

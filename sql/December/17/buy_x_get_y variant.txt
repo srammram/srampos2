@@ -1,2 +1,0 @@
-ALTER TABLE `srampos_buy_get_items` CHANGE `variant_id` `buy_variant_id` INT(11) NOT NULL;
-ALTER TABLE `srampos_buy_get_items` ADD `get_variant_id` INT NOT NULL AFTER `buy_variant_id`;

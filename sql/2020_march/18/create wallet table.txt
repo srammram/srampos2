@@ -1,9 +1,0 @@
-
-CREATE TABLE `srampos_wallet_master` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) DEFAULT NULL,
-  `displayname` varchar(50) DEFAULT NULL,
-  `active` tinyint(4) DEFAULT NULL,
-  `active_store` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;

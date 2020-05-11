@@ -1,5 +1,0 @@
-UPDATE `srampos_recipe` SET `purchase_tax` = '1' ;
-UPDATE `srampos_recipe` SET `unit` = '1' ;
-UPDATE `srampos_recipe` SET `sale_unit` = '1' ;
-UPDATE `srampos_recipe` SET `brand` = '1';
-

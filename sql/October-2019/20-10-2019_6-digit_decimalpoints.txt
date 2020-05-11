@@ -1,7 +1,0 @@
-ALTER TABLE `srampos_pro_stock_master` CHANGE `stock_in` `stock_in` DECIMAL(10,6) NOT NULL; 
-
-ALTER TABLE `srampos_pro_stock_master` CHANGE `stock_out` `stock_out` DECIMAL(25,6) NOT NULL; 
-
-ALTER TABLE `srampos_recipe_products` CHANGE `quantity` `quantity` DECIMAL(10,6) NOT NULL; 
-
-ALTER TABLE `srampos_pro_request` CHANGE `attachment` `attachment` VARCHAR(200) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL; 

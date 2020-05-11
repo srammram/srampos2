@@ -1,2 +1,0 @@
-
-ALTER TABLE `srampos_pos_settings` ADD `print_seat_count` TINYINT(4) NOT NULL AFTER `kot_enable_disable`;

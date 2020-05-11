@@ -1,2 +1,0 @@
-ALTER TABLE `srampos_bil_items` ADD `grand_total` DECIMAL(25,2) NOT NULL AFTER `customer_discount_val`;
-ALTER TABLE `srampos_archive_bil_items` ADD `grand_total` DECIMAL(25,2) NOT NULL AFTER `customer_discount_val`;

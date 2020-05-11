@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_bil_items` CHANGE `quantity` `quantity` DECIMAL(12,2) NOT NULL DEFAULT '0.0';

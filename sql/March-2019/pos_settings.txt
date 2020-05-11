@@ -1,3 +1,0 @@
-ALTER TABLE `srampos_pos_settings` ADD `bill_print_format` TINYINT(1) NOT NULL AFTER `discount_popup_screen_in_bill_print`;
-
-ALTER TABLE `srampos_pos_settings` ADD `tax_caption` VARCHAR(50) NOT NULL AFTER `bill_print_format`;

@@ -1,5 +1,0 @@
-ALTER TABLE `srampos_ingrediend_head` ADD `type` VARCHAR(50) NULL DEFAULT NULL AFTER `created_on`, ADD `qty` DECIMAL(5,3) NULL DEFAULT NULL AFTER `type`;
-
-
-ALTER TABLE `srampos_ingrediend_head` CHANGE `variant_id` `variant_id` INT(11) NOT NULL;
-ALTER TABLE `srampos_ingrediend_head` CHANGE `recipe_id` `recipe_id` INT(12) NOT NULL;

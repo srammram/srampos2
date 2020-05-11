@@ -1,2 +1,0 @@
-// srampos_recipe_products - two columns unique id
-ALTER TABLE srampos_recipe_products ADD CONSTRAINT constr_ID UNIQUE (recipe_id, product_id);

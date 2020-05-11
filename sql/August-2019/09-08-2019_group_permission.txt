@@ -1,4 +1,0 @@
-ALTER TABLE `srampos_permissions` ADD `system_settings-bbq_menu` TINYINT NOT NULL AFTER `exclude_reports_view_access`, ADD `system_settings-add_bbq_menu` TINYINT NOT NULL AFTER `system_settings-bbq_menu`, ADD `system_settings-edit_bbq_menu` TINYINT NOT NULL AFTER `system_settings-add_bbq_menu`, ADD `system_settings-delete_bbq_menu` TINYINT NOT NULL AFTER `system_settings-edit_bbq_menu`;
-
-ALTER TABLE `srampos_permissions` ADD `pos-app_bil_generator` TINYINT NOT NULL AFTER `pos-bil_generator`
-

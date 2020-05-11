@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_pos_settings` ADD `kot_print_lang_option` TINYINT NOT NULL COMMENT '0->English,1->Local Language,2->both Language' AFTER `bill_series_settings`;

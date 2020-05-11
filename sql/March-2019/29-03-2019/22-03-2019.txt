@@ -1,2 +1,0 @@
-ALTER TABLE `srampos_restaurant_tables` ADD `sale_type` ENUM('alacarte','bbq') NOT NULL AFTER `whitelisted`;
-

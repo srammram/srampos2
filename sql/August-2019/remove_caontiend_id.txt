@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_orders` DROP INDEX `constr_ID`;

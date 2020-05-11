@@ -2635,4 +2635,28 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
         }
         return 0;
     }
+		 public function getreceive_items_details($store_receiver_id,$store_receiver_item_id){
+		$this->db->where('store_receiver_id', $store_receiver_id);
+		$this->db->where('store_receiver_item_id', $store_receiver_item_id);
+		$q = $this->db->get('pro_store_receiver_item_details');
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return array();
+    }
+	public function getstore_transfer_items_details($store_transfer_id,$store_transfer_item_id){
+		$this->db->where('store_transfer_id', $store_transfer_id);
+		$this->db->where('store_transfer_item_id', $store_transfer_item_id);
+		$q = $this->db->get('pro_store_transfer_item_details');
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return array();
+    }
 }

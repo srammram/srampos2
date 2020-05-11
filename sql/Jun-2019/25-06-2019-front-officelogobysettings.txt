@@ -1,3 +1,0 @@
-ALTER TABLE `srampos_settings`  ADD `logo3` VARCHAR(255) NOT NULL  AFTER `logo2`;
-
-ALTER TABLE `srampos_permissions` ADD `system_settings-group_permissions` TINYINT NOT NULL AFTER `system_settings-edit_sales_type`;

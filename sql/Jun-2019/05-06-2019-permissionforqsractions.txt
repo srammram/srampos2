@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_permissions` ADD `pos-reprint` TINYINT NOT NULL AFTER `pos-open_sale_register`, ADD `pos-hold_sales` TINYINT NOT NULL AFTER `pos-reprint`, ADD `pos-cancel_sales` TINYINT NOT NULL AFTER `pos-hold_sales`, ADD `pos-resettle_sales` TINYINT NOT NULL AFTER `pos-cancel_sales`, ADD `pos-qsr_bill_print` TINYINT NOT NULL AFTER `pos-resettle_sales`;

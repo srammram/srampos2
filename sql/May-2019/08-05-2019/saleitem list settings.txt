@@ -1,2 +1,0 @@
-ALTER TABLE `srampos_pos_settings` 
-	ADD COLUMN `sales_item_in_pos` tinyint(4)   NOT NULL DEFAULT 1 COMMENT '1->sales items list in by recipe table with actibe items,2->sales items list in pos screen by day mapping ' after `loyalty_option` ;

@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_recipe_mapping_for_modify_bills` ADD `category_id` INT NOT NULL AFTER `id`, ADD `subcategory_id` INT NOT NULL AFTER `category_id`;

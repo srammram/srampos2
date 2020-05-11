@@ -590,7 +590,7 @@ function loadItems() {
 			$pending_qty =v.pending_qty ? v.pending_qty : '';
 			$gross_amt = $transfer_qty*$recipe_price;
 			$tax=0;
-			$tax_per = v.tax;
+			$tax_per = v.tax;   
 				$tax_method = v.tax_method;
 				var pr_tax = item.tax_rate;
                 var pr_tax_val = pr_tax_rate = 0;
@@ -599,7 +599,7 @@ function loadItems() {
                     pr_tax_rate = ptax[1];
                     $tax += pr_tax_val * item_qty;
                 }
-				console.log(v.variant_id+"||"+item.row.variant_id);
+				//console.log(v.variant_id+"||"+item.row.variant_id);
 				if(item.row.variant_id !=0){
 					if(v.variant_id!=item.row.variant_id){
 						return true;

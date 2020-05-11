@@ -1,1 +1,0 @@
-ALTER TABLE `srampos_pro_stock_master` ADD `unique_id` VARCHAR(200) NULL DEFAULT NULL AFTER `stock_status`;
