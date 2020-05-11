@@ -211,84 +211,7 @@ class Sync_both
 	//echo $table_name.'-start-<br>';echo '<pre>';print_R($a);
     }
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-    function sync_tendertype_status(){
-	$table = 'tender_type_status';
-	$access['store']['insert'] = false;
-	$access['store']['update'] = true;
-	$access['store']['delete'] = false;
-	
-	$access['center']['insert'] = true;
-	$access['center']['update'] = true;
-	$access['center']['delete'] = true;
-	$this->sync_tables($table,$access);
-    }
-   
-    function sync_loyaltycard_status(){
-	$table = 'loyaltycard_status';
-	$access['store']['insert'] = false;
-	$access['store']['update'] = true;
-	$access['store']['delete'] = false;
-	
-	$access['center']['insert'] = true;
-	$access['center']['update'] = false;
-	$access['center']['delete'] = false;
-	$this->sync_tables($table,$access);
-    }
-    function sync_loyalty_customer(){
-	$table = 'loyalty_customer';
-	$access['store']['insert'] = true;
-	$access['store']['update'] = false;
-	$access['store']['delete'] = false;
-	
-	$access['center']['insert'] = true;
-	$access['center']['update'] = true;
-	$access['center']['delete'] = false;
-	$this->sync_tables($table,$access);
-    }
-    function sync_loyalty_customer_data(){
-	$table = 'loyalty_customer_data';
-	$access['store']['insert'] = true;
-	$access['store']['update'] = false;
-	$access['store']['delete'] = false;
-	
-	$access['center']['insert'] = true;
-	$access['center']['update'] = false;
-	$access['center']['delete'] = false;
-	$this->sync_tables($table,$access);
-    }
-    function sync_stock(){
-	$table = 'pro_stock_master';
-	$access['store']['delete'] = false;
-	$access['store']['insert'] = false;
-	$access['store']['update'] = true;
-	
-	
-	$access['center']['insert'] = true;
-	$access['center']['update'] = false;
-	$access['center']['delete'] = false;
-	$this->sync_tables($table,$access);
-    }
-
-    
-    
-    function sync_store_receivers(){
+	 function sync_store_receivers(){
 	/** tables
 	 * pro_store_receiver
 	 * pro_store_receiver_items
@@ -310,9 +233,20 @@ class Sync_both
 	    $this->sync_tables($table_item_details,$access);
 	}
     }
-    
-    
-    
+	
+    function sync_stock(){
+	$table = 'pro_stock_master';
+	$access['store']['delete'] = false;
+	$access['store']['insert'] = false;
+	$access['store']['update'] = true;
+	
+	
+	$access['center']['insert'] = true;
+	$access['center']['update'] = false;
+	$access['center']['delete'] = false;
+	$this->sync_tables($table,$access);
+    }
+
     
     function sync_tables($table_name,$access){
 	$center = $this->CI->centerdb->get_where($table_name,array('store_id'=>$this->CI->store_id))->result_array();	

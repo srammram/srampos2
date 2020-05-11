@@ -107,7 +107,11 @@ class Sync extends MY_Controller{
 			    $this->sync_both->sync_purchase_invoice();
 			    break;
 			
-			
+				case 'stock_transfer':
+			    $this->sync_center->sync_store_transfers();
+			    $this->sync_store->sync_StockReceiver();
+			    $this->sync_both->sync_store_receivers();
+			    break;
 			
 			
 			
@@ -163,11 +167,7 @@ class Sync extends MY_Controller{
 				$this->sync_center->sync_stock();
 			    break;
 			
-			case 'stock_transfer':
-			    $this->sync_center->sync_store_transfers();
-			    $this->sync_store->sync_StockReceiver();
-			    $this->sync_both->sync_store_receivers();
-			    break;
+			
 			case 'shift':
 			    $this->sync_store->sync_shiftmaster();
 			    $this->sync_center->sync_shiftcreation();

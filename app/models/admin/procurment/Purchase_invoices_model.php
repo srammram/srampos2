@@ -337,6 +337,7 @@ class Purchase_invoices_model extends CI_Model{
             $purchase_invoices_id = $id;
             foreach ($items as $item) {
                $item['invoice_id'] = $id;	
+				$cp = str_replace('.','_',$item['cost']);
 				$item['pi_uniqueId']=$item['store_id'].$item['product_id'].$item['variant_id'].$item['batch_no'].$item['category_id'].$item['subcategory_id'].$item['brand_id'].$cp.$data['supplier_id'].$id;			   
 			   $this->db->insert('pro_purchase_invoice_items', $item);
             }       

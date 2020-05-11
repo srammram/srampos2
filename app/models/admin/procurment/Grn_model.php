@@ -114,6 +114,7 @@ class Grn_model extends CI_Model{
 					$stock_update['expiry']        = $item['expiry'];
 					$stock_update['expiry_type']   = $item['expiry_type'];
 					$stock_update['invoice_date']  = $data['invoice_date'];
+					$stock_update['supplier_id']   = $data['supplier_id'];
 					if($item['expiry_type']=='days'){
 					$stock_update['expiry_date'] = date('Y-m-d', strtotime("+".$data['expiry']." day"));
 					}else if($item['expiry_type']=='months'){
@@ -121,16 +122,13 @@ class Grn_model extends CI_Model{
 					}else if($item['expiry_type']=='year'){
 					$stock_update['expiry_date'] = $data['expiry'];
 					}
-					$cate['category_id']       = $stock_update['category_id'];
-					$cate['subcategory_id']    = $stock_update['subcategory_id'];
-					$cate['brand_id']          = $stock_update['brand_id'];
-					$category_mappingID        = $this->siteprocurment->getCategoryMappingID($item['product_id'],$stock_update['category_id'],$stock_update['subcategory_id'],$stock_update['brand_id']);
+					$stock_update['unique_id'] = $item['pi_uniqueId'];
+					$category_mappingID=$this->siteprocurment->item_cost_update_new($stock_update);
 					$stock_update['cm_id']     = $category_mappingID ? $category_mappingID :0;
-                    $cate['cm_id']             = $stock_update['cm_id'];
-				    $stock_update['unique_id'] = $item['pi_uniqueId'];
+				  
 					$this->stock_master_update($stock_update);
-					$this->siteprocurment->item_cost_update($item['product_id'],$item['cost'],$item['selling_price'],$item['tax_rate_id'],$cate);			
-					$this->siteprocurment->product_stockIn($item['product_id'],$item['quantity'],$cate);
+								
+					
 	            }
             }
 		    $bal_count +=($item['quantity']>=$item['pi_qty'])?0:1;
@@ -213,17 +211,10 @@ class Grn_model extends CI_Model{
 					}else if($item['expiry_type']=='year'){
 					$stock_update['expiry_date'] = $data['expiry'];
 					}
-					$cate['category_id']       = $stock_update['category_id'];
-					$cate['subcategory_id']    = $stock_update['subcategory_id'];
-					$cate['brand_id']          = $stock_update['brand_id'];
-					$category_mappingID        = $this->siteprocurment->getCategoryMappingID($item['product_id'],$stock_update['category_id'],$stock_update['subcategory_id'],$stock_update['brand_id']);
+					$stock_update['unique_id'] = $item['pi_uniqueId'];
+					$category_mappingID=$this->siteprocurment->item_cost_update_new($stock_update);
 					$stock_update['cm_id']     = $category_mappingID ? $category_mappingID :0;
-                    $cate['cm_id']             = $stock_update['cm_id'];
-				    $stock_update['unique_id'] = $item['pi_uniqueId'];
-					
 					$this->stock_master_update($stock_update);
-					$this->siteprocurment->item_cost_update($item['product_id'],$item['cost'],$item['selling_price'],$item['tax_rate_id'],$cate);			
-					$this->siteprocurment->product_stockIn($item['product_id'],$item['quantity'],$cate);
 			}	
             }   
 			$bal_count +=($item['quantity']>=$item['pi_qty'])?0:1;

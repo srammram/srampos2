@@ -362,92 +362,7 @@ class Sync_store {
 	}
     }
    
-	
-	
-	
-   
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-    function sync_stores(){
-	$table = 'warehouses';
-	$this->sync_tables_with_images($table);
-    }
-   
-    function sync_commissionslab(){
-	$table = 'Commissionslab';
-	$this->sync_tables($table);
-    }
-    function sync_countries(){
-	$table = 'countries';
-	$this->sync_tables($table);
-    }
-    function sync_banks(){
-	$table = 'banks';
-	$this->sync_tables($table);
-    }
-    function sync_notifications(){
-	$table = 'notifications';
-	$this->sync_tables($table);
-    }
-   
-    function sync_sync_settings(){
-	$table = 'sync_settings';
-	$this->sync_tables($table);
-	return true;
-    }
-    function sync_dateFormat(){
-	$table = 'date_format';
-	$this->sync_tables($table);
-    }
-    function sync_holdnotes(){
-	$table = 'sales_hold_notes';
-	$this->sync_tables($table);
-    }
-    function sync_shiftmaster(){
-	$table = 'shiftmaster';
-	$this->sync_tables($table);
-    }
-    
-    function sync_loyaltymaster(){
-	$table = 'loyalty_program';
-	$this->sync_tables($table);
-    }
-    function sync_loyalty_accumulation_range(){
-	$table = 'loyalty_accumulation_system';
-	$this->sync_tables($table);
-    }
-    function sync_loyalty_redeemption_range(){
-	$table = 'loyalty_redeemption_system';
-	$this->sync_tables($table);
-    }
-    function sync_loyalty_discount_settings(){
-	$table = 'loyalty_discount_settings';
-	$this->sync_tables($table);
-    }
-    function sync_loyalty_card_details(){
-	$table = 'loyaltycard_details';
-	$this->sync_tables($table);
-    }
-    function sync_loyaltycards(){
-	$table = 'loyaltycards';
-	$this->sync_tables_store_id($table);
-    }
-    function sync_device_detail(){
-	$table = 'device_detail';
-	$this->sync_tables($table);
-    }
-   
-    function sync_StockReceiver(){
+	function sync_StockReceiver(){
 	/** tables
 	 * pro_store_receivers
 	 * pro_store_receiver_items
@@ -476,50 +391,60 @@ class Sync_store {
 	   
 	}
     }
-    function sync_billdiscount(){
-	/*
-	 *bill_discounts
-	 *bill_discount_group
-	 *bill_discount_stores
-	 */
-	$table_name = "bill_discounts";
-	$table_group_name = "bill_discount_group";
-	$table = 'bill_discount_stores';
-	if($this->sync_tables_store_id($table)){
-	    $get_assigned_discounts = $this->CI->db->get($table)->result_array();
-	    $assigned_discounts = array();
-	    foreach($get_assigned_discounts as $k => $row){
-		/*********** discounts *******/
-		
-		$where = array('id'=>$row['discount_id']);
-		$this->CI->centerdb->where($where);
-		$db1 = $this->CI->centerdb->get($table_name)->result_array();
-		$this->CI->db->where($where);
-		$db2 = $this->CI->db->get($table_name)->result_array();		
-		$a = $this->compare_server_local($db1,$db2);
-		
-		/********** discount groups ***********/
-		
-		$where = array('discount_id'=>$row['discount_id']);
-		$this->CI->centerdb->where($where);
-		$db1 = $this->CI->centerdb->get($table_group_name)->result_array();
-		$this->CI->db->where($where);
-		$db2 = $this->CI->db->get($table_group_name)->result_array();		
-		$a = $this->compare_server_local($db1,$db2);
-		array_push($assigned_discounts,$row['discount_id']);
-	    }
-	    if(!empty($assigned_discounts)){
-		//delete unassigned discount
-		$this->CI->db->where_not_in('id',$assigned_discounts);
-		$this->CI->db->delete($table_name);
-		$this->CI->db->where_not_in('discount_id',$assigned_discounts);
-		$this->CI->db->delete($table_group_name);	
-	    }else{
-		$this->CI->db->delete($table_name);
-		$this->CI->db->delete($table_group_name);
-	    }
-	}
+	
+	
+   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    function sync_stores(){
+	$table = 'warehouses';
+	$this->sync_tables_with_images($table);
     }
+   
+ 
+    function sync_countries(){
+	$table = 'countries';
+	$this->sync_tables($table);
+    }
+   
+    function sync_notifications(){
+	$table = 'notifications';
+	$this->sync_tables($table);
+    }
+   
+    function sync_sync_settings(){
+	$table = 'sync_settings';
+	$this->sync_tables($table);
+	return true;
+    }
+    function sync_dateFormat(){
+	$table = 'date_format';
+	$this->sync_tables($table);
+    }
+ 
+    function sync_shiftmaster(){
+	$table = 'shiftmaster';
+	$this->sync_tables($table);
+    }
+    
+   
+   
+    function sync_device_detail(){
+	$table = 'device_detail';
+	$this->sync_tables($table);
+    }
+   
+    
     
     function sync_tables($table_name){
 	$db1 = $this->CI->centerdb->get($table_name)->result_array();	

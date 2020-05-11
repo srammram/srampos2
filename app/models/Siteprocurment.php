@@ -2193,13 +2193,13 @@ class Siteprocurment extends CI_Model{
 		$this->db->where("(r.name LIKE '" . $term . "%' OR r.code LIKE '" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '" . $term . "%')");
 		}else{
 		$this->db->where("(r.name LIKE '%" . $term . "%' OR r.code LIKE '%" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '%" . $term . "%')"); 
-	  }
+		}
 		$this->db->where_in('r.type',$type);
 		$this->db->group_by('r.id,rv.id,rc.id,rsc.id,b.id');
 		$this->db->limit($limit);
         $q = $this->db->get();
-/* 	echo $this->db->last_query();
-	die; */
+		/* 	echo $this->db->last_query();
+		die; */
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {		
                 $data[] = $row;
@@ -2227,13 +2227,11 @@ class Siteprocurment extends CI_Model{
 		$this->db->where("(r.name LIKE '" . $term . "%' OR r.code LIKE '" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '" . $term . "%')");
 		}else{
 		$this->db->where("(r.name LIKE '%" . $term . "%' OR r.code LIKE '%" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '%" . $term . "%')"); 
-	  }
+		}
 		$this->db->where_in('r.type',$type);
 		$this->db->group_by('r.id,rv.id,rc.id,rsc.id,b.id');
 		$this->db->limit($limit);
         $q = $this->db->get();
-/* 	echo $this->db->last_query();
-	die; */
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {		
                 $data[] = $row;
@@ -2243,26 +2241,52 @@ class Siteprocurment extends CI_Model{
         return FALSE;
     }
 	
-	
-	
     function item_cost_update($product_id,$cost,$selling_price,$tax_id,$cate){
-	$data['cost'] = $selling_price;
-	$data['price'] = $selling_price;
-	$data['purchase_cost'] = $cost;
-	$data['purchase_tax'] = $tax_id;
-	$r = $this->getRecipeByID($product_id);
-	$saleITemTypes = array('standard','prodcution','quick_service','combo');
-	if(in_array($r->type,$saleITemTypes)){
-	    $this->db->where(array('id'=>$product_id,'category_id'=>$cate['category_id'],'subcategory_id'=>$cate['subcategory_id'],'brand_id'=>$cate['brand_id']));
-	    $this->db->update('recipe',$data);
-	}
+		$data['cost'] = $selling_price;
+		$data['price'] = $selling_price;
+		$data['purchase_cost'] = $cost;
+		$data['purchase_tax'] = $tax_id;
+		$r = $this->getRecipeByID($product_id);
+		$saleITemTypes = array('standard','prodcution','quick_service','combo');
+		if(in_array($r->type,$saleITemTypes)){
+			$this->db->where(array('id'=>$product_id,'category_id'=>$cate['category_id'],'subcategory_id'=>$cate['subcategory_id'],'brand_id'=>$cate['brand_id']));
+			$this->db->update('recipe',$data);
+		}
+		$cate_mapp_data['purchase_cost'] = $cost;
+		$cate_mapp_data['selling_price'] = $selling_price;
+		$this->db->where(array('product_id'=>$product_id,'category_id'=>$cate['category_id'],'subcategory_id'=>$cate['subcategory_id'],'brand_id'=>$cate['brand_id']));
+		$this->db->update('category_mapping',$cate_mapp_data);
 	
+    }
 	
-	$cate_mapp_data['purchase_cost'] = $cost;
-	$cate_mapp_data['selling_price'] = $selling_price;
-	$this->db->where(array('product_id'=>$product_id,'category_id'=>$cate['category_id'],'subcategory_id'=>$cate['subcategory_id'],'brand_id'=>$cate['brand_id']));
-	$this->db->update('category_mapping',$cate_mapp_data);
-	
+	 function item_cost_update_new($cate_map_data){
+		$cate_mapp_data['store_id']       = $cate_map_data['store_id'];
+		$cate_mapp_data['product_id']     = $cate_map_data['product_id'];
+		$cate_mapp_data['variant_id']     = $cate_map_data['variant_id'];
+		$cate_mapp_data['category_id']    = $cate_map_data['category_id'];
+		$cate_mapp_data['subcategory_id'] = $cate_map_data['subcategory_id'];
+		$cate_mapp_data['brand_id']       = $cate_map_data['brand_id'];
+		$cate_mapp_data['batch_no']       = !empty($cate_map_data['batch'])?$cate_map_data['batch']:'';
+		$cate_mapp_data['purchase_cost']  = $cate_map_data['cost_price'];
+		$cate_mapp_data['vendor_id']      = $cate_map_data['supplier_id'];
+		$cate_mapp_data['invoice_id']     = $cate_map_data['invoice_id'];
+		$cate_mapp_data['selling_price']  = $cate_map_data['selling_price'];
+		$cate_mapp_data['unique_id']      = $cate_map_data['unique_id'];
+		$cate_mapp_data['status']         = 1;
+		$cate_mapping=$this->db->get_where("category_mapping",array("unique_id"=>$cate_mapp_data['unique_id']));
+	   if($cate_mapping->num_rows()>0){
+		    $cate_mapping=$q->row();
+		   $this->db->where("unique_id",$cate_mapp_data['unique_id']);
+		   $this->db->update("category_mapping",$cate_mapp_data);
+		   return $cate_mapping->id;
+	   }else{
+		   $this->db->insert("category_mapping",$cate_mapp_data);
+			$insertID                  = $this->db->insert_id();
+			$UniqueID                  = $this->site->generateUniqueTableID($insertID);
+			$this->site->updateUniqueTableId($insertID,$UniqueID,'category_mapping');
+			return $UniqueID;
+	   }
+		return false;
     }
     public function getAll_respectiveSTOREREQUESTNUMBER(){
 		$this->db->where('status', 'approved');

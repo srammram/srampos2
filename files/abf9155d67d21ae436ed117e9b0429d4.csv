@@ -1,2 +1,0 @@
-recipe_code,type,name,sales_item_type,kitchen_type,category,subcategory,quantity,recipe_cost,currency,warehouse_id,pieces,base_uom,sale_uom,stock_uom,reorder_quantity,stock_on_hand,cost_price
-1.25823E+12,raw,pepper power,raw,SUKI AREA,indian break fast,indian break fast,1,100,USD,1,,KG,KG,KG,5,5,

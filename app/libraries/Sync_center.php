@@ -290,6 +290,44 @@ class Sync_center{
     }
 	
 	
+    function sync_store_transfers($id=false){
+	/** tables
+	 * pro_store_transfers
+	 * pro_store_transfer_items
+	 * pro_store_transfer_item_details
+	 * */
+	if($this->CI->centerdb_connected){
+	    $table_name = 'pro_store_transfers';
+	    $table_items = 'pro_store_transfer_items';
+	    $table_item_details ='pro_store_transfer_item_details';
+	    if($id){
+		$db1 = $this->CI->db->get_where($table_name,array('store_id'=>$this->CI->store_id,'id'=>$id,'status'=>'approved'))->result_array();
+		$db2 = $this->CI->centerdb->get_where($table_name,array('store_id'=>$this->CI->store_id,'id'=>$id))->result_array();	
+	    }else{
+		$db1 = $this->CI->db->get_where($table_name,array('store_id'=>$this->CI->store_id,'status'=>'approved'))->result_array();
+		$db2 = $this->CI->centerdb->get_where($table_name,array('store_id'=>$this->CI->store_id))->result_array();	
+	    }
+	    	
+	    $data = $this->compare_server_local($db1,$db2);
+	    
+	    if(isset($data['insert']) && !empty($data['insert'])){
+		foreach($data['insert'] as $k => $insert_data){
+		    unset($insert_data->s_no);
+		    $this->CI->centerdb->insert($table_name,$insert_data);
+		    $id = $insert_data['id'];
+		    $where = array('store_transfer_id'=>$id,'store_id'=>$this->CI->store_id);		
+		    $items = $this->sync_tables($table_items,$where);
+		    
+		    $where = array('store_transfer_id'=>$id,'store_id'=>$this->CI->store_id);		
+		    $item_details = $this->sync_tables($table_item_details,$where);
+		    
+		    $this->sync_store_receivers($insert_data);
+		}
+		
+	    }
+	
+	}
+    }
 	
 	
 }

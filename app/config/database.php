@@ -60,14 +60,13 @@
 
 $active_group = 'default';
 $query_builder = TRUE;
-
 $db['default'] = array(
 	'dsn'	=> '',
 	'hostname' => 'localhost',
 	'username' => 'root',
 	'password' => 'root',
-	'database' => 'srampos_v2',//warehouse
-	//'database' => 'srampos_outlet',//outlet
+//	'database' => 'srampos_v2',//warehouse
+	'database' => 'srampos_outlet',//outlet
 	'dbdriver' => 'mysqli',
 	'dbprefix' => 'srampos_',
 	'pconnect' => FALSE,

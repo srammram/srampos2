@@ -2,8 +2,7 @@
 <script>
     var store_transitems = {};
     localStorage.setItem('store_transitems', JSON.stringify(<?= $store_transfersitem; ?>));
-   console.log('00');
-   console.log(localStorage.getItem('store_transitems'));
+ 
     $(document).ready(function(){
 	if (localStorage.getItem('store_transfrom_store_id')!=null) {
 	    $('#store_transfrom_store_id').val(localStorage.getItem('store_transfrom_store_id'));
@@ -27,7 +26,7 @@
 </script>
 <div class="box">
     <div class="box-header">
-        <h2 class="blue"><i class="fa-fw fa fa-plus"></i><?= lang('add_store_transfers'); ?></h2>
+        <h2 class="blue"><i class="fa-fw fa fa-plus"></i><?= lang('edit_store_transfers'); ?></h2>
     </div>
     <div class="box-content">
         <div class="row">
@@ -107,8 +106,9 @@
                                 foreach ($stores as $store) {
                                     $tst[$store->id] = $store->name;
                                 }
-                                echo form_dropdown('to_store_id', $tst, $store_transfer->to_store, 'id="store_transto_store_id" class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("to_store") . '" disabled required="required" style="width:100%;" ');
+                                echo form_dropdown('to_store', $tst, $store_transfer->to_store, 'id="store_transto_store_id" class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("to_store") . '" disabled required="required" style="width:100%;" ');
                                 ?>
+								<input type="hidden" name="to_store_id" value="<?php echo  $store_transfer->to_store; ?>">
                             </div>
                         </div>
                         
@@ -210,7 +210,24 @@
                         </div>
                         <div class="clearfix"></div>
                         
-                        
+                        <table class="table " style="padding: 4px;border-top: none!important;width:30%;">
+				    <tbody>
+					<tr>                                    
+					    <td>
+						<label for="total_no_items"><?=lang('total_no_items')?></label>                                    </td>
+					    <td>
+						<input name="total_no_items" id="total_no_items" readonly class="form-control">
+					    </td>
+					</tr>
+					<tr>                                    
+					    <td>
+						<label for="total_no_qty"><?=lang('total_no_qty')?></label>                                    </td>
+					    <td>
+						<input name="total_no_qty" id="total_no_qty" readonly class="form-control">
+					    </td>
+					</tr>
+				    </tbody>
+				    </table>
                         
                     </div>
                 </div>
