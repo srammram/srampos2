@@ -60,7 +60,7 @@
 <div class="box">
     <div class="box-header">
         <h2 class="blue"><i
-                class="fa-fw fa fa-star"></i><?=lang('store_transfers') . ' (' . ($warehouse_id ? $warehouse->name : lang('all_warehouses')) . ')';?>
+                class="fa-fw fa fa-star"></i><?=lang('store_transfers') ;?>
         </h2>
 
         <div class="box-icon">

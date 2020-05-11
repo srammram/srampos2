@@ -557,15 +557,6 @@ class Store_transfers_model extends CI_Model{
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  
-  
     public function updateStatus($id, $status, $note)
     {
         // $purchase = $this->getStore_transfersByID($id);

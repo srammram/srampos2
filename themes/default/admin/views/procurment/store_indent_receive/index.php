@@ -44,7 +44,7 @@
 <div class="box">
     <div class="box-header">
         <h2 class="blue"><i
-                class="fa-fw fa fa-heart-o"></i><?= lang('store_indent_receive') . ' (' . ($warehouse_id ? $warehouse->name : lang('all_warehouses')) . ')'; ?>
+                class="fa-fw fa fa-heart-o"></i><?= lang('store_indent_receive') ; ?>
         </h2>
 
         <div class="box-icon">
