@@ -121,62 +121,12 @@ class Sync extends MY_Controller{
 			
 			
 			
-			
-			
-		
-		
-			
-		
-			
-			case 'giftvoucher':
-			    $this->sync_store->sync_giftvoucher();
-			    $this->sync_center->sync_issued_giftvouchers();
-			    $this->sync_center->sync_blocked_giftvouchers();
-			    $this->sync_both->sync_giftvoucher_status();
-			    break;
-			
-					
-			case 'promotions':
-			    $this->sync_store->sync_billdiscount();
-			    break;
-			case 'sales':
-			    $this->sync_center->sync_sales();
-			    //$this->sync_center->sync_sales_flag();
-			    $this->sync_center->sync_salesorders();
-			    $this->sync_center->sync_holdsales();
-			    $this->sync_center->sync_returnsales();
-				$this->sync_center->sync_exchangesales();
-			    break;
-			case 'expenses':
-			    $this->sync_center->sync_expenses();
-			    break;
-			case 'daily_settlement':
-			    $this->sync_center->sync_dailysettlement();
-			    break;
-			//case 'purchase_order':
-			//    $this->sync_center->sync_po();
-			//    break;
-			//case 'purchase_invoice':
-			//    $this->sync_center->sync_purchase_invoice();
-			//    break;
-			//case 'purchase_return':
-			//    $this->sync_center->sync_purchase_return();
-			//    break;
 			case 'stock':
 			    $this->sync_both->sync_stock();
 				$this->sync_center->sync_stock();
 			    break;
 			
 			
-			case 'shift':
-			    $this->sync_store->sync_shiftmaster();
-			    $this->sync_center->sync_shiftcreation();
-			    $this->sync_center->sync_shiftsettlement();// compare columns and add new column
-			    $this->sync_center->sync_shiftcard_settlement();
-			    $this->sync_center->sync_shift_wallet_settlement();
-			    $this->sync_center->sync_shift_coupon_settlement();
-			    $this->sync_center->sync_shift_cheque_settlement();
-			    break;
 			case 'countries':			    
 			    $this->sync_store->sync_countries();
 			    break;
