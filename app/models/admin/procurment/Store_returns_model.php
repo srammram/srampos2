@@ -1,13 +1,10 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Store_returns_model extends CI_Model
-{
-
+class Store_returns_model extends CI_Model{
     public function __construct()
     {
         parent::__construct();
     }
-
     public function getProductNames($term, $warehouse_id, $store_id, $limit = 10)
     {
         $this->db->select('products.*, warehouses_products.quantity, pro_stock_master.id as stock_id, pro_stock_master.purchase_batch_no, SUM('.$this->db->dbprefix("pro_stock_master").'.quantity) as available_quantity')

@@ -684,4 +684,8 @@ class Store_transfers_model extends CI_Model{
 	}
 	return false;
     }
+	 function getStoreindentData($id){
+	$q = $this->db->get_where('pro_stock_request',array('id'=>$id));
+	return $q->row();
+    }
 }

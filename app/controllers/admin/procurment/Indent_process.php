@@ -445,17 +445,14 @@ print_r($this->input->post());die;*/
 	$indent_id =  $this->input->get('indent_id');
 	$data = $this->indent_process_model->getIndentRequestsData($store_id,$indent_id);
 	foreach ($data->items as $item) {
-                $row = $this->siteprocurment->getItemByID($item->product_id);
-              		
+        $row = $this->siteprocurment->getItemByID($item->product_id);
 		$unique_item_id = $this->store_id.$item->product_id;
 		$item->id = $item->product_id;
 		$item->name = $item->product_name;
 		$item->code = $item->product_code;
 		$item->type = $item->product_type;
 		$item->qty = $item->quantity;		
-		//$item->stock = array();
 		$pr[$unique_item_id] = array('id' => $item->id, 'label' => $item->name . " (" . $item->code . ")",'row' => $item, 'unique_id'=>$unique_item_id,'store_id'=>$this->store_id);
-                
                 $c++;
             }
 	$data->req_items = $pr;

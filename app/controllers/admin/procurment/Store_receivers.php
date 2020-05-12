@@ -1,5 +1,4 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
-
 class Store_receivers extends MY_Controller{
     public function __construct(){
         parent::__construct();
@@ -120,11 +119,7 @@ class Store_receivers extends MY_Controller{
 	}
     /* ------------------------------------------------------------------------- */
 
-    public function index($warehouse_id = null)
-    {
-         
-       // //$this->sma->checkPermissions();
-
+    public function index($warehouse_id = null){
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         if ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) {
             $this->data['warehouses'] = $this->siteprocurment->getAllWarehouses();
@@ -178,32 +173,7 @@ class Store_receivers extends MY_Controller{
 
     /* ----------------------------------------------------------------------------- */
 
-    public function modal_view($store_receivers_id = null)
-    {
-        //$this->sma->checkPermissions('index', true);
-
-        if ($this->input->get('id')) {
-            $store_receivers_id = $this->input->get('id');
-        }
-        $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
-        $po = $this->store_receivers_model->getStore_receiversByID($store_receivers_id);
-        if (!$this->session->userdata('view_right')) {
-            $this->sma->view_rights($po->created_by, true);
-        }
-        $this->data['rows'] = $this->store_receivers_model->getAllStore_receiversItems($store_receivers_id);
-        $this->data['supplier'] = $this->siteprocurment->getCompanyByID($po->customer_id);
-        $this->data['warehouse'] = $this->siteprocurment->getWarehouseByID($po->warehouse_id);
-        $this->data['inv'] = $po;
-        $this->data['payments'] = $this->store_receivers_model->getPaymentsForPurchase($store_receivers_id);
-        $this->data['created_by'] = $this->siteprocurment->getUser($po->created_by);
-        $this->data['updated_by'] = $po->updated_by ? $this->siteprocurment->getUser($po->updated_by) : null;
-        // $this->data['return_purchase'] = $po->return_id ? $this->store_receivers_model->getStore_receiversByID($po->return_id) : NULL;
-        // $this->data['return_rows'] = $po->return_id ? $this->store_receivers_model->getAllStore_receiversItems($po->return_id) : NULL;
-
-        $this->load->view($this->theme . 'store_receivers/modal_view', $this->data);
-
-    }
-
+   
    
     public function view($store_receivers_id = null){
 	     $id = $store_receivers_id;
@@ -302,32 +272,23 @@ class Store_receivers extends MY_Controller{
 			$total_t_qty +=$row['transfer_qty'];
 			$total_r_qty +=$row['received_qty'];
 		    }
-			
 		    $products[$r]['transfer_qty'] = $total_t_qty;
 		    $products[$r]['received_qty'] = $total_r_qty;
-	    }
-
+			}
             if (empty($products)) {
                 $this->form_validation->set_rules('product', lang("order_items"), 'required');
             } else {
                 
                 krsort($items);
             }
-
-            
             /*update common_store_receivers*/
             $data = array(
                'intend_request_id' =>($this->input->post('intend_request_id'))?$this->input->post('intend_request_id'):0,
 		       'intend_request_date' =>($this->input->post('intend_request_date'))?$this->input->post('intend_request_date'):0,
-		       //'from_store' => $this->input->post('from_store_id'),
-		       //'to_store' =>$this->input->post('to_store_id'),
 		       'total_no_items'=>$this->input->post('total_no_items'),
 		       'total_no_qty'=>$this->input->post('total_no_qty'),
 		       'status' =>$this->input->post('status'),
             );
-           
-          
-
             if ($_FILES['document']['size'] > 0) {
                 $this->load->library('upload');
                 $config['upload_path'] = $this->digital_upload_path;
@@ -344,8 +305,6 @@ class Store_receivers extends MY_Controller{
                 $photo = $this->upload->file_name;
                 $data['attachment'] = $photo;
             }
-			
-           //  $this->sma->print_arrays($products);die;
         }
 
         if ($this->form_validation->run() == true && $this->store_receivers_model->updateStore_receivers($id, $data, $products)) {

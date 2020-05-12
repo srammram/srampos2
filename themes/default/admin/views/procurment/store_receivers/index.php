@@ -62,24 +62,19 @@
         <h2 class="blue"><i
                 class="fa-fw fa fa-star"></i><?=lang('store_receivers');?>
         </h2>
-
         <div class="box-icon">
             <ul class="btn-tasks">
                 <li class="dropdown">
                     <a data-toggle="dropdown" class="dropdown-toggle" href="#"><i class="icon fa fa-tasks tip" data-placement="left" title="<?=lang("actions")?>"></i></a>
                     <ul class="dropdown-menu pull-right tasks-menus" role="menu" aria-labelledby="dLabel">
-                       
-                      
                     </ul>
                 </li>
-               
             </ul>
         </div>
     </div>
     <div class="box-content">
         <div class="row">
             <div class="col-lg-12">
-
                 <p class="introtext"><?=lang('list_results');?></p>
 
                 <div class="table-responsive">

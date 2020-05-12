@@ -994,37 +994,14 @@
                                                        <span class="text"> <?= lang('list'); ?></span>
                                                    </a>
                                                </li>
-                                             <!--  <li id="procurment_store_receivers_add">
-                                                   <a class="submenu" href="<?= admin_url('procurment/store_receivers/add'); ?>">
-                                                       <span class="text"> <?= lang('create'); ?></span>
-                                                   </a>
-                                               </li>-->
+                                           
                                           </ul>
                                        </li>
-                                       <!--
-                                       <li id="procurment_store_returns">
-                                           <a class="dropmenu" href="javascript:void(0)">
-                                               <span class="text">  <?= lang('store_returns'); ?> </span>
-                                               <!--<span class="chevron closed"></span> 
-                                           </a>
-                                           <ul class="level-3-menu">
-                                               <li id="procurment_store_returns_index">
-                                                   <a class="submenu" href="<?= admin_url('procurment/store_returns'); ?>">
-                                                       <span class="text"> <?= lang('list'); ?></span>
-                                                   </a>
-                                               </li>
-                                               <li id="procurment_store_returns_add">
-                                                   <a class="submenu" href="<?= admin_url('procurment/store_returns/add'); ?>">
-                                                       <span class="text"> <?= lang('create'); ?></span>
-                                                   </a>
-                                               </li>
-                                          </ul>
-                                       </li>
+                                   
                                        
                                         <li id="procurment_store_return_receivers">
                                            <a class="dropmenu" href="javascript:void(0)">
                                                <span class="text">  <?= lang('store_return_receivers'); ?> </span>
-                                               <!--<span class="chevron closed"></span> 
                                            </a>
                                            <ul class="level-3-menu">
                                                <li id="procurment_store_return_receivers_index">
@@ -1038,23 +1015,18 @@
                                                    </a>
                                                </li>
                                           </ul>
-                                       </li> -->
+                                       </li>
                                     <?php  endif; ?> 
-                                 
                                 </ul>
                             </li>
-                            
-							<?php
-							}
-							?>
-                                                        <li class="mm_tables">
+							<?php   }  ?>
+                             <li class="mm_tables">
                                 <a class="dropmenu" href="#">
                                     <i class="fa fa-cutlery"></i>
                                     <span class="text"> <?= lang('restaurents'); ?> </span>
                                     <span class="chevron closed"></span>
                                 </a>
                                 <ul>
-                                  
                                   <?php if(!$this->Settings->qsr){ ?>
                                     <li id="tables_areas">
                                         <a class="submenu" href="<?= admin_url('tables/areas'); ?>">
@@ -1177,23 +1149,7 @@
                                     <?php } ?>                                   
                                 </ul>
                             </li>
-                            <!-- <li class="mm_maintenance">
-                                <a class="dropmenu" href="#">
-                                    <i class="fa fa-cog"></i>
-                                    <span class="text"> <?= lang('maintenance'); ?> </span>
-                                    <span class="chevron closed"></span>
-                                </a>
-                                <ul>
-                                    <?php if ($Owner) { ?>
-                                    <li id="maintenance_upgrade">
-                                        <a class="submenu" href="<?= site_url('maintenance/upgrade'); ?>">
-                                            <span class="text"> <?= lang('upgrade'); ?></span>
-                                        </a>
-                                    </li>
-                                   
-                                    <?php } ?>                                   
-                                </ul>
-                            </li> -->
+                           
                              <li class="mm_member_discount">
                                 <a class="dropmenu" href="#">
                                     <i class="fa fa-credit-card"></i>

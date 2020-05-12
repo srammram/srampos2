@@ -2113,6 +2113,23 @@ class Siteprocurment extends CI_Model{
         }
         return 0;
     }
+	 public function lastidpro_store_return_receivers(){
+	     $this->db->order_by('id' , 'DESC');
+		 $q = $this->db->get('pro_store_return_receivers');
+		 if ($q->num_rows() > 0) {
+            return $q->row('id');
+         }
+        return 0;
+    }
+	public function lastidpro_store_return(){
+	     $this->db->order_by('id' , 'DESC');
+		 $q = $this->db->get('pro_store_returns');
+		 if ($q->num_rows() > 0) {
+            return $q->row('id');
+         }
+        return 0;
+    }
+	
     public function currencyName($id){
 	    $this->db->where('id', $id);
 	    $q = $this->db->get('currencies');
@@ -2639,6 +2656,19 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
 		$this->db->where('store_receiver_id', $store_receiver_id);
 		$this->db->where('store_receiver_item_id', $store_receiver_item_id);
 		$q = $this->db->get('pro_store_receiver_item_details');
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return array();
+    }
+	 public function getreturn_receive_items_details($store_return_receiver_id,$store_return_receiver_item_id){
+		$this->db->where('store_return_receiver_id', $store_return_receiver_id);
+		$this->db->where('store_return_receiver_item_id', $store_return_receiver_item_id);
+		$q = $this->db->get('pro_store_return_receiver_item_details');
+		
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;

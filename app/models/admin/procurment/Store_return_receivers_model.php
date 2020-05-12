@@ -1,9 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Store_return_receivers_model extends CI_Model
-{
-
-    public function __construct()
+class Store_return_receivers_model extends CI_Model{
+public function __construct()
     {
         parent::__construct();
     }
@@ -72,9 +70,7 @@ class Store_return_receivers_model extends CI_Model
 		return 0;	
 	}
 	
-	public function getAllStore_return_receiverItems($store_return_receiver_id)
-    {
-		
+	public function getAllStore_return_receiverItems($store_return_receiver_id){
         $this->db->select('pro_store_return_receiver_items.*, tax_rates.code as tax_code, tax_rates.name as tax_name, tax_rates.rate as tax_rate, products.unit, products.details as details, product_variants.name as variant, products.hsn_code as hsn_code')
             ->join('products', 'products.id=pro_store_return_receiver_items.product_id', 'left')
             ->join('product_variants', 'product_variants.id=pro_store_return_receiver_items.option_id', 'left')
@@ -205,7 +201,49 @@ class Store_return_receivers_model extends CI_Model
         }
         return FALSE;
     }
+	public function getStore_return_receiversItems($store_receiver_id){
+        $this->db->select('pro_store_return_receiver_items.*')
+            ->group_by('pro_store_return_receiver_items.id')
+            ->order_by('id', 'asc');
+        $q = $this->db->get_where('pro_store_return_receiver_items', array('store_return_receiver_id' => $store_receiver_id));
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return FALSE;
+    }
+public function getstore_return_receiver_Items($store_return_receiver_id){
+        $this->db->select('pro_store_return_receiver_items.*,pid.batch,pid.cost_price,pid.landing_cost,pid.selling_price,pid.tax,pid.tax_method,pid.expiry,pid.stock_id ,pid.category_id,pid.subcategory_id,pid.brand_id,pid.variant_id')
+	    ->from('pro_store_return_receiver_items')      
+		->join('pro_store_return_receiver_item_details pid','pid.store_return_receiver_item_id=pro_store_return_receiver_items.id','left')
+        ->where('pro_store_return_receiver_items.store_return_receiver_id' ,$store_return_receiver_id)
+	    ->group_by('pro_store_return_receiver_items.id')
+        ->order_by('id', 'asc');
+        $q = $this->db->get();
+		
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return FALSE;
+    }
+	public function getstore_return_receiver_StockData($item_return_receiver_id){
+        $this->db->select('i.id as itemid,i.store_return_receiver_id as stri ,i.store_return_receiver_item_id as strii,pi.product_id as id,i.selling_price as price,i.batch as batch_no,i.expiry,i.cost_price,i.return_qty,i.tax,i.tax_method,i.received_qty,i.vendor_id,i.landing_cost,i.invoice_id,i.stock_id');
+        $this->db->from('pro_store_return_receiver_item_details as i');
+        $this->db->join('pro_store_return_receiver_items as pi', 'pi.id=i.store_return_receiver_item_id', 'left');
+        $this->db->where('i.store_return_receiver_item_id', $item_return_receiver_id);
+        //$this->db->group_by('pi.id');
+        $q = $this->db->get();
+        if ($q->num_rows() > 0) {
+            return $q->result();
+        }
+        return false;
 
+    }
     public function getItemByID($id)
     {
         $q = $this->db->get_where('pro_store_return_receiver_items', array('id' => $id), 1);
@@ -335,107 +373,101 @@ class Store_return_receivers_model extends CI_Model
 		return 0;
 	}
 	
-    public function addStore_return_receivers($data, $items, $store_return_receivers, $stock, $stockupdate, $order_id)
-    {
-		
-		
-        if ($this->db->insert('pro_store_return_receivers', $data)) {
-             $store_return_receivers_id = $this->db->insert_id();
-				
-				$this->db->update('pro_store_returns', $store_return_receivers, array('id' => $order_id));
-				
-            foreach ($items as $item) {
-				
-                $item['store_return_receiver_id'] = $store_return_receivers_id;
-                $this->db->insert('pro_store_return_receiver_items', $item);
-				
-				if($data['status'] == 'completed'){
-					
-					foreach($stockupdate as $key => $value){
-						
-						$this->db->where('id', $key);
-						$this->db->update('pro_stock_master', $value);
-					}
-				}
-				
-				
-            }
-			if($data['status'] == 'completed'){
-			$this->db->insert_batch('pro_stock_master', $stock);
+    public function addStore_return_receivers($data, $items){
+			$this->db->insert('pro_store_return_receivers', $data);
+			$store_transfers_id = $this->db->insert_id();
+	        $unique_id = $this->site->generateUniqueTableID($store_transfers_id);
+			if ($store_transfers_id) {
+				$this->site->updateUniqueTableId($store_transfers_id,$unique_id,'pro_store_return_receivers');
 			}
+			foreach ($items as $item) {
+				if($item['batches'] !=0){
+				   $batches = $item['batches'];unset($item['batches']);
+				   $item['store_return_receiver_id'] = $unique_id;
+				   $this->db->insert('pro_store_return_receiver_items', $item);  
+				   $item_insert_id = $this->db->insert_id();
+				   $i_unique_id = $this->site->generateUniqueTableID($item_insert_id);
+				   if ($item_insert_id) {
+				     $this->site->updateUniqueTableId($item_insert_id,$i_unique_id,'pro_store_return_receiver_items');
+				   }
+					foreach ($batches as $k => $batch) {
+						$stock_id = $batch['stock_id'];
+						$batch['store_return_receiver_item_id'] = $i_unique_id;
+						$batch['store_return_receiver_id'] = $unique_id;
+						$invoice_id = $batch['invoice_id'];
+						$this->db->insert('pro_store_return_receiver_item_details', $batch);
+						$item_d_insert_id = $this->db->insert_id();
+						$id_unique_id = $this->site->generateUniqueTableID($item_d_insert_id);
+						if ($item_d_insert_id) {
+							$this->site->updateUniqueTableId($item_d_insert_id,$id_unique_id,'pro_store_return_receiver_item_details');
+							if($data['status']=="approved"){
+								$cp = str_replace('.','_',$batch['cost_price']);
+								$cunique_id=$this->store_id.$item['product_id'].$batch['variant_id'].$batch['batch'].$batch['category_id'].$batch['subcategory_id'].$batch['brand_id'].$cp.$batch['vendor_id'].$batch['invoice_id'];	
+								$this->TransferStockOut($batch['return_unit_qty'],$cunique_id);  
+			        }
+		          }
+			   }
+			}
+	    }
+	         if($data['status']=="approved"){
+		        $this->sync_store_return($unique_id);
+	         }
             return true;
         }
-        return false;
-    }
+	
+     
 
-    public function updateStore_return_receivers($id, $data, $items = array(), $stock, $stockupdate)
-    {
+    public function updateStore_return_receivers($id, $data, $items = array()){
 		
         if ($this->db->update('pro_store_return_receivers', $data, array('id' => $id)) && $this->db->delete('pro_store_return_receiver_items', array('store_return_receiver_id' => $id))) {
+			 $this->db->delete('pro_store_return_receiver_item_details', array('store_return_receiver_id' => $id));
             $store_return_receivers_id = $id;
-            foreach ($items as $item) {
-                $item['store_return_receiver_id'] = $id;
-                $this->db->insert('pro_store_return_receiver_items', $item);
-				
-				if($data['status'] == 'completed'){
-					
-					foreach($stockupdate as $key => $value){
-						
-						$this->db->where('id', $key);
-						$this->db->update('pro_stock_master', $value);
-					}
-				}
-				
-            }
 			
-			if($data['status'] == 'completed'){
-			
-			$this->db->insert_batch('pro_stock_master', $stock);
-			
+			foreach ($items as $item) {
+				if($item['batches'] !=0){
+				   $batches = $item['batches'];unset($item['batches']);
+				   $item['store_return_receiver_id'] = $store_return_receivers_id;
+				   $this->db->insert('pro_store_return_receiver_items', $item);  
+				   $item_insert_id = $this->db->insert_id();
+				   $i_unique_id = $this->site->generateUniqueTableID($item_insert_id);
+				   if ($item_insert_id) {
+				     $this->site->updateUniqueTableId($item_insert_id,$i_unique_id,'pro_store_return_receiver_items');
+				   }
+					foreach ($batches as $k => $batch) {
+						$stock_id = $batch['stock_id'];
+						$batch['store_return_receiver_item_id'] = $i_unique_id;
+						$batch['store_return_receiver_id'] = $store_return_receivers_id;
+						$invoice_id = $batch['invoice_id'];
+						$this->db->insert('pro_store_return_receiver_item_details', $batch);
+						$item_d_insert_id = $this->db->insert_id();
+						$id_unique_id = $this->site->generateUniqueTableID($item_d_insert_id);
+						if ($item_d_insert_id) {
+							$this->site->updateUniqueTableId($item_d_insert_id,$id_unique_id,'pro_store_return_receiver_item_details');
+							if($data['status']=="approved"){
+								$cp = str_replace('.','_',$batch['cost_price']);
+								$cunique_id=$this->store_id.$item['product_id'].$batch['variant_id'].$batch['batch'].$batch['category_id'].$batch['subcategory_id'].$batch['brand_id'].$cp.$batch['vendor_id'].$batch['invoice_id'];	
+								$this->TransferStockOut($batch['return_unit_qty'],$cunique_id);  
+			        }
+		          }
+			   }
 			}
+	    }
 			
-			
-            return true;
-        }
-
-        return false;
-    }
-
-    public function updateStatus($id, $status, $note)
-    {
-        // $purchase = $this->getStore_return_receiversByID($id);
-        $items = $this->siteprocurment->getAllStore_return_receiversItems($id);
-
-        if ($this->db->update('pro_store_return_receiver_items', array('status' => $status, 'note' => $note), array('id' => $id))) {
-            foreach ($items as $item) {
-                $qb = $status == 'completed' ? ($item->quantity_balance + ($item->quantity - $item->quantity_received)) : $item->quantity_balance;
-                $qr = $status == 'completed' ? $item->quantity : $item->quantity_received;
-                $this->db->update('pro_purchase_items', array('status' => $status, 'quantity_balance' => $qb, 'quantity_received' => $qr), array('id' => $item->id));
-                $this->updateAVCO(array('product_id' => $item->product_id, 'warehouse_id' => $item->warehouse_id, 'quantity' => $item->quantity, 'cost' => $item->real_unit_cost));
-            }
-            $this->siteprocurment->syncQuantity(NULL, NULL, $items);
+			 if($data['status']=="approved"){
+		        $this->sync_store_return($store_return_receivers_id);
+	         }
+			 
+		
             return true;
         }
         return false;
     }
 
-    public function deleteStore_return_receivers($id)
-    {
-        $purchase = $this->getStore_return_receiversByID($id);
-        $purchase_items = $this->siteprocurment->getAllStore_return_receiversItems($id);
+   
+    public function deleteStore_return_receivers($id){
         if ($this->db->delete('pro_store_return_receiver_items', array('store_return_receivers_id' => $id)) && $this->db->delete('pro_store_return_receivers', array('id' => $id))) {
-            // $this->db->delete('payments', array('store_return_receiver_id' => $id));
-            // if ($purchase->status == 'received' || $purchase->status == 'partial') {
-            //     foreach ($purchase_items as $oitem) {
-            //         $this->updateAVCO(array('product_id' => $oitem->product_id, 'warehouse_id' => $oitem->warehouse_id, 'quantity' => (0-$oitem->quantity), 'cost' => $oitem->real_unit_cost));
-            //         $received = $oitem->quantity_received ? $oitem->quantity_received : $oitem->quantity;
-            //         if ($oitem->quantity_balance < $received) {
-            //             $clause = array('store_return_receiver_id' => NULL, 'transfer_id' => NULL, 'product_id' => $oitem->product_id, 'warehouse_id' => $oitem->warehouse_id, 'option_id' => $oitem->option_id);
-            //             $this->siteprocurment->setPurchaseItem($clause, ($oitem->quantity_balance - $received));
-            //         }
-            //     }
-            // }
-            $this->siteprocurment->syncQuantity(NULL, NULL, $purchase_items);
+         $this->db->delete('pro_store_return_receiver_item_details', array('store_return_receivers_id' => $id));
+        //    $this->siteprocurment->syncQuantity(NULL, NULL, $purchase_items);
             return true;
         }
         return FALSE;
@@ -450,73 +482,12 @@ class Store_return_receivers_model extends CI_Model
         return FALSE;
     }
 
-    public function getPurchasePayments($store_return_receiver_id)
-    {
-        $this->db->order_by('id', 'asc');
-        $q = $this->db->get_where('payments', array('store_return_receiver_id' => $store_return_receiver_id));
-        if ($q->num_rows() > 0) {
-            foreach (($q->result()) as $row) {
-                $data[] = $row;
-            }
-            return $data;
-        }
-    }
+   
+  
+   
+  
 
-    public function getPaymentByID($id)
-    {
-        $q = $this->db->get_where('payments', array('id' => $id), 1);
-        if ($q->num_rows() > 0) {
-            return $q->row();
-        }
-
-        return FALSE;
-    }
-
-    public function getPaymentsForPurchase($store_return_receiver_id)
-    {
-        $this->db->select('payments.date, payments.paid_by, payments.amount, payments.reference_no, users.first_name, users.last_name, type')
-            ->join('users', 'users.id=payments.created_by', 'left');
-        $q = $this->db->get_where('payments', array('store_return_receiver_id' => $store_return_receiver_id));
-        if ($q->num_rows() > 0) {
-            foreach (($q->result()) as $row) {
-                $data[] = $row;
-            }
-            return $data;
-        }
-        return FALSE;
-    }
-
-    public function addPayment($data = array())
-    {
-        if ($this->db->insert('payments', $data)) {
-            if ($this->siteprocurment->getReference('ppay') == $data['reference_no']) {
-                $this->siteprocurment->updateReference('ppay');
-            }
-            $this->siteprocurment->syncPurchasePayments($data['store_return_receiver_id']);
-            return true;
-        }
-        return false;
-    }
-
-    public function updatePayment($id, $data = array())
-    {
-        if ($this->db->update('payments', $data, array('id' => $id))) {
-            $this->siteprocurment->syncPurchasePayments($data['store_return_receiver_id']);
-            return true;
-        }
-        return false;
-    }
-
-    public function deletePayment($id)
-    {
-        $opay = $this->getPaymentByID($id);
-        if ($this->db->delete('payments', array('id' => $id))) {
-            $this->siteprocurment->syncPurchasePayments($opay->store_return_receiver_id);
-            return true;
-        }
-        return FALSE;
-    }
-
+   
     public function getProductOptions($product_id)
     {
         $q = $this->db->get_where('product_variants', array('product_id' => $product_id));
@@ -538,42 +509,7 @@ class Store_return_receivers_model extends CI_Model
         return FALSE;
     }
 
-    public function getExpenseByID($id)
-    {
-        $q = $this->db->get_where('expenses', array('id' => $id), 1);
-        if ($q->num_rows() > 0) {
-            return $q->row();
-        }
-        return FALSE;
-    }
-
-    public function addExpense($data = array())
-    {
-        if ($this->db->insert('expenses', $data)) {
-            if ($this->siteprocurment->getReference('ex') == $data['reference']) {
-                $this->siteprocurment->updateReference('ex');
-            }
-            return true;
-        }
-        return false;
-    }
-
-    public function updateExpense($id, $data = array())
-    {
-        if ($this->db->update('expenses', $data, array('id' => $id))) {
-            return true;
-        }
-        return false;
-    }
-
-    public function deleteExpense($id)
-    {
-        if ($this->db->delete('expenses', array('id' => $id))) {
-            return true;
-        }
-        return FALSE;
-    }
-
+  
    
 
     public function getReturnByID($id)
@@ -601,119 +537,40 @@ class Store_return_receivers_model extends CI_Model
         }
     }
 
-    public function getPurcahseItemByID($id)
-    {
-        $q = $this->db->get_where('pro_purchase_items', array('id' => $id), 1);
-        if ($q->num_rows() > 0) {
-            return $q->row();
-        }
-        return FALSE;
-    }
+    
+ 
+   
 
-    public function returnPurchase($data = array(), $items = array())
-    {
 
-        $purchase_items = $this->siteprocurment->getAllStore_return_receiversItems($data['store_return_receivers_id']);
-
-        if ($this->db->insert('return_store_return_receivers', $data)) {
-            $return_id = $this->db->insert_id();
-            if ($this->siteprocurment->getReference('rep') == $data['reference_no']) {
-                $this->siteprocurment->updateReference('rep');
-            }
-            foreach ($items as $item) {
-                $item['return_id'] = $return_id;
-                $this->db->insert('return_purchase_items', $item);
-
-                if ($purchase_item = $this->getPurcahseItemByID($item['purchase_item_id'])) {
-                    if ($purchase_item->quantity == $item['quantity']) {
-                        $this->db->delete('pro_purchase_items', array('id' => $item['purchase_item_id']));
-                    } else {
-                        $nqty = $purchase_item->quantity - $item['quantity'];
-                        $bqty = $purchase_item->quantity_balance - $item['quantity'];
-                        $rqty = $purchase_item->quantity_received - $item['quantity'];
-                        $tax = $purchase_item->unit_cost - $purchase_item->net_unit_cost;
-                        $discount = $purchase_item->item_discount / $purchase_item->quantity;
-                        $item_tax = $tax * $nqty;
-                        $item_discount = $discount * $nqty;
-                        $subtotal = $purchase_item->unit_cost * $nqty;
-                        $this->db->update('pro_purchase_items', array('quantity' => $nqty, 'quantity_balance' => $bqty, 'quantity_received' => $rqty, 'item_tax' => $item_tax, 'item_discount' => $item_discount, 'subtotal' => $subtotal), array('id' => $item['purchase_item_id']));
-                    }
-
-                }
-            }
-            $this->calculatePurchaseTotals($data['store_return_receiver_id'], $return_id, $data['surcharge']);
-            $this->siteprocurment->syncQuantity(NULL, NULL, $purchase_items);
-            $this->siteprocurment->syncQuantity(NULL, $data['store_return_receiver_id']);
-            return true;
+  function get_receiver_list($store_id){
+        $this->db->select('id,reference_no');
+        $this->db->from('pro_store_receivers');
+        $this->db->where('status','approved');
+        $this->db->where('from_store',$store_id);
+        $q = $this->db->get();
+        if($q->num_rows()>0){
+            return $q->result();
         }
         return false;
     }
-
-    public function calculatePurchaseTotals($id, $return_id, $surcharge)
-    {
-        $purchase = $this->getStore_return_receiversByID($id);
-        $items = $this->getAllStore_return_receiversItems($id);
-        if (!empty($items)) {
-            $total = 0;
-            $product_tax = 0;
-            $order_tax = 0;
-            $product_discount = 0;
-            $order_discount = 0;
-            foreach ($items as $item) {
-                $product_tax += $item->item_tax;
-                $product_discount += $item->item_discount;
-                $total += $item->net_unit_cost * $item->quantity;
-            }
-            if ($purchase->order_discount_id) {
-                $percentage = '%';
-                $order_discount_id = $purchase->order_discount_id;
-                $opos = strpos($order_discount_id, $percentage);
-                if ($opos !== false) {
-                    $ods = explode("%", $order_discount_id);
-                    $order_discount = (($total + $product_tax) * (Float)($ods[0])) / 100;
-                } else {
-                    $order_discount = $order_discount_id;
-                }
-            }
-            if ($purchase->order_tax_id) {
-                $order_tax_id = $purchase->order_tax_id;
-                if ($order_tax_details = $this->siteprocurment->getTaxRateByID($order_tax_id)) {
-                    if ($order_tax_details->type == 2) {
-                        $order_tax = $order_tax_details->rate;
-                    }
-                    if ($order_tax_details->type == 1) {
-                        $order_tax = (($total + $product_tax - $order_discount) * $order_tax_details->rate) / 100;
-                    }
-                }
-            }
-            $total_discount = $order_discount + $product_discount;
-            $total_tax = $product_tax + $order_tax;
-            $grand_total = $total + $total_tax + $purchase->shipping - $order_discount + $surcharge;
-            $data = array(
-                'total' => $total,
-                'product_discount' => $product_discount,
-                'order_discount' => $order_discount,
-                'total_discount' => $total_discount,
-                'product_tax' => $product_tax,
-                'order_tax' => $order_tax,
-                'total_tax' => $total_tax,
-                'grand_total' => $grand_total,
-                'return_id' => $return_id,
-                'surcharge' => $surcharge
-            );
-
-            if ($this->db->update('pro_store_return_receivers', $data, array('id' => $id))) {
-                return true;
-            }
-        } else {
-            $this->db->delete('pro_store_return_receivers', array('id' => $id));
+	function get_store_receivers_by_id($store_receiver_id){
+        $this->db->select('*');
+        $this->db->from('pro_store_receivers');
+        $this->db->where('status','approved');
+        $this->db->where('id',$store_receiver_id);
+        $q = $this->db->get();
+        if($q->num_rows()>0){
+            return $q->row();
         }
-        return FALSE;
+        return false;
     }
-
-    public function getExpenseCategories()
-    {
-        $q = $this->db->get('expense_categories');
+	 public function getAllStore_receiversItems($store_receivers_id){
+        $this->db->select('pro_store_receiver_items.*')
+            ->join('recipe', 'recipe.id=pro_store_receiver_items.product_id', 'left')
+            ->group_by('pro_store_receiver_items.id')
+            ->order_by('id', 'asc');
+        $q = $this->db->get_where('pro_store_receiver_items', array('store_receiver_id' => $store_receivers_id));
+		
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -722,28 +579,96 @@ class Store_return_receivers_model extends CI_Model
         }
         return FALSE;
     }
-
-    public function getExpenseCategoryByID($id)
-    {
-        $q = $this->db->get_where("expense_categories", array('id' => $id), 1);
+	 public function getReceiversStockData($item_receiver_id){
+        $this->db->select('i.id as itemid,i.store_receiver_id as stri ,i.store_receiver_item_id as strii,pi.product_id as id,i.selling_price as price,i.batch as batch_no,i.expiry,i.cost_price,i.transfer_qty,i.tax,i.tax_method,i.received_qty,i.vendor_id,i.landing_cost,i.invoice_id,i.stock_id');
+        $this->db->from('pro_store_receiver_item_details as i');
+        $this->db->join('pro_store_receiver_items as pi', 'pi.id=i.store_receiver_item_id', 'left');
+        $this->db->where('i.store_receiver_item_id', $item_receiver_id);
+        //$this->db->group_by('pi.id');
+        //echo $this->db->get_compiled_select();
+        $q = $this->db->get();
         if ($q->num_rows() > 0) {
-            return $q->row();
+            return $q->result();
         }
-        return FALSE;
-    }
+        return false;
 
-    public function updateAVCO($data)
-    {
-        if ($wp_details = $this->getWarehouseProductQuantity($data['warehouse_id'], $data['product_id'])) {
-            $total_cost = (($wp_details->quantity * $wp_details->avg_cost) + ($data['quantity'] * $data['cost']));
-            $total_quantity = $wp_details->quantity + $data['quantity'];
-            if (!empty($total_quantity)) {
-                $avg_cost = ($total_cost / $total_quantity);
-                $this->db->update('warehouses_products', array('avg_cost' => $avg_cost), array('product_id' => $data['product_id'], 'warehouse_id' => $data['warehouse_id']));
+    }
+	 function sync_store_return($return_id){
+		$q = $this->db->get_where('srampos_pro_store_return_receivers',array('id'=>$return_id));
+		$insertData = $q->row_array();
+		$q = $this->db->get_where('srampos_pro_store_return_receiver_items',array('store_return_receiver_id'=>$return_id));
+		$items_data = $q->result_array();
+		unset($insertData['attachment']);
+		$table_name = 'srampos_pro_store_returns';
+		$table_items = 'srampos_pro_store_return_items';
+		$table_item_details = 'srampos_pro_store_return_item_details';
+		$insert_data = $insertData;
+		$insert_data['store_id'] = $insertData['to_store'];
+		$insert_data['approved_by'] = '';
+		$insert_data['approved_on'] = '0000-00-00 00:00:00';
+		$insert_data['processed_by'] = '';
+		$insert_data['processed_on'] = '0000-00-00 00:00:00';
+		$insert_data['status'] = 'new stock in';
+		$insert_data['date'] = date('Y-m-d H:i:s');
+        $n = $this->siteprocurment->lastidpro_store_return();
+		$n=($n !=0)?$n+1:$this->store_id .'1';
+		$reference = 'SRR'.str_pad($n , 8, 0, STR_PAD_LEFT);	
+        $insert_data['reference_no'] =  $reference;
+        $this->db->insert($table_name,$insert_data);
+        $insert_id =$this->db->insert_id();
+        $unique_id = $this->site->generateUniqueTableID($insert_id,$insert_data['store_id']);
+		if ($insert_id) {
+			$this->db->set('id',$unique_id);
+            $this->db->where('s_no',$insert_id);
+            $this->db->update($table_name);
+		}
+        foreach($items_data as $k => $item){
+			$item['store_id'] = $insertData['to_store'];
+			$item['store_return_id'] = $unique_id;
+			unset($item['store_return_receiver_id'],$item['s_no']);
+            $this->db->insert($table_items,$item);
+            $i_insert_id =$this->db->insert_id();
+            $i_unique_id = $this->site->generateUniqueTableID($i_insert_id,$insert_data['store_id']);
+            if ($i_insert_id) {
+                $this->db->set('id',$i_unique_id);
+                $this->db->where('s_no',$i_insert_id);
+                $this->db->update($table_items);
+				$i_details = $this->get_store_return_receiver_ItemDetails($item['id']);
+			foreach($i_details as $kk => $item_d){
+				$item_d['store_id'] = $insertData['to_store'];
+				$item_d['store_return_id'] = $unique_id;
+				$item_d['store_return_item_id'] = $i_unique_id;
+				unset($item_d['store_return_receiver_id']);unset($item_d['store_return_receiver_item_id'],$item_d['s_no']);
+				$this->db->insert($table_item_details,$item_d);
+				$id_insert_id =$this->db->insert_id();//p($this->db->error());exit;
+				$id_unique_id = $this->site->generateUniqueTableID($id_insert_id,$insert_data['store_id']);
+				if ($id_insert_id) {
+				$this->db->set('id',$id_unique_id);
+				$this->db->where('s_no',$id_insert_id);
+				$this->db->update($table_item_details);
+				}
+				}
+		
             }
-        } else {
-            $this->db->insert('warehouses_products', array('product_id' => $data['product_id'], 'warehouse_id' => $data['warehouse_id'], 'avg_cost' => $data['cost'], 'quantity' => 0));
         }
+		if($this->isStore){	
+			$this->sync_center->sync_store_returns($unique_id);
+	    }
+        
     }
-
+	 function get_store_return_receiver_ItemDetails($id){
+			$q = $this->db->get_where('srampos_pro_store_return_receiver_item_details',array('store_return_receiver_item_id'=>$id));
+			return $q->result_array();
+    }
+	function TransferStockOut($qty,$stockid){
+		$store_id = $this->store_id;
+		$id=$stockid;	
+		$query = 'update '.$this->db->dbprefix('pro_stock_master').'
+			set stock_in = stock_in - '.$qty.' ,
+			    stock_out = stock_out + '.$qty.'
+			where unique_id="'.$id.'"';
+	    $this->db->query($query);
+		
+		return $id;
+    }
 }

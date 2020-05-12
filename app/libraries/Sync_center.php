@@ -330,4 +330,43 @@ class Sync_center{
     }
 	
 	
+	function sync_store_returns($id=false){
+		
+	/** tables
+	 * pro_store_returns
+	 * pro_store_return_items
+	 * store_return_item_details
+	 * */
+	if($this->CI->centerdb_connected){
+	    $table_name = 'pro_store_returns';
+	    $table_items = 'pro_store_return_items';
+	    $table_item_details ='pro_store_return_item_details';
+	    if($id){
+		$db1 = $this->CI->db->get_where($table_name,array('id'=>$id))->result_array();
+		$db2 = $this->CI->centerdb->get_where($table_name,array('id'=>$id))->result_array();	
+	    }else{
+		$db1 = $this->CI->db->get_where($table_name,array('store_id'=>$this->CI->store_id,'status'=>'approved'))->result_array();
+		$db2 = $this->CI->centerdb->get_where($table_name,array('store_id'=>$this->CI->store_id))->result_array();	
+	    }
+	    $data = $this->compare_server_local($db1,$db2);
+	    if(isset($data['insert']) && !empty($data['insert'])){
+		foreach($data['insert'] as $k => $insert_data){
+		    unset($insert_data->s_no);
+		    $this->CI->centerdb->insert($table_name,$insert_data);
+		    $id = $insert_data['id'];
+		    $where = array('store_return_id'=>$id);		
+		    $items = $this->sync_tables($table_items,$where);
+		    $where = array('store_return_id'=>$id);		
+		    $item_details = $this->sync_tables($table_item_details,$where);
+		}
+	    }
+	}
+    }
+   function sync_tables($table_name,$where){
+	$db1 = $this->CI->db->get_where($table_name,$where)->result_array();
+	$db2 = $this->CI->centerdb->get_where($table_name,$where)->result_array();		
+	$a = $this->compare_server_local($db1,$db2,$table_name);
+	return $a;
+    }
+	
 }

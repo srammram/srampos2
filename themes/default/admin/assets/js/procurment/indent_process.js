@@ -55,7 +55,6 @@ $(document).ready(function(){
           
      });
      $("#select-indent").on("select2-selecting", function(e) {
-    
           $val = e.choice.id;
           if ($val!='') {
               $.ajax({
@@ -189,7 +188,6 @@ $(document).ready(function(){
 })
 // If there is any item in localStorage
 if (localStorage.getItem('store_reqitems')) {
-
     loadItems();
 }
 function loadIndentNo($val) {
@@ -202,36 +200,24 @@ function loadIndentNo($val) {
                     type: 'get',
                     url: site.base_url+'procurment/indent_process/getStoreIndentRequests',
                     dataType: "json",
-                    data: {
-			
-                        store_id: $val,
-                    },
+                    data: { store_id: $val},
                     success: function (data) {
                         console.log(data);
                          $.each(data,function(n,v){
                               var newOption = new Option(v.reference_no, v.id, false, true);
                               $('#select-indent').append(newOption);
                          });
-						 
-						/*  $('#select-indent').select2({
-							placeholder: "Please select "
-						}); */
 						$('#select-indent').prepend('<option selected=""></option>').select2({placeholder: "Select  "});
                          if(localStorage.getItem('indent_no')){
                               $indent_id = localStorage.getItem('indent_no');
                               $('#select-indent').select2("val", $indent_id);
                          }
-                        
-                        
                     }
                 });
-              // $('#processing_from option[value='+$val+']').prop('disabled',true);
 			   $('#processing_from option[value='+$val+']').remove();
-
                $('#processing_from').select2();
           }
           localStorage.setItem('from_store',$val);
-         
 }
 function loadItems() {
 	

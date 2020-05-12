@@ -24,7 +24,6 @@
                 nRow.className = "store_transfers_link";
                 return nRow;
             },
-            // id,date,reference_no,customer,total,total_discount,total_tax,grand_total,Actions
             "fnFooterCallback": function (nRow, aaData, iStart, iEnd, aiDisplay) {
                 var total= 0;
                 var total_tax= 0;
@@ -47,10 +46,7 @@
             {column_number: 2, filter_default_label: "[<?=lang('reference_no');?>]", filter_type: "text", data: []},
             {column_number: 3, filter_default_label: "[<?=lang('customer');?>]", filter_type: "text", data: []},
         ], "footer");
-
-       
     });
-
 </script>
 
 <?php if ($Owner || $GP['bulk_actions']) {
@@ -62,7 +58,6 @@
         <h2 class="blue"><i
                 class="fa-fw fa fa-star"></i><?=lang('store_transfers') ;?>
         </h2>
-
         <div class="box-icon">
             <ul class="btn-tasks">
                 <li class="dropdown">
@@ -73,51 +68,17 @@
                                 <i class="fa fa-plus-circle"></i> <?=lang('add_store_transfers')?>
                             </a>
                         </li>
-                        <!-- <li>
-                            <a href="#" id="excel" data-action="export_excel">
-                                <i class="fa fa-file-excel-o"></i> <?=lang('export_to_excel')?>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" id="combine" data-action="combine">
-                                <i class="fa fa-file-pdf-o"></i> <?=lang('combine_to_pdf')?>
-                            </a>
-                        </li>
-                        <li class="divider"></li>
-                        <li>
-                            <a href="#" class="bpo" title="<b><?=lang("delete_store_transfers")?></b>"
-                                data-content="<p><?=lang('r_u_sure')?></p><button type='button' class='btn btn-danger' id='delete' data-action='delete'><?=lang('i_m_sure')?></a> <button class='btn bpo-close'><?=lang('no')?></button>"
-                                data-html="true" data-placement="left">
-                                <i class="fa fa-trash-o"></i> <?=lang('delete_store_transfers')?>
-                            </a>
-                        </li> -->
+                       
                     </ul>
                 </li>
-                <?php if (!empty($warehouses)) {
-                    ?>
-                  <!--  <li class="dropdown">
-                        <a data-toggle="dropdown" class="dropdown-toggle" href="#"><i class="icon fa fa-building-o tip" data-placement="left" title="<?=lang("warehouses")?>"></i></a>
-                        <ul class="dropdown-menu pull-right tasks-menus" role="menu" aria-labelledby="dLabel">
-                            <li><a href="<?=admin_url('procurment/store_transfers')?>"><i class="fa fa-building-o"></i> <?=lang('all_warehouses')?></a></li>
-                            <li class="divider"></li>
-                            <?php
-                            	foreach ($warehouses as $warehouse) {
-                            	        echo '<li ' . ($warehouse_id && $warehouse_id == $warehouse->id ? 'class="active"' : '') . '><a href="' . admin_url('procurment/store_transfers/' . $warehouse->id) . '"><i class="fa fa-building"></i>' . $warehouse->name . '</a></li>';
-                            	    }
-                                ?>
-                        </ul>
-                    </li>-->
-                <?php }
-                ?>
+               
             </ul>
         </div>
     </div>
     <div class="box-content">
         <div class="row">
             <div class="col-lg-12">
-
                 <p class="introtext"><?=lang('list_results');?></p>
-
                 <div class="table-responsive">
                     <table id="store_transfersTable" cellpadding="0" cellspacing="0" border="0"
                            class="table table-bordered table-hover table-striped">
@@ -154,7 +115,6 @@
                             <th><?= lang("total_tax"); ?></th>
                             <th><?= lang("grand_total"); ?></th>
                             <th></th>
-                            
                             <th style="width:100px; text-align: center;"><?= lang("actions"); ?></th>
                         </tr>
                         </tfoot>

@@ -87,7 +87,6 @@ class Store_transfers extends MY_Controller{
 	}
 
 	public function supplier(){
-		
 		$supplier_id =  $this->input->get('supplier_id');
 		$data = $this->store_transfers_model->getSupplierdetails($supplier_id);
 		
@@ -170,7 +169,6 @@ class Store_transfers extends MY_Controller{
         }
 		$this->datatables->group_by('pro_store_transfers.id');
         $this->datatables->add_column("Actions", $action, "pro_store_transfers.id");
-
         echo $this->datatables->generate();
     }
 
@@ -291,17 +289,17 @@ class Store_transfers extends MY_Controller{
 			  'status' =>$this->input->post('status'),
 			  'remarks'=>$this->input->post('remarks')
             );
-	    if($data['intend_request_id']!=''){
-		    $store_indent = $this->store_transfers_model->getStoreindentData($data['intend_request_id']);
-		    $data['store_indent_id'] = $store_indent->store_indent_id;
-		    $data['store_indent_date'] = $store_indent->store_indent_date;
-	    }
+			if($data['intend_request_id']!=''){
+				$store_indent = $this->store_transfers_model->getStoreindentData($data['intend_request_id']);
+				$data['store_indent_id'] = $store_indent->store_indent_id;
+				$data['store_indent_date'] = $store_indent->store_indent_date;
+			}	
 	    if($data['status']=='process'){
-		   $data['processed_by'] = $this->session->userdata('user_id');
-		   $data['processed_on']=date('Y-m-d H:i:s');
+				$data['processed_by'] = $this->session->userdata('user_id');
+				$data['processed_on']=date('Y-m-d H:i:s');
 	    }else{
-		   $data['approved_by'] = $this->session->userdata('user_id');
-		   $data['approved_on']=date('Y-m-d H:i:s');
+				$data['approved_by'] = $this->session->userdata('user_id');
+				$data['approved_on']=date('Y-m-d H:i:s');
 	    }
            
             if ($_FILES['document']['size'] > 0) {
