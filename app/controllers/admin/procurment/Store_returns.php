@@ -1,10 +1,7 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-class Store_returns extends MY_Controller
-{
-
-    public function __construct()
-    {
+class Store_returns extends MY_Controller{
+    public function __construct(){
         parent::__construct();
         if (!$this->loggedIn) {
             $this->session->set_userdata('requested_page', $this->uri->uri_string());
@@ -27,10 +24,7 @@ class Store_returns extends MY_Controller
 
     }
 
-    public function index($warehouse_id = null)
-    {
-      //  //$this->sma->checkPermissions();
-
+    public function index($warehouse_id = null){
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         if ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) {
             $this->data['warehouses'] = $this->siteprocurment->getAllWarehouses();
@@ -48,287 +42,82 @@ class Store_returns extends MY_Controller
 
     }
 
-    public function getStore_returns($warehouse_id = null)
-    {
-        //$this->sma->checkPermissions('index');
-
-        if ((!$this->Owner || !$this->Admin) && !$warehouse_id) {
-            $user = $this->siteprocurment->getUser();
-            $warehouse_id = $user->warehouse_id;
-        }
-        $detail_link = anchor('admin/procurment/store_returns/view/$1/', '<i class="fa fa-file-text-o"></i> ' . lang('store_returns_details'));
-        $email_link = anchor('admin/procurment/store_returns/email/$1', '<i class="fa fa-envelope"></i> ' . lang('email_store_returns'), 'data-toggle="modal" data-target="#myModal"');
-		
-		
-		$edit_link = anchor('admin/procurment/store_returns/edit/$1', '<i class="fa fa-edit"></i> ' . lang('edit_store_returns'));
-		
-       // $convert_link = anchor('admin/procurment/sales/add/$1', '<i class="fa fa-heart"></i> ' . lang('create_sale'));
-       // $pc_link = anchor('admin/procurment/purchases/add/$1', '<i class="fa fa-star"></i> ' . lang('create_purchase'));
-        $pdf_link = anchor('admin/procurment/store_returns/pdf/$1', '<i class="fa fa-file-pdf-o"></i> ' . lang('download_pdf'));
-        $delete_link = "<a href='#' class='po' title='<b>" . $this->lang->line("delete_store_returns") . "</b>' data-content=\"<p>"
+    public function getStore_returns($warehouse_id = null){
+		$view_link = '<a href="'.admin_url('procurment/store_returns/view/$1').'" data-toggle="modal" data-target="#myModal"><i class="fa fa-edit"></i>'.lang('view_store_return').'</a>';
+        $edit_link = anchor('admin/procurment/store_returns/edit/$1', '<i class="fa fa-edit"></i> ' . lang('edit_store_return'));
+        $delete_link = "<a href='#' class='po' title='<b>" . $this->lang->line("delete_quotation") . "</b>' data-content=\"<p>"
         . lang('r_u_sure') . "</p><a class='btn btn-danger po-delete' href='" . admin_url('procurment/store_returns/delete/$1') . "'>"
         . lang('i_m_sure') . "</a> <button class='btn po-close'>" . lang('no') . "</button>\"  rel='popover'><i class=\"fa fa-trash-o\"></i> "
         . lang('delete_store_returns') . "</a>";
-       /* $action = '<div class="text-center"><div class="btn-group text-left">'
+       
+		$action = '<div class="text-center"><div class="btn-group text-left">'
         . '<button type="button" class="btn btn-default btn-xs btn-primary dropdown-toggle" data-toggle="dropdown">'
         . lang('actions') . ' <span class="caret"></span></button>
-                    <ul class="dropdown-menu pull-right" role="menu">
-                        <li>' . $detail_link . '</li>
-                        <li>' . $edit_link . '</li>
-                        <li>' . $pdf_link . '</li>
-                        <li>' . $email_link . '</li>
-                        <li>' . $delete_link . '</li>
-                    </ul>
-                </div></div>';*/
-			 $action = '<div class="text-center"><div class="btn-group text-left">'
-        . '<button type="button" class="btn btn-default btn-xs btn-primary dropdown-toggle" data-toggle="dropdown">'
-        . lang('actions') . ' <span class="caret"></span></button>
-                    <ul class="dropdown-menu pull-right" role="menu">
-                        <li>' . $edit_link . '</li>
-                        <li>' . $delete_link . '</li>
-                    </ul>
-                </div></div>';
-        //$action = '<div class="text-center">' . $detail_link . ' ' . $edit_link . ' ' . $email_link . ' ' . $delete_link . '</div>';
-
+        <ul class="dropdown-menu pull-right" role="menu">
+            <li>' . $edit_link . '</li>
+			 <li>' . $view_link . '</li>
+            <li>' . $delete_link . '</li>
+        </ul>
+		</div></div>';
         $this->load->library('datatables');
-        if ($warehouse_id) {
-            $this->datatables
-                ->select("pro_store_returns.id, pro_store_returns.date, pro_store_returns.reference_no,   pro_store_returns.status, pro_store_returns.attachment")
-				
-                ->from('pro_store_returns')
-                ->where('pro_store_returns.warehouse_id', $warehouse_id);
-        } else {
-            $this->datatables
-                ->select("pro_store_returns.id, pro_store_returns.date, pro_store_returns.reference_no, f.name as from_name, t.name as to_name, pro_store_returns.status, pro_store_returns.attachment")
-                ->from('pro_store_returns')
-				->join('pro_stores f', 'f.id = pro_store_returns.from_store_id', 'left')
-				->join('pro_stores t', 't.id = pro_store_returns.to_store_id', 'left');
-        }
-        /*if (!$this->Customer && !$this->Supplier && !$this->Owner && !$this->Admin && !$this->session->userdata('view_right')) {
-            $this->datatables->where('pro_store_returns.created_by', $this->session->userdata('user_id'));
-        } elseif ($this->Customer) {
-            $this->datatables->where('pro_store_returns.customer_id', $this->session->userdata('user_id'));
-        }*/
-        $this->datatables->add_column("Actions", $action, "pro_store_returns.id,store_returns.status");
-        echo $this->datatables->generate();
+         $this->datatables
+	    ->select("pro_store_returns.id, pro_store_returns.date, pro_store_returns.reference_no, pro_store_returns.req_reference_no as ref, f.name as from_name, t.name as to_name, pro_store_returns.total_no_qty as return_qty, pro_store_returns.status")
+            ->from('pro_store_returns')
+	    
+	    ->join('warehouses f', 'f.id = pro_store_returns.from_store', 'left')
+	    ->join('warehouses t', 't.id = pro_store_returns.to_store', 'left')
+		->where('pro_store_returns.store_id',$this->store_id);		
+		$this->datatables->group_by('pro_store_returns.id');
+        $this->datatables->add_column("Actions", $action, "pro_store_returns.id");
+		echo      $this->datatables->generate();
     }
 
-    public function modal_view($store_return_id = null)
-    {
-        //$this->sma->checkPermissions('index', true);
-
+    
+ 
+    public function view($store_return_id = null) {
         if ($this->input->get('id')) {
-            $store_returns_id = $this->input->get('id');
+         $store_return_id = $this->input->get('id');
         }
-        $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
-        $inv = $this->store_returns_model->getStore_returnsByID($store_return_id);
-        if (!$this->session->userdata('view_right')) {
-            $this->sma->view_rights($inv->created_by, true);
-        }
-        $this->data['rows'] = $this->store_returns_model->getAllStore_returnsItems($store_return_id);
-        $this->data['customer'] = $this->siteprocurment->getCompanyByID($inv->customer_id);
-        $this->data['biller'] = $this->siteprocurment->getCompanyByID($inv->biller_id);
-        $this->data['created_by'] = $this->siteprocurment->getUser($inv->created_by);
-        $this->data['updated_by'] = $inv->updated_by ? $this->siteprocurment->getUser($inv->updated_by) : null;
-        $this->data['warehouse'] = $this->siteprocurment->getWarehouseByID($inv->warehouse_id);
-        $this->data['inv'] = $inv;
-
-        $this->load->view($this->theme . 'store_returns/modal_view', $this->data);
-
-    }
-
-    public function view($store_return_id = null)
-    {
-        //$this->sma->checkPermissions('index');
-
-        if ($this->input->get('id')) {
-            $store_return_id = $this->input->get('id');
-        }
-        $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
-        $inv = $this->store_returns_model->getStore_returnsByID($store_return_id);
-        if (!$this->session->userdata('view_right')) {
-            $this->sma->view_rights($inv->created_by);
-        }
-        $this->data['rows'] = $this->store_returns_model->getAllStore_returnsItems($store_return_id);
-        $this->data['customer'] = $this->siteprocurment->getCompanyByID($inv->customer_id);
-        $this->data['biller'] = $this->siteprocurment->getCompanyByID($inv->biller_id);
-        $this->data['created_by'] = $this->siteprocurment->getUser($inv->created_by);
-        $this->data['updated_by'] = $inv->updated_by ? $this->siteprocurment->getUser($inv->updated_by) : null;
-        $this->data['warehouse'] = $this->siteprocurment->getWarehouseByID($inv->warehouse_id);
-        $this->data['inv'] = $inv;
-
-        $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('procurment/store_returns'), 'page' => lang('store_returns')), array('link' => '#', 'page' => lang('view')));
-        $meta = array('page_title' => lang('view_store_returns_details'), 'bc' => $bc);
-        $this->page_construct('procurment/store_returns/view', $meta, $this->data);
-
-    }
-
-    public function pdf($store_return_id = null, $view = null, $save_bufffer = null)
-    {
-        //$this->sma->checkPermissions();
-
-        if ($this->input->get('id')) {
-            $store_return_id = $this->input->get('id');
-        }
-        $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
-        $inv = $this->store_returns_model->getStore_returnsByID($store_return_id);
-        if (!$this->session->userdata('view_right')) {
-            $this->sma->view_rights($inv->created_by);
-        }
-        $this->data['rows'] = $this->store_returns_model->getAllStore_returnsItems($store_return_id);
-        $this->data['customer'] = $this->siteprocurment->getCompanyByID($inv->customer_id);
-        $this->data['biller'] = $this->siteprocurment->getCompanyByID($inv->biller_id);
-        $this->data['created_by'] = $this->siteprocurment->getUser($inv->created_by);
-        $this->data['warehouse'] = $this->siteprocurment->getWarehouseByID($inv->warehouse_id);
-        $this->data['inv'] = $inv;
-        $name = $this->lang->line("store_returns") . "_" . str_replace('/', '_', $inv->reference_no) . ".pdf";
-        $html = $this->load->view($this->theme . 'store_returns/pdf', $this->data, true);
-        if (! $this->Settings->barcode_img) {
-            $html = preg_replace("'\<\?xml(.*)\?\>'", '', $html);
-        }
-        if ($view) {
-            $this->load->view($this->theme . 'store_returns/pdf', $this->data);
-        } elseif ($save_bufffer) {
-            return $this->sma->generate_pdf($html, $name, $save_bufffer);
-        } else {
-            $this->sma->generate_pdf($html, $name);
-        }
-    }
-
-    public function combine_pdf($store_return_id)
-    {
-        //$this->sma->checkPermissions('pdf');
-
-        foreach ($store_return_id as $store_return_id) {
-
-            $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
-            $inv = $this->store_returns_model->getStore_returnsByID($store_return_id);
-            if (!$this->session->userdata('view_right')) {
-                $this->sma->view_rights($inv->created_by);
-            }
-            $this->data['rows'] = $this->store_returns_model->getAllStore_returnsItems($store_return_id);
-            $this->data['customer'] = $this->siteprocurment->getCompanyByID($inv->customer_id);
-            $this->data['biller'] = $this->siteprocurment->getCompanyByID($inv->biller_id);
-            $this->data['user'] = $this->siteprocurment->getUser($inv->created_by);
-            $this->data['warehouse'] = $this->siteprocurment->getWarehouseByID($inv->warehouse_id);
-            $this->data['inv'] = $inv;
-
-            $html[] = array(
-                'content' => $this->load->view($this->theme . 'store_returns/pdf', $this->data, true),
-                'footer' => '',
-            );
-        }
-
-        $name = lang("store_returns") . ".pdf";
-        $this->sma->generate_pdf($html, $name);
-
-    }
-
-    public function email($store_return_id = null)
-    {
-        //$this->sma->checkPermissions(false, true);
-
-        if ($this->input->get('id')) {
-            $store_return_id = $this->input->get('id');
-        }
-        $inv = $this->store_returns_model->getStore_returnsByID($store_return_id);
-        $this->form_validation->set_rules('to', $this->lang->line("to") . " " . $this->lang->line("email"), 'trim|required|valid_email');
-        $this->form_validation->set_rules('subject', $this->lang->line("subject"), 'trim|required');
-        $this->form_validation->set_rules('cc', $this->lang->line("cc"), 'trim|valid_emails');
-        $this->form_validation->set_rules('bcc', $this->lang->line("bcc"), 'trim|valid_emails');
-        $this->form_validation->set_rules('note', $this->lang->line("message"), 'trim');
-
-        if ($this->form_validation->run() == true) {
-            if (!$this->session->userdata('view_right')) {
-                $this->sma->view_rights($inv->created_by);
-            }
-            $to = $this->input->post('to');
-            $subject = $this->input->post('subject');
-            if ($this->input->post('cc')) {
-                $cc = $this->input->post('cc');
-            } else {
-                $cc = null;
-            }
-            if ($this->input->post('bcc')) {
-                $bcc = $this->input->post('bcc');
-            } else {
-                $bcc = null;
-            }
-            $customer = $this->siteprocurment->getCompanyByID($inv->customer_id);
-            $biller = $this->siteprocurment->getCompanyByID($inv->biller_id);
-            $this->load->library('parser');
-            $parse_data = array(
-                'reference_number' => $inv->reference_no,
-                'contact_person' => $customer->name,
-                'company' => $customer->company,
-                'site_link' => base_url(),
-                'site_name' => $this->Settings->site_name,
-                'logo' => '<img src="' . base_url() . 'assets/uploads/logos/' . $biller->logo . '" alt="' . ($biller->company != '-' ? $biller->company : $biller->name) . '"/>',
-            );
-            $msg = $this->input->post('note');
-            $message = $this->parser->parse_string($msg, $parse_data);
-            $attachment = $this->pdf($store_return_id, null, 'S');
-
-            try {
-                if ($this->sma->send_email($to, $subject, $message, null, null, $attachment, $cc, $bcc)) {
-                    delete_files($attachment);
-                    $this->db->update('store_returns', array('status' => 'approved'), array('id' => $store_return_id));
-                    $this->session->set_flashdata('message', $this->lang->line("email_sent"));
-                    admin_redirect("procurment/store_returns");
+         $this->data['store_rec']=$po= $this->store_returns_model->getStore_return_ByID($store_return_id);
+		 $inv_items = $this->store_returns_model->getStore_return_Items($store_return_id);
+         krsort($inv_items);
+            $c = rand(100000, 9999999);
+			
+			 foreach ($inv_items as $item) {
+                $row = $this->siteprocurment->getRecipeByID($item->product_id);
+                if (!$row) {
+                    $row = json_decode('{}');
+                    $row->tax_method = 0;
+                } else {
+                    unset($row->details, $row->cost, $row->supplier1price, $row->supplier2price, $row->supplier3price, $row->supplier4price, $row->supplier5price);
                 }
-            } catch (Exception $e) {
-                $this->session->set_flashdata('error', $e->getMessage());
-                redirect($_SERVER["HTTP_REFERER"]);
+                $row->id = $item->product_id;
+                $row->code = $item->product_code;
+                $row->name = $item->product_name;
+                $row->type = $item->product_type;
+                $ri = $this->Settings->item_addition ? $row->id : $c;
+                $pr[$ri] = array('id' => $c, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")", 'row' => $item);
+                $c++;
             }
+			 $this->data['store_rec_items'] = $pr;
+             $this->data['id'] = $id;
+	         $this->data['fromstore'] = $this->siteprocurment->getWarehouseByID($po->from_store);
+		     $this->data['to_store'] = $this->siteprocurment->getWarehouseByID($po->to_store);
+             $this->data['inv'] = $po;
+			 $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('procurment/store_returns'), 'page' => lang('store_returns')), array('link' => '#', 'page' => lang('view')));
+			 $meta = array('page_title' => lang('view_store_return_details'), 'bc' => $bc);
+			 $this->load->view($this->theme.'procurment/store_returns/view', $this->data);
 
-        } elseif ($this->input->post('send_email')) {
-
-            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-            $this->session->set_flashdata('error', $this->data['error']);
-            redirect($_SERVER["HTTP_REFERER"]);
-
-        } else {
-
-            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-
-            if (file_exists('./themes/' . $this->Settings->theme . '/admin/views/email_templates/store_returns.html')) {
-                $store_returns_temp = file_get_contents('themes/' . $this->Settings->theme . '/admin/views/email_templates/store_returns.html');
-            } else {
-                $store_returns_temp = file_get_contents('./themes/default/admin/views/email_templates/store_returns.html');
-            }
-
-            $this->data['subject'] = array('name' => 'subject',
-                'id' => 'subject',
-                'type' => 'text',
-                'value' => $this->form_validation->set_value('subject', lang('store_returns').' (' . $inv->reference_no . ') '.lang('from').' '.$this->Settings->site_name),
-            );
-            $this->data['note'] = array('name' => 'note',
-                'id' => 'note',
-                'type' => 'text',
-                'value' => $this->form_validation->set_value('note', $store_returns_temp),
-            );
-            $this->data['customer'] = $this->siteprocurment->getCompanyByID($inv->customer_id);
-
-            $this->data['id'] = $store_return_id;
-            $this->data['modal_js'] = $this->siteprocurment->modal_js();
-            $this->load->view($this->theme . 'store_returns/email', $this->data);
-
-        }
     }
-
-    public function add()
-    {
-        ////$this->sma->checkPermissions();
-
-        $this->form_validation->set_message('is_natural_no_zero', $this->lang->line("no_zero_required"));
-		 $this->form_validation->set_rules('from_store_id', $this->lang->line("from_store"), 'required');
+    
+    public function add(){
+          $this->form_validation->set_message('is_natural_no_zero', $this->lang->line("no_zero_required"));
+		  $this->form_validation->set_rules('from_store_id', $this->lang->line("from_store"), 'required');
 		  $this->form_validation->set_rules('to_store_id', $this->lang->line("to_store"), 'required');
-		$this->form_validation->set_rules('request_type', $this->lang->line("request_type"), 'required');
+		  $this->form_validation->set_rules('request_type', $this->lang->line("request_type"), 'required');
         if ($this->form_validation->run() == true) {
-
             $reference = 'STORERETURN'.date('YmdHis');            
 			$date = date('Y-m-d H:i:s');
-            
             $warehouse_id = $this->input->post('warehouse');
 			$from_store_id = $this->input->post('from_store_id');
 			$to_store_id = $this->input->post('to_store_id');
@@ -473,118 +262,84 @@ class Store_returns extends MY_Controller
         }
     }
 
-    public function edit($id = null)
-    {
-        ////$this->sma->checkPermissions();
-
+        public function edit($id = null){
         if ($this->input->get('id')) {
             $id = $this->input->get('id');
         }
-        $inv = $this->store_returns_model->getStore_returnsByID($id);
-				
-		
-		if ($inv->status == 'approved' || $inv->status == 'completed') {
-			$this->session->set_flashdata('error', lang("Do not allowed edit option"));
-			admin_redirect("procurment/store_returns");
-		}	
-		
-        
-        $this->form_validation->set_message('is_natural_no_zero', $this->lang->line("no_zero_required"));
-		
-		 $this->form_validation->set_rules('request_type', $this->lang->line("request_type"), 'required');
-        $this->form_validation->set_rules('warehouse', $this->lang->line("warehouse"), 'required');
-		 // $this->form_validation->set_rules('to_store_id', $this->lang->line("to_store"), 'required');
-        //$this->form_validation->set_rules('note', $this->lang->line("note"), 'xss_clean');
-
-        if ($this->form_validation->run() == true) {
-
-            
-            $warehouse_id = $this->input->post('warehouse');
-            $biller_id = $this->input->post('biller');
-			$from_store_id = $this->input->post('from_store_id');
-			$to_store_id = $this->input->post('to_store_id');
-            $supplier_id = $this->input->post('supplier');
-            $status = $this->input->post('status');
-            $shipping = $this->input->post('shipping') ? $this->input->post('shipping') : 0;
-            $biller_details = $this->siteprocurment->getCompanyByID($biller_id);
-            $biller = $biller_details->company != '-' ? $biller_details->company : $biller_details->name;
-            if ($supplier_id) {
-                $supplier_details = $this->siteprocurment->getCompanyByID($supplier_id);
-                $supplier = $supplier_details->company != '-' ? $supplier_details->company : $supplier_details->name;
-            } else {
-                $supplier = NULL;
-            }
-            $note = $this->sma->clear_tags($this->input->post('note'));
-
-            $total = 0;
-            $product_tax = 0;
-            $product_discount = 0;
-            $gst_data = [];
-            $total_cgst = $total_sgst = $total_igst = 0;
-            $i = isset($_POST['product_code']) ? sizeof($_POST['product_code']) : 0;
-           	for ($r = 0; $r < $i; $r++) {
-                $item_id = $_POST['product_id'][$r];
-                $item_type = $_POST['product_type'][$r];
-                $item_code = $_POST['product_code'][$r];
-                $item_name = $_POST['product_name'][$r];
-				$item_batch_no = $_POST['batch_no'][$r];
-				$item_available_qty = $_POST['available_qty'][$r];
-                //$item_option = isset($_POST['product_option'][$r]) && $_POST['product_option'][$r] != 'false' ? $_POST['product_option'][$r] : null;
-                //$real_unit_price = $this->sma->formatDecimal($_POST['real_unit_price'][$r]);
-               // $unit_price = $this->sma->formatDecimal($_POST['unit_price'][$r]);
-               $item_unit_quantity = $_POST['quantity'][$r];
-               // $item_tax_rate = isset($_POST['product_tax'][$r]) ? $_POST['product_tax'][$r] : null;
-               // $item_discount = isset($_POST['product_discount'][$r]) ? $_POST['product_discount'][$r] : null;
-                $item_unit = $_POST['product_unit'][$r];
-                $item_quantity = $_POST['product_base_quantity'][$r];
-
-               if (!empty($item_code)) {
-                    $product_details = $item_type != 'manual' ? $this->store_returns_model->getProductByCode($item_code) : null;
-                    // $unit_price = $real_unit_price;
-                   // $pr_discount = $this->siteprocurment->calculateDiscount($item_discount, $unit_price);
-                  //  $unit_price = $this->sma->formatDecimal($unit_price - $pr_discount);
-                   // $item_net_price = $unit_price;
-                  //  $pr_item_discount = $this->sma->formatDecimal($pr_discount * $item_unit_quantity);
-                  //  $product_discount += $pr_item_discount;
-                  //  $pr_item_tax = $item_tax = 0;
-                  //  $tax = "";
-
-                   
-
-                    $products[] = array(
-                        'product_id' => $item_id,
-						'batch_no' => $item_batch_no,
-						'available_qty' => $item_available_qty,
-                        'product_code' => $item_code,
-                        'product_name' => $item_name,
-                        'product_type' => $item_type,
-                        'quantity' => $item_quantity,
-						'unit_quantity' => $item_quantity,
-                        'product_unit_id' => $item_unit,
-                        //'product_unit_code' => $unit->code,
-                        'warehouse_id' => $warehouse_id,
-                    );
-
-                }
-            }
+          $inv = $this->store_returns_model->getStore_returnsByID($id);
+           if ($inv->status == 'approved' || $inv->status == 'completed') {
+	      $this->session->set_flashdata('error', lang("Do not allowed edit option"));
+	      admin_redirect("procurment/store_returns");
+	     } 
+			$this->form_validation->set_rules('date', $this->lang->line("date"), 'required');
+			$this->session->unset_userdata('csrf_token');
+			if ($this->form_validation->run() == true) {
+            $date = date('Y-m-d H:i:s');           
+            $i = count($_POST['product_id']);
+			$products = array();
+			for($r = 0; $r < $i; $r++){
+			$total_t_qty = 0;$total_r_qty=0;
+		    $products[$r] = array(
+			    'store_return_itemid'=>$_POST["store_return_itemid"][$r],
+			    'product_id' => $_POST["product_id"][$r],
+			    'product_code' => $_POST['product_code'][$r],
+			    'product_type' => $_POST['product_type'][$r],
+			    'product_name' => $_POST['product_name'][$r],			    
+			    'request_qty' => $_POST['request_qty'][$r],
+			    'store_id' =>$this->store_id,
+				'variant_id'=>$_POST['variant_id'][$r]
+			    );
+		    foreach($_POST['batch'][$this->store_id.$_POST["product_id"][$r]] as $k => $row){
+				$products[$r]['batches'][] = array(
+		        'id'=>$row['itemid'],
+				'store_return_item_id'=>$row['storereturnitemid'],	
+				'store_return_id'=>$row['storereturnid'],					
+			    'return_qty' => $row['return_qty'],
+			    'received_qty' => $row['received_qty'],
+			    'batch' => $row['batch_no'],
+			    'vendor_id' => $row['vendor_id'],
+			    'expiry' => $row['expiry'],
+			    'cost_price' => $row['cost_price'],
+			    'selling_price' => $row['selling_price'],
+			    'landing_cost' => $row['landing_cost'],
+			    'unit_price' => $row['selling_price'],
+			    'net_unit_price' => $row['selling_price']*$row['request_qty'],
+			    'tax' => $row['tax'],
+			    'tax_method' => $row['tax_method'],
+			    'gross_amount' => $row['gross'],
+			    'tax_amount' => $row['tax_amount'],
+			    'net_amount' => $row['product_grand_total'],
+			    'store_id' =>$this->store_id,
+				'invoice_id' => $row['invoice_id'],
+				'category_id'=>  $_POST['category_id'][$r],
+				'subcategory_id'=> $_POST['subcategory_id'][$r],  
+				'brand_id'=> $_POST['brand_id'][$r], 
+				'variant_id'=>$_POST['variant_id'][$r],
+			    'return_type'=>$row['r_type'],
+			);
+			$total_t_qty +=$row['return_qty'];
+			$total_r_qty +=$row['received_qty'];
+		    }
+		    $products[$r]['return_qty'] = $total_t_qty;
+		    $products[$r]['received_qty'] = $total_r_qty;
+			}
             if (empty($products)) {
                 $this->form_validation->set_rules('product', lang("order_items"), 'required');
             } else {
-                $products;
+                
+                krsort($items);
             }
-
+            
             $data = array(
-				'request_type' => $this->input->post('request_type'),
-               // 'from_store_id' => $from_store_id,
-                //'to_store_id' => $to_store_id,
-                'warehouse_id' => $warehouse_id,
-                'note' => $note,
-                'status' => $status,
-                'updated_by' => $this->session->userdata('user_id'),
-				'is_update' => date('Y-m-d H:i:s'),
-                'hash' => hash('sha256', microtime() . mt_rand()),
+		       'total_no_items'=>$this->input->post('total_no_items'),
+		       'total_no_qty'=>$this->input->post('total_no_qty'),
+		       'status' =>$this->input->post('status'),
+			   'reference_no'=>$inv->reference_no
             );
-
+			 if($this->input->post('status')=="approved"){
+	        	$data['approved_by'] = $this->session->userdata('user_id');
+                $data['approved_on'] = date('Y-m-d H:i:s');
+	          }
             if ($_FILES['document']['size'] > 0) {
                 $this->load->library('upload');
                 $config['upload_path'] = $this->digital_upload_path;
@@ -601,107 +356,67 @@ class Store_returns extends MY_Controller
                 $photo = $this->upload->file_name;
                 $data['attachment'] = $photo;
             }
-
-            //$this->sma->print_arrays($data, $products);die;
+		/* 	print_r($products);
+			die; */
         }
 
-        if ($this->form_validation->run() == true && $this->store_returns_model->updateStore_returns($id, $data, $products)) {
-            $this->session->set_userdata('remove_quls', 1);
-            $this->session->set_flashdata('message', $this->lang->line("store_returns_added"));
+        if ($this->form_validation->run() == true && $this->store_returns_model->updateStoreReturns($id, $data, $products)) {
+            $this->session->set_userdata('remove_pols', 1);
+            $this->session->set_flashdata('message', $this->lang->line("pro_store_receivers_added"));
             admin_redirect('procurment/store_returns');
         } else {
-
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-
-            $this->data['inv'] = $this->store_returns_model->getStore_returnsByID($id);
-            $inv_items = $this->store_returns_model->getAllStore_returnsItems($id);
-             krsort($inv_items);
+            $this->data['sr'] = $inv;
+         
+            $inv_items = $this->store_returns_model->getStoreReturnsItems($id);   
+            krsort($inv_items);
             $c = rand(100000, 9999999);
             foreach ($inv_items as $item) {
-                $row = $this->siteprocurment->getProductByID($item->product_id);
-                if (!$row) {
-                    $row = json_decode('{}');
-                    $row->tax_method = 0;
-                } else {
-                    unset($row->details, $row->product_details, $row->cost, $row->supplier1price, $row->supplier2price, $row->supplier3price, $row->supplier4price, $row->supplier5price);
-                }
-                $row->quantity = 0;
-                $pis = $this->siteprocurment->getPurchasedItems($item->product_id, $item->warehouse_id, $item->option_id);
-                if ($pis) {
-                    foreach ($pis as $pi) {
-                        $row->quantity += $pi->quantity_balance;
-                    }
-                }
-                $row->id = $item->product_id;
-				$row->batch_no = $item->batch_no;
-				$row->available_qty = $item->available_qty;
-                $row->code = $item->product_code;
-                $row->name = $item->product_name;
-                $row->type = $item->product_type;
-                $row->base_quantity = $item->quantity;
-                $row->base_unit = $row->unit ? $row->unit : $item->product_unit_id;
-                $row->base_unit_price = $row->price ? $row->price : $item->unit_price;
-                $row->unit = $item->product_unit_id;
-                $row->qty = $item->unit_quantity;
-                $row->discount = $item->discount ? $item->discount : '0';
-                $row->price = $this->sma->formatDecimal($item->net_unit_price + $this->sma->formatDecimal($item->item_discount / $item->quantity));
-                $row->unit_price = $row->tax_method ? $item->unit_price + $this->sma->formatDecimal($item->item_discount / $item->quantity) + $this->sma->formatDecimal($item->item_tax / $item->quantity) : $item->unit_price + ($item->item_discount / $item->quantity);
-                $row->real_unit_price = $item->real_unit_price;
-                $row->tax_rate = $item->tax_rate_id;
-                $row->option = $item->option_id;
-                $options = $this->store_returns_model->getProductOptions($row->id, $item->warehouse_id);
-
-                if ($options) {
-                    $option_quantity = 0;
-                    foreach ($options as $option) {
-                        $pis = $this->siteprocurment->getPurchasedItems($row->id, $item->warehouse_id, $item->option_id);
-                        if ($pis) {
-                            foreach ($pis as $pi) {
-                                $option_quantity += $pi->quantity_balance;
-                            }
-                        }
-                        if ($option->quantity > $option_quantity) {
-                            $option->quantity = $option_quantity;
-                        }
-                    }
-                }
-
-                $combo_items = false;
-                if ($row->type == 'combo') {
-                    $combo_items = $this->store_returns_model->getProductComboItems($row->id, $item->warehouse_id);
-                    foreach ($combo_items as $combo_item) {
-                        $combo_item->quantity = $combo_item->qty * $item->quantity;
-                    }
-                }
-                $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
-                $tax_rate = $this->siteprocurment->getTaxRateByID($row->tax_rate);
-                $ri = $this->Settings->item_addition ? $row->id : $c;
-
-                $pr[$ri] = array('id' => $c, 'item_id' => $row->stock_id, 'label' => $row->name . " (" . $row->code . ")", 'row' => $row, 'combo_items' => $combo_items, 'tax_rate' => $tax_rate, 'units' => $units, 'options' => $options);
-                $c++;
+              $row                 = $this->siteprocurment->getItemByID($item->product_id);
+			  $row->tax_method     = $item->tax_method;
+			  $row->variant_id     = $item->variant_id;
+			  $row->category_id    = $row->category_id;
+			  $row->subcategory_id = $row->subcategory_id;
+			  $row->brand_id       = $row->brand;
+			  $batches             = $this->store_returns_model->getReturnStockData($item->id);
+			  $row->request_qty    = $item->request_qty;
+			  $row->received_qty   = $item->received_qty;
+			  $row->batches = $batches;
+			  $unique_item_id = $this->store_id.$item->product_id.$item->batch;
+			  $ri = $row->id;
+			  $options = array();
+			  $pr[$unique_item_id] = array('unique_id'=>$unique_item_id,'id' => $row->id,'store_receiveItemid'=>$item->id, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
+				'row' => $row,  'options' => $options);
             }
-            $this->data['inv_items'] = json_encode($pr);
-            $this->data['id'] = $id;
-			$this->data['stores'] = $this->siteprocurment->getAllStores();
-            //$this->data['currencies'] = $this->siteprocurment->getAllCurrencies();
-            $this->data['billers'] = ($this->Owner || $this->Admin || !$this->session->userdata('biller_id')) ? $this->siteprocurment->getAllCompanies('biller') : null;
-            $this->data['tax_rates'] = $this->siteprocurment->getAllTaxRates();
-            $this->data['warehouses'] = ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) ? $this->siteprocurment->getAllWarehouses() : null;
 
+            $this->data['inv_items']       = json_encode($pr);
+            $this->data['id']              = $id;
+            $this->data['suppliers']       = $this->siteprocurment->getAllCompanies('supplier');
+			$this->data['warehouses']      = $this->siteprocurment->getAllWarehouses();
+			$this->data['all_stores']      = $this->siteprocurment->getAllWarehouses_Storeslist();
+			$this->data['store_req']       = $this->siteprocurment->getAll_respectiveSTOREREQUESTNUMBER();
+			$this->data['stores']          = $this->siteprocurment->getAllWarehouses_Stores();
+            $this->load->helper('string');
+            $value = random_string('alnum', 20);
+            $this->session->set_userdata('user_csrf', $value);
+            $this->session->set_userdata('remove_pols', 1);
+            $this->data['csrf'] = $this->session->userdata('user_csrf');
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('procurment/store_returns'), 'page' => lang('store_returns')), array('link' => '#', 'page' => lang('edit_store_returns')));
             $meta = array('page_title' => lang('edit_store_returns'), 'bc' => $bc);
+        
             $this->page_construct('procurment/store_returns/edit', $meta, $this->data);
         }
     }
 
-    public function delete($id = null)
-    {
-        //$this->sma->checkPermissions(NULL, true);
-
+    public function delete($id = null){
         if ($this->input->get('id')) {
             $id = $this->input->get('id');
         }
-
+		  $inv = $this->store_returns_model->getStore_returnsByID($id);
+           if ($inv->status == 'approved' || $inv->status == 'completed') {
+	      $this->session->set_flashdata('error', lang("Do not allowed edit option"));
+	      admin_redirect("procurment/store_returns");
+	     } 
         if ($this->store_returns_model->deleteStore_returns($id)) {
             if ($this->input->is_ajax_store_returns()) {
                 $this->sma->send_json(array('error' => 0, 'msg' => lang("store_returns_deleted")));
@@ -711,24 +426,18 @@ class Store_returns extends MY_Controller
         }
     }
 
-    public function suggestions()
-    {
+    public function suggestions(){
         $term = $this->input->get('term', true);
         $warehouse_id = $this->input->get('warehouse_id', true);
         $store_id = $this->input->get('store_id', true);
-
         if (strlen($term) < 1 || !$term) {
             die("<script type='text/javascript'>setTimeout(function(){ window.top.location.href = '" . admin_url('procurment/welcome') . "'; }, 10);</script>");
         }
-
         $analyzed = $this->sma->analyze_term($term);
         $sr = $analyzed['term'];
         $option_id = $analyzed['option_id'];
         $warehouse = $this->siteprocurment->getWarehouseByID($warehouse_id);
-       // $customer = $this->siteprocurment->getCompanyByID($customer_id);
-       // $customer_group = $this->siteprocurment->getCustomerGroupByID($customer->customer_group_id);
         $rows = $this->store_returns_model->getProductNames($sr, $warehouse_id, $store_id);
-		
         if ($rows) {
             $c = str_replace(".", "", microtime(true));
             $r = 0;
@@ -874,29 +583,5 @@ class Store_returns extends MY_Controller
         }
     }
 
-    public function update_status($id)
-    {
-
-        $this->form_validation->set_rules('status', lang("status"), 'required');
-
-        if ($this->form_validation->run() == true) {
-            $status = $this->input->post('status');
-            $note = $this->sma->clear_tags($this->input->post('note'));
-        } elseif ($this->input->post('update')) {
-            $this->session->set_flashdata('error', validation_errors());
-            admin_redirect(isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : 'sales');
-        }
-
-        if ($this->form_validation->run() == true && $this->store_returns_model->updateStatus($id, $status, $note)) {
-            $this->session->set_flashdata('message', lang('status_updated'));
-            admin_redirect(isset($_SERVER["HTTP_REFERER"]) ? $_SERVER["HTTP_REFERER"] : 'sales');
-        } else {
-
-            $this->data['inv'] = $this->store_returns_model->getStore_returnsByID($id);
-            $this->data['modal_js'] = $this->siteprocurment->modal_js();
-            $this->load->view($this->theme.'store_returns/update_status', $this->data);
-
-        }
-    }
-
+   
 }

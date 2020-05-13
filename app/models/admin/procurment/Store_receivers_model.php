@@ -351,7 +351,7 @@ class Store_receivers_model extends CI_Model{
     public function updateStore_receivers($id, $data, $items = array())
     {
         if ($this->db->update('pro_store_receivers', $data, array('id' => $id))) {
-            $store_transfers_id = $id;
+            
             foreach ($items as $item) {
                 $batches = $item['batches'];unset($item['batches']);
                 $store_receive_itemid = $item['store_receive_itemid'];

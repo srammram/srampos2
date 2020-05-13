@@ -10,14 +10,9 @@
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-2x">&times;</i>
             </button>
-            <h4 class="modal-title" id="myModalLabel"><?=lang('store_receivers')?> - <?=$store_rec->reference_no?></h4>
+            <h4 class="modal-title" id="myModalLabel"><?=lang('store_return')?> - <?=$store_rec->reference_no?></h4>
         </div>
-        <?php
-		/* echo '<pre>';
-      print_r($store_req);
-	  die; */
-	  ?>
-
+      
         <div class="modal-body">
             <div class="table-responsive">
                 <table class="col-md-12">
@@ -51,26 +46,7 @@
 
 
                 </table>
-                <!--  <table id="ItemData" class="table table-bordered table-condensed table-hover table-striped">
-                        <thead>
-                        <tr>
-                                            <th ><?= lang('s.no'); ?></th>
-                                            <th><?= lang('code'); ?></th>
-                                            <th ><?= lang("description"); ?></th>
-                                            <th ><?= lang("qty"); ?></th>
-                                        </tr>
-                        </thead>
-                        <tbody>
-                        <?php $i =1; foreach($store_rec_items as $k => $row) : ?>
-                        <tr>
-                            <td><?=$i?></td>
-                            <td><?=$row['row']->product_code?></td>
-                            <td><?=$row['row']->product_name?></td>
-                            <td><?=$row['row']->quantity?></td>
-                        </tr>
-                        <?php $i++;endforeach; ?>
-                        </tbody>
-                    </table>-->
+               
                 <div class="controls table-controls">
                     <table id="store_transfersTable" class="table items  table-bordered table-condensed sortable_table"
                         style="background:#fff">
@@ -92,11 +68,6 @@
                                 <th>tax amount</th>
                                 <th>Total</th>
 
-
-
-
-
-                                
                             </tr>
                         </thead>
                         <tbody class="ui-sortable">
@@ -109,7 +80,7 @@
                                 <td><?=$row['row']->quantity?></td>
                                 <td colspan="11">
 								<?php  
-                                           $item_details=$this->siteprocurment->getreceive_items_details($row['row']->store_receiver_id,$row['row']->id);
+                                           $item_details=$this->siteprocurment->getreturn_receive_items_details($row['row']->store_return_receiver_id,$row['row']->id);
 											if(!empty($item_details)){  foreach($item_details as $item){
 								?>
                                     <table style="width: 100%;"
@@ -117,8 +88,8 @@
                                         <thead>
                                             <tr>
                                                 <th>batch</th>
-                                                <th>t.qty</th>
-                                                <th>received qty</th>
+                                                <th>received.qty</th>
+                                                <th>return qty</th>
                                                 <th>expiry</th>
                                                 <th>c.price</th>
                                                 <th>s.price</th>
@@ -132,9 +103,8 @@
                                             <tr class="batch-row" data-item="21" data-batch="0">
                                               
                                                 <td><?php echo   !empty($item->batch)?$item->batch:'No batch';  ?></td>
-                                                <td><?php echo $item->transfer_qty;  ?></td>
-                                              
                                                 <td><?php echo $item->received_qty;  ?></td>
+                                                <td><?php echo $item->return_qty;  ?></td>
                                                 <td><?php echo $item->expiry;  ?></td>
                                                 <td><?php echo $item->cost_price;  ?></td>
                                                 <td><?php echo $item->selling_price;  ?></td>

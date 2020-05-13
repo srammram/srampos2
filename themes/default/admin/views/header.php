@@ -986,7 +986,6 @@
                                        <li id="procurment_store_receivers">
                                            <a class="dropmenu" href="javascript:void(0)">
                                                <span class="text">  <?= lang('store_receivers'); ?> </span>
-                                               <!--<span class="chevron closed"></span> -->
                                            </a>
                                            <ul class="level-3-menu">
                                                <li id="procurment_store_receivers_index">
@@ -1014,6 +1013,19 @@
                                                        <span class="text"> <?= lang('create'); ?></span>
                                                    </a>
                                                </li>
+                                          </ul>
+                                       </li>
+                                        <li id="procurment_store_return_receivers">
+                                           <a class="dropmenu" href="javascript:void(0)">
+                                               <span class="text">  <?= lang('store_returns'); ?> </span>
+                                           </a>
+                                           <ul class="level-3-menu">
+                                               <li id="procurment_store_return_receivers_index">
+                                                   <a class="submenu" href="<?= admin_url('procurment/store_returns'); ?>">
+                                                       <span class="text"> <?= lang('list'); ?></span>
+                                                   </a>
+                                               </li>
+                                               
                                           </ul>
                                        </li>
                                     <?php  endif; ?> 

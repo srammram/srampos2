@@ -2668,7 +2668,6 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
 		$this->db->where('store_return_receiver_id', $store_return_receiver_id);
 		$this->db->where('store_return_receiver_item_id', $store_return_receiver_item_id);
 		$q = $this->db->get('pro_store_return_receiver_item_details');
-		
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -2681,6 +2680,18 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
 		$this->db->where('store_transfer_id', $store_transfer_id);
 		$this->db->where('store_transfer_item_id', $store_transfer_item_id);
 		$q = $this->db->get('pro_store_transfer_item_details');
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return array();
+    }
+	public function getstorereturn_items_details($store_return_id,$store_return_item_id){
+		$this->db->where('store_return_id', $store_return_id);
+		$this->db->where('store_return_item_id', $store_return_item_id);
+		$q = $this->db->get('pro_store_return_item_details');
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;

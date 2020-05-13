@@ -226,7 +226,7 @@
 
 <div class="box">
     <div class="box-header">
-        <h2 class="blue"><i class="fa-fw fa fa-plus"></i><?= lang('add_store_receivers'); ?></h2>
+        <h2 class="blue"><i class="fa-fw fa fa-plus"></i><?= lang('edit_store_receivers'); ?></h2>
     </div>
     <div class="box-content">
         <div class="row">
