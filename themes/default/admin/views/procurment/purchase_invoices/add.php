@@ -294,7 +294,7 @@
                                             foreach ($purchaseorder as $purchaseorder_row) {
                                                 $po[$purchaseorder_row->id] = $purchaseorder_row->reference_no;
                                             }
-                                            echo form_dropdown('po_number', $po, (isset($_POST['po_number']) ? $_POST['po_number'] : 0 ), ' class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("po_number") . '"style="width:100%;" id="pi_requestnumber"  '.( $this->isStore)?"disabled":"".'   ');
+                                            echo form_dropdown('po_number', $po, 0, ' class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("po_number") . '"style="width:100%;" id="pi_requestnumber"     ');
                                         ?>
                                     </td>
                                     <td>

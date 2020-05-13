@@ -263,7 +263,7 @@ class Store_transfers extends MY_Controller{
 				'product_unit_code' =>$unit->code,
 				'category_id'      => $_POST['catgory_id'][$r],
 				'subcategory_id'   => $_POST['subcatgory_id'][$r],
-				'brand_id'         => $_POST['brand_id'][$r],
+				'brand_id'         => !empty($_POST['brand_id'][$r])?$_POST['brand_id'][$r]:0,
 				'invoice_id'       => !empty($row['invoice_id'])?$row['invoice_id']:0,
 				
 			);
@@ -294,21 +294,22 @@ class Store_transfers extends MY_Controller{
 				$data['store_indent_id'] = $store_indent->store_indent_id;
 				$data['store_indent_date'] = $store_indent->store_indent_date;
 			}	
-	    if($data['status']=='process'){
+			
+			if($data['status']=='process'){
 				$data['processed_by'] = $this->session->userdata('user_id');
 				$data['processed_on']=date('Y-m-d H:i:s');
-	    }else{
+			}else{
 				$data['approved_by'] = $this->session->userdata('user_id');
 				$data['approved_on']=date('Y-m-d H:i:s');
-	    }
+			}
            
             if ($_FILES['document']['size'] > 0) {
                 $this->load->library('upload');
-                $config['upload_path'] = $this->digital_upload_path;
-                $config['allowed_types'] = $this->digital_file_types;
-                $config['max_size'] = $this->allowed_file_size;
-                $config['overwrite'] = false;
-                $config['encrypt_name'] = true;
+                $config['upload_path']     = $this->digital_upload_path;
+                $config['allowed_types']   = $this->digital_file_types;
+                $config['max_size']        = $this->allowed_file_size;
+                $config['overwrite']       = false;
+                $config['encrypt_name']    = true;
                 $this->upload->initialize($config);
                 if (!$this->upload->do_upload('document')) {
                     $error = $this->upload->display_errors();

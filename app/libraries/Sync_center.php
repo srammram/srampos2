@@ -368,5 +368,80 @@ class Sync_center{
 	$a = $this->compare_server_local($db1,$db2,$table_name);
 	return $a;
     }
+	    function sync_store_receivers($insertData){
+	/** tables
+	 * pro_store_receivers
+	 * pro_store_receiver_items
+	 * pro_store_receiver_item_details
+	 * */
+	//p($insertData,1);
 	
+	$q = $this->CI->db->get_where('pro_store_transfer_items',array('store_transfer_id'=>$insertData['id']));
+	$items_data = $q->result_array();
+	unset($insertData['attachment']);
+	$table_name = 'pro_store_receivers';
+	$table_items = 'pro_store_receiver_items';
+        $table_item_details = 'pro_store_receiver_item_details';
+        $insert_data = $insertData;
+        $insert_data['store_id'] = $insertData['to_store'];
+		//$insert_data['transfer_remarks'] = $insertData['remarks'];
+        $insert_data['approved_by'] = '';
+        $insert_data['approved_on'] = '0000-00-00 00:00:00';
+	    $insert_data['processed_by'] = '';
+        $insert_data['processed_on'] = '0000-00-00 00:00:00';
+        $insert_data['status'] = 'new stock in';
+	    $insert_data['date'] = date('Y-m-d H:i:s');
+        $n = $this->lastidStoreReceiver();
+	    $reference = 'SRE'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
+        $insert_data['reference_no'] = str_replace('ST','SRE',$insert_data['reference_no']);
+        $this->CI->centerdb->insert($table_name,$insert_data);
+		
+        $insert_id =$this->CI->centerdb->insert_id();
+        $unique_id = $this->CI->site->generateUniqueTableID($insert_id,$insert_data['store_id']);
+	   if ($insert_id) {
+	    $this->CI->centerdb->set('id',$unique_id);
+        $this->CI->centerdb->where('s_no',$insert_id);
+        $this->CI->centerdb->update($table_name);
+	  }
+	
+        foreach($items_data as $k => $item){
+	    unset($item->s_no);
+        $item['store_id'] = $insertData['to_store'];
+	    $item['store_receiver_id'] = $unique_id;
+	    unset($item['store_transfer_id']);
+	    unset($item['available_qty']);
+	    unset($item['pending_qty']);
+            $this->CI->centerdb->insert($table_items,$item);
+            $i_insert_id =$this->CI->centerdb->insert_id();
+            $i_unique_id = $this->CI->site->generateUniqueTableID($i_insert_id,$insert_data['store_id']);
+            if ($i_insert_id) {
+                $this->CI->centerdb->set('id',$i_unique_id);
+                $this->CI->centerdb->where('s_no',$i_insert_id);
+                $this->CI->centerdb->update($table_items);
+		
+		$i_details = $this->getStoreTItemDetails($item['id']);
+		foreach($i_details as $kk => $item_d){
+		    $item_d['store_id'] = $insertData['to_store'];
+		    $item_d['store_receiver_id'] = $unique_id;
+		    $item_d['store_receiver_item_id'] = $i_unique_id;
+		    $item_d['transfer_qty'] = $item_d['transfer_qty'];
+		    unset($item_d['store_transfer_id']);unset($item_d['store_transfer_item_id']);
+		    unset($item_d['request_qty']);
+		    unset($item_d['available_qty']);
+		  //  unset($item_d['transfer_qty']);
+		    unset($item_d['pending_qty']);
+		    $this->CI->centerdb->insert($table_item_details,$item_d);
+		    $id_insert_id =$this->CI->centerdb->insert_id();//p($this->CI->centerdb->error());exit;
+		    $id_unique_id = $this->CI->site->generateUniqueTableID($id_insert_id,$insert_data['store_id']);
+		    if ($id_insert_id) {
+			$this->CI->centerdb->set('id',$id_unique_id);
+			$this->CI->centerdb->where('s_no',$id_insert_id);
+			$this->CI->centerdb->update($table_item_details);
+		    }
+		}
+		
+            }
+        }
+        
+    }
 }

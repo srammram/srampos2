@@ -23,7 +23,7 @@ class Main extends MY_Shop_Controller
 	function index1(){
 		  $this->center_server->connect();
 	      $this->site->update_sync_startTime();
-		  $this->sync_both->sync_purchase_invoice();
+		  $this->sync_center->sync_store_transfers();
 		  $this->site->update_sync_endTime();
 		
 	}

@@ -201,11 +201,11 @@ class Store_receivers extends MY_Controller{
         if ($this->input->get('id')) {
             $id = $this->input->get('id');
         }
-        $inv = $this->store_receivers_model->getStore_receiversByID($id);
+       /*  $inv = $this->store_receivers_model->getStore_receiversByID($id);
         if ($inv->status == 'approved' || $inv->status == 'completed') {
 	    $this->session->set_flashdata('error', lang("Do not allowed edit option"));
 	    admin_redirect("procurment/store_receivers");
-	 }
+	 } */
       
         $this->form_validation->set_rules('date', $this->lang->line("date"), 'required');
         $this->session->unset_userdata('csrf_token');

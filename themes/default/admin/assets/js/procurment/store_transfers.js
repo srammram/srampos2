@@ -549,6 +549,7 @@ function loadItems() {
         var order_no = new Date().getTime();
         $.each(sortedItems, function () {
 	  //  console.log(sortedItems)
+	  
 	        var item = this;
 	        $product_grand_total_amt = 0;
 	        $product_gross_amt=0;
@@ -569,7 +570,7 @@ function loadItems() {
 			$html = '<tr class="order-item-row warning" data-item="'+item_id+'">';
             $html += '<td>'+$sno+'<input type="hidden" name="product_id[]" value="'+$id+'"></td>';
             $html += '<td>'+$product_code+'<input type="hidden" name="product_code[]" value="'+$product_code+'"></td>';
-            $html += '<td>'+$product_name+'<input type="hidden" name="product_name[]" value="'+$product_name+'"><input type="hidden" name="product_type[]" value="'+$product_type+'"><input type="hidden" name="variant_id[]" value="'+item.row.variant_id+'"><input type="hidden" name="catgory_id[]" value="'+item.row.category_id+'"><input type="hidden" name="subcatgory_id[]" value="'+item.row.subcategory_id+'"><input type="hidden" name="brand_id[]" value="'+item.row.brand_id+'"></td>';
+            $html += '<td>'+$product_name+'<input type="hidden" name="product_name[]" value="'+$product_name+'"><input type="hidden" name="product_type[]" value="'+$product_type+'"><input type="hidden" name="variant_id[]" value="'+item.row.variant_id+'"><input type="hidden" name="catgory_id[]" value="'+item.row.category_id+'"><input type="hidden" name="subcatgory_id[]" value="'+item.row.subcategory_id+'"><input type="hidden" name="brand_id[]" value="'+item.row.brand+'"></td>';
 			$html += '<td><input type="text" name="request_qty[]" value="'+formatDecimals($request_qty)+'" class="form-control text-center request-qty" readonly></td>';
 			$html +='<td colspan="11">';
 			

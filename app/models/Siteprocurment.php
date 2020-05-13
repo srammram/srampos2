@@ -2292,7 +2292,7 @@ class Siteprocurment extends CI_Model{
 		$cate_mapp_data['status']         = 1;
 		$cate_mapping=$this->db->get_where("category_mapping",array("unique_id"=>$cate_mapp_data['unique_id']));
 	   if($cate_mapping->num_rows()>0){
-		    $cate_mapping=$q->row();
+		    $cate_mapping=$cate_mapping->row();
 		   $this->db->where("unique_id",$cate_mapp_data['unique_id']);
 		   $this->db->update("category_mapping",$cate_mapp_data);
 		   return $cate_mapping->id;
@@ -2700,4 +2700,7 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
         }
         return array();
     }
+	function stockUniqueIdGenerate(){
+		
+	}
 }
