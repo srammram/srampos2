@@ -484,11 +484,11 @@ class Store_transfers extends MY_Controller{
 			$store_transfer_items = $this->store_transfers_model->getAllStore_transfersItems($id);
 			$pr = array();
 			foreach ($store_transfer_items as $item) {
-			$row = $this->siteprocurment->getItemByID($item->product_id);
-			$row->available_qty       = $this->siteprocurment->getAvailableQty($item->product_id);
-			$row->request_qty         = $item->request_qty;
-			$row->qty                 = $item->transfer_qty;
-			$row->transfer_qty        = $item->transfer_qty;
+			$row 					  = $this->siteprocurment->getItemByID($item->product_id);
+			$row->available_qty       = $item->available_qty;
+			
+			$row->qty                 = $item->wastage_qty;
+			$row->transfer_qty        = $item->wastage_qty;
 			$row->pending_qty         = $item->pending_qty;
 			$row->batch_no            = $item->batch;
 			$row->expiry              = $item->expiry;
@@ -501,7 +501,7 @@ class Store_transfers extends MY_Controller{
 			$row->variant_id          = $item->variant_id;
 			$row->brand_id            = $item->brand_id;
 			$p_ids                    = array($item->product_id);$s_ids =  array($this->store_id); 
-			$batches                  =  $this->store_transfers_model->getbatchStockData($item->id);
+			$batches                  = $this->store_transfers_model->getbatchStockData($item->id);
 			$row->batches             = $batches;
 			
 			$units = $this->siteprocurment->getUnitsByBUID($row->base_unit);

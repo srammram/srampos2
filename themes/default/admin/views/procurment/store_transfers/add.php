@@ -1,8 +1,6 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 <script>
     var store_transitems = {};
-    
-    
     $(document).ready(function(){
 	if (localStorage.getItem('store_transfrom_store_id')!=null) {
 	    $('#store_transfrom_store_id').val(localStorage.getItem('store_transfrom_store_id'));
@@ -20,10 +18,7 @@
 	    $("#intend_request_date").val(localStorage.getItem('intend_request_date'));
 	}
     });
-   
     //localStorage.setItem('store_transitems', JSON.stringify(<?= $store_transfers_items; ?>));
-    
-    
     
 </script>
 <div class="box">

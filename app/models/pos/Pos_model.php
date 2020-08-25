@@ -5972,14 +5972,14 @@ print_r($item);die;*/
     	return false;
     }   
 
-    public function getAllBillitems($id =NULL)
+     public function getAllBillitems($id =NULL)
     {
     	 /* $Billitems = "SELECT BI.id,BI.recipe_name,BI.recipe_id,BI.input_discount,BI.unit_price  AS net_unit_price,BI.manual_item_discount,BI.manual_item_discount_per_val,SUM(BI.quantity) AS quantity,SUM(BI.subtotal) AS subtotal,R.khmer_name,BI.discount,BI.recipe_variant,B.customer_discount_id,BI.item_discount,BI.off_discount,BI.input_discount,BI.birthday_discount,BI.customer_discount_val,BI.comment,BI.comment_price,BI.recipe_variant_id
                     FROM ".$this->db->dbprefix('bil_items')." AS BI
                     JOIN ". $this->db->dbprefix('recipe') ." AS R ON R.id = BI.recipe_id
                     JOIN ". $this->db->dbprefix('bils') ." AS B ON B.id = BI.bil_id
                    WHERE BI.bil_id='".$id."' GROUP BY BI.recipe_name,BI.recipe_variant_id"; */
-				   $Billitems = "SELECT BI.id,BI.recipe_name,BI.recipe_id,BI.input_discount,BI.unit_price  AS net_unit_price,BI.manual_item_discount,BI.manual_item_discount_per_val,BI.quantity AS quantity,BI.subtotal AS subtotal,R.khmer_name,BI.discount,BI.recipe_variant,B.customer_discount_id,BI.item_discount,BI.off_discount,BI.input_discount,BI.birthday_discount,BI.customer_discount_val,BI.comment,BI.comment_price,BI.recipe_variant_id
+				   $Billitems = "SELECT BI.id,BI.recipe_name,BI.recipe_id,BI.input_discount,BI.unit_price  ,BI.  net_unit_price,BI.manual_item_discount,BI.manual_item_discount_per_val,BI.quantity AS quantity,BI.subtotal AS subtotal,R.khmer_name,BI.discount,BI.recipe_variant,B.customer_discount_id,BI.item_discount,BI.off_discount,BI.input_discount,BI.birthday_discount,BI.customer_discount_val,BI.comment,BI.comment_price,BI.recipe_variant_id
                     FROM ".$this->db->dbprefix('bil_items')." AS BI
                     JOIN ". $this->db->dbprefix('recipe') ." AS R ON R.id = BI.recipe_id
                     JOIN ". $this->db->dbprefix('bils') ." AS B ON B.id = BI.bil_id

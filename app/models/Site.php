@@ -7536,7 +7536,7 @@ public function getOrderStatus($split_id){
                     $stock_overflow = $stock-$tobedetect;  
                     $stock_qty_taken = $tobedetect-$stock;   
                     if($stock_overflow >= 0){
-                       $query = 'update srampos_pro_stock_master set  stock_out = stock_out + '.$tobedetect.' where id='.$row->id;
+                       $query = 'update srampos_pro_stock_master set stock_in=stock_in - '.$tobedetect.', stock_out = stock_out + '.$tobedetect.' where id='.$row->id;
                         $this->db->query($query); 
 
                         $stock_id = $row->id;
@@ -7557,12 +7557,12 @@ public function getOrderStatus($split_id){
                 	$stock = $row->stock_in - $row->stock_out;
                 	$stock_overflow = $tobedetect -$stock;
                     $out = $stock - $tobedetect;                    
-                    $cloased='';
+                    $closed='';
                     if($out <= 0){
-                        $cloased=', stock_status =  "closed"';
+                        $closed=', stock_status =  "closed"';
                     }
                    
-                    $query = 'update srampos_pro_stock_master set  stock_out = stock_out + '.$stock.'  '.$cloased.'  where id='.$row->id;
+                    $query = 'update srampos_pro_stock_master set stock_in=stock_in - '.$stock.', stock_out = stock_out + '.$stock.'  '.$closed.'  where id='.$row->id;
                     $this->db->query($query); 
                     $stock_id = $row->id;
                     $date =date('Y-m-d h:m:s');

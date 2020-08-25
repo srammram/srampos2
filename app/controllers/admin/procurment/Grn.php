@@ -129,7 +129,8 @@ class Grn extends MY_Controller{
 						'selling_price'   => ($_POST['selling_price'][$r])?$_POST['selling_price'][$r]:0,
 					//	'margin'          => $_POST['store_id'][$r],
 						//'net_amt'         => $_POST['store_id'][$r],
-						
+						'product_base_cost'=>$_POST['product_base_cost'][$r],
+						'product_base_price'=>$_POST['product_base_price'][$r],
 						'product_unit_id' => $_POST['product_unit'][$r],
 						'unit_quantity'   => $_POST['product_base_quantity'][$r],
 						'product_unit_code'=>$unit->code,
@@ -255,7 +256,8 @@ class Grn extends MY_Controller{
 						'selling_price'   => ($_POST['selling_price'][$r])?$_POST['selling_price'][$r]:0,
 					//	'margin'          => $_POST['store_id'][$r],
 						//'net_amt'         => $_POST['store_id'][$r],
-						
+						'product_base_cost'=>$_POST['product_base_cost'][$r],
+						'product_base_price'=>$_POST['product_base_price'][$r],
 						'product_unit_id' => $_POST['product_unit'][$r],
 						'unit_quantity'   => $_POST['product_base_quantity'][$r],
 						'product_unit_code'=>$unit->code,

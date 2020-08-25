@@ -376,6 +376,7 @@ function nsSupplier() {
 //localStorage.clear();
 function loadItems() {
     if (localStorage.getItem('grn_items')) {  
+	
         total = 0;
         count = 1;
         an = 1;
@@ -389,27 +390,35 @@ function loadItems() {
         sortedItems = grn_items;
         $('#add_sale, #edit_sale').attr('disabled', false);
         var c = 1;
+		
         $.each(sortedItems, function () {
+									
             var item = this;
             var item_id = item.item_id;
             item.order = item.order ? item.order : new Date().getTime();
             var product_id = item.row.id, item_type = item.row.type, combo_items = item.combo_items, item_price = item.row.price, item_qty = item.row.qty, item_aqty = item.row.quantity, item_tax_method = item.row.tax_method, item_ds = item.row.discount, item_discount = 0, item_option = item.row.option, item_code = item.row.code, item_serial = item.row.serial, item_name = item.row.name.replace(/"/g, "&#034;").replace(/'/g, "&#039;");
-	        var category_id = item.row.category_id,
-		    category_name = item.row.category_name,
-		    subcategory_id = item.row.subcategory_id,
+	        var category_id  = item.row.category_id,
+		    category_name    = item.row.category_name,
+		    subcategory_id   = item.row.subcategory_id,
 		    subcategory_name = item.row.subcategory_name,
-		    brand_id = item.row.brand_id,
-		    brand_name = item.row.brand_name;
-            var unit_price = item.row.real_unit_price;
+		    brand_id         = item.row.brand_id,
+		    brand_name       = item.row.brand_name;
+            var unit_price   = item.row.real_unit_price;
             var product_unit = item.row.unit, base_quantity = item.row.base_quantity;
+			var product_base_cost =item.row.cost_price;
+			var product_base_price =item.row.selling_price;
+
             if(item.units && item.row.fup != 1 && product_unit != item.row.base_unit) {
                 $.each(item.units, function(){
                     if (this.id == product_unit) {
                         base_quantity = formatDecimal(unitToBaseQty(item.row.qty, this), 4);
-                        unit_price = formatDecimal((parseFloat(item.row.base_unit_price)*(unitToBaseQty(1, this))), 4);
+						//price calculation be reverse calculation
+                         product_base_cost = formatDecimal((baseToUnitQty(item.row.cost_price, this)), 4);
+						 product_base_price = formatDecimal((baseToUnitQty(item.row.selling_price, this)), 4);
                     }
                 });
             }
+
             if(item.options !== false) {
                 $.each(item.options, function () {
                     if(this.id == item.row.option && this.price != 0 && this.price != '' && this.price != null) {
@@ -425,7 +434,6 @@ function loadItems() {
                     sel_opt = this.name;
                 }
             });
-			console.log("item"+item.row.uniqueid);
             var row_no = (new Date).getTime();
             var newTr = $('<tr id="row_' + row_no + '" class="row_' + item_id + '" data-item-id="' + item_id +'_'+item.store_id+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id +'_'+item.row.option_id+'"></tr>');
             tr_html = '<td><input name="product_id[]" type="hidden" class="rid" value="' + product_id + '"><input name="product_type[]" type="hidden" class="rtype" value="' + item_type + '"><input name="product_code[]" type="hidden" class="rcode" value="' + item_code + '"><input name="product_name[]" type="hidden" class="rname" value="' + item_name + '"><input name="product_option[]" type="hidden" class="roption" value="' + item.row.option_id + '"><input type="hidden" name="store_id[]" value="'+item.row.store_id+'"><input type="hidden" name="cost_price[]" value="'+item.row.cost_price+'"><input type="hidden" name="selling_price[]" value="'+item.row.selling_price+'"><input type="hidden" name="landing_cost[]" value="'+item.row.landing_cost+'"><input type="hidden" name="tax_rate[]" value="'+item.row.tax_rate+'"><input type="hidden" name="invoice_id[]" value="'+item.row.invoice_id+'"><input type="hidden" name="batch[]" value="'+item.row.batch+'"><input type="hidden" name="expiry[]" value="'+item.row.expiry+'"><input type="hidden" name="expiry_type[]" value="'+item.row.expiry_type+'"><input type="hidden" name="invoice_date[]" value="'+item.row.invoice_date+'"><input type="hidden" name="tax_rate_id[]" value="'+item.row.tax_rate_id+'"><input type="hidden" name="unique_id[]" value="'+item.row.uniqueid+'"><span class="sname" id="name_' + row_no + '">' + item_code +' - '+ item_name +(sel_opt != '' ? ' ('+sel_opt+')' : '')+'</span> </td>';
@@ -450,7 +458,7 @@ function loadItems() {
 		     '</td>';
          
             tr_html += '<td><input class="form-control text-center "   type="hidden" name="pi_qty[]" value="' + formatQuantity2(item.row.pi_qty) + '" readonly data-id="' +row_no+ '" data-item="' +item_id+ '" id="quantity_' +row_no+ '" ><span>'+formatQuantity2(item.row.pi_qty)+'</span></td>';
-			tr_html += '<td><input class="form-control text-center rquantity" tabindex="'+((site.settings.set_focus == 1) ? an : (an+1))+'" name="quantity[]" type="text"   value="' + formatQuantity2(item_qty) + '" data-id="' + row_no + '" data-item="' + item_id + '" id="quantity_' + row_no + '" onClick="this.select();"><input name="product_unit[]" type="hidden" class="runit" value="' + product_unit + '"><input name="product_base_quantity[]" type="hidden" class="rbase_quantity" value="' + base_quantity + '"><input name="quantity_balance[]" type="hidden"  value="' + item.row.quantity_balance + '"></td>';
+			tr_html += '<td><input class="form-control text-center rquantity" tabindex="'+((site.settings.set_focus == 1) ? an : (an+1))+'" name="quantity[]" type="text"   value="' + formatQuantity2(item_qty) + '" data-id="' + row_no + '" data-item="' + item_id + '" id="quantity_' + row_no + '" onClick="this.select();"><input name="product_unit[]" type="hidden" class="runit" value="' + product_unit + '"><input name="product_base_quantity[]" type="hidden" class="rbase_quantity" value="' + base_quantity + '"><input name="quantity_balance[]" type="hidden"  value="' + item.row.quantity_balance + '"><input type="hidden" name="product_base_cost[]" value="'+product_base_cost+'"><input type="hidden" name="product_base_price[]" value="'+product_base_price+'"></td>';
             tr_html += '<td class="text-center"><i class="fa fa-trash-o tip pointer grn_itemDel" id="' + row_no + '" title="Remove" style="cursor:pointer; color:red;"></i></td>';
             newTr.html(tr_html);
             newTr.appendTo("#grntable");

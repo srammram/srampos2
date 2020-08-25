@@ -670,6 +670,7 @@
                                     </li>
                                 </ul>
                             </li>
+
                             <?php
                             if($this->Settings->procurment == 1){
                             ?>
@@ -730,7 +731,33 @@
                                         </li>  
                                     </ul>
                                 </li>
-
+							                 <li class="mm_wastage_management">
+                                <a class="dropmenu" href="#">
+                                    <i class="fa fa-bar-chart-o"></i>
+                                    <span class="text"> <?= lang('Wastage_management'); ?> </span>
+                                    <span class="chevron closed"></span>
+                                </a>
+                                <ul class="level-2-menu">                                    
+                                   
+                                    <li id="recipe_management_production">
+                                        <a class="dropmenu" href="javascript:void(0)">
+                                            <span class="text">  <?= lang('wastage'); ?> </span>
+                                        </a>
+                                        <ul class="level-3-menu">
+                                            <li id="recipe_management_production_index">
+                                                <a class="submenu" href="<?= admin_url('/wastage'); ?>">
+                                                    <span class="text"> <?= lang('list'); ?></span>
+                                                </a>
+                                            </li>
+                                            <li id="recipe_management_production_add">
+                                                <a class="submenu" href="<?= admin_url('/wastage/add'); ?>">
+                                                    <span class="text"> <?= lang('create'); ?></span>
+                                                </a>
+                                            </li>
+                                       </ul>
+                                    </li>
+</ul>
+</li>
                             <li class="mm_procurment">
                                 <a class="dropmenu" href="#">
                                     <i class="fa fa-bar-chart-o"></i>
@@ -2080,7 +2107,56 @@
                                     <?php endif; ?>     
                                 </ul>
                               </li>
-                            <?php endif; ?>                            
+                            <?php endif; ?>  
+
+
+                             <li class="mm_recipe_management">
+                                <a class="dropmenu" href="#">
+                                    <i class="fa fa-bar-chart-o"></i>
+                                    <span class="text"> <?= lang('Wastage_management'); ?> </span>
+                                    <span class="chevron closed"></span>
+                                </a>
+                                <ul class="level-2-menu">                                    
+                                   
+                                    <li id="recipe_management_production">
+                                        <a class="dropmenu" href="javascript:void(0)">
+                                            <span class="text">  <?= lang('production'); ?> </span>
+                                        </a>
+                                        <ul class="level-3-menu">
+                                            <li id="recipe_management_production_index">
+                                                <a class="submenu" href="<?= admin_url('procurment/production'); ?>">
+                                                    <span class="text"> <?= lang('list'); ?></span>
+                                                </a>
+                                            </li>
+                                            <li id="recipe_management_production_add">
+                                                <a class="submenu" href="<?= admin_url('procurment/production/add'); ?>">
+                                                    <span class="text"> <?= lang('create'); ?></span>
+                                                </a>
+                                            </li>
+                                       </ul>
+                                    </li>
+</ul>
+</li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+							
                             
                             <li class="mm_procurment">
                                 <a class="dropmenu" href="#">

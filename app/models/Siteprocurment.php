@@ -2700,7 +2700,13 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
         }
         return array();
     }
-	function stockUniqueIdGenerate(){
-		
-	}
+		  public function lastWastageId(){
+        $this->db->order_by('id' , 'DESC');
+		$this->db->where('store_id' ,$this->store_id);
+        $q = $this->db->get('wastage');
+        if ($q->num_rows() > 0) {
+            return $q->row('id');
+        }
+        return 0;
+    }
 }

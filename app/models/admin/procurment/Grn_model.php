@@ -23,6 +23,7 @@ class Grn_model extends CI_Model{
 		$this->db->where("store_id",$this->store_id);
 		$this->db->where("is_complete",0);
 		$q=$this->db->get("pro_purchase_invoice_items");
+		
 		if($q->num_rows()>0){
 			foreach($q->result() as $row){
 				$data[]=$row;
@@ -85,6 +86,9 @@ class Grn_model extends CI_Model{
 			$bal_count=0;
             foreach ($items as $item) {
                 $item['grn_id'] = $unique_id;
+				$product_base_cost=$item['product_base_cost'];
+				$product_base_price=$item['product_base_price'];
+				unset($item['product_base_cost'],$item['product_base_price']);
                 $this->db->insert('pro_grn_items', $item);
 				$i_grn = $this->db->insert_id();
                 $i_unique_id = $this->site->generateUniqueTableID($i_grn);
@@ -105,8 +109,8 @@ class Grn_model extends CI_Model{
 					$stock_update['brand_id']    = $item['brand_id'];
 					$stock_update['stock_in']    = $item['unit_quantity'];
 					$stock_update['stock_out']   = 0;
-					$stock_update['cost_price']    = $item['cost_price'];
-					$stock_update['selling_price'] = $item['selling_price'];
+					$stock_update['cost_price']    = $product_base_cost;
+					$stock_update['selling_price'] = $product_base_price;
 					$stock_update['landing_cost']  = $item['landing_cost'];
 					$stock_update['tax_rate']      = $item['tax_rate'];
 					$stock_update['invoice_id']    = $data['invoice_id'];
@@ -171,6 +175,9 @@ class Grn_model extends CI_Model{
 			$bal_count=0;
             foreach ($items as $item) {
                 $item['grn_id'] = $id;
+				$product_base_cost=$item['product_base_cost'];
+				$product_base_price=$item['product_base_price'];
+				unset($item['product_base_cost'],$item['product_base_price']);
                 $this->db->insert('pro_grn_items', $item);
 				$i_grn = $this->db->insert_id();
                 $i_unique_id = $this->site->generateUniqueTableID($i_grn);
@@ -195,8 +202,8 @@ class Grn_model extends CI_Model{
 					$stock_update['brand_id']    = $item['brand_id'];
 					$stock_update['stock_in']    = $item['unit_quantity'];
 					$stock_update['stock_out']   = 0;
-					$stock_update['cost_price']    = $item['cost_price'];
-					$stock_update['selling_price'] = $item['selling_price'];
+					$stock_update['cost_price']    = $product_base_cost;
+					$stock_update['selling_price'] = $product_base_price;
 					$stock_update['landing_cost']  = $item['landing_cost'];
 					$stock_update['tax_rate']      = $item['tax_rate'];
 					$stock_update['invoice_id']    = $data['invoice_id'];

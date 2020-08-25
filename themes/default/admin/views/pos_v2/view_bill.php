@@ -7,8 +7,7 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
     <?php
 } else {
 	$checkbill_count=$this->site->checkbill_count($inv->reference_no)
-    ?>
-	<!doctype html>
+    ?><!doctype html>
     <html>
     <head>
         <meta charset="utf-8">
@@ -192,21 +191,10 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
                 if($tableno->order_type == 'Dine in'){
                     echo "Table :";echo $tableno->table_name . "<br>";
                 }
-                /* if ($pos_settings->total_covers == 1){
+                if ($pos_settings->total_covers == 1){
                       echo "No Of Covers : "; echo $inv->seats . "<br>";
                
-                        } */
-						 if(in_array(1,json_decode($pos_settings->floor_print))&& $pos_settings->floor_area_print ==1){ 
-					 echo "Floor :";echo $tableno->floor . "<br>";
-				 }
-				  if(in_array(1,json_decode($pos_settings->nop_print))&& $pos_settings->number_of_people_print ==1){
-					 echo "People :";echo !empty($inv->seats)? $inv->seats:$tableno->seats ;
-					 echo "<br>";
-				 }
-				    if(in_array(1,json_decode($pos_settings->vat_print))&& $pos_settings->vat_number_print ==1 && !empty($store->vat_number)){
-					 echo "VAT Number :";echo !empty($store->vat_number)? $store->vat_number:"" . "<br>";
-				 }
-				  
+                        }
 				if(!empty($delivery_person)){
 					echo 'Delivery Address <br>';
 					
@@ -274,8 +262,8 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 						$get_free_item=0;	
 						$manual_dis_itemwise=0;
                         $tax_summary = array();
-						/*echo "<pre>";
-                        print_r($billi_tems);die;*/
+						/* echo "<pre>";
+                        print_r($billi_tems);die; */
                         foreach ($billi_tems as $bill) {
                             
                             /*if ($pos_settings->item_order == 0 && $category != $bill->recipe_id) {
@@ -360,7 +348,7 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
                              endif;
                             echo '</td>';
 
-                             echo '<td  class="no-border">'.$this->sma->formatMoney($bill->net_unit_price).'';
+                             echo '<td  class="no-border">'.$this->sma->formatMoney($bill->unit_price).'';
                            if($itemaddonamt != 0) : 
                             echo '<br><span style="color: red;text-align: right;">'.$this->sma->formatMoney($itemaddonamt).'</span>';
 							// echo '<td  class="no-border">'.$this.$addons->qty.'';
@@ -474,13 +462,17 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
                         }
                         
                         
-                          if ($inv->tax_type == 0){
+                          if ($inv->tax_type == 0)
+                            {
                                 $taxname = 'Inclusive';
                                 $grandtotal = $inv->total-$inv->total_discount-$inv->birthday_discount+$inv->service_charge_amount;
-                            }else{                                
+                            }
+                            else
+                            {                                
                                 $taxname = 'Exclusive';
                                 $grandtotal = $inv->total-$inv->total_discount-$inv->birthday_discount+$inv->total_tax+$inv->service_charge_amount;
                             }
+                            
                         if ($pos_settings->display_tax==1 && $inv->tax_rate != 0) {
                             $taxcol = "4";
                             if($inv->manual_item_discount != 0)
@@ -524,15 +516,19 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
                         }
 
                         if ($pos_settings->rounding || $inv->rounding != 0) {
+
                                 $n = $grandtotal;//1.25
                                 $whole = floor($n); // 1
                                 $riel = $n - $whole; // .25
                                 $exchange_rate = $this->site->getExchangeRatey($this->Settings->default_currency);
-                            
+
+                            ?>
+
+                            <?php
                              if ($pos_settings->print_option == 1) {
                               foreach($currency as $currency_row){ 
                                   ?>
-                            <tr>
+                            <tr class="tfoot_last_tr">
                                 <th colspan="<?php echo $cols; ?>" class="text-right"><?=lang("grand_total");?><?php echo '('.$currency_row->code.')'?></th> 
                                 <?php    
 
@@ -569,16 +565,38 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
                             ?>
                             <tr class="tfoot_last_tr">
                                 <th colspan="<?php echo $cols; ?>" class="text-right"><?=lang("grand_total");?></th>
+								
+								
                                 <th class="text-right"><?=$this->sma->formatMoney($grandtotal);?></th>
                             </tr>
-                       <?php } } else {  ?>
+							
+							
+                            <?php
+							
+							?>
+                            <tr>
+                               <!--  <th  class="text-left" > <div class="a"> <h6><?=lang("* Marked item is discounted");?></h6></div></th>-->
+						
+								
+                                                   </tr>
+                            <?php
+							
+                        }
+
+						} else {
+                            ?>
                              <?php foreach($currency as $currency_row){ ?>
                                 <tr>
                                    <th colspan="6" class="text-right"> <?=lang("grand_total");?><?php echo '('.$currency_row->code.')'?></th> 
+
                                     <th class="text-right"><?=$this->sma->formatMoney(($return_sale ? ($inv->grand_total+$return_sale->grand_total) : $inv->grand_total) / $currency_row->rate,$currency_row->symbol);?></th>
                                 </tr>
-                             <?php  } 				
-							 }
+								
+                             <?php  } ?>  
+							 
+                       <?php 
+					   
+						}
 
                         if ($inv->paid < ($inv->grand_total + $inv->rounding)) {
                             ?>
@@ -616,22 +634,8 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
                     print_r($payments);die;*/
 					echo '<td>' . lang("paid_by") .'</td>'; echo '<td>' . lang("Amount") .'</td>'; echo '<td align="center">' . lang("Details") .'</td>';  
                     foreach ($payments as $payment) {
-						if($payment->paid_by =='nc_kot'){
-							$type_name=$payment->nc_kot_type_name;
-							$nc_kot_details=$payment->nc_kot_details;
-							$ncKot= '<b>NC Kot Details</b>';
-							$ncKot .='<table><tr><th>'.$type_name.'</th></tr>';
-							foreach(json_decode($payment->nc_kot_details)  as $details){
-								if($details->type =="input"){
-									$ncKot .='<tr><td>Comments :</td><td>'.$details->details.'</td></tr>';
-								}else{
-									$ncKot .='<tr><td>'.$details->type_name.' :</td><td>'.$details->details.'</td></tr>';
-								}
-								$ncKot .='</table>';
-							}
-						}
 					  echo '<tr>';
-                        if (($payment->paid_by == 'cash' || $payment->paid_by == 'credit' || $payment->paid_by == 'deposit' ||  $payment->paid_by =='wallets' ||  $payment->paid_by =='nc_kot' ) && $payment->pos_paid) {
+                        if (($payment->paid_by == 'cash' || $payment->paid_by == 'credit' || $payment->paid_by == 'deposit') && $payment->pos_paid) {
                             echo '<td>' . lang("") . ' ' . lang($payment->paid_by) . '</td>';
                             echo '<td>' . lang("") . ' ' . $this->sma->formatMoney($payment->pos_paid == 0 ? $payment->amount : $payment->pos_paid) . ($payment->return_id ? ' (' . lang('returned') . ')' : '') . '</td>';
 
@@ -742,25 +746,24 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
             <?php } else{?>                
                 <table class="table table-striped table-condensed">                    
                     <tfoot>
-                    	<?php   $currency = $this->site->getAllCurrencies();
+                    	<?php
+                        $currency = $this->site->getAllCurrencies();
 						foreach($currency as $currency_row){
                             $change_riel = $inv->balance/ $exchange_rate;
-                            $change_riel = round($change_riel / 100) * 100;   ?>
+                            $change_riel = round($change_riel / 100) * 100;
+						?>
                         <tr>
-                            <th class="text-right"><?=lang("change ".$currency_row->code."");?></th>
+                            <th class="text-right"><?=lang("change ".$currency_row->code."");?></th>                             
                             <th class="text-right"><?=$this->sma->formatMoney($inv->balance / $currency_row->rate,$currency_row->symbol);?></th>
                         </tr>
-                        <?php  }   ?>
+                        <?php
+						}
+						?>
+                        
                     </tfoot>
                 </table>
                 <?php } ?>
-				<?php  if(!empty($ncKot)){ echo $ncKot ; }   ?>
-	             <?php  if(in_array(1,json_decode($pos_settings->cus_print))&& $pos_settings->customer_name ==1){    ?>
-				 <table class="table table-striped table-condensed">        
-				 <tr><td style="border:solid 1px #fff ! important;">Name :</td><td style="border:solid 1px #fff ! important;"><?php  echo ($inv->customer_id != $pos_settings->default_customer)? $inv->customer:"___________________"   ?></td></tr>
-				 <tr><td width="20%">Signature</td><td>___________________</td></tr>
-				 </table>
-				<?php  }  ?>
+
                 <?= $Settings->invoice_view > 0 ? $this->gst->summary($rows, $return_rows, ($return_sale ? $inv->product_tax+$return_sale->product_tax : $inv->product_tax)) : ''; ?>
 
                 <?= $customer->award_points != 0 && $Settings->each_spent > 0 ? '<p class="text-center">'.lang('this_sale').': '.floor(($inv->grand_total/$Settings->each_spent)*$Settings->ca_point)
@@ -841,17 +844,9 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
                 <!-- <span class="pull-left col-xs-12"><a class="btn btn-block btn-success" href="#" id="email"><?= lang("email"); ?></a></span> -->
 				<br>
 				<?php  if(empty($checkbill_count)){ ?>
-			<?php	if($inv->order_type ==1){  ?>
-					 <span class="col-xs-12">
-                    <a class="btn btn-block btn-warning" href="<?= base_url('pos/pos'); ?>"><?= lang("back_to_pos"); ?></a>
-                </span>
-				<?php   }else{   ?>
-					 <span class="col-xs-12">
+                <span class="col-xs-12">
                     <a class="btn btn-block btn-warning" href="<?= base_url('pos/pos/home'); ?>"><?= lang("back_to_pos"); ?></a>
                 </span>
-					
-				<?php }  ?>
-               
 				<?php  }else{ ?>
 				 <span class="col-xs-12">
 				<a class="btn btn-block btn-warning" href="<?= base_url('pos/pos/payment/?type='.$checkbill_count->sales_type_id.'&table='.$checkbill_count->sales_table_id.'&split_id='.$checkbill_count->sales_split_id.''); ?>"><?= lang("back_to_the_payment_screen"); ?></a>
