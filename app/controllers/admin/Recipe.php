@@ -2965,6 +2965,10 @@ function edit_item_with_varient($id){
 						'quantity' => $this->input->post('purchase_item_quantity['.$j.']'),
 						'unit_id' => $this->input->post('purchase_item_unit['.$j.']'),
                         'cm_id' => $this->input->post('purchase_item_cm_id['.$j.']'),
+						    
+						'category_id' => $this->input->post('category_id['.$j.']'),
+						'sub_category_id' => $this->input->post('subcategory_id['.$j.']'),
+						'brand_id' => $this->input->post('brand_id['.$j.']'),
 						'item_customizable' => $this->input->post('item_customizable['.$j.']') ? $this->input->post('item_customizable['.$j.']') : 0,
 					);
 			}	
@@ -3103,6 +3107,11 @@ function edit_item_with_varient($id){
 					'quantity' => $this->input->post('purchase_item_quantity['.$j.']'),
 					'unit_id' => $this->input->post('purchase_item_unit['.$j.']'),
 					'cm_id' => $this->input->post('purchase_item_cm_id['.$j.']'),
+					 
+						'category_id' => $this->input->post('category_id['.$j.']'),
+						'sub_category_id' => $this->input->post('subcategory_id['.$j.']'),
+						'brand_id' => $this->input->post('brand_id['.$j.']'),
+
                     'item_customizable' => $this->input->post('item_customizable['.$j.']') ? $this->input->post('item_customizable['.$j.']') :0,
 				);
 			}

@@ -1921,7 +1921,7 @@ public function deactivate($id = NULL)
     }
 	
 	function getPurchase_items_new($term,$existing,$type,$limit=10){
-		$this->db->select('r.*,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,cm.category_id,cm.subcategory_id,cm.brand_id,cm.purchase_cost,cm.selling_price as cost, cm.id as cm_id,u.name as unit_name');
+		$this->db->select('r.*,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,cm.category_id as cat_id,cm.subcategory_id as sub_id,cm.brand_id as brandid,cm.purchase_cost,cm.selling_price as cost, cm.id as cm_id,u.name as unit_name');
 		$this->db->from('recipe r');
 		$this->db->join('category_mapping as cm','cm.product_id=r.id','left');
 		$this->db->join('recipe_categories as rc','rc.id=cm.category_id');

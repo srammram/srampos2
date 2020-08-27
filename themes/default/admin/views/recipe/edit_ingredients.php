@@ -173,7 +173,7 @@
 							    <input class="form-control" type="hidden" name="purchase_item_id[]" value="<?=$row->product_id?>">
 							    <input class="form-control" type="hidden" name="purchase_item_cm_id[]" value="<?=$row->cm_id?>">
 							</td>
-							<td  class="col-sm-1"><input class="p-item-quantity form-control numberonly" type="text" name="purchase_item_quantity[]" value="<?=$row->quantity?>" maxlength="15" ></td>
+							<td  class="col-sm-1"><input class="p-item-quantity form-control numberonly" type="text" name="purchase_item_quantity[]" value="<?=$row->quantity?>" maxlength="15" ><input class="form-control" type="hidden" id="category_id[]" name="category_id[]" value="<?=$row->category_id?>"><input class="form-control" type="hidden" id="subcategory_id[]" name="subcategory_id[]" value="<?=$row->sub_category_id?>"><input class="form-control" type="hidden" id="brand_id[]" name="brand_id[]" value="<?=$row->brand_id?>"></td>
 							<!-- <td  class="col-sm-1"><input class="form-control" type="hidden" name="purchase_item_unit[]" value="<?=$row->unit_id?>"> -->
 							<!-- <input readonly="readonly" class="p-item-unit form-control" type="test" name="purchase_item[unit][]" value="<?=$row->units_name?>"></td>  -->
 							<td>

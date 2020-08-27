@@ -246,33 +246,6 @@
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
  $('.search-purchase-items-new').select2({
        minimumInputLength: 1,
        ajax: {
@@ -325,6 +298,9 @@
              $results[n]['cost'] = v.cost;
              $results[n]['unit_id'] = v.unit;
 			 $results[n]['units'] = v.units;
+			  $results[n]['brandid'] = v.brandid;
+			   $results[n]['cat_id'] = v.cat_id;
+			    $results[n]['sub_id'] = v.sub_id;
 			 
 			 $results[n]['item_customizable'] = v.item_customizable;
         })
@@ -338,7 +314,7 @@
     formatResult: function (i) {return '<div>'+i.html+'</div>';},
     formatSelection: function (i) {return '<div>'+i.text+'</div>'; },
   }).on('change', function (v) {
-	  console.log(v.added.units);
+	  console.log(v)
     $lable = v.added.text;
     $pid = v.added.id;
     $cm_id = v.added.cm_id;
@@ -365,7 +341,7 @@
         $html = '<tr class="each-purchase-item">';
         $html +='<td  class="col-sm-1"><input class="p-item-quantity form-control item_customizable" '+$disabled+'  type="checkbox" id="item_customizable" ><input class="form-control customizable" type="hidden"  name="item_customizable[]"></td>';
         $html +='<td  class="col-sm-8"><input class="form-control" type="text" value="'+$lable+'" disabled>';      
-        $html +='<input class="form-control" type="hidden" id="purchase_item_id" name="purchase_item_id[]" value="'+$pid+'"><input class="form-control" type="hidden" id="item_cm_id[]" name="purchase_item_cm_id[]" value="'+$cm_id+'"></td>';
+        $html +='<input class="form-control" type="hidden" id="purchase_item_id" name="purchase_item_id[]" value="'+$pid+'"><input class="form-control" type="hidden" id="item_cm_id[]" name="purchase_item_cm_id[]" value="'+$cm_id+'"><input class="form-control" type="hidden" id="category_id[]" name="category_id[]" value="'+v.added.cat_id+'"><input class="form-control" type="hidden" id="subcategory_id[]" name="subcategory_id[]" value="'+v.added.sub_id+'"><input class="form-control" type="hidden" id="brand_id[]" name="brand_id[]" value="'+v.added.brandid+'"></td>';
         $html +='<td  class="col-sm-1"><input class="p-item-quantity form-control purchase_item_quantity numberonly piq'+$uniqid+'" type="text" id="purchase_item_quantity" name="purchase_item_quantity[]" value="" maxlength="5" autofocus="autofocus" ></td>';        
 	// $html +='<td  class="col-sm-1"><input class="form-control" type="hidden" id="purchase_item_unit" name="purchase_item_unit[]" value="'+$unitid+'"><input readonly="readonly" class="p-item-unit form-control" type="test" name="purchase_item[unit][]" value="'+$unit+'"></td>';
         //$html +='<td  class="col-sm-2"><input class="p-item-cost form-control" type="hidden" name="purchase_item[cost][]" value="'+$cost+'"><input class="p-item-price form-control" type="text" name="purchase_item[price][]" value=""></td>';
