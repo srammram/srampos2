@@ -50,6 +50,31 @@
 						<td width="350px">
 							<?php echo form_input('qty',$product_recipe_master->qty ,   'class="form-control ttip" id="qty" disabled="disabled" data-placement="top" data-trigger="focus" data-bv-notEmpty-message="' . lang('please_add_items_below') . '"');  ?>
 						</td>
+						
+						<td width="100px">
+								<?= lang("UOM", "UOM"); ?>
+							</td>
+							<td width="350px">
+								<select name="item_uom" id="item_uom" class="form-control ttip" >
+									<option value="0">Select</option>
+									<?php   if($recipe_uom){ foreach($recipe_uom as $uom){   ?>
+									<option value="<?php echo $uom->id;  ?>"  <?php  echo ($uom->id == $product_recipe_master->uom)?"selected":"";   ?>><?php echo $uom->name;  ?></option>
+									<?php   }  } ?>
+								</select>
+							</td>
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
+						
 						<td width="100px" style="display: none">
 							<?= lang("selling_price", "selling_price") ?> 
 						</td> 

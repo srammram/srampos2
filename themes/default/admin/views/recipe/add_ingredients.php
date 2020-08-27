@@ -55,6 +55,14 @@
 							<td width="350px">
 								<?php echo form_input('qty', '', 'class="form-control numberonly ttip" id="qty" data-placement="top" data-trigger="focus" data-bv-notEmpty-message="' . lang('please_add_items_below') . '" style="width:100%;"  '); ?>
 							</td>
+							<td width="100px">
+								<?= lang("UOM", "UOM"); ?>
+							</td>
+							<td width="350px">
+								<select name="item_uom" id="item_uom" class="form-control ttip" >
+									<option value="0">Select</option>
+								</select>
+							</td>
 							<td style="display: none">
 								<?= lang("selling_price", "selling_price") ?> 
 							</td> 
@@ -191,7 +199,7 @@
                             price = response[i]['variant_price'];                            
 						}
 
-						$("#item_name").append("<option price='"+price+"' variant_id='"+variant_id+"'  recipe_id= '"+id+"'  value='"+id+variant_id+"'>"+name+varient_name+"</option>");
+						$("#item_name").append("<option price='"+price+"' variant_id='"+variant_id+"'  recipe_id= '"+id+"'  value='"+id+"'>"+name+varient_name+"</option>");
 					// $("#item_name").html(name);
 					}
 				}else{
@@ -200,6 +208,70 @@
 			}	
 		});
 	});
+	
+	$('#item_name').change(function () {
+    
+		var item_id = $(this).val();
+		
+		$.ajax({
+         type: "POST",
+         url: "<?= admin_url('recipe/getrecipeItemUOM') ?>",
+         data: {item_id: item_id},
+         dataType: "json",  
+         cache:false,
+         success: 
+		 
+             function(response){
+				// alert(response);
+				 if(response < 1 && response == null){
+					 var len = 0;
+				 }else{
+					 var len = response.length;
+				 }
+				 
+				if(len != 0 || len != null || len != ''){
+					$("#item_uom").empty();
+                    $("#item_uom").append("<option value='0'>Select</option>");
+					for( var i = 0; i<len; i++){
+						var id = response[i]['id'];
+						var name = response[i]['name'];
+						$("#item_uom").append("<option  value='"+id+"'>"+name+"</option>");					}
+				}else{
+					alert("No Result Found");
+				}
+			}	
+		});
+	});
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
  $('.search-purchase-items-new').select2({
        minimumInputLength: 1,

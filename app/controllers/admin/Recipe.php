@@ -2912,6 +2912,19 @@ function edit_item_with_varient($id){
 	    echo $data;
     }
 	
+	
+	function getrecipeItemUOM(){
+		$item_id = $this->input->post('item_id');
+	    if ($rows = $this->recipe_model->getrecipeItemUOM($item_id)) {
+		$data = json_encode($rows);
+	    } else {
+		$data = false;
+	    }
+	    echo $data;
+    }
+	
+	
+	
 	// Ingredients
 	function add_ingredients(){
        $this->sma->checkPermissions('add_ingredients');
@@ -2940,6 +2953,7 @@ function edit_item_with_varient($id){
                 'variant_id' => $variant_id,
 				'type'=>$this->input->post('type'),
 				'qty'=> $this->input->post('qty'),
+				'uom'=> $this->input->post('item_uom'),
                 'created_on' => date('Y-m-d H:i:s'),                             
             );		
 			for($j=0; $j<count($this->input->post('purchase_item_id[]')); $j++){
@@ -3068,16 +3082,18 @@ function edit_item_with_varient($id){
             $id = $this->input->post('id');
         }
 		$this->recipe_model->recent_ingrediend_head($id);
-		$this->data['recipe'] = $this->recipe_model->getrecipeItemName_withVariant($id);  
+		$this->data['recipe'] =$recipe= $this->recipe_model->getrecipeItemName_withVariant($id);  
 		$this->data['product_recipe_master'] = $this->recipe_model->get_ingredientHead($id); 
 		$this->data['productlist']=$this->recipe_model->get_ingredient_productlist($id); 
         $this->data['id'] = $id;   
-		$this->data['product_recipe'] = $this->recipe_model->getProductWithRecipe($id);    
+		$this->data['product_recipe'] = $this->recipe_model->getProductWithRecipe($id);
+		$this->data['recipe_uom'] = $this->recipe_model->getrecipeItemUOM($recipe->id);		 
 		$this->form_validation->set_rules('item_name', lang("item_name"), 'xss_clean');
 		$this->form_validation->set_rules('type', lang("type"), 'xss_clean');		
 			if ($this->form_validation->run('recipe/edit_ingredients') == true) {                     
                 $item_id = $this->input->post('item_name');
-				$variant_id = $this->input->post('variant_id');				
+				$variant_id = $this->input->post('variant_id');		
+				$data['uom']=$this->input->post('item_uom');				
 			    for($j=0; $j<count($this->input->post('purchase_item_id[]')); $j++){
 				$recipe_pro[] = array(
                     'recipe_id' => $item_id,
@@ -3091,7 +3107,7 @@ function edit_item_with_varient($id){
 				);
 			}
 			
-				$this->recipe_model->update_ingredients_mapping($id, $recipe_pro);
+				$this->recipe_model->update_ingredients_mapping($id, $recipe_pro,$data);
 				$this->session->set_flashdata('message', lang("ingredients_mapping_updated"));
 				admin_redirect('recipe/list_ingredients');
 			}else {

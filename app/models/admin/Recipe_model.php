@@ -266,6 +266,62 @@ class Recipe_model extends CI_Model{
         }        
         return false;
     }
+	
+	
+	
+	public function getrecipeItemUOM($id) {
+        $q=$this->db->get_where("recipe",array("id"=>$id));
+        if($q->num_rows()>0){
+			 $recipe=$q->row();
+		     $this->db->select("*");
+			 $this->db->where("base_unit",$recipe->unit);
+			 $this->db->or_where_in("id",$recipe->unit);
+			 $k=$this->db->get("units");
+			
+			if($k->num_rows()>0){
+				foreach($k->result() as $row){
+					$data[]=$row;
+				}
+				
+				return $data;
+			}
+		return false;	
+			
+		}
+    }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 public function getProductWithRecipe($recipe_id)
     {
@@ -1880,6 +1936,7 @@ public function deactivate($id = NULL)
 		$this->db->where_not_in('cm.id',$existing);
 		$this->db->where_in('r.type',array('raw','semi_finished')); 
 		// echo $this->db->get_compiled_select();exit;
+		$this->db->group_by("r.id,b.id,rc.id,rsc.id");
 		$this->db->limit($limit);
 		$q = $this->db->get(); 
 			if ($q->num_rows() > 0) {
@@ -1971,8 +2028,10 @@ function getTotalStock($productID){
         return false;
     }
 	
-	public function update_ingredients_mapping($ingrediends_hd_id,$recipe_pro) //$production_array,
+	public function update_ingredients_mapping($ingrediends_hd_id,$recipe_pro,$data) //$production_array,
     {
+		$this->db->where("id",$ingrediends_hd_id);
+		$this->db->update("ingrediend_head",$data);
 			$this->db->delete('recipe_products', array('ingrediends_hd_id' => $ingrediends_hd_id));			
 			if ($recipe_pro && !empty($recipe_pro)) {
 				foreach ($recipe_pro as $item) {

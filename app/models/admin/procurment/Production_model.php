@@ -18,7 +18,7 @@ class Production_model extends CI_Model{
 						 $cate['subcategory_id'] = $item['subcategory_id'];
 						 $cate['brand_id'] = $item['brand_id'];
 						 $cate['cm_id'] = $item['cm_id'];
-						$this->siteprocurment->production_salestock_out($item['product_id'],$item['base_quantity'],$item['variant_id']);
+						 $this->siteprocurment->production_salestock_out($item['product_id'],$item['base_quantity'],$item['variant_id']);
 						
 						// $this->siteprocurment->product_stockIn($item['product_id'],$item['quantity'],$cate);
 						$this->updateStockMaster($item['product_id'],$item['variant_id'],$item['base_quantity'],$cate); // $category_mappingID
@@ -28,6 +28,28 @@ class Production_model extends CI_Model{
 			
 		return true;
     }
+	
+	function productionStockOut($productid,$variantid,$item_uom){
+		$this->db->select("*");
+		$this->db->where("recipe_id",$productid);
+		if(empty($variantid)){
+			$this->db->where("variant_id",$variantid);
+		}
+		$rp=$this->db->get("ingrediend_head");
+		if($rp->num_rows()>0){
+			$rp_details=$rp->row();
+			$rp_uom=$this->siteprocurment->getUnitByID($rp_details->uom);
+			$rp_items=$this->db->get_where("recipe_products",array("ingrediends_hd_id"=>$rp_details->id));
+			if($rp_items->num_rows()>0){
+				foreach($rp_items->result() as $row){
+						if($rp_details->uom ==$item_uom)
+			
+
+				}			
+			}
+		}
+		return false;
+	}
     public function getProductOptions($product_id)
     {
         $q = $this->db->get_where('recipe_variants', array('recipe_id' => $product_id));
@@ -174,11 +196,7 @@ function getAllProductionItemsWithDetails($p_id){
 			 	$id = $q->row('id');
 				  	$query ='update srampos_pro_stock_master set stock_in = stock_in + '.$qty.', stock_in_piece = stock_in_piece + '.$stock_piece.' where store_id='.$store_id.' AND product_id='.$pro_id.' AND variant_id='.$variant_id.''; //  AND batch=IS NULL
 					$this->db->query($query);
-					//echo $this->db->last_query();
 					
-				  	$ledger_query ='insert into srampos_pro_stock_ledger(stock_id,store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, transaction_identify,transaction_type,transaction_qty,date)values('.$id.','.$store_id.','.$pro_id.','.$variant_id.', '.$cate['cm_id'].', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', "Production","I",'.$qty.',"'.$date.'")';				  	
-                     //  $this->db->query($ledger_query);  
-
 			      }else{ 
 			   	// echo "string";die;
 					$query ='insert into srampos_pro_stock_master(store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, stock_in, stock_out)values('.$store_id.','.$pro_id.','.$variant_id.', 0, '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', '.$qty.', 0)';
@@ -186,8 +204,7 @@ function getAllProductionItemsWithDetails($p_id){
 					$this->db->query($query);
 					//echo $this->db->last_query();
 					$id = $this->db->insert_id(); 
-					$ledger_query ='insert into srampos_pro_stock_ledger(stock_id,store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, transaction_identify,transaction_type,transaction_qty,date)values('.$id.','.$store_id.','.$pro_id.','.$variant_id.', '.$cate['cm_id'].', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', "Production","I",'.$qty.',"'.$date.'")';
-					//$this->db->query($ledger_query); 
+					
 
 			  } 	
 		

@@ -127,7 +127,7 @@ class Grn extends MY_Controller{
 						'pi_qty'          => ($_POST['pi_qty'][$r])?$_POST['pi_qty'][$r]:0,
 						'landing_cost'	  => ($_POST['landing_cost'][$r])?$_POST['landing_cost'][$r]:0,
 						'selling_price'   => ($_POST['selling_price'][$r])?$_POST['selling_price'][$r]:0,
-					//	'margin'          => $_POST['store_id'][$r],
+				     	//	'margin'          => $_POST['store_id'][$r],
 						//'net_amt'         => $_POST['store_id'][$r],
 						'product_base_cost'=>$_POST['product_base_cost'][$r],
 						'product_base_price'=>$_POST['product_base_price'][$r],

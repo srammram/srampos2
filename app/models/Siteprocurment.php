@@ -2418,13 +2418,13 @@ class Siteprocurment extends CI_Model{
                     $stock_overflow = $stock-$tobedetect;  
                     $stock_qty_taken = $tobedetect-$stock;
                     if($stock_overflow >= 0){                        
-                       $query = 'update srampos_pro_stock_master set  stock_out = stock_out + '.$tobedetect.' where id='.$row->id;
+                       $query = 'update srampos_pro_stock_master set stock_in=stock_id +'.$tobedetect.', stock_out = stock_out + '.$tobedetect.' where id='.$row->id;
                       // echo $query;
                       $this->db->query($query);  
                       $stock_id = $row->id;
-                      $date =date('Y-m-d h:m:s');
+                     /*  $date =date('Y-m-d h:m:s');
                       $ledger_query ='insert into srampos_pro_stock_ledger(stock_id,store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, transaction_identify,transaction_type,transaction_qty,date)values('.$stock_id.','.$store_id.','.$product_id.','.$variant_id.', '.$cate['cm_id'].', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', "Sales","O",'.$tobedetect.',"'.$date.'")';
-                       $this->db->query($ledger_query);   
+                       $this->db->query($ledger_query);    */
                     }   
                       if($stock_qty_taken <= 0){                        
                         break;
@@ -2433,17 +2433,17 @@ class Siteprocurment extends CI_Model{
                     $stock = $row->stock_in - $row->stock_out;
                     $stock_overflow = $tobedetect -$stock;
                     $out = $stock - $tobedetect;                    
-                    $cloased='';
+                    $closed='';
                     if($out <= 0){
                         $cloased=', stock_status =  "closed"';
                     }                    
-                    $query = 'update srampos_pro_stock_master set  stock_out = stock_out + '.$stock.'  '.$cloased.'  where id='.$row->id;
+                    $query = 'update srampos_pro_stock_master set stock_in=stock_id +'.$stock.', stock_out = stock_out + '.$stock.'  '.$closed.'  where id='.$row->id;
                     //echo $query;
                     $this->db->query($query);   
                     $stock_id = $row->id;
-                    $date =date('Y-m-d h:m:s');
+                    /* $date =date('Y-m-d h:m:s');
                     $ledger_query ='insert into srampos_pro_stock_ledger(stock_id,store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, transaction_identify,transaction_type,transaction_qty,date)values('.$stock_id.','.$store_id.','.$product_id.','.$variant_id.', '.$cate['cm_id'].', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', "Sales","O",'.$stock.',"'.$date.'")';   
-                     $this->db->query($ledger_query);
+                     $this->db->query($ledger_query); */
 					
                     if($stock_overflow <= 0){
                         break;
