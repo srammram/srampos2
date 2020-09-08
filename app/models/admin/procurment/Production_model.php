@@ -29,7 +29,7 @@ class Production_model extends CI_Model{
 		return true;
     }
 	
-	function productionStockOut($productid,$variantid,$item_uom){
+	function productionStockOut($productid,$variantid,$quantity,$base_quantity,$item_uom){
 		$this->db->select("*");
 		$this->db->where("recipe_id",$productid);
 		if(empty($variantid)){
@@ -42,13 +42,37 @@ class Production_model extends CI_Model{
 			$rp_items=$this->db->get_where("recipe_products",array("ingrediends_hd_id"=>$rp_details->id));
 			if($rp_items->num_rows()>0){
 				foreach($rp_items->result() as $row){
-						if($rp_details->uom ==$item_uom)
-			
-
+						if($rp_details->uom ==$item_uom){
+							$rp_detailsUnits=$this->site->getUnitByID($row->unit_id)->row();
+							$rp_details_BU=($quantity*$this->site->unitToBaseQty($row->quantity,$rp_detailsUnits->operator,$rp_detailsUnits->operation_value));
+							$this->productionItemStockout($productid,$variantid,$row->category_id,$row->sub_category_id,$row->brand_id,$rp_details_BU);     
+						}else{
+							
+							
+							
+						}
 				}			
 			}
 		}
 		return false;
+	}
+	function productionItemStockout($product_id,$variant_id,$category_id,$subcategory_id,$brand_id,$base_quantity){
+		$batches=$this->getBatchwisetock($product_id,$variant_id,$category_id,$subcategory_id,$brand_id)
+		forach($batches as $batch){
+			if($batch->stock_in>0){
+				$balance_quantity =$base_quantity-$batch->stock_in;
+				if($balance_quantity>0){
+				$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$batch->stock_in.',  stock_out = stock_out + '.$batch->stock_in.' where store_id='.$this->store_id.' and id='.$batch->id;
+                $this->db->query($query); 
+				$base_quantity =$base_quantity-$batch->stock_in;
+				}else{
+					$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$base_quantity.',  stock_out = stock_out + '.$base_quantity.' where store_id='.$this->store_id.' and id='.$batch->id;
+                    $this->db->query($query); 
+					break;
+				}
+			}
+		}
+		return true;
 	}
     public function getProductOptions($product_id)
     {
@@ -263,6 +287,40 @@ function getAllProductionItemsWithDetails($p_id){
         }
         return FALSE;
     }
-	
+	public function getBatchwisetock($product_id,$variant_id,$category_id,$subcategory_id,$brand_id){
+        $this->db->select('pro_stock_master.*');
+        $this->db->from('pro_stock_master');
+        if($category_id !=''){
+            $this->db->where('category_id',$category_id);
+        }
+        if($subcategory_id !=''){
+            $this->db->where('subcategory_id',$subcategory_id);
+        }
+        if($brand_id !=''){
+            $this->db->where('brand_id',$brand_id);
+        }
+        $this->db->where('product_id',$product_id);
+		//if($variant_id !='0'){
+            //$this->db->where('variant_id',$variant_id);
+        //}
+        //$this->db->where('variant_id',$variant_id);
+        $this->db->where_not_in('stock_status','closed');
+        $this->db->group_by('id');
+        $this->db->order_by('id', 'asc');
+        $q = $this->db->get(); 
+        // print_r($this->db->last_query());die;
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return array();
+
+     /*   if ($q->num_rows() > 0) {
+            return $q->result_array();
+        }
+        return FALSE;*/
+}
 	
 }

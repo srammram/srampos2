@@ -18,7 +18,7 @@ class Siteprocurment extends CI_Model{
         ->where('expiry <', $date);
         $q = $this->db->get('pro_purchase_items');
         if ($q->num_rows() > 0) {
-            $res = $q->row();
+            $res = $q->row();   
             return (INT) $res->alert_num;
         }
         return FALSE;
