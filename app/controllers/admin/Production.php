@@ -198,6 +198,115 @@ class Production extends MY_Controller{
 	
 	
 	
+	
+	
+    /* -------------------------------------------------------- */
+
+    function edit($id = NULL)
+    {
+		$item = array();
+		
+        $this->sma->checkPermissions();
+        $this->load->helper('security');
+        if ($this->input->post('id')) {
+            $id = $this->input->post('id');
+        }
+        $warehouses = $this->site->getAllWarehouses();
+		$production = $this->production_model->getproductionByID($id);
+		$production_item = $this->production_model->getproductionItems($id);
+		$units = $this->site->getAllUnits();
+        if ($production_item) {
+            foreach ($production_item as $row) {
+                $item[$row->product_id] = array('id' => $row->product_id, 'label' => $row->product_name,  'name' => $row->product_name, 'code' => $row->product_code, 'quantity' => $row->quantity, 'qoh' => $row->qoh, 'sale_unit' => $row->sale_unit, 'given_quantity' => $row->given_quantity, 'given_units' => $row->given_unit, 'units' => $units);
+            }
+        } 
+        $this->form_validation->set_rules('warehouse_id', lang("warehouse_id"), 'required');
+		$this->form_validation->set_rules('production_date', lang("production_date"), 'required');
+        if ($this->form_validation->run() == true) {
+			$production_array = array(
+				'warehouse_id' => $this->input->post('warehouse_id'),
+				'production_date' => $this->input->post('production_date'),
+				'created_by' => $this->session->userdata('user_id'),
+				'date' => date('Y-m-d H:i:s'),
+			);
+			$k=0;
+			for($j=0; $j<count($this->input->post('product_id[]')); $j++){
+				if($this->input->post('given_quantity['.$j.']') != 0){
+					$k++;
+				}
+				$purchases_item[] = array(
+					'product_id' => $this->input->post('product_id['.$j.']'),
+					'product_code' => $this->input->post('product_code['.$j.']'),
+					'product_name' => $this->input->post('product_name['.$j.']'),
+					'qoh' => $this->input->post('product_qoh['.$j.']'),
+					'quantity' => $this->input->post('quantity['.$j.']'),
+					'sale_unit' => $this->input->post('sale_unit['.$j.']'),
+					'given_quantity' => $this->input->post('given_quantity['.$j.']'),
+					'given_unit' => $this->input->post('given_unit['.$j.']'),
+					'warehouse_id' => $this->input->post('warehouse_id'),
+				);
+			}
+			
+			if(empty($purchases_item) || (count($this->input->post('product_id[]')) != $k)){
+				 $this->session->set_flashdata('error', lang("purchase_item_is_empty_or_quantity_value_empty"));
+           		 admin_redirect('production/edit/'.$id);
+			}
+           
+        }
+        if ($this->form_validation->run() == true && $this->production_model->updateproduction_new($id, $production_array, $purchases_item)) {	
+            $this->session->set_flashdata('message', lang("production_updated"));
+            admin_redirect('production');
+        } else {
+            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
+
+            $this->data['units'] = $this->site->getAllUnits();
+            $this->data['warehouses'] = $warehouses;
+			
+			$this->data['production'] = $production;
+            
+			$this->data['production_item'] = json_encode($item);
+			
+			
+            $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('production'), 'page' => lang('production')), array('link' => '#', 'page' => lang('edit_production')));
+			
+            $meta = array('page_title' => lang('edit_production'), 'bc' => $bc);
+            $this->page_construct('production/edit', $meta, $this->data);
+        }
+    }
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
     function add_old($id = NULL){
         $this->sma->checkPermissions();
         $this->load->helper('security');
@@ -357,92 +466,6 @@ class Production extends MY_Controller{
 
     }
 
-
-    /* -------------------------------------------------------- */
-
-    function edit($id = NULL)
-    {
-		$item = array();
-		
-        $this->sma->checkPermissions();
-        $this->load->helper('security');
-        if ($this->input->post('id')) {
-            $id = $this->input->post('id');
-        }
-        $warehouses = $this->site->getAllWarehouses();
-		$production = $this->production_model->getproductionByID($id);
-		$production_item = $this->production_model->getproductionItems($id);
-		
-		
-		$units = $this->site->getAllUnits();
-        if ($production_item) {
-            foreach ($production_item as $row) {
-                $item[$row->product_id] = array('id' => $row->product_id, 'label' => $row->product_name,  'name' => $row->product_name, 'code' => $row->product_code, 'quantity' => $row->quantity, 'qoh' => $row->qoh, 'sale_unit' => $row->sale_unit, 'given_quantity' => $row->given_quantity, 'given_units' => $row->given_unit, 'units' => $units);
-            }
-        } 
-        
-		
-        $this->form_validation->set_rules('warehouse_id', lang("warehouse_id"), 'required');
-		$this->form_validation->set_rules('production_date', lang("production_date"), 'required');
-		
-		
-        if ($this->form_validation->run() == true) {
-			
-			$production_array = array(
-				'warehouse_id' => $this->input->post('warehouse_id'),
-				'production_date' => $this->input->post('production_date'),
-				'created_by' => $this->session->userdata('user_id'),
-				'date' => date('Y-m-d H:i:s'),
-			);
-			$k=0;
-			for($j=0; $j<count($this->input->post('product_id[]')); $j++){
-				if($this->input->post('given_quantity['.$j.']') != 0){
-					$k++;
-				}
-				$purchases_item[] = array(
-					'product_id' => $this->input->post('product_id['.$j.']'),
-					'product_code' => $this->input->post('product_code['.$j.']'),
-					'product_name' => $this->input->post('product_name['.$j.']'),
-					'quantity' => $this->input->post('quantity['.$j.']'),
-					'sale_unit' => $this->input->post('sale_unit['.$j.']'),
-					'given_quantity' => $this->input->post('given_quantity['.$j.']'),
-					'given_unit' => $this->input->post('given_unit['.$j.']'),
-					'warehouse_id' => $this->input->post('warehouse_id'),
-				);
-			}
-			
-			if(empty($purchases_item) || (count($this->input->post('product_id[]')) != $k)){
-				 $this->session->set_flashdata('error', lang("purchase_item_is_empty_or_quantity_value_empty"));
-           		 admin_redirect('production/edit/'.$id);
-			}
-           
-        }
-
-		
-		
-		
-        if ($this->form_validation->run() == true && $this->production_model->updateproduction_new($id, $production_array, $purchases_item)) {		
-			
-			
-            $this->session->set_flashdata('message', lang("production_updated"));
-            admin_redirect('production');
-        } else {
-            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-
-            $this->data['units'] = $this->site->getAllUnits();
-            $this->data['warehouses'] = $warehouses;
-			
-			$this->data['production'] = $production;
-            
-			$this->data['production_item'] = json_encode($item);
-			
-			
-            $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('production'), 'page' => lang('production')), array('link' => '#', 'page' => lang('edit_production')));
-			
-            $meta = array('page_title' => lang('edit_production'), 'bc' => $bc);
-            $this->page_construct('production/edit', $meta, $this->data);
-        }
-    }
 	
 	function balance_edit($id = NULL)
     {

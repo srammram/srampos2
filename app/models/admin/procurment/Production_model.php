@@ -18,9 +18,10 @@ class Production_model extends CI_Model{
 						 $cate['subcategory_id'] = $item['subcategory_id'];
 						 $cate['brand_id'] = $item['brand_id'];
 						 $cate['cm_id'] = $item['cm_id'];
-						 $this->siteprocurment->production_salestock_out($item['product_id'],$item['base_quantity'],$item['variant_id']);
+						 // Ingredient stock out
+						 $this->siteprocurment->production_salestock_out($item['product_id'],$item['base_quantity'],$item['variant_id'],$item['uom']);
 						
-						// $this->siteprocurment->product_stockIn($item['product_id'],$item['quantity'],$cate);
+						// ProductionItem Stock In
 						$this->updateStockMaster($item['product_id'],$item['variant_id'],$item['base_quantity'],$cate); // $category_mappingID
 					}				
 				}
@@ -28,6 +29,34 @@ class Production_model extends CI_Model{
 			
 		return true;
     }
+	
+	
+	
+	
+	public function updateproduction_new($id, $data, $items = array()){
+	//echo "<pre>";print_r($items);die;
+            if ($this->db->update('pro_production', $data, array('id' => $id)) && $this->db->delete('pro_production_items', array('production_id' => $id))) {
+			foreach ($items  as $item) {
+					 $item['production_id'] = $id;
+					$this->db->insert('pro_production_items', $item);// print_r($this->db->error());die;
+					if($data['status']=='approved'){
+						 $cate['category_id'] = $item['category_id'];
+						 $cate['subcategory_id'] = $item['subcategory_id'];
+						 $cate['brand_id'] = $item['brand_id'];
+						 $cate['cm_id'] = $item['cm_id'];
+						 // Ingredient stock out
+						 $this->siteprocurment->production_salestock_out($item['product_id'],$item['base_quantity'],$item['variant_id'],$item['uom']);
+						
+						// ProductionItem Stock In
+						$this->updateStockMaster($item['product_id'],$item['variant_id'],$item['base_quantity'],$cate); // $category_mappingID
+					}				
+				}
+            return true;
+        }
+        return false;
+    }
+	
+	
 	
 	function productionStockOut($productid,$variantid,$quantity,$base_quantity,$item_uom){
 		$this->db->select("*");
@@ -47,8 +76,9 @@ class Production_model extends CI_Model{
 							$rp_details_BU=($quantity*$this->site->unitToBaseQty($row->quantity,$rp_detailsUnits->operator,$rp_detailsUnits->operation_value));
 							$this->productionItemStockout($productid,$variantid,$row->category_id,$row->sub_category_id,$row->brand_id,$rp_details_BU);     
 						}else{
-							
-							
+							$rp_detailsUnits=$this->site->getUnitByID($row->unit_id)->row();
+							$rp_details_BU=($quantity*$this->unitToBaseUnit($row->quantity,$rp_detailsUnits->operator,$rp_detailsUnits->operation_value));
+							$this->productionItemStockout($productid,$variantid,$row->category_id,$row->sub_category_id,$row->brand_id,$rp_details_BU);     
 							
 						}
 				}			
@@ -57,8 +87,8 @@ class Production_model extends CI_Model{
 		return false;
 	}
 	function productionItemStockout($product_id,$variant_id,$category_id,$subcategory_id,$brand_id,$base_quantity){
-		$batches=$this->getBatchwisetock($product_id,$variant_id,$category_id,$subcategory_id,$brand_id)
-		forach($batches as $batch){
+		$batches=$this->getBatchwisetock($product_id,$variant_id,$category_id,$subcategory_id,$brand_id);
+		foreach($batches as $batch){
 			if($batch->stock_in>0){
 				$balance_quantity =$base_quantity-$batch->stock_in;
 				if($balance_quantity>0){
@@ -210,15 +240,13 @@ function getAllProductionItemsWithDetails($p_id){
     }
     function updateStockMaster($pro_id,$variant_id,$qty,$cate=null){	
 		$store_id = $this->session->userdata('warehouse_id');
-		$piece = $this->db->get_where('recipe', array('id' =>$pro_id))->row('piece');
-		$piece=($piece)?$piece:1;
-		$stock_piece = (float)$qty * (float)$piece;
+	
 		$date =date('Y-m-d h:m:s');
 			$q = $this->db->get_where('srampos_pro_stock_master', array('product_id' => $pro_id,'variant_id' => $variant_id));
 			//echo "string";die;
 			 if ($q->num_rows() > 0) {
 			 	$id = $q->row('id');
-				  	$query ='update srampos_pro_stock_master set stock_in = stock_in + '.$qty.', stock_in_piece = stock_in_piece + '.$stock_piece.' where store_id='.$store_id.' AND product_id='.$pro_id.' AND variant_id='.$variant_id.''; //  AND batch=IS NULL
+				  	$query ='update srampos_pro_stock_master set stock_in = stock_in + '.$qty.' where store_id='.$store_id.' AND product_id='.$pro_id.' AND variant_id='.$variant_id.''; //  AND batch=IS NULL
 					$this->db->query($query);
 					
 			      }else{ 
@@ -322,5 +350,22 @@ function getAllProductionItemsWithDetails($p_id){
         }
         return FALSE;*/
 }
-	
+	function unitToBaseUnit($qty,$operator,$operation_value) {
+    switch($operator) {
+        case '*':
+            return ($qty/$operation_value);
+            break;
+        case '/':
+            return ($qty*$operation_value);
+            break;
+        case '+':
+            return ($qty-$operation_value);
+            break;
+        case '-':
+            return ($qty+$operation_value);
+            break;
+        default:
+            return $qty;
+    }
+}
 }
