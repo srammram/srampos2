@@ -19,15 +19,15 @@
                         </td>
                      <td width="350px">
 							<?php		
-							
-							echo $product_recipe_master ? $product_recipe_master->type : '';							
+							$opts = array('0' => lang('select'), 'production' => lang('production'),'quick_service' => lang('quick_service'), 'semi_finished' => lang('semi_finished'), 'addon' => lang('addon'));
+							echo form_dropdown('type', $opts, (isset($_POST['type']) ? $_POST['type'] : ($product_recipe_master ? $product_recipe_master->type : '')), 'class="form-control" id="type" required="required" disabled');							
 							?>
 						</td>
 						<td width="100px">
-							<?= lang("item_name", "item_name");    ?>
+							<?= lang("item_name", "item_name");  ?>
 						</td>
 						<td width="350px">
-							
+							<select name="item_name" id="item_name" class="form-control"  disabled>
 								<?php  if(!empty($productlist)){
 									$product_name =$product_recipe_master->recipe_id;
 									$rv=!empty($product_recipe_master->varient_name)?$product_recipe_master->varient_name:"";
@@ -35,31 +35,12 @@
 								foreach($productlist as $row){ 
 								$variant=!empty($row->varient_name)?$row->varient_name:""; 
 									   $product_lst_name=$row->id .$variant; ?>
-								 <?php  echo  ($product_lst_name == $product_name)?$row->name .$variant:"";     ?>
+								<option value="<?php echo  $row->id ?>" <?php  echo  ($product_lst_name == $product_name)?"selected":"";     ?>><?php  echo $row->name .$variant  ?></option>
 								<?php  }  }  ?>
-				
-							
+							</select>  
+							<input type="hidden" name="item_name" value="<?php echo  $recipe->id ?>" >
 						</td>
-                    </tr>        
-<tr>
-						<td width="100px">
-							<?= lang("qty", "qty"); ?>
-						</td>
-						<td width="350px">
-							<?php echo $product_recipe_master->qty ;  ?>
-						</td>
-						
-						<td width="100px">
-								<?= lang("UOM", "UOM"); ?>
-							</td>
-							<td width="350px">
-							
-									<?php   if($recipe_uom){ foreach($recipe_uom as $uom){   ?>
-									 <?php  echo ($uom->id == $product_recipe_master->uom)?$uom->name:"";   ?>
-									<?php   }  } ?>
-								
-							</td>
-</tr>							
+                    </tr>                  
                     </tbody>
                 </table>
 

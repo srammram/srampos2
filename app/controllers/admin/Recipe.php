@@ -3131,8 +3131,7 @@ function edit_item_with_varient($id){
     public function ingredients_view($id = null){        
         $store_id = $this->data['default_store'];    
 		$this->data['id'] = $id;       		
-        $this->data['recipe'] =$recipe= $this->recipe_model->getrecipeItemName_withVariant($id);  
-		$this->data['recipe_uom'] = $this->recipe_model->getrecipeItemUOM($recipe->id);			
+        $this->data['recipe'] = $this->recipe_model->getrecipeItemName_withVariant($id);   
 		$this->recipe_model->recent_ingrediend_head($id);
 		$this->data['productlist']=$this->recipe_model->get_ingredient_productlist($id); 
 		$this->data['product_recipe_master'] = $this->recipe_model->get_ingredientHead($id);   
