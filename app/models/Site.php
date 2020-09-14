@@ -8584,4 +8584,27 @@ function basePriceToUnitPrice($price,$operator,$operation_value){
 	    $this->insert_lastsync($time);
 	}
     }
+	function getExpiryDate($recipeId){
+		$recipe=$this->getrecipeByID($recipeId);
+		
+		if($recipe->expiry_date_required==1){
+			switch($recipe->type_expiry){
+				case 'days':
+				  $date=date('Y-m-d', strtotime("+".$recipe->value_expiry." days"));
+				break;
+				case 'months':
+				  $date=date('Y-m-d', strtotime("+".$recipe->value_expiry." months"));
+				break;
+				case 'year':
+				  $date=date('Y-m-d', strtotime("+".$recipe->value_expiry." years"));
+				break;
+				
+			}
+			return $date;
+		}else{
+			return 'null';
+		}
+		
+		
+	}
 }
