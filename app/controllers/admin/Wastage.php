@@ -133,7 +133,7 @@ class Wastage extends MY_Controller{
 			    //'tax' => $row['tax'],
 			   // 'tax_method' => $row['tax_method'],
 			    'gross_amount'     => $row['gross'],
-			    'tax_amount'       => $row['tax_amount'],
+			   // 'tax_amount'       => $row['tax_amount'],
 			    'net_amount'       => $row['grand_total'],
 			    'store_id'         => $this->store_id,
 			    'stock_id'         => $row['stock_id'],
@@ -267,7 +267,7 @@ class Wastage extends MY_Controller{
 			    //'tax' => $row['tax'],
 			   // 'tax_method' => $row['tax_method'],
 			    'gross_amount'     => $row['gross'],
-			    'tax_amount'       => $row['tax_amount'],
+			   // 'tax_amount'       => $row['tax_amount'],
 			    'net_amount'       => $row['grand_total'],
 			    'store_id'         => $this->store_id,
 			    'stock_id'         => $row['stock_id'],
@@ -415,7 +415,7 @@ public function suggestions(){
         $analyzed       = $this->sma->analyze_term($term);
         $sr             = $analyzed['term'];
         $option_id      = $analyzed['option_id'];
-        $rows           = $this->siteprocurment->getProductNames($sr);
+        $rows           = $this->wastage_model->getProductNames($sr);
         if ($rows) {
             $c = str_replace(".", "", microtime(true));
             $r = 0;

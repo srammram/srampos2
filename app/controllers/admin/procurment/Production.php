@@ -495,6 +495,6 @@ class Production extends MY_Controller{
         }else{
             $this->sma->send_json(array('error' => 1, 'msg' => lang("can_not_delete_the_approved_production_items")));  
         }
+		
+ 
     }  
-
-}

@@ -199,7 +199,6 @@ function loadItems() {
 			
 	    if (item.row.batches) {
 	      $.each(item.row.batches,function(n,v){
-console.log(v)
 			var product_unit = item.row.unit, base_quantity = item.row.base_quantity;
 			$recipe_price = v.selling_price;
 			$recipe_stock_id = v.unique_id;
@@ -250,8 +249,8 @@ console.log(v)
 			$batch_html +='<th>expiry</th>';
 			$batch_html +='<th>c.price</th>';
 			$batch_html +='<th>s.price</th>';
-			$batch_html +='<th>tax</th>';
-			$batch_html +='<th>tax amt</th>';
+		//	$batch_html +='<th>tax</th>';
+		//	$batch_html +='<th>tax amt</th>';
 			$batch_html +='<th>gross</th>';
 	 
 			$batch_html +='<th>total</th>';
@@ -268,8 +267,8 @@ console.log(v)
 	    
 			$batch_html += '<td><input type="text" name="batch['+item_id+']['+n+'][cost_price]" readonly value="'+$cost+'" class="form-control text-center cost-price"></td>';
 			$batch_html += '<td><input type="text" name="batch['+item_id+']['+n+'][selling_price]" readonly value="'+$recipe_price+'" class="form-control text-center selling-price"></td>';
-			$batch_html += '<td>'+formatDecimal($tax_per)+'%<input type="hidden" name="batch['+item_id+']['+n+'][tax]" value="'+$tax_per+'" class="form-control text-center recipe-tax-per"><input type="hidden" name="batch['+item_id+']['+n+'][tax_method]" value="'+$tax_method+'"></td>';
-			$batch_html += '<td><span class="recipe-tax-amt-label">'+formatDecimal($tax)+'</span><input type="hidden" name="batch['+item_id+']['+n+'][tax_amount]" value="'+$tax+'" class="form-control text-center recipe-tax-amt"></td>';
+			//$batch_html += '<td>'+formatDecimal($tax_per)+'%<input type="hidden" name="batch['+item_id+']['+n+'][tax]" value="'+$tax_per+'" class="form-control text-center recipe-tax-per"><input type="hidden" name="batch['+item_id+']['+n+'][tax_method]" value="'+$tax_method+'"></td>';
+		//	$batch_html += '<td><span class="recipe-tax-amt-label">'+formatDecimal($tax)+'</span><input type="hidden" name="batch['+item_id+']['+n+'][tax_amount]" value="'+$tax+'" class="form-control text-center recipe-tax-amt"></td>';
 			$batch_html += '<td><span class="recipe-gross-amt-label">'+formatDecimal($gross_amt)+'</span><input type="hidden" name="batch['+item_id+']['+n+'][gross]" value="'+$gross_amt+'" class="form-control text-center recipe-gross"></td>';
 	    
 			$batch_html += '<td><span class="recipe-grand-total-label">'+formatDecimal($grand_total_amt)+'</span><input type="hidden" name="batch['+item_id+']['+n+'][grand_total]" value="'+$grand_total_amt+'" class="form-control text-center recipe-grand-total"></td>';
