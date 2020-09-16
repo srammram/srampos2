@@ -256,44 +256,28 @@ class Production_model extends CI_Model{
     {
         if ($this->db->insert('production', $data)) {
             $production_id = $this->db->insert_id();
-			
-			
-
             if ($items) {
                 foreach ($items as $item) {
                     $item['production_id'] = $production_id;
                     $this->db->insert('combo_items', $item);
                 }
             }
-
             $warehouses = $this->site->getAllWarehouses();
             if ($data['type'] != 'standard') {
                 foreach ($warehouses as $warehouse) {
                     $this->db->insert('warehouses_production', array('production_id' => $production_id, 'warehouse_id' => $warehouse->id, 'quantity' => 0));
                 }
             }
-
             $tax_rate = $this->site->getTaxRateByID($data['tax_rate']);
-
             if ($warehouse_qty && !empty($warehouse_qty)) {
                 foreach ($warehouse_qty as $wh_qty) {
-					
-                   
                         $this->db->insert('warehouses_production', array('production_id' => $production_id, 'warehouse_id' => $wh_qty['warehouse_id']));
-
-                    
-                   
                 }
             }
 			
 			if ($production_pro && !empty($production_pro)) {
                 foreach ($production_pro as $re_pro) {
-					
-                   
                         $this->db->insert('production_products', array('production_id' => $production_id, 'product_id' => $re_pro['product_id[]'], 'min_quantity' => $re_pro['min_quantity[]'], 'max_quantity' => $re_pro['max_quantity'], 'units_id' => $re_pro['units_id']));
-
-                    
-                   
                 }
             }
 

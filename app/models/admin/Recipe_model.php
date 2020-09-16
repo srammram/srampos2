@@ -1934,7 +1934,7 @@ public function deactivate($id = NULL)
 			$this->db->where("(r.name LIKE '" . $term . "%' OR r.code LIKE '" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '" . $term . "%')");
 		}
 		$this->db->where_not_in('cm.id',$existing);
-		$this->db->where_in('r.type',array('raw','semi_finished')); 
+		$this->db->where_in('r.type',array('raw','semi_finished','production','addon','raw')); 
 		// echo $this->db->get_compiled_select();exit;
 		$this->db->group_by("r.id,b.id,rc.id,rsc.id");
 		$this->db->limit($limit);

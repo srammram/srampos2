@@ -2418,24 +2418,14 @@ public function cancel_sale($cancel_remarks = null, $sale_id = null){
 				$row->get_variant_id='';
             }
             $row->quantity = 0;
-            $pis = $this->site->getPurchasedItems($row->id, $warehouse_id, $row->option);
-            if ($pis) {
-                foreach ($pis as $pi) {
-                    $row->quantity += $pi->quantity_balance;
-                }
-            }
+            
             if ($row->type == 'standard' && (!$this->Settings->overselling && $row->quantity < 1)) {
                 echo null;die();
             }
             if ($options) {
                 $option_quantity = 0;
                 foreach ($options as $option) {
-                    $pis = $this->site->getPurchasedItems($row->id, $warehouse_id, $row->option);
-                    if ($pis) {
-                        foreach ($pis as $pi) {
-                            $option_quantity += $pi->quantity_balance;
-                        }
-                    }
+                    
                     if ($option->quantity > $option_quantity) {
                         $option->quantity = $option_quantity;
                     }
@@ -2568,24 +2558,24 @@ public function cancel_sale($cancel_remarks = null, $sale_id = null){
             }
 
             $row->quantity = 0;
-            $pis = $this->site->getPurchasedItems($row->id, $warehouse_id, $row->option);
+           /*  $pis = $this->site->getPurchasedItems($row->id, $warehouse_id, $row->option);
             if ($pis) {
                 foreach ($pis as $pi) {
                     $row->quantity += $pi->quantity_balance;
                 }
-            }
+            } */
             if ($row->type == 'standard' && (!$this->Settings->overselling && $row->quantity < 1)) {
                 echo null;die();
             }
             if ($options) {
                 $option_quantity = 0;
                 foreach ($options as $option) {
-                    $pis = $this->site->getPurchasedItems($row->id, $warehouse_id, $row->option);
+                    /* $pis = $this->site->getPurchasedItems($row->id, $warehouse_id, $row->option);
                     if ($pis) {
                         foreach ($pis as $pi) {
                             $option_quantity += $pi->quantity_balance;
                         }
-                    }
+                    } */
                     if ($option->quantity > $option_quantity) {
                         $option->quantity = $option_quantity;
                     }

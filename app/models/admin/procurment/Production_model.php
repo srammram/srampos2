@@ -106,11 +106,10 @@ class Production_model extends CI_Model{
 			if($batch->stock_in>0){
 				$balance_quantity =$base_quantity-$batch->stock_in;
 				if($balance_quantity>0){
-				$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$batch->stock_in.',  stock_out = stock_out + '.$batch->stock_in.' where store_id='.$this->store_id.' and id='.$batch->id;
+				$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$batch->stock_in.',  stock_out = stock_out + '.$batch->stock_in.'  ,stock_status="closed" where store_id='.$this->store_id.' and id='.$batch->id;
                 $this->db->query($query); 
 				$base_quantity =$base_quantity-$batch->stock_in;
 				$stock=$this->db->get_where("pro_stock_master",array("id"=>$batch->id))->row();
-				 $recipe_cost=$stock->cost_price ."||".$batch->id;
 				
 				
 				}else{

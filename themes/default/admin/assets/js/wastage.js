@@ -211,8 +211,8 @@ function loadItems() {
 			$wastage_qty =v.wastage_qty ? v.wastage_qty : 0;
 			$vendor = (v.vendor_id)?v.vendor_id:0;
 			$pending_qty =v.pending_qty ? v.pending_qty : '';
-			$gross_amt = $wastage_qty*$recipe_price;
 			$tax=0;
+			$g_cost=0
 			$tax_per = v.tax;   
 				$tax_method = v.tax_method;
 				var pr_tax = item.tax_rate;
@@ -235,11 +235,15 @@ function loadItems() {
                         base_quantity = formatDecimal(unitToBaseQty($wastage_qty, this), 4);
 						$available_qty=formatDecimal(baseToUnitQty($available_qty, this), 4);
 						$pending_qty=$available_qty-$wastage_qty;
+						$g_cost=base_quantity*$cost;
                     }
                 });
-            }
-			
-			$grand_total_amt = $gross_amt+$tax;
+            }else{
+				
+				$g_cost= $wastage_qty*$cost;
+			}
+			$gross_amt =$g_cost;
+			$grand_total_amt = $gross_amt;
 			$batch_html ='<table style="width: 100%;" class="table items  table-bordered table-condensed batch-table"><thead>';
 			$batch_html +='<th>batch</th>';
 			$batch_html +='<th>a.qty</th>';

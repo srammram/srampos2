@@ -116,7 +116,6 @@ class Wastage_model extends CI_Model{
         return FALSE;
     }
 	function TransferStockOut($qty,$stockid){
-		
 		$id=$stockid;	
 		$q=$this->db->get_where("pro_stock_master",array("unique_id"=>$stockid,"store_id"=>$this->store_id));
 		if($q->num_rows()>0){

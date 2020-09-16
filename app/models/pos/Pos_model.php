@@ -5347,16 +5347,26 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
 			->where('orders.split_id', $split_id)
 			->where('order_items.order_item_cancel_status', 0)
 			->get('orders');
-				if($cancel_type=="out_of_stock" || $cancel_type=="kitchen_cancel" ){
+			
+			
+			
+				if($cancel_type     =="out_of_stock" || $cancel_type  == "kitchen_cancel" ){
 					if($recipe_type =='standard' || $recipe_type =='production' ){ 
 					    $this->site->saleStockIn_new($recipe_id,$cancelQty,$order_item_id);
 					}else if($recipe_type =='standard' || $recipe_type =='production' ){ 
 						$this->site->saleStockIn_new($recipe_id,$cancelQty,$order_item_id);
 					}
-
-				}elseif($cancel_type=="reusable"){
+				}elseif($cancel_type=="reusable" && $recipe_type=="quick_service"){
 	                 $this->siteprocurment->production_salestock_in($recipe_id,$cancelQty,$q->recipe_variant_id);
+				}elseif($cancel_type=="spoiled"){
+					$this->wastageItem($q->recipe_id,$q->recipe_variant_id,$cancelQty,$order_item_id);
 				}
+				
+				
+				
+				
+				
+				
 			if($order->num_rows() == 0){
 				$this->db->where('orders.split_id', $split_id);
 				$orderupdate = $this->db->update('orders', array('order_cancel_id' => $user_id, 'order_cancel_note' => 'All item order cancel', 'order_cancel_status' => 1,'payment_status'=>'Cancelled'));
@@ -5414,8 +5424,8 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
 		$notification_array['insert_array']['msg'] = 'Cashier has benn cancel this bil ('.$split_id.')';
 		$notification_array['insert_array']['table_id'] = $table_id;
 		$notification_array['insert_array']['type'] = 'Cashier cancel bils';
-		 $notification_array['insert_array']['role_id'] = WAITER;
-		 $notification_array['insert_array']['to_user_id'] = $waiter_id;
+		$notification_array['insert_array']['role_id'] = WAITER;
+		$notification_array['insert_array']['to_user_id'] = $waiter_id;
 		
 		
 		
@@ -5477,7 +5487,6 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
     }
 
     public function BBQCancelSale($cancel_remarks, $split_id, $user_id, $notification_array){
-
     	$q = $this->db->select('sales_split_id, sales_table_id,id')->where('sales_split_id', $split_id)->get('sales');
 		if ($q->num_rows() > 0) {
             $split_id =  $q->row('sales_split_id');
@@ -5516,10 +5525,8 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
 		$notification_array['insert_array']['msg'] = 'Cashier has benn cancel this bil ('.$split_id.')';
 		$notification_array['insert_array']['table_id'] = $table_id;
 		$notification_array['insert_array']['type'] = 'Cashier cancel bils';
-		 $notification_array['insert_array']['role_id'] = WAITER;
-		 $notification_array['insert_array']['to_user_id'] = $waiter_id;
-		
-		
+		$notification_array['insert_array']['role_id'] = WAITER;
+		$notification_array['insert_array']['to_user_id'] = $waiter_id;
 		
 		$this->site->create_notification($notification_array);
         /*echo $id;die;*/
@@ -5550,13 +5557,8 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
         );
 
 		$this->db->update('bils', $bill_array, array('sales_id' => $sale_id));
-
 		$this->db->where_in('split_id', $split_id);
 		$this->db->update('orders',  $order_array);
-	    // $this->db->update('orders', $order_array, array('id' => $id));
-
-		// $this->db->update('order_items', $order_item_array, array('sale_id' => $id));
-
 		$id2 =   explode(',',$id);
 		$this->db->where_in('sale_id', $id2);
 		$this->db->update('order_items',  $order_item_array);
@@ -5701,9 +5703,9 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
 			$cate['brand_id'] = $cm->brand_id;
 			if($this->Settings->procurment == 1){
 			if($ritem->recipe_type=='standard' || $ritem->recipe_type =='production'){
-			$this->site->updateStockMaster_new($ritem->recipe_id,$ritem->recipe_variant_id,$ritem->quantity+1,$cate,$ritem->id);
+			$this->site->updateStockMaster_new($ritem->recipe_id,$ritem->recipe_variant_id,1,$cate,$ritem->id);
 			}else if($ritem->recipe_type =="quick_service"){
-			$this->siteprocurment->production_salestock_out($ritem->recipe_id,$ritem->quantity+1,$ritem->recipe_variant_id);
+			$this->production_salestock_out($ritem->recipe_id,1,$ritem->recipe_variant_id);
 			}	
 		}
         }
@@ -10468,9 +10470,9 @@ public function ALLCancelOrdersItem_consolidate($cancel_remarks, $split_table_id
 								$AddonDetails = $this->site->getaddonitemid($addon);								
 								$recipeDetails = $this->pos_model->getrecipeByID($AddonDetails->addon_item_id);
 								$recipe_addon_item[] = array(
-									'split_id'      => $data['split_id'],
-									'order_id'      => $sale_id,
-									'sale_item_id'      => $recipeDetails->id,
+									'split_id'           => $data['split_id'],
+									'order_id'           => $sale_id,
+									'sale_item_id'       => $recipeDetails->id,
 									'order_item_id'      => $order_item_id,
 									'addon_id'      => $addon,
 									'price'      => $recipeDetails->price ? $recipeDetails->price : 0,
@@ -10509,7 +10511,7 @@ public function ALLCancelOrdersItem_consolidate($cancel_remarks, $split_table_id
 								$this->site->updateStockMaster_new($item['recipe_id'],$item['recipe_variant_id'],$item['quantity'],$cate,$order_item_id);
 							}elseif($item['recipe_type'] =='quick_service'){
 								//echo '@@';
-								$this->siteprocurment->production_salestock_out($item['recipe_id'],$item['quantity'],$item['recipe_variant_id']);
+								$this->production_salestock_out($item['recipe_id'],$item['quantity'],$item['recipe_variant_id']);
 							}	
 						}
 						if($item['recipe_type'] =="combo"){
@@ -10876,6 +10878,118 @@ $consolidate_kitchen_details = $this->db->select('restaurant_kitchens.id,restaur
 		// print_r($this->db->error());die;
 		return false;
 	}
+	
+	   function production_salestock_out($product_id,$stock_out_qty,$variant_id){
+		// ingredient stock
+        $item = $this->getrecipedeatilsByID($product_id);  
+        //if($item->type=="production" || $item->type=="quick_service" || $item->type=="semi_finished"){
+           $q = $this->get_recipe_products($product_id,$variant_id); 
+            if($q->num_rows()>0){
+                foreach($q->result() as $k => $row){
+                    $cate['category_id'] = $row->category_id;
+                    $cate['subcategory_id'] = $row->subcategory_id;
+                    $cate['brand_id'] = $row->brand_id;
+                    $cate['cm_id'] = $row->cm_id;
+					$ingredint_stock_out=$stock_out_qty *$this->site->unitToBaseQty($row->quantity,$row->operator,$row->operation_value);
+                    $updated_stock = $this->productionupdateStockMaster($row->product_id,$variant_id,$ingredint_stock_out,$cate);
+                }
+            }
+		
+        //}   // die;    
+		return true;
+    }
+
+	
+	
+	
+	
+    function productionupdateStockMaster($product_id,$variant_id,$base_quantity,$cate){   
+        $store_id = $this->data['pos_store'];
+        $batches =$this->getrawstock($product_id,$variant_id,$cate['category_id'],$cate['subcategory_id'],$cate['brand_id']); 
+       foreach($batches as $batch){
+			if($batch->stock_in>0){
+				$balance_quantity =$base_quantity-$batch->stock_in;
+				if($balance_quantity>0){
+				$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$batch->stock_in.',  stock_out = stock_out + '.$batch->stock_in.'  ,stock_status="closed" where store_id='.$this->store_id.' and id='.$batch->id;
+                $this->db->query($query); 
+				$base_quantity =$base_quantity-$batch->stock_in;
+				}else{
+					$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$base_quantity.',  stock_out = stock_out + '.$base_quantity.' where store_id='.$this->store_id.' and id='.$batch->id;
+                    $this->db->query($query); 
+					break;
+				}
+			}
+			
+		}
+            
+    }
+	
+	
+	
+	public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id,$brand_id){
+        $this->db->select('pro_stock_master.*');
+        $this->db->from('pro_stock_master');
+        if($category_id !=''){
+            $this->db->where('category_id',$category_id);
+        }
+        if($subcategory_id !=''){
+            $this->db->where('subcategory_id',$subcategory_id);
+        }
+        if($brand_id !=''){
+            $this->db->where('brand_id',$brand_id);
+        }
+        $this->db->where('product_id',$product_id);
+		$this->db->where('store_id',$this->store_id);
+		//if($variant_id !='0'){
+            //$this->db->where('variant_id',$variant_id);
+        //}
+        //$this->db->where('variant_id',$variant_id);
+        $this->db->where_not_in('stock_status','closed');
+        $this->db->group_by('id');
+        $this->db->order_by('id', 'asc');
+        $q = $this->db->get(); 
+        // print_r($this->db->last_query());die;
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return array();
+
+     /*   if ($q->num_rows() > 0) {
+            return $q->result_array();
+        }
+        return FALSE;*/
+}
+	
+	
+	
+	
+	
+	public function getrecipedeatilsByID($id) {
+        $q = $this->db->get_where('recipe', array('id' => $id), 1);
+        if ($q->num_rows() > 0) {
+            return $q->row();
+        }
+        return FALSE;
+    }
+	 function get_recipe_products($product_id,$variant_id){
+        $this->db->select('recipe_products.product_id,recipe_products.quantity,recipe.type,cm.id as cm_id,cm.category_id,cm.subcategory_id,cm.brand_id,IFNULL(u.operator,"") as operator,IFNULL(u.operation_value,"1") as operation_value,u.name');
+        $this->db->from('recipe_products');
+        $this->db->join('recipe','recipe.id=recipe_products.product_id');
+        $this->db->join('category_mapping as cm','cm.id=recipe_products.cm_id','left');
+        $this->db->join('units as u','u.id=recipe_products.unit_id','left');
+        $this->db->where('recipe_id',$product_id);
+        if($variant_id != 0){
+            $this->db->where('recipe_products.variant_id',$variant_id);
+        }
+        $q = $this->db->get();            
+        return $q;
+    }        
+
+	
+	
 	function get_table_order_count($table_id,$split_id=null){
 		$current_date = $this->site->getTransactionDate();
     	$this->db->select('split_id,customer_id,customer');		
@@ -11681,7 +11795,6 @@ if($this->pos_settings->kot_enable_disable == 1){
 	return false;
 	}
 	function  get_nkm_details($type,$id){
-		
 		switch($type){
 			case 1:  
 			$company=$this->getCompanyByID($id);
@@ -11698,7 +11811,174 @@ if($this->pos_settings->kot_enable_disable == 1){
 			$name=$user->first_name;
 			$type="User";
 			break;
+
 		}
 		return array("name"=>$name,"type"=>$type);
+	}
+	 function production_salestock_in($product_id,$stock_out_qty,$variant_id){
+		// ingredient stock
+       
+        //if($item->type=="production" || $item->type=="quick_service" || $item->type=="semi_finished"){
+           $q = $this->get_recipe_products($product_id,$variant_id); 
+            if($q->num_rows()>0){
+                foreach($q->result() as $k => $row){
+                    $cate['category_id'] = $row->category_id;
+                    $cate['subcategory_id'] = $row->subcategory_id;
+                    $cate['brand_id'] = $row->brand_id;
+                    $cate['cm_id'] = $row->cm_id;
+					$ingredint_stock_out=$stock_out_qty *$this->site->unitToBaseQty($row->quantity,$row->operator,$row->operation_value);
+                    $updated_stock = $this->cancelStockMaster_in($row->product_id,$variant_id,$ingredint_stock_out,$cate);
+                }
+            }
+		
+        //}   // die;    
+		return true;
+    }
+
+	
+    function cancelStockMaster_in($product_id,$variant_id,$base_quantity,$cate){   
+        $store_id = $this->data['pos_store'];
+        $batches =$this->getrawstock($product_id,$variant_id,$cate['category_id'],$cate['subcategory_id'],$cate['brand_id']); 
+       foreach($batches as $batch){
+			if($batch->stock_in>0){
+				$query = 'update srampos_pro_stock_master set stock_in = stock_in + '.$base_quantity.',  stock_out = stock_out - '.$base_quantity.'  ,stock_status="closed" where store_id='.$this->store_id.' and id='.$batch->id;
+                $this->db->query($query);
+				break;
+			}
+		}
+          return true;  
+    }
+	function wastageItem($recipeId,$variantId,$cancelQty,$OrderItemId){
+		$recipe=$this->site->getrecipeByID($recipeId);
+		switch($recipe->type){
+			case "standard": 
+			$this->wastageOrderItem($recipeId,$variantId,$cancelQty,$OrderItemId);
+			break;
+			case "production":
+			$this->wastageOrderItem($recipeId,$variantId,$cancelQty,$OrderItemId);
+			break;
+			
+			case "quick_service":
+			$this->wastageQuickServiceItem($recipeId,$variantId,$cancelQty,$OrderItemId);
+			
+			break;
+		}
+		
+	}
+	
+	
+	
+	function wastageOrderItem($recipeId,$variantId,$cancelQty,$OrderItemId){
+		$recipe=$this->site->getrecipeByID($recipeId);
+		$orderItem=$this->db->get_where("order_items",array("id"=>$OrderItemId))->row();
+		$n = $this->siteprocurment->lastWastageId();
+		$n=($n !=0)?$n+1:$this->store_id .'1';
+		$reference = 'WTN'.str_pad($n, 8, 0, STR_PAD_LEFT);
+		$date = date('Y-m-d H:i:s');
+		$data=array("date"=>$date,
+		"reference_no"=>$reference,
+		"store_id"=>$this->store_id,
+		"type"=>"Spoiled",
+		"note"=>"Pos Order Item Cancel",
+		"status"=>"approved",
+		"created_by"=>$this->session->userdata('user_id'),
+		"no_of_qty"=>$cancelQty,
+		"no_of_items"=>1,
+		"approved_by"=>$this->session->userdata('user_id'),
+		"approved_on"=>$date,
+		"created_on"=>$date		);
+		$this->db->insert('wastage', $data);
+			$wastage_id = $this->db->insert_id();
+	        $unique_id = $this->site->generateUniqueTableID($wastage_id);
+			if ($wastage_id) {
+				$this->site->updateUniqueTableId($wastage_id,$unique_id,'wastage');
+			}
+			$item=array("store_id"=>$this->store_id,
+			"wastage_id"=>$unique_id,
+			"variant_id"=>$orderItem->recipe_variant_id,
+			"net_unit_price"=>$orderItem->real_unit_price,
+			"unit_price"=>$orderItem->subtotal,
+			"wastage_unit_qty"=>$orderItem->unit_quantity,
+			"product_unit_id"=>$orderItem->recipe_unit_id,
+			"product_unit_code"=>$orderItem->recipe_unit_code,
+			"cost_price"=>$recipe->cost,
+			"gross_amount"=>$recipe->cost*$cancelQty,
+			"net_amount"=>$recipe->cost*$cancelQty,
+			"unit_quantity"=>$orderItem->unit_quantity,
+			"category_id"=>$recipe->category_id,
+			"subcategory_id"=>$recipe->subcategory_id,
+			"brand_id"=>$recipe->brand,
+			"product_code"=>$orderItem->recipe_code,
+			"product_id"=>$orderItem->recipe_id,
+			"product_name"=>$orderItem->recipe_name,
+			"product_type"=>$orderItem->recipe_type,
+			
+			)
+			$this->db->insert("wastage_items",$item);
+		return true;
+	}
+	function  wastageQuickServiceItem($recipeId,$variantId,$cancelQty,$OrderItemId){
+		$recipe=$this->site->getrecipeByID($recipeId);
+		$orderItem=$this->db->get_where("order_items",array("id"=>$OrderItemId))->row();
+		$n = $this->siteprocurment->lastWastageId();
+		$n=($n !=0)?$n+1:$this->store_id .'1';
+		$reference = 'WTN'.str_pad($n, 8, 0, STR_PAD_LEFT);
+		$date = date('Y-m-d H:i:s');
+		$data=array("date"=>$date,
+		"reference_no"=>$reference,
+		"store_id"=>$this->store_id,
+		"type"=>"Spoiled",
+		"note"=>"Pos Order Item Cancel",
+		"status"=>"approved",
+		"created_by"=>$this->session->userdata('user_id'),
+		"no_of_qty"=>$cancelQty,
+		"no_of_items"=>1,
+		"approved_by"=>$this->session->userdata('user_id'),
+		"approved_on"=>$date,
+		"created_on"=>$date		);
+		
+		$item=array();
+		
+		  $q = $this->get_recipe_products($product_id,$variant_id); 
+            if($q->num_rows()>0){
+                foreach($q->result() as $k => $row){
+					$quantity=$cancelQty *$this->site->unitToBaseQty($row->quantity,$row->operator,$row->operation_value);
+					$item[]=array("store_id"=>$this->store_id,
+					"wastage_id"=>$unique_id,
+					"variant_id"=>$orderItem->recipe_variant_id,
+					"net_unit_price"=>$orderItem->real_unit_price,
+					"unit_price"=>$orderItem->subtotal,
+					"wastage_unit_qty"=>$quantity,
+					"product_unit_id"=>$orderItem->recipe_unit_id,
+					"product_unit_code"=>$orderItem->recipe_unit_code,
+					"cost_price"=>$recipe->cost,
+					"gross_amount"=>$recipe->cost*$cancelQty,
+					"net_amount"=>$recipe->cost*$cancelQty,
+					"unit_quantity"=>$quantity,
+					"category_id"=>$recipe->category_id,
+					"subcategory_id"=>$recipe->subcategory_id,
+					"brand_id"=>$recipe->brand,
+					"product_code"=>$orderItem->recipe_code,
+					"product_id"=>$orderItem->recipe_id,
+					"product_name"=>$orderItem->recipe_name,
+					"product_type"=>$orderItem->recipe_type,
+			)
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+                  
+                }
+            }
+		
 	}
 }
