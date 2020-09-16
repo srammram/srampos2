@@ -5286,6 +5286,7 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
     }    
     public function CancelOrdersItem($notification_array, $cancel_remarks, $order_item_id, $user_id, $split_id,$timelog_array,$cancelQty,$cancel_type){
     	
+		$cancelledQty=$cancelQty;
 		$q = $this->db->select('*')->where('id', $order_item_id)->get('order_items');
 		if ($q->num_rows() > 0) {
             $sale_id =  $q->row('sale_id');
@@ -5357,14 +5358,12 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
 						$this->site->saleStockIn_new($recipe_id,$cancelQty,$order_item_id);
 					}
 				}elseif($cancel_type=="reusable" && $recipe_type=="quick_service"){
-	                 $this->siteprocurment->production_salestock_in($recipe_id,$cancelQty,$q->recipe_variant_id);
+	                 $this->siteprocurment->production_salestock_in($recipe_id,$cancelQty,$q->row('recipe_variant_id'));
 				}elseif($cancel_type=="spoiled"){
-					$this->wastageItem($q->recipe_id,$q->recipe_variant_id,$cancelQty,$order_item_id);
+					$this->wastageItem($q->row('recipe_id'),$q->row('recipe_variant_id'),$cancelledQty,$order_item_id);
 				}
 				
-				
-				
-				
+			
 				
 				
 			if($order->num_rows() == 0){
@@ -11857,10 +11856,8 @@ if($this->pos_settings->kot_enable_disable == 1){
 			case "production":
 			$this->wastageOrderItem($recipeId,$variantId,$cancelQty,$OrderItemId);
 			break;
-			
 			case "quick_service":
 			$this->wastageQuickServiceItem($recipeId,$variantId,$cancelQty,$OrderItemId);
-			
 			break;
 		}
 		
@@ -11913,7 +11910,7 @@ if($this->pos_settings->kot_enable_disable == 1){
 			"product_name"=>$orderItem->recipe_name,
 			"product_type"=>$orderItem->recipe_type,
 			
-			)
+			);
 			$this->db->insert("wastage_items",$item);
 		return true;
 	}
@@ -11935,49 +11932,48 @@ if($this->pos_settings->kot_enable_disable == 1){
 		"no_of_items"=>1,
 		"approved_by"=>$this->session->userdata('user_id'),
 		"approved_on"=>$date,
-		"created_on"=>$date		);
-		
+		"created_on"=>$date	);
+		$this->db->insert('wastage', $data);
+			$wastage_id = $this->db->insert_id();
+	        $unique_id = $this->site->generateUniqueTableID($wastage_id);
+			if ($wastage_id) {
+				$this->site->updateUniqueTableId($wastage_id,$unique_id,'wastage');
+			}
 		$item=array();
-		
 		  $q = $this->get_recipe_products($product_id,$variant_id); 
             if($q->num_rows()>0){
+				$i=0;
                 foreach($q->result() as $k => $row){
 					$quantity=$cancelQty *$this->site->unitToBaseQty($row->quantity,$row->operator,$row->operation_value);
-					$item[]=array("store_id"=>$this->store_id,
+					$items=$this->site->getrecipeByID($recipeId);
+					$unit=$this->site->getUnitByID($row->unit_id);
+					$item=array("store_id"=>$this->store_id,
 					"wastage_id"=>$unique_id,
-					"variant_id"=>$orderItem->recipe_variant_id,
-					"net_unit_price"=>$orderItem->real_unit_price,
-					"unit_price"=>$orderItem->subtotal,
+					"variant_id"=>$row->variant_id,
+					"net_unit_price"=>$items->price,
+					"unit_price"=>$items->price,
 					"wastage_unit_qty"=>$quantity,
-					"product_unit_id"=>$orderItem->recipe_unit_id,
-					"product_unit_code"=>$orderItem->recipe_unit_code,
-					"cost_price"=>$recipe->cost,
-					"gross_amount"=>$recipe->cost*$cancelQty,
-					"net_amount"=>$recipe->cost*$cancelQty,
+					"product_unit_id"=>$row->recipe_unit_id,
+					"product_unit_code"=>$unit->name,
+					"cost_price"=>$items->cost,
+					"gross_amount"=>$items->cost*$cancelQty,
+					"net_amount"=>$items->cost*$cancelQty,
 					"unit_quantity"=>$quantity,
-					"category_id"=>$recipe->category_id,
-					"subcategory_id"=>$recipe->subcategory_id,
-					"brand_id"=>$recipe->brand,
-					"product_code"=>$orderItem->recipe_code,
-					"product_id"=>$orderItem->recipe_id,
-					"product_name"=>$orderItem->recipe_name,
-					"product_type"=>$orderItem->recipe_type,
-			)
+					"category_id"=>$row->category_id,
+					"subcategory_id"=>$row->subcategory_id,
+					"brand_id"=>$row->brand_id,
+					"product_code"=>$items->code,
+					"product_id"=>$items->id,
+					"product_name"=>$items->name,
+					"product_type"=>$items->type,
 					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-                  
+			);
+			      $this->db->insert("wastage_items",$item);
+				  $item_d_insert_id = $this->db->insert_id();
+				  $id_unique_id = $this->site->generateUniqueTableID($item_d_insert_id);
+				  $this->site->updateUniqueTableId($item_d_insert_id,$id_unique_id,'wastage_items');
                 }
+				return true;
             }
 		
 	}

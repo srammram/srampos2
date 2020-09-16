@@ -2190,8 +2190,7 @@ public function cancel_sale($cancel_remarks = null, $sale_id = null){
         echo json_encode($amt);exit;
     }
 	 public function cancel_order_items($cancel_remarks = null, $order_item_id = null, $split_id = null){
-        /*echo "<pre>";
-        print_r($this->input->get());die;*/
+       
         $cancel_remarks = $this->input->get('cancel_remarks');
         $order_item_id = $this->input->get('order_item_id');
         $split_id = $this->input->get('split_id');
