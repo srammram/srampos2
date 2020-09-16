@@ -56,7 +56,7 @@
 
 <div class="box">
     <div class="box-header">
-        <h2 class="blue"><i class="fa-fw fa fa-heart"></i><?= lang('wastage_report'); ?> <?php
+        <h2 class="blue"><i class="fa-fw fa fa-heart"></i><?= lang('Yields_report'); ?> <?php
             if ($this->input->post('start_date')) {
                 echo "From " . $this->input->post('start_date') . " to " . $this->input->post('end_date');
             }
@@ -212,8 +212,8 @@
                             <th><?= lang("item"); ?></th>
                             <th><?= lang("variant"); ?></th>
 							<th><?= lang("warehouse"); ?></th>
-                            <th><?= lang("wastage_qty"); ?></th>
-							  <th><?= lang("UOM"); ?></th>
+                            <th><?= lang("Yield (%)"); ?></th>
+							  <th><?= lang("Yield_amount"); ?></th>
                             <th><?= lang("Wastage_amount"); ?></th>
                             <th><?= lang("Wastage_type"); ?></th>
 							</tr>
@@ -234,12 +234,12 @@
     $(document).ready(function () {
         $('#pdf').click(function (event) {
             event.preventDefault();
-            window.location.href = "<?=admin_url('reports/get_ItemwiseWastageReport/pdf/?v=1'.$v)?>";
+            window.location.href = "<?=admin_url('reports/get_ItemwiseYieldReport/pdf/?v=1'.$v)?>";
             return false;
         });
         $('#xls').click(function (event) {
             event.preventDefault();
-            window.location.href = "<?=admin_url('reports/get_ItemwiseWastageReport/0/xls/?v=1'.$v)?>";
+            window.location.href = "<?=admin_url('reports/get_ItemwiseYieldReport/0/xls/?v=1'.$v)?>";
             return false;
         });
         $('#image').click(function (event) {
@@ -258,16 +258,16 @@
             return false;
         });
         $(document).on('click', '.submit_itemreport', function () {
-            $url = '<?=admin_url('reports/get_ItemwiseWastageReport');?>';
+            $url = '<?=admin_url('reports/get_ItemwiseYieldReport');?>';
             GetData($url);
         });
 
         $(document).on('change', '#pagelimit', function () {
-            $url = '<?=admin_url('reports/get_ItemwiseWastageReport');?>';
+            $url = '<?=admin_url('reports/get_ItemwiseYieldReport');?>';
             GetData($url);
         });
 
-            $url = '<?=admin_url('reports/get_ItemwiseWastageReport');?>';            
+            $url = '<?=admin_url('reports/get_ItemwiseYieldReport');?>';            
             GetData($url);
 
     });

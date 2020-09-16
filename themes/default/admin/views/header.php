@@ -1831,11 +1831,9 @@
                                 <?php } ?>
 								
 								
-								
-								
 								     <li>
                                         <a class="dropmenu" href="javascript:void(0)">
-                                            <span class="text">  <?= lang('Profit_&_loss'); ?> </span>
+                                            <span class="text">  <?= lang('Costing'); ?> </span>
                                             <!--<span class="chevron closed"></span>-->
                                         </a>
                                         <ul class="level-3-menu">
@@ -1845,37 +1843,12 @@
                                                 </a>
                                             </li> 
 											<li id="reports_feedback">
-                                                <a class="submenu" href="<?= admin_url('reports/yield') ?>">
-                                                    <span class="text"> <?= lang('yield'); ?></span>
+                                                <a class="submenu" href="<?= admin_url('reports/yields') ?>">
+                                                    <span class="text"> <?= lang('yields'); ?></span>
                                                 </a>
                                             </li> 
                                         </ul>
                                     </li>
-								
-								
-								
-								
-								
-								
-								
-								
-								
-								
-								
-								
-								
-								
-								
-								
-								
-								
-								
-								
-								
-								
-								
-								
-								
 								
 								
 								

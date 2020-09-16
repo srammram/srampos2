@@ -179,6 +179,7 @@ class system_settings extends MY_Controller{
 				'second_level' => $this->input->post('second_level'),
                 'state' => $this->input->post('state'),
                 'customer_discount_request' => $this->input->post('customer_discount_request'),
+				 'negative_stock_carry_forward' => $this->input->post('nscf'),
                 'nagative_stock_production' => $this->input->post('nagative_stock_production'),
                 'nagative_stock_sale' => $this->input->post('nagative_stock_sale'),
                 'excel_header_color' => $this->input->post('excel_header_color'),

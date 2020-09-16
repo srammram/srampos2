@@ -1141,11 +1141,8 @@ class Purchase_invoices extends MY_Controller{
             if(isset($_POST['product'])){
             $p_count = count($_POST['product']);
 		  for($i=0;$i<$p_count;$i++){
-			  
-			 $unit = $this->site->getUnitByID($this->input->post('product_unit['.$i.']'));
-			  $product_unit_code=$unit->code;
-			  
-			  
+			$unit = $this->site->getUnitByID($this->input->post('product_unit['.$i.']'));
+			$product_unit_code=$unit->code;
 		    //$items[$i]['invoice_reference_no'] = $this->input->post('reference_no');
 		    $items[$i]['store_id'] = $this->input->post('store_id['.$i.']');
             $items[$i]['product_id'] = $this->input->post('product_id['.$i.']');
@@ -1187,6 +1184,7 @@ class Purchase_invoices extends MY_Controller{
 			$items[$i]['product_unit_code'] = $product_unit_code;
 			$items[$i]['unit_quantity'] = $_POST['product_base_quantity'][$i];
 			$items[$i]['product_unit_id'] = $_POST['product_unit'][$i];
+			$items[$i]['parent_stock_unique_id'] = $_POST['parent_stock_unique_id'][$i];
 		    
 		}
 	    }
@@ -1230,7 +1228,7 @@ class Purchase_invoices extends MY_Controller{
             $this->data['currencies'] = $this->siteprocurment->getAllCurrencies();
             $this->data['tax_rates'] = $this->siteprocurment->getAllTaxRates();
             $this->data['warehouses'] = $this->siteprocurment->getAllWarehouses();
-	     $this->data['purchaseorder'] = $this->siteprocurment->getAllPONumbers();
+	        $this->data['purchaseorder'] = $this->siteprocurment->getAllPONumbers();
             
             $this->data['inv_items'] = $this->purchase_invoices_model->getAllPurchase_invoicesItems($id);
 	        //echo "<pre>";
@@ -1245,13 +1243,13 @@ class Purchase_invoices extends MY_Controller{
                 $row->unit_name = '';
             }
                              
-            $row->name = $item->product_name;
-            $row->id = $item->product_id;
-            $row->code = $item->product_code;
-            $row->po_qty = $item->po_quantity;
-            $row->qty = $item->quantity;
+            $row->name 		 = $item->product_name;
+            $row->id		 = $item->product_id;
+            $row->code 		 = $item->product_code;
+            $row->po_qty 	 = $item->po_quantity;
+            $row->qty 		 = $item->quantity;
             $row->quantity_balance = $item->quantity;
-            $row->batch_no = $item->batch_no;
+            $row->batch_no   = $item->batch_no;
             $row->expiry = $item->expiry;
             $row->expiry_type = $row->type_expiry;
             $row->unit_cost = $item->cost;
@@ -1268,22 +1266,22 @@ class Purchase_invoices extends MY_Controller{
 			$row->base_quantity = $item->unit_quantity ? $item->unit_quantity : $item->unit;
 			$row->base_unit = $row->unit;
             $row->base_unit_cost = $row->cost;
-                     
             $options = $this->purchase_invoices_model->getProductOptions($row->id);
-          
             $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
             $ri = $this->Settings->item_addition ? $row->id : $row->id;
             $row->category_id = $item->category_id;
             $row->category_name = $item->category_name;
-            $row->subcategory_id = $item->subcategory_id;
-            $row->subcategory_name = $item->subcategory_name;
-            $row->brand_id = $item->brand_id;
-            $row->brand_name = $item->brand_name;
+            $row->subcategory_id         = $item->subcategory_id;
+            $row->subcategory_name       = $item->subcategory_name;
+            $row->brand_id 				 = $item->brand_id;
+            $row->brand_name 			 = $item->brand_name;
+		    $row->parent_stock_unique_id = $item->parent_stock_unique_id;
+			$row->variant_id 			 = $item->variant_id;
             $item_key = $ri.'_'.$item->store_id.'_'.$item->category_id.'_'.$item->subcategory_id.'_'.$item->brand_id.'_'.$item->variant_id;
             $pr[$item_key] = array('id' => $c,'store_id'=>$item->store_id,'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
             'row' => $row, 'tax_rate_val' => $item->tax_rate,'tax_rate_id' => $item->tax_rate_id,'tax_rate' => $item->tax_rate, 'units' => $units, 'options' => $options);
             $c++;
-            //echo json_encode($pr);exit;
+           //echo json_encode($pr);exit;
             }
             //echo '<pre>';print_r($this->data['inv']);exit;
             $this->data['json_inv_items'] = json_encode($pr);

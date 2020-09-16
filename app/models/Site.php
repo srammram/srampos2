@@ -2136,6 +2136,8 @@ function getAllrecipeMappedSubCategories(){
     }
     public function getCategoryByID($id) {
         $q = $this->db->get_where('categories', array('id' => $id), 1);
+		echo $this->db->last_query();
+		die;
         if ($q->num_rows() > 0) {
             return $q->row();
         }
@@ -7642,9 +7644,8 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
         if ($empty_opt) {
             $opts .= '<option value="">'.lang('select').'</option>';
         }
-		$recipe=$this->site->getrecipeByID($product_id);
-        $Unit  = $this->site->getUnitByID($recipe->unit);
-     
+		    $recipe=$this->site->getrecipeByID($product_id);
+            $Unit  = $this->site->getUnitByID($recipe->unit);
             $opts .= '<option value="'.$Unit->id.'"'.($select_unit && $select_unit == $Unit->id ? ' selected="selected"' : '').'>'.lang($Unit->name).'</option>';
         
         return $opts;
@@ -7652,7 +7653,6 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
 
 
     function wraprecipe_name_qty($r_name,$r_qty,$newline){
-
     if($this->pos_settings->kot_font_size == 0)	{
     	$wrapped = wordwrap($r_name,37,"\n");
     }elseif($this->pos_settings->kot_font_size == 1){
@@ -7662,20 +7662,14 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
     }
 	
 	$lines = explode("\n", $wrapped);
-	$wrap_cnt = count($lines)-1;
-	//if($wrap_cnt>0){
-		// $lines[$wrap_cnt] = sprintf('%-20.20s %1.0f',$lines[$wrap_cnt], $r_qty); 
+	$wrap_cnt = count($lines)-1; 
 	if($this->pos_settings->kot_font_size == 0)	{
 		$lines[$wrap_cnt] = sprintf('%-37.37s %8.0f',$lines[$wrap_cnt], $r_qty); 
-	}elseif($this->pos_settings->kot_font_size == 1){
-		// $lines[$wrap_cnt] = sprintf('%-19.20s %2.0f',$lines[$wrap_cnt], $r_qty); 
+	}elseif($this->pos_settings->kot_font_size == 1){ 
 		$lines[$wrap_cnt] = sprintf('%-20.20s %2.0f', $lines[$wrap_cnt], $r_qty); 
-
-		// $lines[$wrap_cnt] = sprintf('%-3.37s %8.0f',$lines[$wrap_cnt], $r_qty); 
 	}else{
 		$lines[$wrap_cnt] = sprintf('%-19.19s %2.0f',$lines[$wrap_cnt], $r_qty); 
 	}
-	//}
 	$items = implode("\n",$lines);
 	if($newline) {
 	 $items = $items."\n";

@@ -145,7 +145,8 @@ class Grn extends MY_Controller{
 						'tax_rate_id '     =>$_POST['tax_rate_id'][$r],
 						'tax_rate'        =>$_POST['tax_rate'][$r],
 						'cost_price'      =>$_POST['cost_price'][$r],
-						'pi_uniqueId'      =>$_POST['unique_id'][$r]
+						'pi_uniqueId'      =>$_POST['unique_id'][$r],
+						'parent_stock_unique_id'=>$_POST['parent_stock_unique_id'][$r]
 						
                     );
                 }
@@ -272,7 +273,8 @@ class Grn extends MY_Controller{
 						'tax_rate_id'     =>$_POST['tax_rate_id'][$r],
 						'tax_rate'        =>$_POST['tax_rate'][$r],
 						'cost_price'      =>$_POST['cost_price'][$r],
-						'pi_uniqueId'      =>$_POST['unique_id'][$r]
+						'pi_uniqueId'      =>$_POST['unique_id'][$r],
+						'parent_stock_unique_id'=>$_POST['parent_stock_unique_id'][$r]
                     );
                 }
             }
@@ -358,6 +360,7 @@ class Grn extends MY_Controller{
 				$row->invoice_date			= $item->invoice_date;
 				$row->tax_rate_id			= $item->tax_rate_id;
 				$row->uniqueid			    = $item->pi_uniqueId;
+				$row->parent_stock_unique_id = $item->parent_stock_unique_id;
 				$options                    = $this->grn_model->getProductOptions($row->id);
 				$units                      = $this->siteprocurment->getUnitsByBUID($row->base_unit);
 				$ri                         = $this->Settings->item_addition ? $row->id : $row->id;
@@ -413,7 +416,6 @@ class Grn extends MY_Controller{
             $row->qty                   = $item->quantity;
 			$row->base_quantity         = $item->quantity;
             $row->quantity_balance      = $item->quantity;
-            
             $tax                        = $this->siteprocurment->getTaxRateByID($item->item_tax_method);
             $row->tax_rate_val          = $tax->rate;
             $row->item_selling_price    = $item->selling_price;
@@ -440,6 +442,7 @@ class Grn extends MY_Controller{
 			$row->invoice_date			= $item->invoice_date;
 			$row->tax_rate_id			= $item->tax_rate_id;
 		    $row->uniqueid			    = $item->pi_uniqueId;
+			$row->parent_stock_unique_id = $item->parent_stock_unique_id;
             $options                    = $this->grn_model->getProductOptions($row->id);
             $units                      = $this->siteprocurment->getUnitsByBUID($row->base_unit);
             $ri                         = $this->Settings->item_addition ? $row->id : $row->id;

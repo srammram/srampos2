@@ -6029,30 +6029,99 @@ public function getWastageItemReports($start,$end,$warehouse_id,$varient_id,$lim
         }        
         return FALSE;   
     }  
+	
+		
+		
+		
+		
+public function getItemWiseYieldReports($start,$end,$warehouse_id,$varient_id,$limit,$offset,$report_view_access,$report_show,$category_id,$subcategory_id,$product_id){
+		$where ='';
+        if($warehouse_id != 0){
+            $where = "AND W.store_id =".$warehouse_id."";
+        }
+		if($varient_id != 0){
+            $where .= "AND WI.variant_id =".$varient_id."";
+        }
+        if($product_id != 0){
+            $where .= "AND WI.product_id =".$recipe_id."";
+        }
+      
+        if($category_id != 0){
+            $where .= " AND R.category_id =".$category_id."";
+        }
+        if($subcategory_id != 0){
+            $where .= " AND R.subcategory_id =".$subcategory_id."";
+        }
+        $category = "SELECT RC.id AS cate_id,RC.name as category
+        FROM " . $this->db->dbprefix('recipe_categories') . " RC
+        JOIN " . $this->db->dbprefix('recipe') . " R ON  R.category_id = RC.id
+        JOIN " . $this->db->dbprefix('wastage_items') . " WI ON WI.product_id = R.id
+        JOIN " . $this->db->dbprefix('wastage') . " W ON W.id = WI.wastage_id        
+        WHERE DATE(W.date) BETWEEN '".$start."' AND '".$end."' AND
+        W.status ='approved' ".$where." GROUP BY RC.id";
 
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+        $limit_q = " limit $offset,$limit";
+        $total = $this->db->query($category);
+	
+        if($limit!=0) $category .=$limit_q;
+        $t = $this->db->query($category);
+        if ($t->num_rows() > 0) {
+            foreach ($t->result() as $row) {
+                $this->db->select("recipe_categories.id AS sub_id,recipe_categories.name AS sub_category")
+                ->join('recipe', 'recipe.subcategory_id = recipe_categories.id')
+                ->join('wastage_items', 'wastage_items.product_id = recipe.id')
+                ->join('wastage', 'wastage.id = wastage_items.wastage_id')
+                ->where('wastage.status', 'approved')
+                ->where('DATE('. $this->db->dbprefix('wastage') .'.date) BETWEEN "' . $start . '" and "' . $end.'"')
+                ->where('recipe.category_id', $row->cate_id);
+               
+				if($varient_id != 0){
+						$where .= "AND WI.variant_id =".$varient_id."";
+					}
+				if($product_id != 0){
+						$where .= "AND WI.product_id =".$recipe_id."";
+				}
+                $this->db->group_by('recipe.subcategory_id');
+                $s = $this->db->get('recipe_categories');
+				//echo $this->db->last_query();
+            if ($s->num_rows() > 0) {
+                foreach ($s->result() as $sow) {
+                    $where = '';
+					if($varient_id != 0){
+						$where .= "AND WI.variant_id =".$varient_id."";
+					}
+					if($product_id != 0){
+						$where .= "AND WI.product_id =".$recipe_id."";
+					}
+                   $myQuery = "SELECT WI.unit_price AS rate,WH.name as warehouse,R.name,CASE WHEN RV.name  is NOT NULL THEN RV.name ELSE 'No Variant' END AS variant,W.type,U.name as unit_name,
+				   sum(WI.net_amount) w_price, sum(WI.wastage_qty) w_qty
+					FROM " . $this->db->dbprefix('wastage_items') . " WI
+					JOIN " . $this->db->dbprefix('recipe') . " R ON R.id = WI.product_id
+					JOIN " . $this->db->dbprefix('wastage') . " W ON W.id = WI.wastage_id
+					JOIN " . $this->db->dbprefix('warehouses') . " WH ON WH.id = WI.store_id
+				
+					JOIN " . $this->db->dbprefix('units') . " U ON U.id = r.purchase_unit
+					LEFT JOIN " . $this->db->dbprefix('recipe_variants') . " RV ON RV.id = WI.variant_id
+					WHERE DATE(W.date) BETWEEN '".$start."' AND '".$end."' AND   W.status ='approved'" .$where. " GROUP BY R.id,WI.variant_id,WI.brand_id,W.type" ;
+                    $o = $this->db->query($myQuery);
+				
+                        $split[$row->cate_id][] = $sow;
+                        if ($o->num_rows() > 0) {                     foreach($o->result() as $oow){
+                                $order[$sow->sub_id][] = $oow;
+                            }
+                        }
+                        $sow->order = $order[$sow->sub_id];                   
+						}                    
+                        $row->split_order = $split[$row->cate_id];
+						}else{
+						$row->split_order = array();
+						}                
+						$data[] = $row;
+            }
+            return array('data'=>$data,'total'=>$total->num_rows());
+        }        
+        return FALSE;   
+    }  
 		
       
 }

@@ -119,6 +119,7 @@ class Grn_model extends CI_Model{
 					$stock_update['expiry_type']   = $item['expiry_type'];
 					$stock_update['invoice_date']  = $data['invoice_date'];
 					$stock_update['supplier_id']   = $data['supplier_id'];
+					$stock_update['parent_unique_id']   = $item['parent_stock_unique_id'];
 					if($item['expiry_type']=='days'){
 					$stock_update['expiry_date'] = date('Y-m-d', strtotime("+".$data['expiry']." day"));
 					}else if($item['expiry_type']=='months'){
@@ -129,9 +130,10 @@ class Grn_model extends CI_Model{
 					$stock_update['unique_id'] = $item['pi_uniqueId'];
 					$category_mappingID=$this->siteprocurment->item_cost_update_new($stock_update);
 					$stock_update['cm_id']     = $category_mappingID ? $category_mappingID :0;
-				  
-					$this->stock_master_update($stock_update);
-								
+					$stock_id=$this->stock_master_update($stock_update);
+					if(!empty($stock_id) && !empty($stock_update['parent_unique_id']))	{
+								$this->negative_stock_balancing($stock_update['parent_unique_id'],$stock_id);
+					}
 					
 	            }
             }
@@ -147,6 +149,23 @@ class Grn_model extends CI_Model{
         }
         return false;
     }
+	}
+	
+	function negative_stock_balancing($old_stockId,$new_stockId){
+		$oq=$this->db->get_where("pro_stock_master",array("unique_id"=>$old_stockId));
+		
+		$nq=$this->db->get_where("pro_stock_master",array("unique_id"=>$new_stockId));
+		if($oq->num_row()>0){
+			
+			
+		}
+		if($nq->num_row()>0){
+			
+			
+		}
+		
+		
+		
 	}
 	function getGRNById($id){
 		$this->db->select("pro_grn.*");
@@ -367,11 +386,12 @@ class Grn_model extends CI_Model{
 			$insertID                  = $this->db->insert_id();
 			$UniqueID                  = $this->site->generateUniqueTableID($insertID);
 			$this->site->updateUniqueTableId($insertID,$UniqueID,'pro_stock_master');
-			$return_id = $this->db->insert_id();
+			$stock_id = $this->db->insert_id();
 		}
 		if($this->isStore){
 			$this->sync_center->sync_stock_auto($stock_update['unique_id']);
 		}
+		return $stock_id;
     }
     
 

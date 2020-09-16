@@ -22,7 +22,6 @@ class Wastage_model extends CI_Model{
 						if ($item_d_insert_id) {
 							$this->site->updateUniqueTableId($item_d_insert_id,$id_unique_id,'wastage_items');
 								if($data['status']=="approved"){
-									
 								    $this->TransferStockOut($batch['wastage_unit_qty'],$batch['stock_id']);  
 							}
 						}

@@ -6408,7 +6408,60 @@ GROUP BY B.id, PD.identify*/
    
    
    
+   function yields(){        
+        $this->sma->checkPermissions();
+        $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
+        $this->data['users'] = $this->reports_model->getStaff();
+        $this->data['warehouses'] = $this->site->getAllWarehouses();
+        $this->data['categories'] = $this->site->getAllrecipeCategories();        
+        $this->data['sub_categories'] = $this->site->getAllrecipe_subCategories();
+        $this->data['recipes'] = $this->reports_model->getItems();
+        $this->data['billers'] = $this->site->getAllCompanies('biller');
+		$this->data['varients'] = $this->recipe_model->getAllvarients();
+        $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('reports'), 'page' => lang('reports')), array('link' => '#', 'page' => lang('yields_report')));
+        $meta = array('page_title' => lang('yields_report'), 'bc' => $bc);
+        
+        $this->page_construct('reports/yield', $meta, $this->data);
+    }
    
+
+   public function get_ItemwiseYieldReport($start_date = NULL, $end_date = NULL, $warehouse_id = NULL, $varient_id = NULL){
+
+        $this->sma->checkPermissions('recipe',TRUE);        
+        $start 			= $this->input->post('start_date');
+        $end 			= $this->input->post('end_date');
+        $warehouse_id 	= $this->input->post('warehouse_id');
+        $varient_id 	= $this->input->post('varient_id');
+        $category_id 	= $this->input->post('category_id');
+        $subcategory_id = $this->input->post('subcategory_id');
+		$recipe_id      = $this->input->post('recipe_id');
+        $limit          = $this->input->post('pagelimit');    
+        $offsetSegment  = 4;
+        $offset = $this->uri->segment($offsetSegment,0);
+        $this->session->set_userdata('start_date', $this->input->post('start_date'));
+        $this->session->set_userdata('end_date', $this->input->post('end_date'));
+
+        $data= '';
+        if ($start != '' && $end != '') {
+            $data = $this->reports_model->getItemWiseYieldReports($start,$end,$warehouse_id,$varient_id,$limit,$offset,$this->report_view_access,$this->report_show,$category_id,$subcategory_id,$recipe_id);
+            $round_tot = $this->reports_model->getRoundamount($start,$end,$warehouse_id);
+			
+		
+             if (!empty($data['data'])) {                 
+                 $wastageReport = $data['data'];
+             }
+             else{                
+                $wastageReport = 'empty';
+             }
+             
+        }
+        else{
+            $wastageReport = 'error';
+        }
+        $total = $data['total'];
+        $pagination = $this->pagination('reports/get_itemreports',$limit,$offsetSegment,$total);
+        $this->sma->send_json(array('wastageReport' => $wastageReport,'pagination'=>$pagination));
+   } 
    
    
    

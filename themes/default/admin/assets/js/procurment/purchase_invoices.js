@@ -1176,6 +1176,7 @@ function loadItems() {
             }
           //  var newTr = $('<tr id="row_' + row_no + '" class="row_' + item_id + '" data-item-id="' + item_id +'_'+$store_id+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id + '_'+item.row.variant_id + '"></tr>');
 			tr_html = '<td class="text-center">' + $i + '</td>';
+			console.log("variant"+item.row.variant_id);
 			
 			$variant_id=(item.row.variant_id ==undefined)?0:item.row.variant_id;
 			 var newTr = $('<tr id="row_' + row_no + '" class="row_' + item_id + '" data-item-id="' + item_id +'_'+$store_id+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id + '_'+$variant_id + '"></tr>');
@@ -1260,8 +1261,8 @@ function loadItems() {
             tr_html += '<td class="text-right"><input  type="hidden" class="form-control text-right input-sm subtotal" name="subtotal[]" value="'+ format2Decimals(((parseFloat(unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt))) +  '"  id="subtotal_' + row_no + '" ><span class="text-right rsubtotal" id="ru_subtotal_' + row_no + '">' + format2Decimals(((parseFloat(unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt))) + '</span></td>';
 
             tr_html += '<td class="text-right"><input class="form-control text-right rubilldis" readonly tabindex=-1 id="ru_billdis_' + row_no + '" name="item_bill_disc_amt[]" value="' + format2Decimals(item_bill_dis) + '" style="width:100px!important"></td>';
-
-			tr_html += '<td class="text-right"><input  type="hidden" class="form-control text-right input-sm real_unit_price" name="total[]" value="'+ formatDecimal(((parseFloat(unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis))) +  '"  id="real_unit_price_' + row_no + '" ><span class="text-right ssubtotal" id="subtotal_' + row_no + '">' + formatDecimal(((parseFloat(unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis))) + ' </span></td>';
+             $parent_stock_unique_id=(item.row.parent_stock_unique_id)?item.row.parent_stock_unique_id:"";
+			tr_html += '<td class="text-right"><input  type="hidden" class="form-control text-right input-sm real_unit_price" name="total[]" value="'+ formatDecimal(((parseFloat(unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis))) +  '"  id="real_unit_price_' + row_no + '" ><span class="text-right ssubtotal" id="subtotal_' + row_no + '">' + formatDecimal(((parseFloat(unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis))) + ' </span><input type="hidden" name="parent_stock_unique_id[]" value="'+$parent_stock_unique_id+'"></td>';
 
 			if(item_tax_method == 1) {
 				selected_taxincl = "";

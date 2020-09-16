@@ -320,6 +320,7 @@ class Purchase_invoices_model extends CI_Model{
 				$cp = str_replace('.','_',$item['cost']);
 				$item['pi_uniqueId']=$item['store_id'].$item['product_id'].$item['variant_id'].$item['batch_no'].$item['category_id'].$item['subcategory_id'].$item['brand_id'].$cp.$data['supplier_id'].$UniqueID;
                 $this->db->insert('pro_purchase_invoice_items', $item);
+				
             }		
 			
 			if($this->isStore && $data['status']=="approved"){	

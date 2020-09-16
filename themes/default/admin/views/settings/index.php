@@ -1233,6 +1233,7 @@
                                 <?= form_input('bc_fix', $Settings->bc_fix, 'class="form-control tip" required="required" id="bc_fix"'); ?>
                             </div>
                         </div>
+						
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label class="control-label"
@@ -1265,6 +1266,12 @@
                                     echo form_dropdown('customer_discount_request', $ps, $Settings->customer_discount_request, 'id="customer_discount_request" class="form-control tip" required="required" style="width:100%;"');
                                     ?>
                                 </div>
+                            </div>
+                        </div>
+						 <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="control-label" for="nscf"><?= lang("negative_stock_carry_forward"); ?></label>
+                                <?= form_input('nscf', $Settings->negative_stock_carry_forward, 'class="form-control tip" required="required" id="nscf"'); ?>
                             </div>
                         </div>
                         <div class="col-md-4">

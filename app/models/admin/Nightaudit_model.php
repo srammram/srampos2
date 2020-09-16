@@ -1,29 +1,21 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Nightaudit_model extends CI_Model
-{
-
+class Nightaudit_model extends CI_Model{
     public function __construct()
     {
         parent::__construct();
     }
-
-	
 	public function getDataviewSales($dates = NULL, $warehouses_id = NULL){
-		
-		
 		if(!empty($dates)){
 			$current_date = $dates;
 		}else{
 			$current_date = date('Y-m-d');
 		}
-		
 		if(!empty($warehouses_id)){
 			$warehouses = $warehouses_id;
 		}else{
 			$warehouses = 1;
 		}
-		
 		$this->db->select("grand_total, sale_status");
 		$this->db->where('DATE(date)', $current_date);
 		$this->db->where('warehouse_id', $warehouses);
@@ -86,21 +78,15 @@ class Nightaudit_model extends CI_Model
         return false;
 	}
     function Check_Not_Closed_Nightaudit(){
-
     	$Max_Date  = "SELECT DISTINCT  max(nightaudit_date)  AS lastdate 
 		FROM " . $this->db->dbprefix('nightaudit') . " ";
-
 		$MaxDate = $this->db->query($Max_Date);	
-
 		 if ($MaxDate->num_rows() > 0) {		 	 
             foreach (($MaxDate->result()) as $row) {
                 $lastdate = $row->lastdate;   
             }            
         }
-
-        
-        if(isset($lastdate))
-        {
+        if(isset($lastdate)){
 			$Miss_dates = "SELECT * FROM
 				(
 				SELECT DATE_ADD('".$lastdate."', INTERVAL t4+t16+t64+t256+t1024 DAY) missingDates 
@@ -195,4 +181,66 @@ class Nightaudit_model extends CI_Model
         }
         return FALSE;
     }
+	
+	public function getNegativeStock(){
+		$query=('SELECT '.$this->db->dbprefix('pro_stock_master') .'.*, `r`.`name` AS `productname`, `b`.`name` AS `brand_name`, `rc`.`name` AS `category_name`, `rsc`.`name` AS `subcategory_name`, `rv`.`name` AS `variant`, `u`.`name` AS `p_uom`, `b`.`name` AS `brand`,
+		CASE 
+			WHEN `u`.`operator` ="*" THEN '.$this->db->dbprefix('pro_stock_master').'.`stock_in`/`u`.`operation_value`
+			WHEN `u`.`operator` ="/" THEN '.$this->db->dbprefix('pro_stock_master').'.`stock_in`*`u`.`operation_value`
+			WHEN `u`.`operator` ="+" THEN '.$this->db->dbprefix('pro_stock_master').'.`stock_in`-`u`.`operation_value`
+			WHEN `u`.`operator` ="-" THEN '.$this->db->dbprefix('pro_stock_master').'.`stock_in`+`u`.`operation_value`
+			ELSE '.$this->db->dbprefix('pro_stock_master').'.`stock_in` END AS `stock` 
+			FROM '.$this->db->dbprefix('pro_stock_master').'
+			LEFT JOIN '.$this->db->dbprefix('recipe_categories').' `rc` ON `rc`.`id`='.$this->db->dbprefix('pro_stock_master').'.`category_id`
+			LEFT JOIN '.$this->db->dbprefix('recipe_categories').'`rsc` ON `rsc`.`id`='.$this->db->dbprefix('pro_stock_master').'.`subcategory_id` 
+			LEFT JOIN '.$this->db->dbprefix('brands').'  `b` ON `b`.`id`='.$this->db->dbprefix('pro_stock_master').'.`brand_id`
+			LEFT JOIN '.$this->db->dbprefix('recipe_variants').' `rv` ON `rv`.`id`='.$this->db->dbprefix('pro_stock_master').'.`variant_id` LEFT JOIN `srampos_recipe` `r` ON `r`.`id`='.$this->db->dbprefix('pro_stock_master').'.`product_id` 
+			LEFT JOIN '.$this->db->dbprefix('units').'  `u` ON `u`.`id`=`r`.`purchase_unit` WHERE `store_id` = '.$this->store_id
+			.' AND '."(".'`expiry_date` <= '.'"'.date("Y-m-d").'"'.' or `expiry_date` IS NULL '.")".'and `stock_in` <0');
+		$q=$this->db->query($query);
+	
+		if($q->num_rows()>0){
+		      foreach($q->result() as $row)	{
+				  $data[]=$row;
+			  }
+			return $data;
+			
+		}
+		return  false;
+	}
+   public function carryForward($stockId){
+	   $carry_forward_days=($this->Settings->negative_stock_carry_forward)?$this->Settings->negative_stock_carry_forward:1;
+	   $carry_fordward_date=date('Y-m-d', strtotime($dates . ' '.$carry_forward_days.' day'));
+	   $this->db->where("unique_id",$stockId);
+	   if($this->db->update("pro_stock_master",array("expiry_date"=>$carry_fordward_date))){
+		   return true;
+	   }else{
+		   return false;
+	   }
+	   
+   }
+  public function getStockDetails($stockid){
+	  $q=$this->db->get_where("pro_stock_master",array("unique_id"=>$stockid));
+	  if($q->num_rows()>0){
+		  return $q->row();
+	  }
+	  return false;
+  }
+    public function generateInvoiceGenerate($data,$item){
+		if ($this->db->insert('pro_purchase_invoices', $data)) {
+            $id = $this->db->insert_id();
+			$UniqueID                  = $this->site->generateUniqueTableID($id);
+			$this->site->updateUniqueTableId($id,$UniqueID,'pro_purchase_invoices');
+                /*** insert invoice items **/
+				$item['invoice_id'] = $UniqueID;
+				$cp = str_replace('.','_',$item['cost']);
+                $this->db->insert('pro_purchase_invoice_items', $item);
+       
+            return true;
+        }
+        return false;
+		
+		
+		
+	}
 }

@@ -32,22 +32,19 @@ class Nightaudit extends MY_Controller
 	$this->sma->checkPermissions();
 		$this->session->userdata('user_id');		
 		$id = $this->session->userdata('user_id');
-
      	$dates = $this->input->get('dates');  
 		$warehouses_id = $this->input->get('warehouses_id');
-        $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('nightaudit'), 'page' => lang('night_audit')), array('link' => '#', 'page' => lang('night_audit')));
-        $meta = array('page_title' => lang('night_audit'), 'bc' => $bc);
-		$warehouses = $this->site->getAllWarehouses();
-		$this->data['sales'] = $this->nightaudit_model->getDataviewSales($dates, $warehouses_id); 
-		$this->data['status'] = $this->nightaudit_model->checkNightaudit($dates, $warehouses_id);
-		$this->data['dates'] = $this->nightaudit_model->Check_Not_Closed_Nightaudit();
+		$warehouses              = $this->site->getAllWarehouses();
+		$this->data['sales']     = $this->nightaudit_model->getDataviewSales($dates, $warehouses_id); 
+		$this->data['status']    = $this->nightaudit_model->checkNightaudit($dates, $warehouses_id);
+		$this->data['dates']     = $this->nightaudit_model->Check_Not_Closed_Nightaudit();
 		$this->data['last_date'] = $this->nightaudit_model->Last_Nightaudit();
-		$group_id = $this->nightaudit_model->getUserGroupid($id);
-
+		$this->data['negative_stock'] = $this->nightaudit_model->getNegativeStock();
+		$group_id 				 = $this->nightaudit_model->getUserGroupid($id);
 		$this->data['p'] = $this->nightaudit_model->getGroupPermissions($group_id->group_id);
-						
 		$this->data['warehouses'] = $warehouses;
-		
+		$bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('nightaudit'), 'page' => lang('night_audit')), array('link' => '#', 'page' => lang('night_audit')));
+        $meta = array('page_title' => lang('night_audit'), 'bc' => $bc);
         $this->page_construct('nightaudit', $meta, $this->data);
     }
 	
@@ -123,5 +120,92 @@ class Nightaudit extends MY_Controller
             admin_redirect('nightaudit');
 		}
 	}
-
+	public function carry_forward($stock_id){
+		if ($this->nightaudit_model->carryForward($stock_id)) {
+            $this->session->set_flashdata('message', lang("Stock Carry Forward Done"));
+            admin_redirect('nightaudit');
+        } else {
+			$this->session->set_flashdata('error', lang("Unable to Do Carry Forward"));
+            admin_redirect('nightaudit');
+		}
+	}
+   public function stock_request($stockId){
+	   
+	   
+	   
+	   
+   }
+   
+   
+   public function purchase_invoices_generate($stock_id){
+	   $stock=$this->nightaudit_model->getStockDetails($stock_id);
+	    $n = $this->siteprocurment->lastidPurchaseInv();
+	    $n=($n !=0)?$n+1:$this->store_id .'1';
+	    $reference = 'PI'.str_pad($n , 8, 0, STR_PAD_LEFT);
+		$date=date('Y-m-d H:i:s');
+	   $data = array(
+            'reference_no' => $reference,
+            'date' => $date,
+			'store_id'=>$this->store_id,
+            'invoice_no' =>strtotime() ,
+            'invoice_date' =>  $date,
+            'note' => "Invoice Generate from night audit",
+            'tax_method' =>1,
+            'status' => "process",
+            'no_of_items' =>1,
+            'no_of_qty' => 1,
+            'created_by' => $this->session->userdata('user_id'),
+            'created_on' => date('Y-m-d H:i:s'),
+            'processed_by' => $this->session->userdata('user_id'),
+            'processed_on' => date('Y-m-d H:i:s'),
+            );
+			$row = $this->siteprocurment->getItemByID($stock->product_id);
+            $unit = $this->siteprocurment->getUnitByID($row->unit);   
+            if($unit->name){
+                $row->unit_name = $unit->name;
+            }else{
+                $row->unit_name = '';
+            }
+               if($row->type=="raw"|| $row->type=="semi_finished"){
+				   $cm=$this->site->getSaleCategory_mapping($row->id);
+				   $row->brand=$cm->brand_id;
+				   $row->category_id=$cm->category_id;
+				   $row->subcategory_id=$cm->subcategory_id;
+			   }
+				$brand=$this->site->getBrandByID($row->brand);
+				$category=$this->site->getrecipeCategoryByID($row->category_id);
+				$subcategory=$this->site->getrecipeCategoryByID($row->subcategory_id);
+				$unit = $this->site->getUnitByID($row->purchase_unit);
+				$product_unit_code=$unit->code;
+		        $items['store_id']     = $this->store_id;
+                $items['product_id']   = $row->id;
+				$items['variant_id']   = $stock->variant_id;
+				$items['product_code'] = $row->code;
+				$items['product_name'] = $row->name;
+				$items['quantity']     = $this->site->baseToUnitQty(abs($stock->stock_in),$unit->operator,$unit->operation_value);
+				$items['po_qty']       = 0;
+				$items['batch_no']     ="";
+				$items['expiry']       = $row->expiry;
+				$items['expiry_type']  = $row->type_expiry;
+				$items['cost']         = $row->cost;
+				$items['category_id'] = $row->category_id;
+				$items['category_name'] = $category->name;
+				$items['subcategory_id'] =$row->subcategory_id;
+				$items['subcategory_name'] = $subcategory->name;
+                $items['brand_id'] = $row->brand;
+				$items['brand_name'] = $brand->name;
+				$items['product_unit_code'] = $product_unit_code;
+				$items['unit_quantity'] = abs($stock->stock_in);
+				$items['product_unit_id'] = $row->purchase_unit;
+				$items['parent_stock_unique_id'] = $stock_id;
+				
+	   if ($this->nightaudit_model->generateInvoiceGenerate($data,$items)) {
+            $this->session->set_flashdata('message', lang("Purchase Invoice Added"));
+            admin_redirect('nightaudit');
+        } else {
+			$this->session->set_flashdata('error', lang("Unable to Do Purchase Invoice"));
+            admin_redirect('nightaudit');
+		}
+	   
+   }
 }

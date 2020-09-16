@@ -75,6 +75,77 @@
                          </div> 
                          
                     </div>
+					
+					
+					<div class="negative_stock" style="margin-top:72px;">
+                        <div class="col-md-12" id="negative_stock_table">
+                        <table class="table" >
+                            <thead>
+                                <tr>
+									<th>S.NO</th>
+                                    <th>Item Name</th>
+                                    <th>Variant</th>
+									<th>Catgeory</th>
+									<th>Subcategory</th>
+									<th>Brand</th>
+									<th>Stock</th>
+									<th>Purhase UOM</th>
+									<th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                               <?php  $i=1; if(!empty($negative_stock)){  foreach($negative_stock as $row){  ?>
+							   <tr>
+							     <td><?php   echo $i;  ?></td>
+							   <td><?php   echo $row->productname;  ?></td>
+							   <td><?php   echo $row->variant;  ?></td>
+							   <td><?php   echo $row->category_name;  ?></td>
+							   <td><?php   echo $row->subcategory_name;  ?></td>
+							   <td><?php   echo $row->brand;  ?></td>
+							   <td><?php   echo $this->sma->formatDecimal($row->stock,4);  ?></td>
+							   <td><?php   echo $row->p_uom;  ?></td>
+							   <td><div class="text-center"><div class="btn-group text-left"><button type="button" class="btn btn-default btn-xs btn-primary dropdown-toggle" data-toggle="dropdown"> Actions <span class="caret"></span></button>
+							<ul class="dropdown-menu pull-right" role="menu">
+							<li><?php echo  anchor('admin/nightaudit/carry_forward/'.$row->unique_id.'', '<i class="fa fa-file-text-o"></i> ' . lang('Carry_Forward'));  ?></li>
+							<li><?php echo  anchor('admin/nightaudit/Stock_request/'.$row->unique_id.'', '<i class="fa fa-file-text-o"></i> ' . lang('Stock_Request'));  ?></li>
+							<li><?php echo  anchor('admin/nightaudit/purchase_invoices_generate/'.$row->unique_id.'', '<i class="fa fa-file-text-o"></i> ' . lang('Purchase_Invoice_Generate'));  ?></li>						<li class="divider"></li>
+            </ul>
+        </div></div></td>
+							  </tr>
+							   <?php $i++; }  }else{  ?>
+							   <tr><td colspan="7"></td></tr>
+							   
+							   <?php   }?>
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
+					
                     <?php  
                                        
                     if((!empty($p)) && ($p->blind_night_audit == 0))  {
