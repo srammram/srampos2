@@ -198,9 +198,7 @@ class Reports_model extends CI_Model{
         return FALSE;
     }
 
- public function getDaysreport($start,$end,$warehouse_id,$day,$defalut_currency,$limit,$offset)
-    {  
-
+ public function getDaysreport($start,$end,$warehouse_id,$day,$defalut_currency,$limit,$offset){
         $where ='';
         if($warehouse_id != 0)
         {

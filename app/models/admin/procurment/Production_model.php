@@ -6,7 +6,7 @@ class Production_model extends CI_Model{
         parent::__construct();
     }
 
-    public function addProduction($data = array(), $items = array()){
+   public function addProduction($data = array(), $items = array()){
 		$this->db->insert('pro_production', $data);
 		$production_id = $this->db->insert_id();   
 			if($production_id){    		
@@ -30,7 +30,6 @@ class Production_model extends CI_Model{
 					}				
 				}
 			} 
-			
 		return true;
     }
 	
@@ -45,16 +44,16 @@ class Production_model extends CI_Model{
 					if($data['status']=='approved'){
 						 $cate['category_id'] = $item['category_id'];
 						 $cate['subcategory_id'] = $item['subcategory_id'];
-						 $cate['brand_id'] = $item['brand_id'];
-						 $cate['store_id'] = $item['store_id'];
-						 $cate['product_id'] = $item['product_id'];
+						 $cate['brand_id']       = $item['brand_id'];
+						 $cate['store_id']       = $item['store_id'];
+						 $cate['product_id']     = $item['product_id'];
 						 $cate['vendor_id']      = 0;
 						 $cate['invoice_id']     = 0;
 						 $cate['pieces_selling_price'] = 0;
 						 $cate['selling_price']      = 0;
 						 // Ingredient stock out
 						$cate['purchase_cost']= $this->productionStockOut($item['product_id'],$item['variant_id'],$item['quantity'],$item['base_quantity'],$item['uom']);
-						die;
+						
 						// ProductionItem Stock In
 						$this->updateStockMaster_new($item['product_id'],$item['variant_id'],$item['base_quantity'],$cate); 
 					}				
@@ -81,16 +80,17 @@ class Production_model extends CI_Model{
 			if($rp_items->num_rows()>0){
 				foreach($rp_items->result() as $row){
 						if($rp_details->uom ==$item_uom){
-							$rp_detailsUnits=$this->site->getUnitByID($row->unit_id);
-							$rp_details_BU=($quantity*$this->site->unitToBaseQty($row->quantity,$rp_detailsUnits->operator,$rp_detailsUnits->operation_value));
-							$r_cost=$this->productionItemStockout($row->product_id,$row->variant_id,$row->category_id,$row->sub_category_id,$row->brand_id,$rp_details_BU); 
+							$rp_detailsUnits = $this->site->getUnitByID($row->unit_id);
+							$rp_details_BU   = ($quantity*$row->quantity);
+							$r_cost          = $this->productionItemStockout($row->product_id,$row->variant_id,$row->category_id,$row->sub_category_id,$row->brand_id,$rp_details_BU); 
 							 //$cost +=$cost*$rp_details_BU;
 							 $cost +=$r_cost;
+							 
 						}else{
 							$rp_detailsUnits=$this->site->getUnitByID($row->unit_id);
 							$rp_details_BU=($quantity*$this->unitToBaseUnit($row->quantity,$rp_detailsUnits->operator,$rp_detailsUnits->operation_value));
 							$r_cost=$this->productionItemStockout($row->product_id,$row->variant_id,$row->category_id,$row->sub_category_id,$row->brand_id,$rp_details_BU);     
-							 $cost +=$r_cost;
+							$cost +=$r_cost;
 						}
 				}	
                 return $cost;				
@@ -100,7 +100,6 @@ class Production_model extends CI_Model{
 	}
 	function productionItemStockout($product_id,$variant_id,$category_id,$subcategory_id,$brand_id,$base_quantity){
 		$batches=$this->getBatchwisestock($product_id,$variant_id,$category_id,$subcategory_id,$brand_id);
-		
 		foreach($batches as $batch){
 			//print_r($batch);
 			if($batch->stock_in>0){
@@ -110,14 +109,11 @@ class Production_model extends CI_Model{
                 $this->db->query($query); 
 				$base_quantity =$base_quantity-$batch->stock_in;
 				$stock=$this->db->get_where("pro_stock_master",array("id"=>$batch->id))->row();
-				
-				
 				}else{
 					$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$base_quantity.',  stock_out = stock_out + '.$base_quantity.' where store_id='.$this->store_id.' and id='.$batch->id;
                     $this->db->query($query); 
 					$stock=$this->db->get_where("pro_stock_master",array("id"=>$batch->id))->row();
 					 $recipe_cost=$stock->cost_price;
-					
 					break;
 				}
 			}
@@ -144,7 +140,7 @@ class Production_model extends CI_Model{
 	$this->db->join('recipe_categories rsc','rsc.id=cm.subcategory_id','left');	
 	$this->db->join('brands b','b.id=r.brand','left');
 	$this->db->join('tax_rates t','r.purchase_tax=t.id','left');
-        $this->db->where("(r.name LIKE '%" . $term . "%' OR r.code LIKE '%" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '%" . $term . "%')");
+    $this->db->where("(r.name LIKE '%" . $term . "%' OR r.code LIKE '%" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '%" . $term . "%')");
         $this->db->where_in('r.type',$type);
 		$this->db->limit($limit);
         $q = $this->db->get();
@@ -208,7 +204,6 @@ function getAllProductionItemsWithDetails($p_id){
 	$this->db->join('recipe_categories rsc','rsc.id=cm.subcategory_id','left');	
 	$this->db->join('brands b','b.id=cm.brand_id','left');
 	$this->db->join('tax_rates t','r.purchase_tax=t.id','left');
-   // $this->db->where("(r.name LIKE '%" . $term . "%' OR r.code LIKE '%" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '%" . $term . "%')");
     //$this->db->where_in('r.type',$type);
     $this->db->where(array('p.production_id' => $p_id));
     $this->db->order_by('p.id', 'asc');
@@ -227,7 +222,6 @@ function getAllProductionItemsWithDetails($p_id){
 	    $this->db->join('recipe as r', 'r.id=p.product_id', 'left');
         $this->db->order_by('id', 'asc');
         $this->db->where(array('production_id' => $p_id));
-	//echo $this->db->get_compiled_select();
 	    $q = $this->db->get();
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -236,23 +230,19 @@ function getAllProductionItemsWithDetails($p_id){
             return $data;
         }
     }
-    public function updateProduction($id, $data, $items = array()){
-	//echo "<pre>";print_r($items);die;
-            if ($this->db->update('pro_production', $data, array('id' => $id)) && $this->db->delete('pro_production_items', array('production_id' => $id))) {
+   public function updateProduction($id, $data, $items = array()){
+     if ($this->db->update('pro_production', $data, array('id' => $id)) && $this->db->delete('pro_production_items', array('production_id' => $id))) {
             foreach ($items as $item) {
                 $item['production_id'] = $id;
                 $this->db->insert('pro_production_items', $item);
-		    if($data['status']=='approved'){
-		    $cate['category_id'] = $item['category_id'];
-		    $cate['subcategory_id'] = $item['subcategory_id'];
-		    $cate['brand_id'] = $item['brand_id'];
-		  
-		    //$category_mappingID = $this->siteprocurment->getCategoryMappingID($item['product_id'],$item['category_id'],$item['subcategory_id'],$item['brand_id']);
-		    $this->siteprocurment->production_salestock_out($item['product_id'],$item['base_quantity'],$item['variant_id']);
-		    //$this->site->production_salestock_out($item['product_id'],$item['quantity']);
-		    $this->siteprocurment->product_stockIn($item['product_id'],$item['base_quantity'],$cate);
-		    $this->updateStockMaster($item['product_id'],$item['base_quantity'],$cate); // ,$category_mappingID);
-		}
+				if($data['status']=='approved'){
+						$cate['category_id'] = $item['category_id'];
+						$cate['subcategory_id'] = $item['subcategory_id'];
+						$cate['brand_id'] = $item['brand_id'];
+						$this->siteprocurment->production_salestock_out($item['product_id'],$item['base_quantity'],$item['variant_id']);
+						$this->siteprocurment->product_stockIn($item['product_id'],$item['base_quantity'],$cate);
+						$this->updateStockMaster($item['product_id'],$item['base_quantity'],$cate); // ,$category_mappingID);
+		       }
             }
             return true;
         }
@@ -260,45 +250,32 @@ function getAllProductionItemsWithDetails($p_id){
     }
     function updateStockMaster($pro_id,$variant_id,$qty,$cate=null){	
 		$store_id = $this->session->userdata('warehouse_id');
-	
 		$date =date('Y-m-d h:m:s');
 			$q = $this->db->get_where('srampos_pro_stock_master', array('product_id' => $pro_id,'variant_id' => $variant_id));
-			//echo "string";die;
 			 if ($q->num_rows() > 0) {
 			 	$id = $q->row('id');
 				  	$query ='update srampos_pro_stock_master set stock_in = stock_in + '.$qty.' where store_id='.$store_id.' AND product_id='.$pro_id.' AND variant_id='.$variant_id.''; //  AND batch=IS NULL
 					$this->db->query($query);
-					
-			      }else{ 
-			   	// echo "string";die;
+			      }else{
 					$query ='insert into srampos_pro_stock_master(store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, stock_in, stock_out)values('.$store_id.','.$pro_id.','.$variant_id.', 0, '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', '.$qty.', 0)';
-					
 					$this->db->query($query);
-					//echo $this->db->last_query();
-					$id = $this->db->insert_id(); 
-					
-
+					$id = $this->db->insert_id();
 			  } 	
-		
-		//die;
-		// echo $this->db->last_query();die;
 		return true;
     }
 	
   function updateStockMaster_new($pro_id,$variant_id,$qty,$cate=null){	
-		$store_id   = $this->session->userdata('warehouse_id');
-	    $unique_id  = $store_id.$pro_id.$variant_id.$cate['category_id'].$cate['subcategory_id'].$cate['brand_id'].strtotime("now");
-		$date       =date('Y-m-d h:m:s');
-		$batch      =strtotime("now");
-		$cate['batch_no']=$batch;
-		$cate['unique_id']=$unique_id;
-		
-		$expiry=$this->site->getExpiryDate($pro_id);
-		$this->db->insert("category_mapping",$cate);
-		    $cm_id=$this->db->insert_id();
-
-			$UniqueID                  = $this->site->generateUniqueTableID($cm_id);
-			$this->site->updateUniqueTableId($cm_id,$UniqueID,'category_mapping');
+					$store_id             = $this->session->userdata('warehouse_id');
+					$unique_id            = $store_id.$pro_id.$variant_id.$cate['category_id'].$cate['subcategory_id'].$cate['brand_id'].strtotime("now");
+					$date                 = date('Y-m-d h:m:s');
+					$batch                = strtotime("now");
+					$cate['batch_no']     = $batch;
+					$cate['unique_id']    = $unique_id;
+					$expiry=$this->site->getExpiryDate($pro_id);
+					$this->db->insert("category_mapping",$cate);
+					$cm_id=$this->db->insert_id();
+		         	$UniqueID             = $this->site->generateUniqueTableID($cm_id);
+			        $this->site->updateUniqueTableId($cm_id,$UniqueID,'category_mapping');
 					$query ='insert into srampos_pro_stock_master(store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, stock_in, stock_out,unique_id,batch,cost_price,expiry_date,invoice_date,stock_status)values('.$store_id.','.$pro_id.','.$variant_id.', '.$cm_id.', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', '.$qty.', 0,'.$unique_id.','.$batch.','.$cate['purchase_cost'].','."'".$expiry."'".','."'".$date."'".',"available")';
 					$this->db->query($query);
 					$insertID                  = $this->db->insert_id();
@@ -314,20 +291,17 @@ function getAllProductionItemsWithDetails($p_id){
 		   $q = $this->get_recipe_products($product_id);		   
 			if($q->num_rows()>0){
 				foreach($q->result() as $k => $row){
-					 $cate['category_id'] = $row->category_id;
+					 $cate['category_id']    = $row->category_id;
 				     $cate['subcategory_id'] = $row->subcategory_id;
-				     $cate['brand_id'] = $row->brand_id;
-				     $cate['cm_id'] = $row->cm_id;
-						$mapped_item_qty = $stock_out_qty * $row->quantity;
-						$updated_stock = $this->productionupdateStockMaster($row->product_id,$mapped_item_qty,$cm_id,$cate);
+				     $cate['brand_id']       = $row->brand_id;
+				     $cate['cm_id']          = $row->cm_id;
+					 $mapped_item_qty     =  $stock_out_qty * $row->quantity;
+					 $updated_stock       = $this->productionupdateStockMaster($row->product_id,$mapped_item_qty,$cm_id,$cate);
 				}
 			}
 		}
 		
     }
-
-
-
     function productionupdateStockMaster($product_id,$stock_out,$cm_id,$cate){
 		$piece = $this->db->get_where('recipe', array('id' =>$product_id))->row('piece');
 		$store_id = $this->data['pos_store'];
@@ -374,13 +348,11 @@ function getAllProductionItemsWithDetails($p_id){
 		if($variant_id !='0'){
             $this->db->where('variant_id',$variant_id);
         }
-		 $this->db->where('stock_in>0');
-        //$this->db->where('variant_id',$variant_id);
+		$this->db->where('stock_in>0');
         $this->db->where_not_in('stock_status','closed');
         $this->db->group_by('id');
         $this->db->order_by('id', 'asc');
-        $q = $this->db->get(); 
-        
+        $q = $this->db->get();
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -389,10 +361,6 @@ function getAllProductionItemsWithDetails($p_id){
         }
         return array();
 
-     /*   if ($q->num_rows() > 0) {
-            return $q->result_array();
-        }
-        return FALSE;*/
 }
 	function unitToBaseUnit($qty,$operator,$operation_value) {
     switch($operator) {

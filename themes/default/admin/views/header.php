@@ -731,33 +731,48 @@
                                         </li>  
                                     </ul>
                                 </li>
-							                 <li class="mm_wastage_management">
+								
+								
+								
+								<li class="mm_wastage">
                                 <a class="dropmenu" href="#">
-                                    <i class="fa fa-bar-chart-o"></i>
-                                    <span class="text"> <?= lang('Wastage_management'); ?> </span>
+                                    <i class="fa fa-star"></i>
+                                    <span class="text"> <?= lang('Wastage'); ?> </span>
                                     <span class="chevron closed"></span>
                                 </a>
-                                <ul class="level-2-menu">                                    
-                                   
-                                    <li id="recipe_management_production">
-                                        <a class="dropmenu" href="javascript:void(0)">
-                                            <span class="text">  <?= lang('wastage'); ?> </span>
+                                <ul>
+                                    <li id="wastage_index">
+                                        <a class="submenu" href="<?= admin_url('wastage'); ?>">
+                                            <span class="text"> <?= lang('list'); ?></span>
                                         </a>
-                                        <ul class="level-3-menu">
-                                            <li id="recipe_management_production_index">
-                                                <a class="submenu" href="<?= admin_url('/wastage'); ?>">
-                                                    <span class="text"> <?= lang('list'); ?></span>
-                                                </a>
-                                            </li>
-                                            <li id="recipe_management_production_add">
-                                                <a class="submenu" href="<?= admin_url('/wastage/add'); ?>">
-                                                    <span class="text"> <?= lang('create'); ?></span>
-                                                </a>
-                                            </li>
-                                       </ul>
                                     </li>
-</ul>
-</li>
+                                    <li id="wastage_add">
+                                        <a class="submenu" href="<?= admin_url('wastage/add'); ?>">
+                                            <span class="text"> <?= lang('add'); ?></span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+						
                             <li class="mm_procurment">
                                 <a class="dropmenu" href="#">
                                     <i class="fa fa-bar-chart-o"></i>
@@ -1814,6 +1829,56 @@
                                         </ul>
                                     </li>
                                 <?php } ?>
+								
+								
+								
+								
+								     <li>
+                                        <a class="dropmenu" href="javascript:void(0)">
+                                            <span class="text">  <?= lang('Profit_&_loss'); ?> </span>
+                                            <!--<span class="chevron closed"></span>-->
+                                        </a>
+                                        <ul class="level-3-menu">
+                                            <li id="reports_feedback">
+                                                <a class="submenu" href="<?= admin_url('reports/wastage') ?>">
+                                                    <span class="text"> <?= lang('wastage'); ?></span>
+                                                </a>
+                                            </li> 
+											<li id="reports_feedback">
+                                                <a class="submenu" href="<?= admin_url('reports/yield') ?>">
+                                                    <span class="text"> <?= lang('yield'); ?></span>
+                                                </a>
+                                            </li> 
+                                        </ul>
+                                    </li>
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
+								
                                 <?php if($Owner || $Admin){ ?>
                                     <li>
                                         <a class="dropmenu" href="javascript:void(0)">
