@@ -236,14 +236,11 @@ class Wastage extends MY_Controller{
             $note = $this->sma->clear_tags($this->input->post('note'));
 			$date = date('Y-m-d H:i:s');
 			$status = $this->input->post('status');
-           
-		   
-		   $total_t_items=0;
-			$i = isset($_POST['product_code']) ? sizeof($_POST['product_code']) : 0; 
-	     $products = array();
+		    $total_t_items=0;
+		    $i = isset($_POST['product_code']) ? sizeof($_POST['product_code']) : 0; 
+	        $products = array();
 	     for($r = 0; $r < $i; $r++){
 			foreach($_POST['batch'][$_POST["product_id"][$r]] as $k => $row){
-		
 			if($row['wastage_qty']!=0){
 				$unit = $this->site->getUnitByID($row['product_unit']);
 				$product_unit_code=$unit->code;
@@ -254,8 +251,7 @@ class Wastage extends MY_Controller{
 			    'product_id' => $_POST["product_id"][$r],
 			    'product_code' => $_POST['product_code'][$r],
 			    'product_type' => $_POST['product_type'][$r],
-			    'product_name' => $_POST['product_name'][$r],			    
-			    
+			    'product_name' => $_POST['product_name'][$r],
 			    'batch'            => $row['batch_no'],
 			    'vendor_id'        => $row['vendor_id'],
 			    'expiry'           => $row['expiry'],
@@ -264,10 +260,7 @@ class Wastage extends MY_Controller{
 			    'landing_cost'     => $row['landing_cost'],
 			    'unit_price'       => $row['selling_price'],
 			    'net_unit_price'   => $row['selling_price']*$row['request_qty'],
-			    //'tax' => $row['tax'],
-			   // 'tax_method' => $row['tax_method'],
 			    'gross_amount'     => $row['gross'],
-			   // 'tax_amount'       => $row['tax_amount'],
 			    'net_amount'       => $row['grand_total'],
 			    'store_id'         => $this->store_id,
 			    'stock_id'         => $row['stock_id'],
@@ -278,11 +271,8 @@ class Wastage extends MY_Controller{
 				'category_id'      => $_POST['catgory_id'][$r],
 				'subcategory_id'   => $_POST['subcatgory_id'][$r],
 				'brand_id'         => !empty($_POST['brand_id'][$r])?$_POST['brand_id'][$r]:0,
-				
-				
 			);
 			}
-			
 		    }
 			
 		 }
@@ -328,8 +318,8 @@ class Wastage extends MY_Controller{
             admin_redirect('wastage');
         } else {
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-            $this->data['inv'] = $this->wastage_model->getWastageId($id);
-            $wastage_items = $this->wastage_model->getWastageItemById($id);
+            $this->data['inv']   = $this->wastage_model->getWastageId($id);
+            $wastage_items       = $this->wastage_model->getWastageItemById($id);
             krsort($wastage_items);
             $c = rand(100000, 9999999);
             foreach ($wastage_items as $item) {
@@ -340,7 +330,7 @@ class Wastage extends MY_Controller{
 				$row->pi_qty                = $item->pi_qty;
 				$row->qty                   = $item->quantity;
 				$row->base_quantity         = $item->quantity;
-				$row->quantity_balance      =$item->pi_qty- $item->quantity;
+				$row->quantity_balance      = $item->pi_qty- $item->quantity;
 				$row->tax_rate              = $item->item_tax_method;
 				$tax                        = $this->siteprocurment->getTaxRateByID($item->item_tax_method);
 				$row->tax_rate_val          = $tax->rate;
@@ -370,22 +360,18 @@ class Wastage extends MY_Controller{
 				$row->uniqueid			    = $item->pi_uniqueId;
 				$options                    = $this->wastage_model->getProductOptions($row->id);
 				$units                      = $this->siteprocurment->getUnitsByBUID($row->base_unit);
-				$batches                  =  $this->wastage_model->getbatchStockData($id,$row->id);
-				$row->batches             = $batches;
-			
+				$batches                    = $this->wastage_model->getbatchStockData($id,$row->id);
+				$row->batches               = $batches;
 				$ri                         = $this->Settings->item_addition ? $row->id : $row->id;
 				$item_key = $ri.'_'.$item->store_id.'_'.$item->category_id.'_'.$item->subcategory_id.'_'.$item->brand_id.'_'.$item->variant_id;
                 $pr[$ri] = array('id' => $c,'store_id'=>$item->store_id,'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
-                    'row' => $row, 'tax_rate_id' => $item->item_tax_method,'tax_rate_val' => $item->tax_rate,'tax_rate' => $item->tax, 'units' => $units, 'options' => $options);
-				
+                'row' => $row, 'tax_rate_id' => $item->item_tax_method,'tax_rate_val' => $item->tax_rate,'tax_rate' => $item->tax, 'units' => $units, 'options' => $options);
                 $c++;
             }
-			
             $this->data['wastage_items'] = json_encode($pr);
             $this->data['id'] = $id;
             $this->data['tax_rates'] = $this->siteprocurment->getAllTaxRates();
             $this->data['warehouses'] = ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) ? $this->siteprocurment->getAllWarehouses() : null;
-		
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('wastage'), 'page' => lang('wastage')), array('link' => '#', 'page' => lang('edit_wastage')));
             $meta = array('page_title' => lang('edit_wastage'), 'bc' => $bc);
             $this->page_construct('wastage/edit', $meta, $this->data);
@@ -455,7 +441,7 @@ public function suggestions(){
                 $tax_rate     = $this->siteprocurment->getTaxRateByID($row->tax_rate);
 				$batches      =  $this->wastage_model->loadbatches($row->id,$row->variant_id,$row->category_id,$row->subcategory_id,$row->brand_id);
 				$row->batches = $batches;
-					$label = $row->name . " (" . $row->code . ") CAT - ".$row->category_name." | SUBCAT - ".$row->subcategory_name." | BRAND - ".$row->brand_name;
+				$label = $row->name . " (" . $row->code . ") CAT - ".$row->category_name." | SUBCAT - ".$row->subcategory_name." | BRAND - ".$row->brand_name;
                 $pr[] = array('id' => $unique_item_id, 'item_id' => $row->id, 'label' => $label . " (" . $row->code . ")",
                     'row' => $row, 'unique_id'=>$unique_item_id,'tax_rate' => $tax_rate, 'units' => $units, 'options' => $options);
                 $r++;
