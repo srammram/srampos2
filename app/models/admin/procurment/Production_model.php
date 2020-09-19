@@ -80,23 +80,11 @@ class Production_model extends CI_Model{
 			$cost=0;
 			if($rp_items->num_rows()>0){
 				foreach($rp_items->result() as $row){
-			
-							$rp_detailsUnits = $this->site->getUnitByID($row->unit_id);
-							$items_unit=$this->site->getUnitByID($item_uom);
-							
-							$rp_detailsUnits_OV=($rp_detailsUnits->operation_value !="" || !empty($rp_detailsUnits->operation_value))?$rp_detailsUnits->operation_value:1;
-							 $items_unit_OV=($items_unit->operation_value !="null" || !empty($items_unit->operation_value))?$items_unit->operation_value:1;
-							
-					//	echo $row->quantity."||".$items_unit_OV."||".$rp_detailsUnits_OV
-							echo $base_quantity=($row->quantity/$items_unit_OV)*$rp_detailsUnits_OV;
-							 $Bqty=$base_quantity*$quantity;
-							echo "<PRE>";
-							//$r_cost          = $this->productionItemStockout($row->product_id,$row->variant_id,$row->category_id,$row->sub_category_id,$row->brand_id,$quantity); 
-							// $cost +=$r_cost;
+							 $base_quantity=$row->quantity*$quantity;
+							$r_cost          = $this->productionItemStockout($row->product_id,$row->variant_id,$row->category_id,$row->sub_category_id,$row->brand_id,$base_quantity); 
+							 $cost +=$r_cost;
 						
 				}	
-				
-				die;
                 return $cost;				
 			}
 		}

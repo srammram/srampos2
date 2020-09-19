@@ -7643,7 +7643,7 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
             $opts .= '<option value="">'.lang('select').'</option>';
         }
 		$recipe=$this->site->getrecipeByID($product_id);
-        $Unit= $this->site->getUnitByID($recipe->unit);
+        $Unit  = $this->site->getUnitByID($recipe->unit);
      
             $opts .= '<option value="'.$Unit->id.'"'.($select_unit && $select_unit == $Unit->id ? ' selected="selected"' : '').'>'.lang($Unit->name).'</option>';
         
