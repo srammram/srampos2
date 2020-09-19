@@ -279,7 +279,6 @@ function GetData($url) {
 			var varient_id = $('#varient_id').val();
             var category_id = $('#category_id').val();
             var category_id = $("#category_id option:selected").val();
-
             var subcategory_id = $('#subcategory_id').val();
             var subcategory_id = $("#subcategory_id option:selected").val();
             var recipe_id = $("#recipe_id option:selected").val();
@@ -310,8 +309,6 @@ function GetData($url) {
                                      if($this->pos_settings->default_service_charge !=0 && $this->pos_settings->service_charge_option !=0) { ?>
                                             $display='visible';
                                 <?php } ?>
-
-
                                
                                 $.each(data.wastageReport, function (a,b) {  
                                   $('#SlRData > tbody').append('<tr><td style = "text-align:left"><strong>GROUP: </strong>   '+b.category+'</td></tr>');

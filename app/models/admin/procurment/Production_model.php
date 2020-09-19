@@ -42,17 +42,17 @@ class Production_model extends CI_Model{
 					 $item['production_id'] = $id;
 					$this->db->insert('pro_production_items', $item);// print_r($this->db->error());die;
 					if($data['status']=='approved'){
-						 $cate['category_id'] = $item['category_id'];
+						 $cate['category_id']    = $item['category_id'];
 						 $cate['subcategory_id'] = $item['subcategory_id'];
 						 $cate['brand_id']       = $item['brand_id'];
 						 $cate['store_id']       = $item['store_id'];
 						 $cate['product_id']     = $item['product_id'];
 						 $cate['vendor_id']      = 0;
-						 $cate['invoice_id']     = 0;
+						 $cate['invoice_id']           = 0;
 						 $cate['pieces_selling_price'] = 0;
-						 $cate['selling_price']      = 0;
+						 $cate['selling_price']        = 0;
 						 // Ingredient stock out
-						$cate['purchase_cost']= $this->productionStockOut($item['product_id'],$item['variant_id'],$item['quantity'],$item['base_quantity'],$item['uom']);
+						 $cate['purchase_cost']= $this->productionStockOut($item['product_id'],$item['variant_id'],$item['quantity'],$item['base_quantity'],$item['uom']);
 						
 						// ProductionItem Stock In
 						$this->updateStockMaster_new($item['product_id'],$item['variant_id'],$item['base_quantity'],$cate); 
@@ -76,23 +76,27 @@ class Production_model extends CI_Model{
 			$rp_details=$rp->row();
 			$rp_uom=$this->siteprocurment->getUnitByID($rp_details->uom);
 			$rp_items=$this->db->get_where("recipe_products",array("ingrediends_hd_id"=>$rp_details->id));
+			
 			$cost=0;
 			if($rp_items->num_rows()>0){
 				foreach($rp_items->result() as $row){
-						if($rp_details->uom ==$item_uom){
+			
 							$rp_detailsUnits = $this->site->getUnitByID($row->unit_id);
-							$rp_details_BU   = ($quantity*$row->quantity);
-							$r_cost          = $this->productionItemStockout($row->product_id,$row->variant_id,$row->category_id,$row->sub_category_id,$row->brand_id,$rp_details_BU); 
-							 //$cost +=$cost*$rp_details_BU;
-							 $cost +=$r_cost;
-							 
-						}else{
-							$rp_detailsUnits=$this->site->getUnitByID($row->unit_id);
-							$rp_details_BU=($quantity*$this->unitToBaseUnit($row->quantity,$rp_detailsUnits->operator,$rp_detailsUnits->operation_value));
-							$r_cost=$this->productionItemStockout($row->product_id,$row->variant_id,$row->category_id,$row->sub_category_id,$row->brand_id,$rp_details_BU);     
-							$cost +=$r_cost;
-						}
+							$items_unit=$this->site->getUnitByID($item_uom);
+							
+							$rp_detailsUnits_OV=($rp_detailsUnits->operation_value !="" || !empty($rp_detailsUnits->operation_value))?$rp_detailsUnits->operation_value:1;
+							 $items_unit_OV=($items_unit->operation_value !="null" || !empty($items_unit->operation_value))?$items_unit->operation_value:1;
+							
+					//	echo $row->quantity."||".$items_unit_OV."||".$rp_detailsUnits_OV
+							echo $base_quantity=($row->quantity/$items_unit_OV)*$rp_detailsUnits_OV;
+							 $Bqty=$base_quantity*$quantity;
+							echo "<PRE>";
+							//$r_cost          = $this->productionItemStockout($row->product_id,$row->variant_id,$row->category_id,$row->sub_category_id,$row->brand_id,$quantity); 
+							// $cost +=$r_cost;
+						
 				}	
+				
+				die;
                 return $cost;				
 			}
 		}

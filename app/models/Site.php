@@ -7636,17 +7636,17 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
 			return $order_item;
     }
 
-	public function unit_of_measurement($select_unit = null, $purchase = false, $empty_opt = false)
+	public function unit_of_measurement($product_id,$select_unit = null, $purchase = false, $empty_opt = false)
     {
         $opts = '';
         if ($empty_opt) {
             $opts .= '<option value="">'.lang('select').'</option>';
         }
-        $Units = $this->site->getAllUnits();
-        
-        foreach($Units as $k => $Unit){
+		$recipe=$this->site->getrecipeByID($product_id);
+        $Unit= $this->site->getUnitByID($recipe->unit);
+     
             $opts .= '<option value="'.$Unit->id.'"'.($select_unit && $select_unit == $Unit->id ? ' selected="selected"' : '').'>'.lang($Unit->name).'</option>';
-        }        
+        
         return $opts;
     }
 

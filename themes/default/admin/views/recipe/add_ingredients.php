@@ -21,10 +21,8 @@
 				<div class="row">
 				<div class="col-lg-12" style="background:#b1d7fd; padding:15px 15px;"> 
 
-				<!--   <p class="introtext"><?php echo lang('enter_info'); ?></p> -->
 				<?php echo form_submit('add_production', $this->lang->line("update"), 'id="add_production" class="btn col-lg-1 btn-sm btn-primary pull-right" '); ?>
                         <button type="button" class="btn btn-sm btn-danger col-lg-1 pull-right" id="reset" style="display: none;margin-right:15px;height:30px!important;font-size: 12px!important"><?= lang('reset'); ?></button>
-               
 					<table class="table custom_tables">
 						<tbody>
 						<tr> 
@@ -33,7 +31,6 @@
 							</td>
 							<td width="350px">
 								<?php
-								//$opts = array('standard' => lang('standard'), 'combo' => lang('combo'), 'trade' => lang('trade'), standard'production' => lang('production'), 'addon' => lang('addon'));
 								$opts = array('0' => lang('select'),'standard' => lang('standard'), 'production' => lang('production'),'quick_service' => lang('quick_service'), 'semi_finished' => lang('semi_finished'), 'addon' => lang('addon'));
 								echo form_dropdown('type', $opts, (isset($_POST['type']) ? $_POST['type'] : ($recipe ? $recipe->type : '')), 'class="form-control" id="type" required="required"');
 								?>
@@ -93,7 +90,7 @@
                                     <div class="input-group wide-tip">
                                         <div class="input-group-addon" style="padding-left: 10px; padding-right: 10px;">
                                             <i class="fa fa-2x fa-barcode addIcon"></i></div>
-                                        <?php // echo form_input('add_item', '', 'class="form-control input-lg" id="add_item" placeholder="' . $this->lang->line("Search Item Name") . '"'); ?>
+                                      
 										<?php
 											echo form_input('recipe_product[]', set_value('recipe_product'), 'class="search-purchase-items-new form-control" id="recipe_product_1"  placeholder="' . lang("select") . ' ' . lang("ingredients") . '" style="width:100%;" ');
 										?>
@@ -112,44 +109,31 @@
                             <div class="control-group table-group">
                                 <label class="table-label"><?= lang("items"); ?></label>
                                 <div class="controls table-controls">
-									<table id="prTable" class="table items table-striped table-bordered table-condensed table-hover purchase-item-container"> <!-- id="productionTable" -->
+									<table id="prTable" class="table items table-striped table-bordered table-condensed table-hover purchase-item-container"> 
                                         <thead>
                                         <tr>
-                                           <!-- <th class="col-md-1"><?= lang("S.NO"); ?></th> -->
                                            <th class="col-md-1"><?= lang("customizable"); ?></th>
                                             <th class="col-md-2"><?= lang('item') . lang('name'); ?></th>
 											<th class="col-md-2"><?= lang("quantity"); ?></th>
-											<th class="col-md-2"><?= lang("UOM"); ?></th>                                            
-                                            <th class="col-md-1" style="text-align: center;"><i
+											<th class="col-md-2"><?= lang("UOM"); ?></th>       
+											<th class="col-md-1" style="text-align: center;"><i
                                                     class="fa fa-trash-o"
                                                     style="opacity:0.5; filter:alpha(opacity=50);"></i></th>
                                         </tr>
                                         </thead>
                                         <tbody></tbody>
-                                        <!-- <tfoot></tfoot> -->
+                                       
 									</table>    
 
                                 </div>                                
                             </div>
                         </div> 
-
-					
-
 					</div>
-
                 </div>
-
-                
-              
-
             </div>
-
         </div>
     </div>
 </div>
-
-
-
 <script type="text/javascript">
 	var $existing_purchase_items =[];
  $(document).ready(function () {
@@ -329,9 +313,9 @@
     var Uom = v.added.units;       
         var htm = "";
         htm+= "<select name='purchase_item_unit[]' class='select2-container form-control purchase_item_unit'><option value='' >Select </option>";
-        $.each(Uom, function (a, b) {
-        htm+= "<option value="+b.id +">"+b.name+"</option>";                                                    
-        });
+       // $.each(Uom, function (a, b) {
+        htm+= "<option value="+Uom.id +">"+Uom.name+"</option>";                                                    
+        //});
         htm+= "</select>";  
         if($item_customizable == 0){
             $disabled ='disabled="disabled"';

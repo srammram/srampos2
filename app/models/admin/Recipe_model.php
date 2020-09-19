@@ -1941,7 +1941,7 @@ public function deactivate($id = NULL)
 		$q = $this->db->get(); 
 			if ($q->num_rows() > 0) {
 				foreach (($q->result()) as $row) {
-					$row->units=$this->site->getUnitsByBUID($row->unit);
+					$row->units=$this->site->getUnitByID($row->unit);
 					$data[] = $row;
 				}
 				return $data;

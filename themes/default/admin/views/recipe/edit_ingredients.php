@@ -63,18 +63,6 @@
 								</select>
 							</td>
 						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
-						
 						<td width="100px" style="display: none">
 							<?= lang("selling_price", "selling_price") ?> 
 						</td> 
@@ -178,7 +166,7 @@
 							<!-- <input readonly="readonly" class="p-item-unit form-control" type="test" name="purchase_item[unit][]" value="<?=$row->units_name?>"></td>  -->
 							<td>
 								<select name="purchase_item_unit[]" id="purchase_item_unit" data-index="1" class="form-control purchase_item_unit">
-                                    <?= $this->site->unit_of_measurement($row->unit_id); ?>                                   
+                                    <?= $this->site->unit_of_measurement($row->product_id,$row->unit_id); ?>                                   
                                 </select>
 							</td>    
 							<!-- <td  class="col-sm-1"><input class="form-control" type="hidden" name="purchase_item_unit[]" value="<?=$row->unit_id?>"> -->
@@ -337,9 +325,9 @@
       var Uom = v.added.units;       
     	var htm = "";
 		htm+= "<select name='purchase_item_unit[]' class='select2-container form-control'><option value='' >Select </option>";
-		$.each(Uom, function (a, b) {
-		htm+= "<option value="+b.id +">"+b.name+"</option>";
-		});
+		//$.each(Uom, function (a, b) {
+		htm+= "<option value="+Uom.id +">"+Uom.name+"</option>";
+	//	});
 		htm+= "</select>";	
 		console.log(Uom);
 		if($item_customizable == 0){
