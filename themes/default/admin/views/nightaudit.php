@@ -79,7 +79,7 @@
 					
 					<div class="negative_stock" style="margin-top:72px;">
                         <div class="col-md-12" id="negative_stock_table">
-                        <table class="table" >
+                        <table class="table negative_stock_table" >
                             <thead>
                                 <tr>
 									<th>S.NO</th>
@@ -113,34 +113,12 @@
         </div></div></td>
 							  </tr>
 							   <?php $i++; }  }else{  ?>
-							   <tr><td colspan="7"></td></tr>
-							   
+							  
 							   <?php   }?>
                             </tbody>
                         </table>
                         </div>
                     </div>
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
-					
 					
 					
 					
@@ -374,10 +352,17 @@ $(document).ready(function () {
     $(document).on('click', '#action-form-submit', function () {        
         var select_date = $("#datepicker").val();
         if(select_date)
-        {            
+        {     
+	        var tbody = $(".negative_stock_table tbody");
+			console.log(tbody.children().length);
+			if (tbody.children().length != 0) {
+				  bootbox.alert('Please Clear All The Negative Stock ');
+				return false;
+			}	
             $(this).val('<?=lang('loading');?>').attr('disabled', true);                
             $('#action-form').submit();
         }     
+		
         else{
             bootbox.alert('Please Select Date');
             return false;

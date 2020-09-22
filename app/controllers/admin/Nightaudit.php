@@ -49,19 +49,13 @@ class Nightaudit extends MY_Controller
     }
 	
 	function getNightauditData($dates = NULL, $warehouses_id = NULL){
-		
 		$dates = $this->input->get('dates');
 		$warehouses_id = $this->input->get('warehouses_id');
-
 		$Last_Nightaudit =  $this->nightaudit_model->Last_Nightaudit();
-
 		$before_date = date('Y-m-d', strtotime($dates . ' -1 day'));
 		$before_status = $this->nightaudit_model->checkbeforedate($before_date, $warehouses_id);
-
 		$sales = $this->nightaudit_model->getDataviewSales($dates, $warehouses_id); 
-		
 		$status = $this->nightaudit_model->checkNightaudit($dates, $warehouses_id);
-
 		$total_sales = 0;
 		$complete_sales = 0;
 		$pending_sales = 0;
@@ -130,9 +124,46 @@ class Nightaudit extends MY_Controller
 		}
 	}
    public function stock_request($stockId){
-	   
-	   
-	   
+	      $n               = $this->siteprocurment->lastidStoreRequest();
+          $reference       = 'SR'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
+		  $date            = date('Y-m-d H:i:s');
+          $stock=$this->nightaudit_model->getStockDetails($stockId);
+		  
+		  $data = array(
+				'reference_no' 	=> $reference,
+				'date' 			=> $date,
+				'request_type' 	=> "Negative Stock",
+				'from_store_id' => $this->store_id,
+                'warehouse_id' 	=> $warehouse_id,
+				'store_id' 	    => $this->store_id,
+                'note' 			=> "Negative Stock Request",
+                'status' 		=> "Process",
+                'created_by' 	=> $this->session->userdata('user_id'),
+				'created_on' 	=> date('Y-m-d H:i:s'),
+				'total_no_items' =>1,
+            );
+			$row = $this->siteprocurment->getItemByID($stock->product_id);
+            $unit = $this->siteprocurment->getUnitByID($row->unit);  
+			$variant=$this->site->getRecipeVariantById($stock->variant_id);
+			 $items= array(
+                        'product_id'      => $row->id,
+                        'product_code'    => $row->code,
+                        'product_name'    => $row->name,
+                        'product_type'    => $row->type,
+                        'quantity'        => $this->site->baseToUnitQty(abs($stock->stock_in),$unit->operator,$unit->operation_value),
+						'unit_quantity'   => $stock->stock_in,
+                        'product_unit_id' => $row->purchase_unit,
+						'product_unit_code'=>$unit->name,
+						'option_id'=>$stock->variant_id,
+						'option_name'=>($variant->name)?$variant->name:""
+                    );
+	    if ($this->nightaudit_model->generateStockRequest($data,$items,$stockId)) {
+            $this->session->set_flashdata('message', lang("Stock Request Generated"));
+            admin_redirect('nightaudit');
+        } else {
+			$this->session->set_flashdata('error', lang("Unable to Do Stock Request"));
+            admin_redirect('nightaudit');
+		}
 	   
    }
    
@@ -199,7 +230,7 @@ class Nightaudit extends MY_Controller
 				$items['product_unit_id'] = $row->purchase_unit;
 				$items['parent_stock_unique_id'] = $stock_id;
 				
-	   if ($this->nightaudit_model->generateInvoiceGenerate($data,$items)) {
+	   if ($this->nightaudit_model->generateInvoice($data,$items,$stock_id)) {
             $this->session->set_flashdata('message', lang("Purchase Invoice Added"));
             admin_redirect('nightaudit');
         } else {

@@ -221,23 +221,23 @@ class Store_request extends MY_Controller{
             $total_cgst = $total_sgst = $total_igst = 0;
             $i = isset($_POST['product_code']) ? sizeof($_POST['product_code']) : 0;
             for ($r = 0; $r < $i; $r++) {
-				$unit = $this->site->getUnitByID($_POST['product_unit'][$r]);
-		        $store_id = $from_store_id;
-                $item_id = $_POST['product_id'][$r];
-                $item_type = $_POST['product_type'][$r];
-                $item_code = $_POST['product_code'][$r];
-                $item_name = $_POST['product_name'][$r];
+				$unit 		= $this->site->getUnitByID($_POST['product_unit'][$r]);
+		        $store_id 	= $from_store_id;
+                $item_id 	= $_POST['product_id'][$r];
+                $item_type 	= $_POST['product_type'][$r];
+                $item_code 	= $_POST['product_code'][$r];
+                $item_name 	= $_POST['product_name'][$r];
                 $item_unit_quantity = $_POST['quantity'][$r];
-                $item_unit = $_POST['product_unit'][$r];
-				$quantity = $_POST['quantity'][$r];
+                $item_unit  = $_POST['product_unit'][$r];
+				$quantity   = $_POST['quantity'][$r];
                 $unit_quantity = $_POST['product_base_quantity'][$r];
-		        $category_id = $_POST['category_id'][$r];
+		        $category_id   = $_POST['category_id'][$r];
                 $category_name = $_POST['category_name'][$r];
 		        $subcategory_id = $_POST['subcategory_id'][$r];
                 $subcategory_name = $_POST['subcategory_name'][$r];
-		        $brand_id = $_POST['brand_id'][$r];
+		        $brand_id   = $_POST['brand_id'][$r];
                 $brand_name = $_POST['brand_name'][$r];
-				$option_id = $_POST['product_option'][$r];
+				$option_id  = $_POST['product_option'][$r];
 				$product_option=$this->store_request_model->getrecipeOptionByID($option_id);
                if (!empty($item_code)) {
                     $product_details = $item_type != 'manual' ? $this->store_request_model->getProductByCode($item_code) : null;
@@ -278,21 +278,21 @@ class Store_request extends MY_Controller{
 				$this->siteprocurment->insertNotification($notification);
 			}
             $data = array(
-				'reference_no' => $reference,
-				'date' => $date,
-				'request_type' => $this->input->post('request_type'),
+				'reference_no' 	=> $reference,
+				'date' 			=> $date,
+				'request_type' 	=> $this->input->post('request_type'),
 				'from_store_id' => $from_store_id,
-				'to_store_id' => $to_store_id,
-                'warehouse_id' => $warehouse_id,
-				  'store_id' =>$this->store_id,
-                'note' => $note,
-                'status' => $status,
-                'created_by' => $this->session->userdata('user_id'),
-				'approved_by' => $approved_by ? $approved_by : 0,
-				'approved_on' => $date,
-				'created_on' => date('Y-m-d H:i:s'),
+				'to_store_id' 	=> $to_store_id,
+                'warehouse_id' 	=> $warehouse_id,
+				'store_id' 	    => $this->store_id,
+                'note' 			=> $note,
+                'status' 		=> $status,
+                'created_by' 	=> $this->session->userdata('user_id'),
+				'approved_by' 	=> $approved_by ? $approved_by : 0,
+				'approved_on' 	=> $date,
+				'created_on' 	=> date('Y-m-d H:i:s'),
 				'total_no_items' =>$this->input->post('titems'),
-				'total_no_qty'=>$this->input->post('total_items')
+				'total_no_qty'	=>$this->input->post('total_items')
               
             );
 
@@ -320,10 +320,10 @@ class Store_request extends MY_Controller{
             $this->session->set_flashdata('message', $this->lang->line("store_request_added"));
             admin_redirect('procurment/store_request');
         } else {
-            $this->data['stores'] = $this->siteprocurment->getAllStores();
+            $this->data['stores']     = $this->siteprocurment->getAllStores();
 			$this->data['all_stores'] = $this->siteprocurment->getAllWarehouses_Storeslist();
-            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-            $this->data['billers'] = ($this->Owner || $this->Admin || !$this->session->userdata('biller_id')) ? $this->siteprocurment->getAllCompanies('biller') : null;
+            $this->data['error']      = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
+            $this->data['billers']    = ($this->Owner || $this->Admin || !$this->session->userdata('biller_id')) ? $this->siteprocurment->getAllCompanies('biller') : null;
             //$this->data['currencies'] = $this->siteprocurment->getAllCurrencies();
             $this->data['warehouses'] = ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) ? $this->siteprocurment->getAllWarehouses() : null;
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('procurment/store_request'), 'page' => lang('store_request')), array('link' => '#', 'page' => lang('add_store_request')));

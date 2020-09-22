@@ -196,7 +196,7 @@ class Nightaudit_model extends CI_Model{
 			LEFT JOIN '.$this->db->dbprefix('brands').'  `b` ON `b`.`id`='.$this->db->dbprefix('pro_stock_master').'.`brand_id`
 			LEFT JOIN '.$this->db->dbprefix('recipe_variants').' `rv` ON `rv`.`id`='.$this->db->dbprefix('pro_stock_master').'.`variant_id` LEFT JOIN `srampos_recipe` `r` ON `r`.`id`='.$this->db->dbprefix('pro_stock_master').'.`product_id` 
 			LEFT JOIN '.$this->db->dbprefix('units').'  `u` ON `u`.`id`=`r`.`purchase_unit` WHERE `store_id` = '.$this->store_id
-			.' AND '."(".'`expiry_date` <= '.'"'.date("Y-m-d").'"'.' or `expiry_date` IS NULL '.")".'and `stock_in` <0');
+			.' AND '."(".'`expiry_date` <= '.'"'.date("Y-m-d").'"'.' or `expiry_date` IS NULL '.")".'and `stock_in` <0  and parent_unique_id is null');
 		$q=$this->db->query($query);
 	
 		if($q->num_rows()>0){
@@ -226,7 +226,8 @@ class Nightaudit_model extends CI_Model{
 	  }
 	  return false;
   }
-    public function generateInvoiceGenerate($data,$item){
+    public function generateInvoice($data,$item,$stockid){
+	
 		if ($this->db->insert('pro_purchase_invoices', $data)) {
             $id = $this->db->insert_id();
 			$UniqueID                  = $this->site->generateUniqueTableID($id);
@@ -235,12 +236,37 @@ class Nightaudit_model extends CI_Model{
 				$item['invoice_id'] = $UniqueID;
 				$cp = str_replace('.','_',$item['cost']);
                 $this->db->insert('pro_purchase_invoice_items', $item);
-       
+                $this->db->where("unique_id",$stockid);
+				$this->db->update("pro_stock_master ",array("parent_unique_id"=>0));
             return true;
         }
         return false;
+	}
+
+	public function generateStockRequest($data,$item,$stockId){
 		
-		
-		
+	if ($this->db->insert('pro_store_request', $data)) {
+            $store_request_id = $this->db->insert_id();
+        if ($store_request_id) {            
+            $unique_id = $this->site->generateUniqueTableID($store_request_id);
+            if ($store_request_id) {
+                $this->site->updateUniqueTableId($store_request_id,$unique_id,'pro_store_request');
+            }
+                $item['store_request_id'] = $unique_id;
+                $this->db->insert('pro_store_request_items', $item);
+				
+				$i_request_id = $this->db->insert_id();
+                $i_unique_id = $this->site->generateUniqueTableID($i_request_id);
+                if ($i_request_id) {
+                    $this->site->updateUniqueTableId($i_request_id,$i_unique_id,'pro_store_request_items');
+                }
+				 $this->db->where("unique_id",$stockId);
+				$this->db->update("pro_stock_master ",array("parent_unique_id"=>0));
+			
+            return true;
+        }
+        return false;
+    }
+	
 	}
 }

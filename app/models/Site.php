@@ -1295,6 +1295,13 @@ public function getAllMaterial_RequestNo(){
         }
         return FALSE;
 	}
+public function getRecipeVariantById($id){
+		$q = $this->db->get_where('recipe_variants', array('id' => $id), 1);		
+        if ($q->num_rows() > 0) {
+            return $q->row();
+        }
+        return FALSE;
+	}
 
 	public function getrecipeKhmerimage($id){
 		$q = $this->db->get_where('recipe', array('id' => $id), 1);
