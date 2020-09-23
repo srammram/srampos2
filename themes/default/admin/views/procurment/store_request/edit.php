@@ -193,7 +193,7 @@
                                             foreach ($stores as $store) {
                                                 $fst[$store->id] = $store->name;
                                             }
-                                            echo form_dropdown('from_store_id', $fst, (isset($_POST['from_store_id']) ? $_POST['from_store_id'] : $inv->from_store_id), 'id="store_reqfrom_store_id" class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("from_store") . '" required="required" style="width:100%;" disabled ');
+                                            echo form_dropdown('from_store_id', $fst, (isset($_POST['from_store_id']) ? $_POST['from_store_id'] : $inv->from_store_id), 'id="store_reqfrom_store_id" class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("from_store") . '" required="required" style="width:100%;"  ');
                                             ?>
                                     </td>
                                     <td>
@@ -205,7 +205,7 @@
                                         foreach ($all_stores as $store) {
                                             $tst[$store->id] = $store->name;
                                         }
-                                        echo form_dropdown('to_store_id', $tst, (isset($_POST['to_store_id']) ? $_POST['to_store_id'] : $inv->to_store_id), 'id="store_reqto_store_id" class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("to_store") . '" required="required" style="width:100%;" disabled ');
+                                        echo form_dropdown('to_store_id', $tst, (isset($_POST['to_store_id']) ? $_POST['to_store_id'] : $inv->to_store_id), 'id="store_reqto_store_id" class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("to_store") . '" required="required" style="width:100%;"  ');
                                         ?>
                                     </td>
                                     <td>

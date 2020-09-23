@@ -21,17 +21,15 @@ report_view_access
       $exclude_reports_view_access =1;// $usergrop_permission->exclude_reports_view_access;
 /*echo "<pre>";
 print_r($usergrop_permission->include_reports_view_access);die;*/
-if($this->session->userdata('group_id') == 1){
+		if($this->session->userdata('group_id') == 1){
         $this->session->set_userdata('report_view_access', 1);
         $this->report_view_access = 1;
         $this->report_show = 1;
-}else if($include_reports_view_access == 1 && $exclude_reports_view_access == 0)
-{
+		}else if($include_reports_view_access == 1 && $exclude_reports_view_access == 0){
         $this->session->set_userdata('report_view_access', 2);
         $this->report_show = 0;
         $this->report_view_access = $this->session->userdata('report_view_access');
-}else{
-
+		}else{
         if($this->session->userdata('report_view_access') == NULL){            
             $this->session->set_userdata('report_view_access', 0);
         }
@@ -6420,7 +6418,6 @@ GROUP BY B.id, PD.identify*/
 		$this->data['varients'] = $this->recipe_model->getAllvarients();
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('reports'), 'page' => lang('reports')), array('link' => '#', 'page' => lang('yields_report')));
         $meta = array('page_title' => lang('yields_report'), 'bc' => $bc);
-        
         $this->page_construct('reports/yield', $meta, $this->data);
     }
    
@@ -6448,19 +6445,19 @@ GROUP BY B.id, PD.identify*/
 			
 		
              if (!empty($data['data'])) {                 
-                 $wastageReport = $data['data'];
+                 $yield = $data['data'];
              }
              else{                
-                $wastageReport = 'empty';
+                $yield = 'empty';
              }
              
         }
         else{
-            $wastageReport = 'error';
+            $yield = 'error';
         }
         $total = $data['total'];
         $pagination = $this->pagination('reports/get_itemreports',$limit,$offsetSegment,$total);
-        $this->sma->send_json(array('wastageReport' => $wastageReport,'pagination'=>$pagination));
+        $this->sma->send_json(array('yield' => $yield,'pagination'=>$pagination));
    } 
    
    

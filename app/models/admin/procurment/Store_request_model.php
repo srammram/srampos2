@@ -109,6 +109,7 @@ class Store_request_model extends CI_Model{
 			  if($data['status']=="approved"){
 		      $this->sync_center->sync_storeIndentRequests($unique_id);
 	    }
+		die;
             return true;
         }
         return false;
@@ -127,7 +128,7 @@ class Store_request_model extends CI_Model{
                 }
             }          
        if($data['status']=="approved"){
-		$this->sync_center->sync_storeIndentRequests($unique_id);
+		$this->sync_center->sync_storeIndentRequests($id);
 	    }			
             return true;
         }        

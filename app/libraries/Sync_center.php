@@ -15,16 +15,13 @@ class Sync_center{
 	    $i_table_items = 'pro_store_request_items';$r_table_items = 'pro_store_indent_receive_items';
 	    /* sync store indent */
 	    if($id){
-			
 		$db1 = $this->CI->db->get_where($i_table_name,array('store_id'=>$this->CI->store_id,'id'=>$id,'status'=>'approved'))->result_array();
 		$db2 = $this->CI->centerdb->get_where($i_table_name,array('store_id'=>$this->CI->store_id,'id'=>$id))->result_array();	
-		
 	    }else{
 		$db1 = $this->CI->db->get_where($i_table_name,array('store_id'=>$this->CI->store_id,'status'=>'approved'))->result_array();
 		$db2 = $this->CI->centerdb->get_where($i_table_name,array('store_id'=>$this->CI->store_id))->result_array();	
 	    }
 	    $data = $this->compare_server_local($db1,$db2);
-	
 	    if(isset($data['insert']) && !empty($data['insert'])){
 		foreach($data['insert'] as $k => $insert_data){
 		    unset($insert_data->s_no);
@@ -37,7 +34,6 @@ class Sync_center{
 	    /* sync store indent receiver */
 	    if($id){
 		$db1 = $this->CI->db->get_where($i_table_name,array('store_id'=>$this->CI->store_id,'id'=>$id,'status'=>'approved'))->result_array();
-		
 		$db2 = $this->CI->centerdb->get_where($r_table_name,array('store_id'=>$this->CI->store_id,'id'=>$id))->result_array();	
 		
 	    }else{

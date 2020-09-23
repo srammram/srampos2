@@ -344,7 +344,7 @@ class Store_request extends MY_Controller{
 		}	
         $this->form_validation->set_message('is_natural_no_zero', $this->lang->line("no_zero_required"));
 		$this->form_validation->set_rules('request_type', $this->lang->line("request_type"), 'required');
-        $this->form_validation->set_rules('warehouse', $this->lang->line("warehouse"), 'required');
+       // $this->form_validation->set_rules('warehouse', $this->lang->line("warehouse"), 'required');
         if ($this->form_validation->run() == true) {
             $warehouse_id = $this->input->post('warehouse');
             $biller_id = $this->input->post('biller');

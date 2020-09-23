@@ -214,8 +214,7 @@
 							<th><?= lang("warehouse"); ?></th>
                             <th><?= lang("Yield (%)"); ?></th>
 							  <th><?= lang("Yield_amount"); ?></th>
-                            <th><?= lang("Wastage_amount"); ?></th>
-                            <th><?= lang("Wastage_type"); ?></th>
+                         
 							</tr>
                         </thead>
                         <tbody>
@@ -310,7 +309,7 @@ function GetData($url) {
                                             $display='visible';
                                 <?php } ?>
                                
-                                $.each(data.wastageReport, function (a,b) {  
+                                $.each(data.yield, function (a,b) {  
                                   $('#SlRData > tbody').append('<tr><td style = "text-align:left"><strong>GROUP: </strong>   '+b.category+'</td></tr>');
                                          var grp_qty  = 0;
                                          var grp_price = 0;
@@ -318,15 +317,17 @@ function GetData($url) {
                                             $('#SlRData > tbody').append('<tr><td style = "text-align:left"><strong>Sub Group:</strong>'+d.sub_category+'</td></tr>');  
                                                var sub_qty  = 0;
                                                var sub_price = 0;
+											   var cost=0;
                                              $.each(d.order, function (e,f) {
-												 sub_price += parseFloat(f.w_price);
-                                                $('#SlRData > tbody').append('<tr  class="text-right"><td class="text-center">'+f.name+'</td><td class="text-center">'+f.variant+'</td><td>'+f.warehouse+'</td><td>'+formatQuantity(f.w_qty)+'</td><td>'+f.unit_name+'</td><td>'+formatMoney(f.w_price)+'</td><td>'+f.type+'</td></tr>');
+												 cost =formatDecimal((f.ap_cost/f.yield)*100);
+												 sub_price += parseFloat(cost);
+                                                $('#SlRData > tbody').append('<tr  class="text-right"><td class="text-center">'+f.name+'</td><td class="text-center">'+f.variant+'</td><td>'+f.warehouse+'</td><td>'+formatQuantity(f.yield)+'</td><td>'+formatMoney(cost)+'</td></tr>');
                                             }); 
 											grp_price +=parseFloat(sub_price);
-                                             $('#SlRData > tbody').append('<tr style="font-weight:bold" class="text-right"><td class="text-left">Sub Total:</td><td>&nbsp;</td><td>&nbsp;</td><td>'+formatQuantity(sub_qty)+'</td><td>&nbsp;</td><td>'+formatMoney(sub_price)+'</td><td></tr>');
+                                             $('#SlRData > tbody').append('<tr style="font-weight:bold" class="text-right"><td class="text-left">Sub Total:</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>'+formatMoney(sub_price)+'</td></tr>');
                                        });
 
-                                        $('#SlRData > tbody').append('<tr style="font-weight:bold" class="text-right"><td class="text-left">Group Total:</td><td>&nbsp;</td><td>&nbsp;</td><td>'+formatQuantity(grp_qty)+'</td><td>&nbsp;</td><td>'+formatMoney(grp_price)+'</td><td></tr>');
+                                        $('#SlRData > tbody').append('<tr style="font-weight:bold" class="text-right"><td class="text-left">Group Total:</td><td></td><td>&nbsp;</td><td>&nbsp;</td><td>'+formatMoney(grp_price)+'</td></tr>');
                                 });
                               
                                 /*   $('#SlRData > tbody').append('<tr style="font-weight:bold"  class="text-right"><td class="text-left">Grand Total:</td><td>&nbsp;</td><td>&nbsp;</td><td>'+formatQuantity(grand_qty)+'</td><td>'+formatMoney(grand_rate+grand_discount)+'</td><td>'+formatMoney(grand_discount)+'</td><td></td><td style="display:<?php echo $display; ?>">'+formatMoney(grand_service_charge)+'</td><td>'+formatMoney(grand_tax)+'</td><td>'+formatMoney((grand_total))+'</td></tr>'); */
@@ -439,7 +440,7 @@ $(".excel_report").click(function(){
 
         name: "Worksheet Name",
 
-        filename: "Wastage Reports " //do not include extension
+        filename: "Yield Reports " //do not include extension
 
       });
 

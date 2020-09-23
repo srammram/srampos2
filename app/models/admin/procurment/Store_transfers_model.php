@@ -356,7 +356,6 @@ class Store_transfers_model extends CI_Model{
 	        if($data['status']=="approved"){
 		        $this->sync_store_receivers($unique_id);
 	       }
-		   
             return true;
         }
 	
@@ -413,8 +412,6 @@ class Store_transfers_model extends CI_Model{
 									$cat_mapp_data['status']=1;
 									$this->category_mapping_update($cat_mapp_data);
 								    $this->TransferStockOut($batch['transfer_unit_qty'],$batch['stock_id']);  
-					
-					
 					}
 		        }
 		     }

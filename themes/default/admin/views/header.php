@@ -780,7 +780,7 @@
                                     <span class="chevron closed"></span>
                                 </a>
                                 <ul class="level-2-menu"> 
-							<?php  if($this->isStore):  ?>								
+							<?php  //if($this->isStore):  ?>								
                                     <?php if($this->Settings->supply_chain) : ?>
 									
                                     <li id="procurment_store_request">
@@ -802,7 +802,7 @@
                                        </ul>
                                     </li>
                                    <?php endif; ?>
-	<?php endif;  ?>
+	<?php//endif;  ?>
 								   <!--
                                     <li id="procurment_request">
                                         <a class="dropmenu" href="javascript:void(0)">
@@ -826,7 +826,7 @@
                                        </ul>
                                     </li>
                                     -->
-									   <?php if($this->isWarehouse) : ?>
+									   <?php  // if($this->isWarehouse) : ?>
 									 <li id="procurment_store_indent_receive">
                                         <a class="dropmenu" href="javascript:void(0)">
                                             <span class="text">  <?= lang('store_indent_request_receive'); ?> </span>
@@ -838,7 +838,7 @@
                                         </li>
                                        </ul>
                                    </li>
-									 <?php endif; ?>
+									 <?php //endif; ?>
 									
 									        <?php if($this->isWarehouse) : ?>
                                             <li id="procurment_indent_process">
