@@ -7,7 +7,7 @@ if (site.settings.set_focus != 1) {
 
 ////////////////// store _select  /////////////////
 $('#store_transfrom_store_id').change(function (e) {
-        localStorage.setItem('store_transfrom_store_id', $(this).val());
+    localStorage.setItem('store_transfrom_store_id', $(this).val());
 	$('#store_transto_store_id option').attr('disabled',false)
 	$('#store_transto_store_id option[value="'+$(this).val()+'"]').attr('disabled',true)
 });
@@ -202,15 +202,12 @@ $('#invoice_no').change(function (e) {
 if (store_transinvoice_no = localStorage.getItem('store_transinvoice_no')) {
     $('#invoice_no').val(store_transinvoice_no);
 }
-
-
 $('#powarehouse').change(function (e) {
     localStorage.setItem('store_transwarehouse', $(this).val());
 });
 if (powarehouse = localStorage.getItem('store_transwarehouse')) {
     $('#powarehouse').select2("val", powarehouse);
 }
-
         $('#ponote').redactor('destroy');
         $('#ponote').redactor({
             buttons: ['formatting', '|', 'alignleft', 'aligncenter', 'alignright', 'justify', '|', 'bold', 'italic', 'underline', '|', 'unorderedlist', 'orderedlist', '|', 'link', '|', 'html'],
@@ -266,11 +263,6 @@ if (powarehouse = localStorage.getItem('store_transwarehouse')) {
     nsSupplier();
 }
 
-    /*$('.rexpiry').change(function (e) {
-        var item_id = $(this).closest('tr').attr('data-item-id');
-        store_transitems[item_id].row.expiry = $(this).val();
-        localStorage.setItem('store_transitems', JSON.stringify(store_transitems));
-    });*/
 if (localStorage.getItem('store_transextras')) {
     $('#extras').iCheck('check');
     $('#extras-con').show();
@@ -283,28 +275,12 @@ $('#extras').on('ifUnchecked', function () {
     localStorage.removeItem("store_transextras");
     $('#extras-con').slideUp();
 });
-/*$(document).on('change', '.rexpiry', function () {
-    var item_id = $(this).closest('tr').attr('data-item-id');
-    store_transitems[item_id].row.expiry = $(this).val();
-    localStorage.setItem('store_transitems', JSON.stringify(store_transitems));
-});
-$(document).on('change', '.rmfg', function () {
-    var item_id = $(this).closest('tr').attr('data-item-id');
-    store_transitems[item_id].row.mfg = $(this).val();
-    localStorage.setItem('store_transitems', JSON.stringify(store_transitems));
-});
-*/
-
-
-
 
 $(document).on('change', '.rtransfer_qty', function () {
-	
     var item_id = $(this).closest('tr').attr('data-item-id');
 	var row = $(this).closest('tr').attr('id');
 	var row_id = row.slice(4);
 	var tquantity = 0;
-	
 	var pquantity = $('#pending_qty_'+row_id).val();
 	var aquantity = $('#available_qty_'+row_id).val();
 	if(pquantity < $(this).val() && aquantity < $(this).val()){
@@ -314,21 +290,19 @@ $(document).on('change', '.rtransfer_qty', function () {
 			store_transitems[item_id].row.transfer_quantity = tquantity;
     		localStorage.setItem('store_transitems', JSON.stringify(store_transitems));
 		});
-		
 	}else{
 	    tquantity = $(this).val();
 	    $p_qty = aquantity - tquantity;
 	    $('#pending_qty_'+row_id).val($p_qty);
 	    store_transitems[item_id].row.transfer_quantity = tquantity;
 	    store_transitems[item_id].row.pending_quantity = $p_qty;
-    	    localStorage.setItem('store_transitems', JSON.stringify(store_transitems));
+    	localStorage.setItem('store_transitems', JSON.stringify(store_transitems));
 	    
        // return;	
 	}
     
 });
 $(document).on('change', '.ravailable_qty', function () {
-	
     var item_id = $(this).closest('tr').attr('data-item-id');
 	var row = $(this).closest('tr').attr('id');
 	var row_id = row.slice(4);
@@ -548,23 +522,21 @@ function loadItems() {
 		$total_no_qty = parseInt(0);$transfer_qty=0;
         var order_no = new Date().getTime();
         $.each(sortedItems, function () {
-	  //  console.log(sortedItems)
-	  
 	        var item = this;
 	        $product_grand_total_amt = 0;
-	        $product_gross_amt=0;
-	        $product_tax=0;
-            var item_id = item.item_id;
-	        item.order = item.order ? item.order : new Date().getTime();
-            $sno = ++$row_index;
-            $id = item.row.id;
-            $product_name = item.row.name;
-            $product_code = item.row.code;
-            $product_type = item.row.type;
-			item_tax_method = item.row.tax_method;
-			$product_tax_per = item.row.tax;
+	        $product_gross_amt	=0;
+	        $product_tax		=0;
+            var item_id 		= item.item_id;
+	        item.order 			= item.order ? item.order : new Date().getTime();
+            $sno 				= ++$row_index;
+            $id 				= item.row.id;
+            $product_name 		= item.row.name;
+            $product_code 		= item.row.code;
+            $product_type 		= item.row.type;
+			item_tax_method 	= item.row.tax_method;
+			$product_tax_per 	= item.row.tax;
 			$product_tax_method = item.row.tax_method;
-            $qty = item.row.qty;
+            $qty 				= item.row.qty;
 			$ex_qty = (item.row.ex_qty!=undefined)?item.row.ex_qty:0;
 			$request_qty =item.row.request_qty ? item.row.request_qty : 0;
 			$html = '<tr class="order-item-row warning" data-item="'+item_id+'">';
@@ -576,16 +548,15 @@ function loadItems() {
 			
 	    if (item.row.batches) {
 	      $.each(item.row.batches,function(n,v){
-			 
-			var product_unit = item.row.unit, base_quantity = item.row.base_quantity;
-			$recipe_price = v.selling_price;
-			$recipe_stock_id = v.unique_id;
-			$expiry =(v.expiry_date!=null)?v.expiry_date:'';
-			$landingCost =v.landing_cost ? v.landing_cost : 0;
-			$cost =v.cost_price;
-			$batch_label = (v.batch=='' || v.batch==null	|| v.batch=='null')?'No batch':v.batch;
-			$batch  = (v.batch=='' || v.batch==null	|| v.batch=='null')?'':v.batch_no;
-			$available_qty =v.stock_in ? formatDecimal(v.stock_in) : 0;
+			var product_unit    = item.row.unit, base_quantity = item.row.base_quantity;
+			$recipe_price 		= v.selling_price;
+			$recipe_stock_id    = v.unique_id;
+			$expiry             =(v.expiry_date!=null)?v.expiry_date:'';
+			$landingCost        =v.landing_cost ? v.landing_cost : 0;
+			$cost               =v.cost_price;
+			$batch_label        = (v.batch=='' || v.batch==null	|| v.batch=='null')?'No batch':v.batch;
+			$batch              = (v.batch=='' || v.batch==null	|| v.batch=='null')?'':v.batch_no;
+			$available_qty      =v.stock_in ? formatDecimal(v.stock_in) : 0;
 			$transfer_qty =v.transfer_qty ? v.transfer_qty : 0;
 			$vendor = (v.vendor_id)?v.vendor_id:0;
 			$pending_qty =v.pending_qty ? v.pending_qty : '';
@@ -600,23 +571,18 @@ function loadItems() {
                     pr_tax_rate = ptax[1];
                     $tax += pr_tax_val * item_qty;
                 }
-				//console.log(v.variant_id+"||"+item.row.variant_id);
 				if(item.row.variant_id !=0){
 					if(v.variant_id!=item.row.variant_id){
 						return true;
 					}
 				}
-				
 				 if( product_unit != item.row.base_unit) {
 					$.each(item.units, function(){
                     if (this.id == product_unit) {
                         base_quantity = formatDecimal(unitToBaseQty(item.row.qty, this), 4);
-						
                     }
                 });
             }
-			
-			
 			$grand_total_amt = $gross_amt+$tax;
 			$batch_html ='<table style="width: 100%;" class="table items  table-bordered table-condensed batch-table"><thead>';
 			$batch_html +='<th>batch</th>';
@@ -637,22 +603,16 @@ function loadItems() {
 			$batch_html += '<td style="width: 78px;font-size: 13px;">'+$batch_label+'<input type="hidden" name="batch['+item_id+']['+n+'][stock_id]" value="'+$recipe_stock_id+'"><input type="hidden" name="batch['+item_id+']['+n+'][landing_cost]" value="'+$landingCost+'"><input type="hidden" name="batch['+item_id+']['+n+'][batch_no]" value="'+$batch+'"><input type="hidden" name="batch['+item_id+']['+n+'][vendor_id]" value="'+v.supplier_id+'"><input type="hidden" name="batch['+item_id+']['+n+'][invoice_id]" value="'+v.invoice_id+'"></td>';
 			$batch_html += '<td  style="width: 78px;"><input type="text" name="batch['+item_id+']['+n+'][available_qty]" value="'+$available_qty+'" class="form-control text-center available-qty" readonly></td>';
 			$batch_html += '<td  style="width: 78px;"><input type="text" name="batch['+item_id+']['+n+'][transfer_qty]" value="'+$transfer_qty+'" class="numberonly form-control text-center transfer-qty"><input type="hidden" name="batch['+item_id+']['+n+'][product_unit]"  value="'+product_unit+'"><input type="hidden"  name="batch['+item_id+']['+n+'][base_quantity]" value="'+base_quantity+'"></td>';
-
 	    
 			$batch_html += '<td  style="width: 78px;"><input type="text" name="batch['+item_id+']['+n+'][pending_qty]" value="'+$pending_qty+'" readonly class="form-control text-center pending-qty"></td>';
-	    
 			$batch_html += '<td style="width:62px;font-size: 8px;">'+$expiry+'<input type="hidden" name="batch['+item_id+']['+n+'][expiry]" value="'+$expiry+'"></td>';
-	    
 			$batch_html += '<td><input type="text" name="batch['+item_id+']['+n+'][cost_price]" readonly value="'+$cost+'" class="form-control text-center cost-price"></td>';
 			$batch_html += '<td><input type="text" name="batch['+item_id+']['+n+'][selling_price]" readonly value="'+$recipe_price+'" class="form-control text-center selling-price"></td>';
 			$batch_html += '<td>'+formatDecimal($tax_per)+'%<input type="hidden" name="batch['+item_id+']['+n+'][tax]" value="'+$tax_per+'" class="form-control text-center recipe-tax-per"><input type="hidden" name="batch['+item_id+']['+n+'][tax_method]" value="'+$tax_method+'"></td>';
 			$batch_html += '<td><span class="recipe-tax-amt-label">'+formatDecimal($tax)+'</span><input type="hidden" name="batch['+item_id+']['+n+'][tax_amount]" value="'+$tax+'" class="form-control text-center recipe-tax-amt"></td>';
 			$batch_html += '<td><span class="recipe-gross-amt-label">'+formatDecimal($gross_amt)+'</span><input type="hidden" name="batch['+item_id+']['+n+'][gross]" value="'+$gross_amt+'" class="form-control text-center recipe-gross"></td>';
-	    
 			$batch_html += '<td><span class="recipe-grand-total-label">'+formatDecimal($grand_total_amt)+'</span><input type="hidden" name="batch['+item_id+']['+n+'][grand_total]" value="'+$grand_total_amt+'" class="form-control text-center recipe-grand-total"></td>';
-	    
 			$batch_html +='</tr>';
-	    
 			$batch_html +'</tbody>';
 			$batch_html +='</table>';
 			$html +=$batch_html;
@@ -662,10 +622,8 @@ function loadItems() {
 	    $html +='</td>';
 	    $html += '<td class="text-center"><i class="fa fa-times tip podel" id="' + item_id + '" title="Remove" style="cursor:pointer;"></i></td>';
 	    $html +='</tr>';
-	    
         $('#store_transfersTable>tbody').append($html);
 	    $total_no_items++;
-	    
         });
 		
          $('#total_no_items').val($total_no_items);
