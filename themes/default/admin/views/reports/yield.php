@@ -265,7 +265,6 @@
             $url = '<?=admin_url('reports/get_ItemwiseYieldReport');?>';
             GetData($url);
         });
-
             $url = '<?=admin_url('reports/get_ItemwiseYieldReport');?>';            
             GetData($url);
 
@@ -299,10 +298,8 @@ function GetData($url) {
                                 $('.dataTables_paginate').html(data.pagination);
                                 $('#SlRData > tbody').empty();
                                 $('#SlRData > tbody').append('<tr><td style = "text-align:left"><strong>From: </strong>   '+start_date+'</td><td style = "text-align:left"><strong>To: </strong>   '+end_date+'</td></tr>');
-                                 
                                 var grand_qty  = 0;
                                 var grand_total = 0;
-                                
                                 <?php 
                                      $display='none';
                                      if($this->pos_settings->default_service_charge !=0 && $this->pos_settings->service_charge_option !=0) { ?>

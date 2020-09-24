@@ -6084,14 +6084,7 @@ public function getItemWiseYieldReports($start,$end,$warehouse_id,$varient_id,$l
 				// actual purchase =Ap,  
 				// yield percentage=((Ap-wastage)/Ap)*100;
 				// yield cost =AP Cost/Yield percentage
-				//
-				//
-				//
-				//
-				//
-				//
-				//
-				//
+				
 				
             if ($s->num_rows() > 0) {
                 foreach ($s->result() as $sow) {

@@ -294,7 +294,7 @@ $(document).on('change', '#store_transrequestnumber', function(){
 			var store_transfers_value = [];
 			$(this).removeClass('ui-autocomplete-loading');
 			var items = JSON.stringify(data.value['store_transfersitem']);
-			console.log(items)
+		
 			var store_transfers = JSON.stringify(data.value['store_transfers']);
 			store_transfers_value = $.parseJSON(store_transfers);
 			

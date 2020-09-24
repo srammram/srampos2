@@ -155,7 +155,7 @@ class Grn_model extends CI_Model{
 		$nq=$this->db->get_where("pro_stock_master",array("unique_id"=>$new_stockId));
 		if($oq->num_row()>0){
 			$old_stock=$oq->row();
-			$new_stock=nq->row();
+			$new_stock=$nq->row();
 			if($new_stock->stock_in>$old_stock->stock_in){
 				$o_update="update pro_stock_master set stock_in=0 where unique_id".$old_stockId;
 				$this->db->query($o_update);
@@ -248,6 +248,9 @@ class Grn_model extends CI_Model{
 					$category_mappingID=$this->siteprocurment->item_cost_update_new($stock_update);
 					$stock_update['cm_id']     = $category_mappingID ? $category_mappingID :0;
 					$this->stock_master_update($stock_update);
+					if(!empty($stock_id) && !empty($stock_update['parent_unique_id']))	{
+							$this->negative_stock_balancing($stock_update['parent_unique_id'],$stock_id);
+					}
 			}	
             }   
 			$bal_count +=($item['quantity']>=$item['pi_qty'])?0:1;

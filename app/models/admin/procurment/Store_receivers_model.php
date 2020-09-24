@@ -400,7 +400,10 @@ class Store_receivers_model extends CI_Model{
 
 			                $category_mappingID=$this->siteprocurment->item_cost_update_new($stock_update);
 					        $stock_update['cm_id']     = $category_mappingID ? $category_mappingID :0;
-					        $this->stock_master_update($stock_update);
+					        $stock_id=$this->stock_master_update($stock_update);
+							
+							$this->negativeStockAdjustments($data['intend_request_id'],$stock_id);
+							
 							
                         }
                     }
@@ -412,6 +415,43 @@ class Store_receivers_model extends CI_Model{
         }
         return false;
     }
+	function negativeStockAdjustments($store_request_id,$stockId){
+		$q=$this->db->get_where("pro_store_request",array("id"=>$store_request_id));
+		if($q->num_rows()>0){
+			$store_request=$q->row();
+			if($store_request->request_type=="Negative Stock"){
+				$k=$this->db->get_where("pro_stock_master",array("id"=>$stockId));
+			    $new_stock=$k->row();
+				$s=$this->db->get_where("pro_store_request_items",array("store_request_id"=>$store_request_id,"product_id"=>$new_stock->product_id));
+				if($s->num_rows()>0){
+					$store_request_item=$s->row();
+					$os=$this->db->get_where("pro_stock_master",array("unique_id"=>$store_request_item->parent_stock_unique_id));
+					$old_stock=$os->row();
+					$new_stockId=$new_stock->unique_id;
+					 $old_stockId=$old_stock->unique_id;
+					if($new_stock->stock_in>$old_stock->stock_in){
+						
+						$o_update="update  " . $this->db->dbprefix('pro_stock_master') . "  set stock_in=0 where unique_id ="."'".$old_stockId."'";
+						$this->db->query($o_update);
+						
+						$n_update="update  " . $this->db->dbprefix('pro_stock_master') . "  set stock_in=stock_in".$old_stock->stock_in.",parent_unique_id="."'".$old_stockId."'"." where unique_id ="."'".$new_stockId."'";
+						$this->db->query($n_update);
+						return true;
+					}else{
+						$o_update="update  " . $this->db->dbprefix('pro_stock_master') . " set stock_in=0,parent_unique_id="."'".$old_stockId."'"." where unique_id".$new_stockId;
+						$this->db->query($o_update);
+						$n_update="update  " . $this->db->dbprefix('pro_stock_master') . " set stock_in=stock_in"."'".$new_stock->stock_in."'"." where unique_id"."'".$old_stockId."'";
+						$this->db->query($n_update);
+						return true;
+			   }
+				}
+				
+			}
+		}
+		
+		return false;
+		
+	}
  function stock_master_update($stock_update){
         $date         =date('Y-m-d h:m:s');
 		$store_id 	  = $stock_update['store_id'];
@@ -434,16 +474,21 @@ class Store_receivers_model extends CI_Model{
 			$id = $q->row('id');
 			$this->db->where('id',$id);
 			$this->db->update('pro_stock_master',$stock_update);
+			$stock_id=$id;
+
 		}else{
 			$this->db->insert('pro_stock_master',$stock_update);
 			$insertID                  = $this->db->insert_id();
 			$UniqueID                  = $this->site->generateUniqueTableID($insertID);
 			$this->site->updateUniqueTableId($insertID,$UniqueID,'pro_stock_master');
-			$return_id = $this->db->insert_id();
+			$stock_id = $this->db->insert_id();
+			echo $this->db->last_query();
+			die;
 		}
 		if($this->isStore){
 			$this->sync_center->sync_stock_auto($stock_update['unique_id']);
 		}
+		return $stock_id;
     }
 
     public function deleteStore_receivers($id)

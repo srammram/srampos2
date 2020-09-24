@@ -392,7 +392,7 @@ function GetData($url){
 				                $t_stock_v_cost_price = 0;
 				                $t_stock_v_selling_price = 0;
 				               $.each(data.reports, function (n,v) {
-								   	console.log(v);
+								   $current_stock=0
 								 $stock_in = 0;
 								 $stock_out = 0;
 								 $stock_current = 0;
@@ -403,6 +403,7 @@ function GetData($url){
 										$uom=(b.unit_name !=null)?b.unit_name:'';
 								    $s_v_c_p = b.stock_in * b.cost_price;
 								    $s_v_l_c = b.stock_in * b.selling_price;
+									$current_stock =(b.stock_in>0)?b.stock_in-b.stock_out:b.stock_in;
                                     $html = '<tr>';
                                     $html +='<td>'+$row_index+'</td>';
                                     $html +='<td>'+b.item_name+'</td>';
@@ -412,9 +413,9 @@ function GetData($url){
 									$html +='<td>'+b.brand_name+'</td>';
 									$html +='<td>'+b.variant+'</td>';
 									$html +='<td>'+b.batch+'</td>';
-									$html +='<td>'+b.stock_in+'</td>';
-									$html +='<td>'+b.stock_out+'</td>';
-									$html +='<td>'+b.current_stock+'</td>';
+									$html +='<td>'+formatDecimals(b.stock_in,4)+'</td>';
+									$html +='<td>'+formatDecimals( b.stock_out,4)+'</td>';
+									$html +='<td>'+formatDecimals($current_stock,4)+'</td>';
 									$html +='<td>'+$uom+'</td>';
 									$html +='<td>'+b.cost_price+'</td>';
 									$html +='<td>'+b.selling_price+'</td>';
@@ -424,7 +425,7 @@ function GetData($url){
                                     $row_index++;
 									$stock_in +=parseInt(b.stock_in);
 									$stock_out +=parseInt(b.stock_out);
-									$stock_current += parseInt(b.current_stock);
+									$stock_current += formatDecimals($current_stock,4);
 									//$t_stock_v_cost_price += $s_v_s_p;
 									//$stock_v_cost_price += $s_v_s_p;
                                 });
@@ -432,10 +433,10 @@ function GetData($url){
 				                    $t_stock_out += $stock_out;
 				                    $t_stock_current += $stock_current;
 									$footer = '<tr style="font-weight:bold">';
-									$footer +='<td colspan=7><?=lang('total')?></td>';
+									$footer +='<td colspan=8><?=lang('total')?></td>';
 									$footer +='<td colspan=1>'+$stock_in+'</td>';
 									$footer +='<td>'+formatDecimals($stock_out)+'</td>';
-									$footer +='<td>'+formatDecimals($stock_current)+'</td>';
+									$footer +='<td></td>';
 									$footer +='<td></td>';
 									$footer +='<td></td>';
 									$footer +='<td></td>';

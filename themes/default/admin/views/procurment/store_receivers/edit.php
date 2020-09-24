@@ -259,7 +259,7 @@
                             <?= lang("Request_number", "store_rec_requestnumber"); ?>
                             
                            
-                            <?php
+                            <?php  
                         
                           $qn[''] = '';
                             foreach ($store_req as $store_req_row) {
@@ -267,6 +267,7 @@
                             }
                             echo form_dropdown('requestnumber', $qn, $store_receivers->intend_request_id, ' class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("request_number") . '"style="width:100%;" id="store_rec_requestnumber" disabled  ');
                             ?>
+							<input type="hidden" name="intend_request_id" value="<?php    echo  $store_receivers->intend_request_id; ?>">
                             </div>
                         
                     </div>

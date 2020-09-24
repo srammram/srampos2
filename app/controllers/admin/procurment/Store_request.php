@@ -260,9 +260,7 @@ class Store_request extends MY_Controller{
             } else {
                 $products;
             }
-            if($this->siteprocurment->GETaccessModules('')){
-				$approved_by = $this->session->userdata('user_id');
-			}
+           
 			if($status == 'process'){
 				$un = $this->siteprocurment->getUsersnotificationWithoutSales();
 				foreach($un as $un_row)
@@ -277,7 +275,8 @@ class Store_request extends MY_Controller{
 				);	
 				$this->siteprocurment->insertNotification($notification);
 			}
-            $data = array(
+          
+			$data = array(
 				'reference_no' 	=> $reference,
 				'date' 			=> $date,
 				'request_type' 	=> $this->input->post('request_type'),
@@ -288,13 +287,16 @@ class Store_request extends MY_Controller{
                 'note' 			=> $note,
                 'status' 		=> $status,
                 'created_by' 	=> $this->session->userdata('user_id'),
-				'approved_by' 	=> $approved_by ? $approved_by : 0,
-				'approved_on' 	=> $date,
 				'created_on' 	=> date('Y-m-d H:i:s'),
 				'total_no_items' =>$this->input->post('titems'),
 				'total_no_qty'	=>$this->input->post('total_items')
               
             );
+		if($status=="approved"){
+				$approved_by = $this->session->userdata('user_id');
+				$data['approved_by']=!empty($approved_by) ? $approved_by : 0;
+				$data['approved_on']=$date;
+			}
 
             if ($_FILES['document']['size'] > 0) {
                 $this->load->library('upload');

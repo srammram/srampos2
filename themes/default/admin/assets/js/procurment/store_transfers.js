@@ -728,6 +728,7 @@ if (typeof (Storage) === "undefined") {
 
 
 $(document).on('change', '.transfer-qty', function () {
+	store_transitems[12112];
     var item_id = $(this).closest('tr').attr('data-item');
     $row = $(this).closest('tr');
     $index =  $(this).closest('tr').attr('data-batch');
@@ -737,7 +738,7 @@ $(document).on('change', '.transfer-qty', function () {
 	var aquantity = $row.find('.available-qty').val();
 	if(parseInt(aquantity) < parseInt($(this).val())){
 		tquantity = 0;
-		bootbox.alert('Transfer quantity is greater than availabel quantity!', function(){
+		bootbox.alert('Transfer quantity is greater than available quantity!', function(){
 		$row.find('.transfer_qty').val(tquantity);
 		store_transitems[item_id].row.batches[$index].transfer_qty = tquantity;
     		localStorage.setItem('store_transitems', JSON.stringify(store_transitems));
@@ -750,7 +751,6 @@ $(document).on('change', '.transfer-qty', function () {
         if(store_transitems[item_id].row.unit != store_transitems[item_id].row.base_unit) {
             $.each(store_transitems[item_id].units, function(){
                 if (this.id == store_transitems[item_id].row.unit) {
-						console.log(unitToBaseQty(tquantity, this));
                     store_transitems[item_id].row.base_quantity = unitToBaseQty(tquantity, this);
                 }
             });

@@ -50,7 +50,6 @@ class Store_transfers_model extends CI_Model{
 	}
 	
 	public function checkPendingQTYEdit($product_id, $quantity, $id){
-		
 		$q = $this->db->select('id')->where('id', $id)->order_by('id', 'DESC')->limit(1)->get('pro_store_transfers');
 		if ($q->num_rows() > 0) {
 			$s = $this->db->select('pending_quantity')->where('product_id', $product_id)->where('store_transfer_id', $q->row('id'))->get('pro_store_transfer_items');
@@ -65,9 +64,7 @@ class Store_transfers_model extends CI_Model{
 		return 0;	
 	}
 	
-	public function getAllStore_transferItems($store_transfer_id)
-    {
-		
+	public function getAllStore_transferItems($store_transfer_id){
         $this->db->select('pro_store_transfer_items.*, tax_rates.code as tax_code, tax_rates.name as tax_name, tax_rates.rate as tax_rate, products.unit, products.details as details, product_variants.name as variant, products.hsn_code as hsn_code')
             ->join('products', 'products.id=pro_store_transfer_items.product_id', 'left')
             ->join('product_variants', 'product_variants.id=pro_store_transfer_items.option_id', 'left')
@@ -303,9 +300,10 @@ class Store_transfers_model extends CI_Model{
 			}
 			if ($unique_id) {
 				if($data['intend_request_id']!=''){
-				$u_data['is_processed'] =1;
-				$this->db->where('id',$data['intend_request_id']);
-				$this->db->update('pro_stock_request',$u_data);
+					$u_data['is_processed'] =1;
+					$u_data['status'] ="Completed";
+					$this->db->where('id',$data['intend_request_id']);
+					$this->db->update('pro_store_indent_receive',$u_data);
 			}
 			$store_transfers['is_processed'] = 1;
 			$this->db->update('pro_stock_request', $store_transfers, array('id' => $order_id));
@@ -345,9 +343,10 @@ class Store_transfers_model extends CI_Model{
 									$cat_mapp_data['invoice_id']     =$batch['invoice_id'];
 									$cat_mapp_data['selling_price']  =$batch['selling_price'];
 									$cat_mapp_data['pieces_selling_price']=0.00;
-									$cat_mapp_data['status']=1;
+									$cat_mapp_data['status']			  =1;
 									$this->category_mapping_update($cat_mapp_data);
-								    $this->TransferStockOut($batch['transfer_unit_qty'],$batch['stock_id']);  
+									$transfer_qty						  =($batch['transfer_unit_qty'])?$batch['transfer_unit_qty']:$batch['transfer_qty'];
+								    $this->TransferStockOut($transfer_qty,$batch['stock_id']);  
 			        }
 		          }
 			   }
@@ -358,7 +357,6 @@ class Store_transfers_model extends CI_Model{
 	       }
             return true;
         }
-	
         return false;
     }
  
@@ -369,8 +367,9 @@ class Store_transfers_model extends CI_Model{
 	    $this->db->delete('pro_store_transfer_item_details', array('store_transfer_id' => $id));
 	    if($data['intend_request_id']!=''){
 		$u_data['is_processed'] =1;
+		$u_data['status'] ="Completed";
 		$this->db->where('id',$data['intend_request_id']);
-		$this->db->update('pro_stock_request',$u_data);
+		$this->db->update('pro_store_indent_receive',$u_data);
 	    }
 		$tostore=$data['to_store'];
 		unset($data['to_store']);
@@ -411,7 +410,8 @@ class Store_transfers_model extends CI_Model{
 									$cat_mapp_data['pieces_selling_price']=0.00;
 									$cat_mapp_data['status']=1;
 									$this->category_mapping_update($cat_mapp_data);
-								    $this->TransferStockOut($batch['transfer_unit_qty'],$batch['stock_id']);  
+									$transfer_qty=($batch['transfer_unit_qty'])?$batch['transfer_unit_qty']:$batch['transfer_qty'];
+								    $this->TransferStockOut($transfer_qty,$batch['stock_id']);  
 					}
 		        }
 		     }
@@ -452,15 +452,14 @@ class Store_transfers_model extends CI_Model{
 			    stock_out = stock_out + '.$qty.'
 			where unique_id="'.$id.'"';
 	    $this->db->query($query);
-		
 		return $id;
     }
 	 function sync_store_receivers($transfer_id){
-		$q = $this->db->get_where('pro_store_transfers',array('id'=>$transfer_id));
+		$q 			= $this->db->get_where('pro_store_transfers',array('id'=>$transfer_id));
 		$insertData = $q->row_array();
-		$q = $this->db->get_where('pro_store_transfer_items',array('store_transfer_id'=>$transfer_id));
+		$q 			= $this->db->get_where('pro_store_transfer_items',array('store_transfer_id'=>$transfer_id));
 		$items_data = $q->result_array();
-		unset($insertData['attachment']);
+		unset($insertData['attachment'],$insertData['s_no']);
 		$table_name = 'pro_store_receivers';
 		$table_items = 'pro_store_receiver_items';
 		$table_item_details = 'pro_store_receiver_item_details';
@@ -486,8 +485,7 @@ class Store_transfers_model extends CI_Model{
         foreach($items_data as $k => $item){
         $item['store_id'] = $insertData['to_store'];
 	    $item['store_receiver_id'] = $unique_id;
-	    unset($item['store_transfer_id'],$item['available_qty'],$item['pending_qty'],$item['store_transfer_id'],$item['s_no']);
-	   
+	        unset($item['store_transfer_id'],$item['available_qty'],$item['pending_qty'],$item['store_transfer_id'],$item['s_no']);
             $this->db->insert($table_items,$item);
             $i_insert_id =$this->db->insert_id();
             $i_unique_id = $this->site->generateUniqueTableID($i_insert_id,$insert_data['store_id']);
@@ -495,7 +493,6 @@ class Store_transfers_model extends CI_Model{
                 $this->db->set('id',$i_unique_id);
                 $this->db->where('s_no',$i_insert_id);
                 $this->db->update($table_items);
-		
 		$i_details = $this->getStoreTItemDetails($item['id']);
 		foreach($i_details as $kk => $item_d){
 		    $item_d['store_id'] = $insertData['to_store'];
@@ -512,19 +509,17 @@ class Store_transfers_model extends CI_Model{
 			$this->db->where('s_no',$id_insert_id);
 			$this->db->update($table_item_details);
 		    }
-		}
-		
+			}
             }
         }
-        
     }
 	    function lastidStoreReceiver(){
-	$this->db->order_by('id' , 'DESC');
-        $q = $this->db->get('pro_store_receivers');
-        if ($q->num_rows() > 0) {
-            return $q->row('id');
-        }
-        return 0;
+			$this->db->order_by('id' , 'DESC');
+			$q = $this->db->get('pro_store_receivers');
+			if ($q->num_rows() > 0) {
+				return $q->row('id');
+			}
+			return 0;
     }
 	 function getStoreTItemDetails($id){
 			$q = $this->db->get_where('pro_store_transfer_item_details',array('store_transfer_item_id'=>$id));
@@ -554,11 +549,8 @@ class Store_transfers_model extends CI_Model{
   
   
   
-    public function updateStatus($id, $status, $note)
-    {
-        // $purchase = $this->getStore_transfersByID($id);
+    public function updateStatus($id, $status, $note){
         $items = $this->siteprocurment->getAllStore_transfersItems($id);
-
         if ($this->db->update('pro_store_transfer_items', array('status' => $status, 'note' => $note), array('id' => $id))) {
             foreach ($items as $item) {
                 $qb = $status == 'completed' ? ($item->quantity_balance + ($item->quantity - $item->quantity_received)) : $item->quantity_balance;
@@ -572,8 +564,7 @@ class Store_transfers_model extends CI_Model{
         return false;
     }
 
-    public function deleteStore_transfers($id)
-    {
+    public function deleteStore_transfers($id){
         $purchase = $this->getStore_transfersByID($id);
         $purchase_items = $this->siteprocurment->getAllStore_transfersItems($id);
         if ($this->db->delete('pro_store_transfer_items', array('store_transfers_id' => $id)) && $this->db->delete('pro_store_transfers', array('id' => $id))) {
@@ -627,8 +618,6 @@ class Store_transfers_model extends CI_Model{
         return FALSE;
     }
 
-   
-
   
  public function loadbatches($productid){
 		$type = array('standard','raw');
@@ -669,20 +658,19 @@ class Store_transfers_model extends CI_Model{
      
     }
 	 function getStockReference($id){
-	 $this->db->select('id,reference_no,date');
+		$this->db->select('id,reference_no,date');
         $this->db->from('pro_stock_request');
         $this->db->where('id',$id);
-	//echo $this->db->get_compiled_select();
+		//echo $this->db->get_compiled_select();
         $q = $this->db->get();$data= array();
         if($q->num_rows()>0){
             $data = $q->result();
-	    
 	    return $data;
 	}
-	return false;
+		return false;
     }
 	 function getStoreindentData($id){
-	$q = $this->db->get_where('pro_stock_request',array('id'=>$id));
-	return $q->row();
+		$q = $this->db->get_where('pro_stock_request',array('id'=>$id));
+		return $q->row();
     }
 }

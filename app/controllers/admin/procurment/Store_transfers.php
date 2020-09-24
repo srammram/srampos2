@@ -67,11 +67,9 @@ class Store_transfers extends MY_Controller{
                 $units        = $this->siteprocurment->getUnitsByBUID($row->base_unit);
                 $tax_rate     = $this->siteprocurment->getTaxRateByID($row->tax_rate);
 				$batches      =  $this->store_transfers_model->loadbatches($row->id);
-			
 				$row->batches = $batches;
-                $pr[] = array('id' => $unique_item_id, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
+                $pr[$row->id] = array('id' => $unique_item_id, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
                     'row' => $row, 'unique_id'=>$unique_item_id,'tax_rate' => $tax_rate, 'units' => $units, 'options' => $options);
-			
 			$c++;
 		}
 		$data['store_transfersitem'] = $pr;
@@ -89,7 +87,6 @@ class Store_transfers extends MY_Controller{
 	public function supplier(){
 		$supplier_id =  $this->input->get('supplier_id');
 		$data = $this->store_transfers_model->getSupplierdetails($supplier_id);
-		
 		if(!empty($data)){
 			$response['supplier_name'] = $data->name;
 			$response['supplier_code'] = $data->ref_id;

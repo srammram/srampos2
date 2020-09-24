@@ -352,38 +352,29 @@ class Purchase_orders_model extends CI_Model{
     public function addPurchase_orders($data, $items,$stores_qty, $purchase_orders, $quote_id)
     {	$this->db->insert('pro_purchase_orders', $data);				
         if ($purchase_orders_id = $this->db->insert_id()) {
-			$this->db->update('pro_quotes', $purchase_orders, array('id' => $quote_id));			
-          
-	    foreach ($items as $item) {
-                $item['purchase_order_id'] = $purchase_orders_id;
+			$UniqueID                  = $this->site->generateUniqueTableID($purchase_orders_id);
+			$this->site->updateUniqueTableId($purchase_orders_id,$UniqueID,'pro_purchase_orders');
+			$this->db->update('pro_quotes', $purchase_orders, array('id' => $quote_id));	
+			foreach ($items as $item) {
+                $item['purchase_order_id'] = $UniqueID;
                 $this->db->insert('pro_purchase_order_items', $item);//print_r($this->db->error());die;
             }
 	    foreach($stores_qty as $sqty){
-		$sqty['po_id'] = $purchase_orders_id;
-		$this->db->insert('pro_po_store_quantity', $sqty);
+				$sqty['po_id'] = $UniqueID;
+				$this->db->insert('pro_po_store_quantity', $sqty);
 	    }
-            // print_r($this->db->error());die;			
             return true;
         }
-        // print_r($this->db->error());die;
         return false;
     }
 
-    public function updatePurchase_orders($id, $data, $items = array())
-    {
-		
-        /*echo "<pre>";
-        print_r($items);die;*/
+    public function updatePurchase_orders($id, $data, $items = array()){
         if ($this->db->update('pro_purchase_orders', $data, array('id' => $id)) && $this->db->delete('pro_purchase_order_items', array('purchase_order_id' => $id))) {
             $purchase_orders_id = $id;
-			
-			//$this->db->update('delivery_store', array('purchase_order_id' => $purchase_orders_id, 'date' => date('Y-m-d'), 'status' => 'process', 'created_on' => date('Y-m-d H:i:s'), 'created_by' => $this->session->userdata('user_id')), array('quote_id' => $order_id));
-			
             foreach ($items as $item) {
                 $item['purchase_order_id'] = $id;
                 $this->db->insert('pro_purchase_order_items', $item);
             }
-         
             return true;
         }
 
