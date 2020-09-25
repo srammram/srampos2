@@ -6025,7 +6025,7 @@ public function getWastageItemReports($start,$end,$warehouse_id,$varient_id,$lim
 						$where .= "AND WI.product_id =".$recipe_id."";
 					}
                    $myQuery = "SELECT WI.unit_price AS rate,WH.name as warehouse,R.name,CASE WHEN RV.name  is NOT NULL THEN RV.name ELSE 'No Variant' END AS variant,W.type,U.name as unit_name,
-SUM(WI.net_amount)*SUM(WI.wastage_qty)  w_price, sum(WI.wastage_qty) w_qty
+				   SUM(WI.net_amount)*SUM(WI.wastage_qty)  w_price, sum(WI.wastage_qty) w_qty
 					FROM " . $this->db->dbprefix('wastage_items') . " WI
 					JOIN " . $this->db->dbprefix('recipe') . " R ON R.id = WI.product_id
 					JOIN " . $this->db->dbprefix('wastage') . " W ON W.id = WI.wastage_id
