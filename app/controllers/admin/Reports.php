@@ -6361,7 +6361,6 @@ GROUP BY B.id, PD.identify*/
    
 
    public function get_ItemwiseWastageReport($start_date = NULL, $end_date = NULL, $warehouse_id = NULL, $varient_id = NULL){
-
         $this->sma->checkPermissions('recipe',TRUE);        
         $start 			= $this->input->post('start_date');
         $end 			= $this->input->post('end_date');
@@ -6375,17 +6374,12 @@ GROUP BY B.id, PD.identify*/
         $offset = $this->uri->segment($offsetSegment,0);
         $this->session->set_userdata('start_date', $this->input->post('start_date'));
         $this->session->set_userdata('end_date', $this->input->post('end_date'));
-
         $data= '';
         if ($start != '' && $end != '') {
             $data = $this->reports_model->getWastageItemReports($start,$end,$warehouse_id,$varient_id,$limit,$offset,$this->report_view_access,$this->report_show,$category_id,$subcategory_id,$recipe_id);
-          print_r($data);
-		  die;
-		
              if (!empty($data['data'])) {                 
                  $wastageReport = $data['data'];
-             }
-             else{                
+             }else{                
                 $wastageReport = 'empty';
              }
              

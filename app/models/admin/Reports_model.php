@@ -5957,28 +5957,55 @@ public function getWastageItemReports($start,$end,$warehouse_id,$varient_id,$lim
         if($subcategory_id != 0){
             $where .= " AND R.subcategory_id =".$subcategory_id."";
         }
-        $category = "SELECT RC.id AS cate_id,RC.name as category
+      /*   $category = "SELECT RC.id AS cate_id,RC.name as category
         FROM " . $this->db->dbprefix('recipe_categories') . " RC
         JOIN " . $this->db->dbprefix('recipe') . " R ON  R.category_id = RC.id
         JOIN " . $this->db->dbprefix('wastage_items') . " WI ON WI.product_id = R.id
         JOIN " . $this->db->dbprefix('wastage') . " W ON W.id = WI.wastage_id        
         WHERE DATE(W.date) BETWEEN '".$start."' AND '".$end."' AND
         W.status ='approved' ".$where." GROUP BY RC.id";
+		
+		 */
+		
+		 $category = "SELECT RC.id AS cate_id,RC.name as category
+        FROM " . $this->db->dbprefix('wastage_items') . " WI
+       left  JOIN " . $this->db->dbprefix('recipe') . " R ON   WI.product_id = R.id
+        JOIN " . $this->db->dbprefix('recipe_categories') . " RC ON WI.category_id = RC.id
+        JOIN " . $this->db->dbprefix('wastage') . " W ON W.id = WI.wastage_id        
+        WHERE DATE(W.date) BETWEEN '".$start."' AND '".$end."' AND
+        W.status ='approved' ".$where." GROUP BY RC.id";
+		
+		
+		/*       
+        SELECT *
+        FROM srampos_wastage_items  WI
+        LEFT JOIN srampos_recipe R ON    WI.product_id = R.id
+        JOIN srampos_recipe_categories RC ON WI.category_id = RC.id
+        JOIN srampos_wastage W ON W.id = WI.wastage_id        
+        WHERE DATE(W.date) BETWEEN '2020-05-01' AND '2020-09-25' AND
+        W.status ='approved' AND W.store_id =2 GROUP BY RC.id LIMIT 0,10
+		 */
+		
+		
+		
+		
+		
 
         $limit_q = " limit $offset,$limit";
         $total = $this->db->query($category);
-	
         if($limit!=0) $category .=$limit_q;
         $t = $this->db->query($category);
         if ($t->num_rows() > 0) {
             foreach ($t->result() as $row) {
                 $this->db->select("recipe_categories.id AS sub_id,recipe_categories.name AS sub_category")
-                ->join('recipe', 'recipe.subcategory_id = recipe_categories.id')
-                ->join('wastage_items', 'wastage_items.product_id = recipe.id')
+                
+                //->join('wastage_items', 'wastage_items.product_id = recipe.id')
+				->join('recipe_categories', 'recipe_categories.id = wastage_items.subcategory_id')
+				->join('recipe', 'recipe.id = wastage_items.product_id')
                 ->join('wastage', 'wastage.id = wastage_items.wastage_id')
                 ->where('wastage.status', 'approved')
                 ->where('DATE('. $this->db->dbprefix('wastage') .'.date) BETWEEN "' . $start . '" and "' . $end.'"')
-                ->where('recipe.category_id', $row->cate_id);
+                ->where('wastage_items.category_id', $row->cate_id);
                
 				if($varient_id != 0){
 						$where .= "AND WI.variant_id =".$varient_id."";
@@ -5987,8 +6014,7 @@ public function getWastageItemReports($start,$end,$warehouse_id,$varient_id,$lim
 						$where .= "AND WI.product_id =".$recipe_id."";
 				}
                 $this->db->group_by('recipe.subcategory_id');
-                $s = $this->db->get('recipe_categories');
-				//echo $this->db->last_query();
+                $s = $this->db->get('wastage_items');
             if ($s->num_rows() > 0) {
                 foreach ($s->result() as $sow) {
                     $where = '';
@@ -5999,7 +6025,7 @@ public function getWastageItemReports($start,$end,$warehouse_id,$varient_id,$lim
 						$where .= "AND WI.product_id =".$recipe_id."";
 					}
                    $myQuery = "SELECT WI.unit_price AS rate,WH.name as warehouse,R.name,CASE WHEN RV.name  is NOT NULL THEN RV.name ELSE 'No Variant' END AS variant,W.type,U.name as unit_name,
-				   sum(WI.net_amount) w_price, sum(WI.wastage_qty) w_qty
+SUM(WI.net_amount)*SUM(WI.wastage_qty)  w_price, sum(WI.wastage_qty) w_qty
 					FROM " . $this->db->dbprefix('wastage_items') . " WI
 					JOIN " . $this->db->dbprefix('recipe') . " R ON R.id = WI.product_id
 					JOIN " . $this->db->dbprefix('wastage') . " W ON W.id = WI.wastage_id
@@ -6009,8 +6035,8 @@ public function getWastageItemReports($start,$end,$warehouse_id,$varient_id,$lim
 					LEFT JOIN " . $this->db->dbprefix('recipe_variants') . " RV ON RV.id = WI.variant_id
 					WHERE DATE(W.date) BETWEEN '".$start."' AND '".$end."' AND   W.status ='approved'" .$where. " GROUP BY R.id,WI.variant_id,WI.brand_id,W.type" ;
                     $o = $this->db->query($myQuery);
-				/* echo $this->db->last_query();
-				die; */
+				/*  echo $this->db->last_query();
+				die;  */
                         $split[$row->cate_id][] = $sow;
                         if ($o->num_rows() > 0) {                                    
                             foreach($o->result() as $oow){
