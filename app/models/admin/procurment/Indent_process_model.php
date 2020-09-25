@@ -149,14 +149,22 @@ class Indent_process_model extends CI_Model{
         return false;
     }
     function LoadStock($product_ids,$store_ids){
-        $this->db->select('pro_stock_master.product_id,pro_stock_master.store_id,SUM(stock_in) as available_stock,warehouses.name as store_name');
+        $this->db->select('pro_stock_master.product_id,pro_stock_master.store_id,CASE operator
+				WHEN "*" THEN (stock_in)/operation_value
+				WHEN "/" THEN (stock_in)*operation_value
+				WHEN "+" THEN (stock_in)-operation_value
+				WHEN "-" THEN (stock_in)+operation_value
+				ELSE (stock_in)
+				END AS available_stock,
+		warehouses.name as store_name');
         $this->db->from('pro_stock_master');
         $this->db->join('warehouses','warehouses.id=pro_stock_master.store_id');
+		 $this->db->join('recipe','recipe.id=pro_stock_master.product_id');
+		$this->db->join('units','units.id=recipe.purchase_unit');
         $this->db->where_in('pro_stock_master.product_id',$product_ids);        
         $this->db->where_in('pro_stock_master.store_id',$store_ids);
         $this->db->group_by('pro_stock_master.product_id,store_id');
-   
-        //echo $this->db->get_compiled_select();
+
         $q = $this->db->get();
         if($q->num_rows()>0){
             $data = $q->result();

@@ -579,7 +579,9 @@ function loadItems() {
 				 if( product_unit != item.row.base_unit) {
 					$.each(item.units, function(){
                     if (this.id == product_unit) {
-                        base_quantity = formatDecimal(unitToBaseQty(item.row.qty, this), 4);
+                        base_quantity = formatDecimal(unitToBaseQty($transfer_qty, this), 4);
+						$available_qty = formatDecimal(baseToUnitQty($available_qty, this), 4);
+						$pending_qty = $available_qty-$transfer_qty;
                     }
                 });
             }

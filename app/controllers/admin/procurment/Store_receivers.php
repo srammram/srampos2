@@ -206,7 +206,6 @@ class Store_receivers extends MY_Controller{
 	       $this->session->set_flashdata('error', lang("Do not allowed edit option"));
 	       admin_redirect("procurment/store_receivers");
 	   } 
-      
         $this->form_validation->set_rules('date', $this->lang->line("date"), 'required');
         $this->session->unset_userdata('csrf_token');
         if ($this->form_validation->run() == true) {
@@ -231,6 +230,7 @@ class Store_receivers extends MY_Controller{
 				'store_receiver_id'=>$row['storereceiverid'],					
 			    'transfer_qty' => $row['transfer_qty'],
 			    'received_qty' => $row['received_qty'],
+				 'received_unit_qty' => $row['base_received_qty'],
 			    'batch' => $row['batch_no'],
 			    'vendor_id' => $row['vendor_id'],
 			    'expiry' => $row['expiry'],
@@ -296,36 +296,35 @@ class Store_receivers extends MY_Controller{
         } else {
             $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
             $this->data['inv'] = $inv;
-         
             $inv_items = $this->store_receivers_model->getAllStore_receiversItems($id);   
             krsort($inv_items);
             $c = rand(100000, 9999999);
             foreach ($inv_items as $item) {
-              $row             = $this->siteprocurment->getItemByID($item->product_id);
-			  $row->quantity   =  $item->quantity;
-			  $row->batch_no   = $item->batch;
-			  $row->expiry     = $item->expiry;
+              $row                 = $this->siteprocurment->getItemByID($item->product_id);
+			  $row->quantity       =  $item->quantity;
+			  $row->batch_no       = $item->batch;
+			  $row->expiry         = $item->expiry;
 			  $row->cost_price     = $item->cost_price;
 			  $row->price          = $item->selling_price;
 			  $row->tax            = $item->tax;
 			  $row->tax_method     = $item->tax_method;
-			  
 			  $row->variant_id     = $item->variant_id;
 			  $row->category_id    = $row->category_id;
 			  $row->subcategory_id = $row->subcategory_id;
 			  $row->brand_id       = $row->brand;
+			  $row->base_unit      = $row->unit;
+              $row->unit           = $row->purchase_unit ? $row->purchase_unit : $row->unit;
 			  $batches             = $this->store_receivers_model->getTransferredStockData($item->id);
 			  $row->request_qty    = $item->request_qty;
 			  $row->received_qty   = $item->received_qty;
-			  $row->batches = $batches;
-			  $unique_item_id = $this->store_id.$item->product_id.$item->batch;
-			  $ri = $row->id;
+			  $row->batches        = $batches;
+			  $unique_item_id      = $this->store_id.$item->product_id.$item->batch;
+			  $ri                  = $row->id;
+			  $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
 			  $options = array();
 			  $pr[$unique_item_id] = array('unique_id'=>$unique_item_id,'id' => $row->id,'store_receiveItemid'=>$item->id, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
-				'row' => $row,  'options' => $options);
-			
+				'row' => $row,  'options' => $options,'units'=>$units);
             }
-
             $this->data['inv_items'] = json_encode($pr);
             $this->data['id'] = $id;
             $this->data['suppliers'] = $this->siteprocurment->getAllCompanies('supplier');
@@ -341,7 +340,6 @@ class Store_receivers extends MY_Controller{
             $this->data['csrf'] = $this->session->userdata('user_csrf');
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('procurment/store_receivers'), 'page' => lang('store_receivers')), array('link' => '#', 'page' => lang('edit_store_receivers')));
             $meta = array('page_title' => lang('edit_store_receivers'), 'bc' => $bc);
-        
             $this->page_construct('procurment/store_receivers/edit', $meta, $this->data);
         }
     }

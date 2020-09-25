@@ -728,6 +728,7 @@ function loadItems() {
 			$product_tax_per = item.row.tax;
 			$product_tax_method = item.row.tax_method;
             $qty = item.row.qty;
+			var product_unit    = item.row.unit;
 			$ex_qty = (item.row.ex_qty!=undefined)?item.row.ex_qty:0;
 			$request_qty =item.row.request_qty ? item.row.request_qty : 0;
 			$html = '<tr class="order-item-row warning" data-item="'+item_id+'"><input type="hidden" name="store_receive_itemid[]" value="'+item.store_receiveItemid+'">';
@@ -763,6 +764,18 @@ function loadItems() {
                     pr_tax_rate = ptax[1];
                     $product_tax += pr_tax_val * item_qty;
                 }
+				
+				$base_return_qty = $return_qty;
+			 if( product_unit != item.row.base_unit) {
+					$.each(item.units, function(){
+                    if (this.id == product_unit) {
+                        $base_return_qty = formatDecimal(unitToBaseQty($return_qty, this), 4);
+						
+                    }
+                });
+            }	
+				
+				
 			$product_grand_total_amt = $product_gross_amt+$product_tax;
 			$batch_html ='<table style="width: 100%;" class="table items  table-bordered table-condensed batch-table"><thead>';
 			$batch_html +='<th>batch</th>';
@@ -783,9 +796,9 @@ function loadItems() {
 			$batch_html += '<td><input type="hidden" name="batch['+item_id+']['+n+'][landing_cost]" value="'+$landingCost+'"><input type="text" name="batch['+item_id+']['+n+'][received_qty]" value="'+$received_qty+'" class="form-control text-center received-qty"></td>';	    
 			if($return_qty ==0 || isNaN($return_qty)){
 			$total_no_qty +=parseInt($return_qty);
-			$batch_html += '<td><input type="text" name="batch['+item_id+']['+n+'][return_qty]" value="'+$received_qty+'"  class="numberonly form-control text-center received-qty"></td>';
+			$batch_html += '<td><input type="text" name="batch['+item_id+']['+n+'][return_qty]" value="'+$received_qty+'"  class="numberonly form-control text-center received-qty"><input type="hidden" name="batch['+item_id+']['+n+'][base_return_qty]" value="'+$base_return_qty+'"  ></td>';
 			}else{
-			$batch_html += '<td><input type="text" name="batch['+item_id+']['+n+'][return_qty]" value="'+$return_qty+'"  class="numberonly form-control text-center received-qty"></td>';
+			$batch_html += '<td><input type="text" name="batch['+item_id+']['+n+'][return_qty]" value="'+$return_qty+'"  class="numberonly form-control text-center received-qty"><input type="hidden" name="batch['+item_id+']['+n+'][base_return_qty]" value="'+$base_return_qty+'"  ></td>';
 			}
 			$batch_html += '<td style="width: 78px;font-size: 13px;">'+$product_expiry+'<input type="hidden" name="batch['+item_id+']['+n+'][expiry]" value="'+$product_expiry+'"></td>';
 			$batch_html += '<td><input type="text" name="batch['+item_id+']['+n+'][cost_price]" readonly value="'+$product_cost+'" class="form-control text-center cost-price"></td>';

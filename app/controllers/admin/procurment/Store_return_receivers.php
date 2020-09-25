@@ -213,13 +213,14 @@ class Store_return_receivers extends MY_Controller{
 			  $row->request_qty    = $item->request_qty;
 			  $row->received_qty   = $item->received_qty;
 			  $row->batches = $batches;
-			 
+			  $row->base_unit      = $row->unit;
+              $row->unit           = $row->purchase_unit ? $row->purchase_unit : $row->unit;
+			   $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
 			  $unique_item_id = $this->store_id.$item->product_id.$item->batch;
 			  $ri = $row->id;
 			  $options = array();
 			  $pr[$unique_item_id] = array('unique_id'=>$unique_item_id,'id' => $row->id,'store_receiveItemid'=>$item->id, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
-				'row' => $row,  'options' => $options);
-			
+				'row' => $row,  'options' => $options,'units'=>$units);
             }
 			$data->req_items = $pr;
 			$data->date = $store_receivers->date;
@@ -255,8 +256,9 @@ class Store_return_receivers extends MY_Controller{
 		    foreach($_POST['batch'][$this->store_id.$_POST["product_id"][$r]] as $k => $row){
 				$products[$r]['batches'][] = array(
 		        'id'=>$row['itemid'],
-			    'received_qty' => $row['received_qty'],
-			    'return_qty' => $row['return_qty'],
+			    'received_qty'   => $row['received_qty'],
+			    'return_qty'     => $row['return_qty'],
+				
 			    'batch'          => $row['batch_no'],
 			    'vendor_id'      => $row['vendor_id'],
 			    'expiry'         => $row['expiry'],
@@ -277,7 +279,7 @@ class Store_return_receivers extends MY_Controller{
 				'brand_id'       => $_POST['brand_id'][$r], 
 				'variant_id'     => $_POST['variant_id'][$r],
 				'stock_id'       => $row['stock_id'],
-				'return_unit_qty'=> $row['return_qty'],
+				'return_unit_qty'=> $row['base_return_qty'],
 				'return_type'    => $row['r_type'],   
 			);
 			$total_t_qty +=$row['received_qty'];

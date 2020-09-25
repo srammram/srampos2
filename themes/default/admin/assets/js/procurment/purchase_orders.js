@@ -236,7 +236,6 @@ $(document).on('change', '.rexpiry', function () {
 });
 
 $(document).on('change', '.rdays', function () {
-    
     var row = $(this).attr('data-id');
     var day_val = parseInt($(this).val());
      var item_id = $(this).closest('tr').attr('data-item-id');
@@ -254,7 +253,6 @@ $(document).on('change', '.rdays', function () {
 
         
 $(document).on('click', '.rmfg', function () {
-    
     var row = $(this).attr('data-id');
     var day_val = parseInt($("#days_"+row).val());
      var item_id = $(this).closest('tr').attr('data-item-id');
@@ -270,46 +268,10 @@ $(document).on('click', '.rmfg', function () {
             po_items[item_id].row.expiry = $("#expiry_"+row).val(date);
         }
     }).datepicker('widget').wrap('<div class="ll-skin-nigran"/>');
-    
-    
-    
-   
-    po_items[item_id].row.mfg = $(this).val();
-     po_items[item_id].row.days = day_val;
-    localStorage.setItem('po_items', JSON.stringify(po_items));
+		po_items[item_id].row.mfg = $(this).val();
+		po_items[item_id].row.days = day_val;
+		localStorage.setItem('po_items', JSON.stringify(po_items));
 });
-
-/*$(document).on('change', '.rmfg', function () {
-    alert('a');
-    var item_id = $(this).closest('tr').attr('data-item-id');
-    var total_expiry = $(this).closest('tr').attr('data-total-expiry');
-    
-    var mfg_date = $(this).val().split('-');  
-    mfg_date =  mfg_date[2] +'-'+ mfg_date[1] +'-'+ mfg_date[0]; 
-
-    var today = new Date(mfg_date);
-    var tomorrow = new Date();
-    tomorrow.setDate(today.getDate() + parseInt(total_expiry) );
-    
-    var dd = tomorrow.getDate();
-    var mm = tomorrow.getMonth()+1; //January is 0!
-    
-    var yyyy = tomorrow.getFullYear();
-    if(dd<10){
-        dd='0'+dd;
-    } 
-    if(mm<10){
-        mm='0'+mm;
-    } 
-    
-    var expiry_date = dd+'-'+mm+'-'+yyyy;
-
-    $('.rexpiry[data-item='+item_id+']').val(expiry_date);
-    
-    po_items[item_id].row.mfg = $(this).val();
-    po_items[item_id].row.expiry = expiry_date;
-    localStorage.setItem('poitems', JSON.stringify(po_items));
-});*/
 
 $(document).on('change', '.rbatch_no', function () {
     var item_id = $(this).closest('tr').attr('data-item-id');
@@ -571,13 +533,10 @@ $('#po_discount').focus(function () {
     });
 
     $(document).on('click', '.delivery_store', function () {
-
         var row = $(this).closest('tr');
         var row_id = row.attr('id');
         item_id = row.attr('data-item-id');
-        
         var quote_id = localStorage.getItem('po_requestnumber');
-        
         item = po_items[item_id];
         var qty = row.children().children('.rquantity').val();
         var product_id = row.children().children('.rid').val();
@@ -586,7 +545,6 @@ $('#po_discount').focus(function () {
         $('#dsproduct_id').val(product_id);
         $('#dsquote_id').val(quote_id);
         $('#DSModalLabel').text(item.row.name + ' (' + item.row.code + ')');
-        
         $.ajax({
             type: "get", 
             url: site.base_url+"purchase_invoices/getProductStores/?product_id="+product_id+"&row="+row_id+"&qty="+qty+"&quote_id="+quote_id,
@@ -718,9 +676,8 @@ $('#po_discount').focus(function () {
         $dis_type = $(this).val();
         item_id = row.attr('data-item-id');
         $('.rdiscount').val('');
-    po_items[item_id].row.item_discount_percent = '';
+		po_items[item_id].row.item_discount_percent = '';
         po_items[item_id].row.item_dis_type = $dis_type;
-       
         localStorage.setItem('po_items', JSON.stringify(po_items));
         loadItems();
     });
@@ -1105,18 +1062,18 @@ function loadItems() {
                 item_ds_amt = format2Decimals(item_ds_amt);
             }
             var category_id = item.row.category_id,
-		category_name = item.row.category_name,
-		subcategory_id = item.row.subcategory_id,
-		subcategory_name = item.row.subcategory_name,
-		brand_id = item.row.brand_id,
-        variant_id = item.row.variant_id,
-		brand_name = item.row.brand_name;
+				category_name = item.row.category_name,
+				subcategory_id = item.row.subcategory_id,
+				subcategory_name = item.row.subcategory_name,
+				brand_id = item.row.brand_id,
+				variant_id = item.row.variant_id,
+				brand_name = item.row.brand_name;
                 
             var qty_received = (item.row.received >= 0) ? item.row.received : item.row.qty;
             var item_supplier_part_no = item.row.supplier_part_no ? item.row.supplier_part_no : '';
             if (item.row.new_entry == 1) { item_bqty = item_qty; item_oqty = item_qty; }
             var unit_cost = item.row.unit_cost;
-
+			var unit_name = item.row.unit_name ? item.row.unit_name :'-';
             var product_unit = item.row.unit, base_quantity = item.row.base_quantity;
             var supplier = localStorage.getItem('po_supplier'), belong = false;
             var item_tax_method = localStorage.getItem('tax_method');
@@ -1157,12 +1114,12 @@ function loadItems() {
                     if (this.id == product_unit) {
                         base_quantity = formatDecimal(unitToBaseQty(item.row.qty, this), 4);
                       //  unit_price = formatDecimal((parseFloat(item.row.base_unit_price)*(unitToBaseQty(1, this))), 4);
+					    unit_name=this.name;
                     }
                 });
             }
 				$bill_dis_val =0;
              if(localStorage.getItem('inv_bill_disc_percentage')){ 
-
                 if (bill_disc_percentage.indexOf("%") !== -1) {            
                     var pds = bill_disc_percentage.split("%");
                     if (!isNaN(pds[0])) {
@@ -1172,9 +1129,7 @@ function loadItems() {
                          item_bill_dis = formatDecimal(((total * parseFloat($per)) / 100), 4);                         
                         }
                     }
-                else{        
-         
-                }
+               
                 }else{
                     item_bill_dis =0;
                 }   
@@ -1222,19 +1177,19 @@ function loadItems() {
             
             
             if (category_name==null) {category_name ='';}if (category_id==null) {category_id =0;}
-	    tr_html +='<td>'+
+			tr_html +='<td>'+
 		     '<input name="category_id[]" type="hidden" class="cid" value="' + category_id + '">'+
 		     '<input name="category_name[]" type="hidden" class="cname" readonly value="' + category_name + '">'+
 		     '<span class="sname" id="name_' + row_no + '">' + category_name +'</span>'+
 		     '</td>';
 		     if (subcategory_name==null) {subcategory_name ='';}if (subcategory_id==null) {subcategory_id =0;}
-	    tr_html +='<td>'+
+			tr_html +='<td>'+
 		     '<input name="subcategory_id[]" type="hidden" class="scid" value="' + subcategory_id + '">'+
 		     '<input name="subcategory_name[]" type="hidden" class="scname" readonly value="' + subcategory_name + '">'+
 		     '<span class="sname" id="name_' + row_no + '">' + subcategory_name +'</span>'+
 		     '</td>';
 		    if (brand_name==null) {brand_name ='';}if (brand_id==null) {brand_id =0;}
-	    tr_html +='<td>'+
+			tr_html +='<td>'+
 		     '<input name="brand_id[]" type="hidden" class="bid" value="' + brand_id + '">'+
 		     '<input name="brand_name[]" type="hidden" class="bname" readonly value="' + brand_name + '">'+
 		     '<span class="sname" id="name_' + row_no + '">' + brand_name +'</span>'+
@@ -1242,14 +1197,13 @@ function loadItems() {
                      
             tr_html += '<td class="qty-container"><input name="quantity_balance[]" type="hidden" class="rbqty" value="' + item_bqty + '"><input class="form-control text-center rquantity numberonly" name="quantity[]" type="text" tabindex="'+((site.settings.set_focus == 1) ? an : (an+1))+'" value="' + formatQuantity2(item_qty) + '" data-id="' + row_no + '" data-item="' + item_id + '" id="quantity_' + row_no + '" onClick="this.select();"><input name="product_unit[]" type="hidden" class="runit" value="' + product_unit + '"><input name="product_base_quantity[]" type="hidden" class="rbase_quantity" value="' + base_quantity + '"></td>';
             
-            tr_html += '<td class="text-right"><input class="form-control text-right ruom" type="hidden" readonly name="unit[]" value="' + (item.row.unit_name) + '" style="width:100px!important" id="ruom_' + row_no + '" >' + (item.row.unit_name) + '</td>';
+            tr_html += '<td class="text-right"><input class="form-control text-right ruom" type="hidden" readonly name="unit[]" value="' +   unit_name + '" style="width:100px!important" id="ruom_' + row_no + '" >' +   unit_name + '</td>';
 
             tr_html += '<td class="text-right"><input class="form-control text-right rucost numberonly" name="unit_cost[]" value="' + format2Decimals(unit_cost) + '" style="width:100px!important" id="rucost_' + row_no + '" ></td>';
 
             tr_html += '<td class="text-right"><input class="form-control text-right rugross" readonly name="unit_gross[]" value="' + format2Decimals(((parseFloat(unit_cost)) * parseFloat(item_qty))) + '" style="width:100px!important" id="rugross_' + row_no + '" ></td>';
 
             if (site.settings.product_discount == 1) {
-
                 $p_checked = (item.row.item_dis_type=="p")?'checked="checked"':'';
                 $f_checked = (item.row.item_dis_type=="f")?'checked="checked"':'';
 
@@ -1275,10 +1229,8 @@ function loadItems() {
             unit_cost = formatDecimal(((parseFloat(unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)));
 
             var pr_tax = item.tax_rate;
-            
 
             purchase_tax_rate = item.tax_rate_val;
-  console.log('pr_tax='+pr_tax+'|||'+'purchase_tax_rate='+purchase_tax_rate);         
             var pr_tax_val = pr_tax_rate = 0;
             var  tax_val = 0;
             if ($('#tax_method').val() == 0 && (ptax = calculateTax(pr_tax, unit_cost, item_tax_method))) {

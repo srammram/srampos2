@@ -375,7 +375,7 @@ class Store_receivers_model extends CI_Model{
 							$stock_update['category_id']    = $batch['category_id'];
 							$stock_update['subcategory_id'] = $batch['subcategory_id'];
 							$stock_update['brand_id']       = $batch['brand_id'];
-							$stock_update['stock_in']       = $batch['received_qty'];
+							$stock_update['stock_in']       = !empty($batch['received_unit_qty'])?$batch['received_unit_qty']:$batch['received_qty'];
 							$stock_update['stock_in_piece'] = 0;
 							$stock_update['stock_out']      = 0;
 							$stock_update['stock_out_piece']= 0;
@@ -473,6 +473,7 @@ class Store_receivers_model extends CI_Model{
 		if($q->num_rows()>0){
 			$id = $q->row('id');
 			$this->db->where('id',$id);
+			$stock_update['stock_in']=$q->row('stock_in')+$stock_update['stock_in'];
 			$this->db->update('pro_stock_master',$stock_update);
 			$stock_id=$id;
 
@@ -482,8 +483,6 @@ class Store_receivers_model extends CI_Model{
 			$UniqueID                  = $this->site->generateUniqueTableID($insertID);
 			$this->site->updateUniqueTableId($insertID,$UniqueID,'pro_stock_master');
 			$stock_id = $this->db->insert_id();
-			echo $this->db->last_query();
-			die;
 		}
 		if($this->isStore){
 			$this->sync_center->sync_stock_auto($stock_update['unique_id']);

@@ -319,7 +319,6 @@ $('#qu_discount').focus(function () {
                 $.each(tax_rates, function () {
                     if(this.id == pr_tax){
                         if (this.type == 1) {
-
                             if (qu_items[item_id].row.tax_method == 0) {
                                 pr_tax_val = formatDecimal((((real_unit_cost-item_discount) * parseFloat(this.rate)) / (100 + parseFloat(this.rate))), 4);
                                 pr_tax_rate = formatDecimal(this.rate) + '%';
@@ -330,10 +329,8 @@ $('#qu_discount').focus(function () {
                             }
 
                         } else if (this.type == 2) {
-
                             pr_tax_val = parseFloat(this.rate);
                             pr_tax_rate = this.rate;
-
                         }
                     }
                 });
@@ -822,6 +819,7 @@ function loadItems() {
                     if (this.id == product_unit) {
                         base_quantity = formatDecimal(unitToBaseQty(item.row.qty, this), 4);
                       //  unit_price = formatDecimal((parseFloat(item.row.base_unit_price)*(unitToBaseQty(1, this))), 4);
+					  unit_name=this.name;
                     }
                 });
             }

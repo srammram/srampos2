@@ -70,16 +70,19 @@ class Store_request extends MY_Controller{
                 </div></div>';
         $this->load->library('datatables');
         if ($warehouse_id) {
+			
 				$this->datatables
                 ->select("pro_store_request.id, pro_store_request.date, pro_store_request.reference_no,   pro_store_request.status, pro_store_request.attachment")
                 ->from('pro_store_request')
                 ->where('pro_store_request.warehouse_id', $warehouse_id);
         } else {
+
 				$this->datatables
                 ->select("pro_store_request.id, pro_store_request.date, pro_store_request.reference_no, f.name as from_name, t.name as to_name, pro_store_request.status, pro_store_request.attachment as attachment")
                 ->from('pro_store_request')
 				->join('warehouses f', 'f.id = pro_store_request.from_store_id', 'left')
-				->join('warehouses t', 't.id = pro_store_request.to_store_id', 'left');
+				->join('warehouses t', 't.id = pro_store_request.to_store_id', 'left')
+				->where('store_id',$this->store_id);
         }
 		$this->datatables->edit_column('attachment', '$1__$2', $this->digital_upload_path.', attachment');
         $this->datatables->add_column("Actions", $action, "pro_store_request.id,pro_store_request.status");
