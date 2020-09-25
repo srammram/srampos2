@@ -7576,8 +7576,8 @@ public function getOrderStatus($split_id){
                     $stock_id = $row->id;
                     $date =date('Y-m-d h:m:s');
 
-                    $ledger_query ='insert into srampos_pro_stock_ledger(stock_id,store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, transaction_identify,transaction_type,transaction_qty,date)values('.$stock_id.','.$store_id.','.$product_id.','.$variant_id.', '.$cate['cm_id'].', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', "Sales","O",'.$stock.',"'.$date.'")';                       
-                    $this->db->query($ledger_query); 
+                   /*  $ledger_query ='insert into srampos_pro_stock_ledger(stock_id,store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, transaction_identify,transaction_type,transaction_qty,date)values('.$stock_id.','.$store_id.','.$product_id.','.$variant_id.', '.$cate['cm_id'].', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', "Sales","O",'.$stock.',"'.$date.'")';                       
+                    $this->db->query($ledger_query);  */
 
                     $order_item['stock']['s_id'] = $row->id;
 					$order_item['stock']['qty'] = $tobedetect;
@@ -7593,12 +7593,20 @@ public function getOrderStatus($split_id){
 			$this->db->update('order_items',$order_item_data);
 			}
             // return $order_item;
-        }        
-      	
+        }else{
+			$rawstock =$this->getrawstock_empty($product_id,$variant_id,$cate['category_id'],$cate['subcategory_id'],$cate['brand_id']); 
+		
+			 foreach($rawstock as $row){
+				 $query = 'update srampos_pro_stock_master set stock_in=stock_in - '.$stock_out.', stock_out = stock_out + '.$stock_out.'  '.$closed.'  where id='.$row->id;
+                    $this->db->query($query); 
+                    $stock_id = $row->id;
+					break;
+			 }
+			
+		}
     }
 
 public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id,$brand_id){
-
        $this->db->select('pro_stock_master.*');
         $this->db->from('pro_stock_master');
         if($category_id !=''){
@@ -7610,13 +7618,55 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
         if($brand_id !=''){
             $this->db->where('brand_id',$brand_id);
         }
-        //$this->db->where('variant_id',$variant_id);        
+		if($variant_id !='' && $variant_id !=0){
+        $this->db->where('variant_id',$variant_id);   
+		}		
         $this->db->where('product_id',$product_id);
         $this->db->where_not_in('stock_status','closed');
+		$this->db->where('store_id',$this->store_id);
+		$this->db->where('stock_in>0');
         $this->db->group_by('id');
         $this->db->order_by('id', 'asc');
-        $q = $this->db->get(); /* 
-         print_r($this->db->last_query());die; */
+		
+        $q = $this->db->get(); 
+      //   print_r($this->db->last_query());die; 
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return array();
+
+     /*   if ($q->num_rows() > 0) {
+            return $q->result_array();
+        }
+        return FALSE;*/
+}
+public function getrawstock_empty($product_id,$variant_id,$category_id,$subcategory_id,$brand_id){
+       $this->db->select('pro_stock_master.*');
+        $this->db->from('pro_stock_master');
+        if($category_id !=''){
+            $this->db->where('category_id',$category_id);
+        }
+        if($subcategory_id !=''){
+            $this->db->where('subcategory_id',$subcategory_id);
+        }
+        if($brand_id !=''){
+            $this->db->where('brand_id',$brand_id);
+        }
+		if($brand_id !='' && $variant_id !=0){
+        $this->db->where('variant_id',$variant_id);   
+		}	
+        //$this->db->where('variant_id',$variant_id);        
+        $this->db->where('product_id',$product_id);
+      //  $this->db->where_not_in('stock_status','closed');
+		$this->db->where('store_id',$this->store_id);
+		$this->db->limit(1);
+        $this->db->group_by('id');
+        $this->db->order_by('id', 'asc');
+        $q = $this->db->get(); 
+        // print_r($this->db->last_query());die; 
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;

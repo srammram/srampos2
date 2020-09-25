@@ -280,7 +280,8 @@ class Pos_model extends CI_Model{
         if ($q->num_rows() > 0) {
             $bbq_items =  $q->row('items');
         }*/
-		$where_in = array('standard','production','quick_service','combo');
+		//$where_in = array('standard','production','quick_service','combo');
+		$where_in = array('standard','quick_service','combo');
 		$this->db->select('recipe.*');	
 		$this->db->join('recipe', "recipe.id = warehouses_recipe.recipe_id AND recipe.active = 1");
 		$this->db->where('recipe.recipe_standard !=', 1);	
@@ -312,7 +313,8 @@ class Pos_model extends CI_Model{
 public function bbqfetch_recipe_withdays($category_id=null, $warehouse_id, $limit, $start, $subcategory_id = NULL, $brand_id = NULL,$sale_type=NULL){    	
     	$mydate=getdate(date("U"));
         $today = "$mydate[weekday]";
-		$where_in = array('standard','production','quick_service','combo');
+	//	$where_in = array('standard','production','quick_service','combo');
+		$where_in = array('standard','quick_service','combo');
 		$this->db->select('recipe.*');
 		$this->db->join('recipe', "recipe.id = warehouses_recipe.recipe_id AND recipe.active = 1");	
 		$this->db->join('sale_items_mapping_details', "sale_items_mapping_details.recipe_group_id = recipe.category_id");		
@@ -1470,7 +1472,8 @@ public function bbqfetch_recipe_withdays($category_id=null, $warehouse_id, $limi
     {    	
     	$mydate=getdate(date("U"));
         $today = "$mydate[weekday]";
-		$where_in = array('standard','production','quick_service','combo');
+		//$where_in = array('standard','production','quick_service','combo');
+		$where_in = array('standard','quick_service','combo');
 		$this->db->select('recipe.*');
 		$this->db->join('recipe', "recipe.id = warehouses_recipe.recipe_id AND recipe.active = 1");	
 		$this->db->join('sale_items_mapping_details', "sale_items_mapping_details.recipe_group_id = recipe.category_id");		
@@ -1523,7 +1526,8 @@ public function bbqfetch_recipe_withdays($category_id=null, $warehouse_id, $limi
 		*/
 		/*CAST(name AS UNSIGNED),LEFT(name,10), CAST(MID(name,2) AS UNSIGNED), LPAD(REPLACE(name,' ',''),10,'0'),name ASC*/
 		
-		$where_in = array('standard','production','quick_service','combo');
+		//$where_in = array('standard','production','quick_service','combo');
+		$where_in = array('standard','quick_service','combo');
 		$this->db->select('recipe.*');
 		$this->db->join('recipe', "recipe.id = warehouses_recipe.recipe_id ");
 		$this->db->where('recipe.recipe_standard !=', 2);	
@@ -10905,6 +10909,7 @@ $consolidate_kitchen_details = $this->db->select('restaurant_kitchens.id,restaur
     function productionupdateStockMaster($product_id,$variant_id,$base_quantity,$cate){   
         $store_id = $this->data['pos_store'];
         $batches =$this->getrawstock($product_id,$variant_id,$cate['category_id'],$cate['subcategory_id'],$cate['brand_id']); 
+		if(!empty($batches)){
        foreach($batches as $batch){
 			if($batch->stock_in>0){
 				$balance_quantity =$base_quantity-$batch->stock_in;
@@ -10920,7 +10925,20 @@ $consolidate_kitchen_details = $this->db->select('restaurant_kitchens.id,restaur
 			}
 			
 		}
-            
+		}else{
+			
+			$batches =$this->getrawstock_empty($product_id,$variant_id,$cate['category_id'],$cate['subcategory_id'],$cate['brand_id']); 
+			  foreach($batches as $batch){
+				   $query = 'update srampos_pro_stock_master set stock_in=stock_in - '.$base_quantity.', stock_out = stock_out + '.$base_quantity.'    where id='.$batch->id;
+                    $this->db->query($query); 
+					echo $this->db->last_query();
+                    $stock_id = $batch->id;
+					break;
+				  
+			  }
+			
+			
+		}  
     }
 	
 	
@@ -10937,8 +10955,12 @@ $consolidate_kitchen_details = $this->db->select('restaurant_kitchens.id,restaur
         if($brand_id !=''){
             $this->db->where('brand_id',$brand_id);
         }
+		if($variant_id !='' && $variant_id !=0){
+        $this->db->where('variant_id',$variant_id);   
+		}
         $this->db->where('product_id',$product_id);
 		$this->db->where('store_id',$this->store_id);
+		$this->db->where('stock_in>0');
 		//if($variant_id !='0'){
             //$this->db->where('variant_id',$variant_id);
         //}
@@ -10963,6 +10985,43 @@ $consolidate_kitchen_details = $this->db->select('restaurant_kitchens.id,restaur
 }
 	
 	
+public function getrawstock_empty($product_id,$variant_id,$category_id,$subcategory_id,$brand_id){
+       $this->db->select('pro_stock_master.*');
+        $this->db->from('pro_stock_master');
+        if($category_id !=''){
+            $this->db->where('category_id',$category_id);
+        }
+        if($subcategory_id !=''){
+            $this->db->where('subcategory_id',$subcategory_id);
+        }
+        if($brand_id !=''){
+            $this->db->where('brand_id',$brand_id);
+        }
+		if($variant_id !='' && $variant_id !=0){
+        $this->db->where('variant_id',$variant_id);   
+		}	
+        //$this->db->where('variant_id',$variant_id);        
+        $this->db->where('product_id',$product_id);
+      //  $this->db->where_not_in('stock_status','closed');
+		$this->db->where('store_id',$this->store_id);
+		$this->db->limit(1);
+        $this->db->group_by('id');
+        $this->db->order_by('id', 'asc');
+        $q = $this->db->get(); 
+        // print_r($this->db->last_query());die; 
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return array();
+
+     /*   if ($q->num_rows() > 0) {
+            return $q->result_array();
+        }
+        return FALSE;*/
+}
 	
 	
 	

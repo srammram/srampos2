@@ -378,7 +378,6 @@ public function ajaxrecipe_consolidate($category_id = null, $warehouse_id = null
             }
         }
         if ($recipe_standard == 1) {
-
             $recipe = $this->ajaxrecipe_consolidate($category_id, $this->session->userdata('warehouse_id'), $order_type);
             if (!($tcp = $this->pos_model->recipe_count($category_id, $this->session->userdata('warehouse_id')))) {
                 $tcp = 0;
@@ -393,16 +392,11 @@ public function ajaxrecipe_consolidate($category_id = null, $warehouse_id = null
         $this->sma->send_json(array('recipe' => $recipe, 'subcategories' => $scats, 'tcp' => $tcp));
     }
 	public function sent_to_kitchen($sid = null){
-       /*  echo "<pre>";
-        print_r($_POST);exit;*/
         $this->form_validation->set_rules('customer', $this->lang->line("customer"), 'trim|required');
         $this->form_validation->set_rules('warehouse', $this->lang->line("warehouse"), 'required');
         $this->form_validation->set_rules('biller', $this->lang->line("biller"), 'required');
          $table=$this->input->post('table_list_id');
         if ($this->form_validation->run() == true) {
-          /*   echo "<pre>";
-            print_r($this->input->post());die;  */
-            
             $date = date('Y-m-d H:i:s');
             $warehouse_id = $this->input->post('warehouse');
             $customer_id = $this->input->post('customer');
@@ -445,7 +439,6 @@ public function ajaxrecipe_consolidate($category_id = null, $warehouse_id = null
                 $get_quantity = $_POST['get_quantity'][$r];
                 $total_get_quantity = $_POST['total_get_quantity'][$r];
                 $item_comment = $_POST['recipe_comment'][$r];
-                //$item_addon = isset($_POST['recipe_addon'][$r]) && $_POST['recipe_addon'][$r] != 'false' ? $_POST['recipe_addon'][$r] : NULL;
                 $item_addon = (!is_object($_POST['recipe_addon'][$r])) ? $_POST['recipe_addon'][$r] : null;
                 $item_addon_qty = (!is_object($_POST['recipe_addon_qty'][$r])) ? $_POST['recipe_addon_qty'][$r] : null;
                 $item_option = isset($_POST['recipe_option'][$r]) && $_POST['recipe_option'][$r] != 'false' ? $_POST['recipe_option'][$r] : null;
@@ -461,7 +454,6 @@ public function ajaxrecipe_consolidate($category_id = null, $warehouse_id = null
 
                 if (isset($item_code) && isset($real_unit_price) && isset($unit_price) && isset($item_quantity)) {
                     $recipe_details = $item_type != 'manual' ? $this->pos_model->getrecipeByCode($item_code) : null;
-                    // $unit_price = $real_unit_price;
                     if ($item_type == 'digital') {
                         $digital = true;
                     }
@@ -769,7 +761,6 @@ public function ajaxrecipe_consolidate($category_id = null, $warehouse_id = null
 
     }
     public function send_to_kot_print($kot_print_data){
-		
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, site_url('kot_print/send_to_kot_print'));
         curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
@@ -784,7 +775,6 @@ public function ajaxrecipe_consolidate($category_id = null, $warehouse_id = null
     }
 	
 	 public function cancelItem_send_to_kot_print($kot_print_data){
-		
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, site_url('kot_print/send_to_kot_print_cancelItem'));
         curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
@@ -947,7 +937,6 @@ public function ajaxrecipe_consolidate($category_id = null, $warehouse_id = null
         $result = $this->pos_model->ALLCancelOrdersItem($cancel_remarks, $split_table_id, $this->session->userdata('user_id'), $notification_array);
         if ($result == true) {
             $msg = 'success';
-
         } else {
             $msg = 'error';
             $status = 'error';
@@ -956,19 +945,19 @@ public function ajaxrecipe_consolidate($category_id = null, $warehouse_id = null
     }
 	
 public function billing(){
-        $order_type = !empty($_GET['order_type']) ? $_GET['order_type'] : '';
-        $bill_type = !empty($_GET['bill_type']) ? $_GET['bill_type'] : '';
-        $table_id = !empty($_GET['table']) ? $_GET['table'] : '';
-        $split_id = !empty($_GET['splits']) ? $_GET['splits'] : '';
-        $bils = !empty($_GET['bils']) ? $_GET['bils'] : '';
+        $order_type 	= !empty($_GET['order_type']) ? $_GET['order_type'] : '';
+        $bill_type 		= !empty($_GET['bill_type']) ? $_GET['bill_type'] : '';
+        $table_id 		= !empty($_GET['table']) ? $_GET['table'] : '';
+        $split_id 		= !empty($_GET['splits']) ? $_GET['splits'] : '';
+        $bils 			= !empty($_GET['bils']) ? $_GET['bils'] : '';
         $this->data['warehouse'] = $this->session->userdata('warehouse_id') ? $this->site->getWarehouseByID($this->session->userdata('warehouse_id')) : null;
-        $waiter_id = $this->session->userdata('user_id');
+        $waiter_id 		= $this->session->userdata('user_id');
         $this->data['order_type'] = $order_type;
-        $this->data['bill_type'] = $bill_type;
-        $this->data['bils'] = $bils;
-        $this->data['table_id'] = $table_id;
-        $this->data['split_id'] = $split_id;
-        $this->data['tax_rates'] = $this->site->getAllTaxRates();
+        $this->data['bill_type']  = $bill_type;
+        $this->data['bils'] 	  = $bils;
+        $this->data['table_id']   = $table_id;
+        $this->data['split_id']   = $split_id;
+        $this->data['tax_rates']  = $this->site->getAllTaxRates();
         $this->data['service_charge'] = $this->site->getAllSericeCharges();
         $this->data['customer_discount'] = $this->site->GetAllcostomerDiscounts();
 		
@@ -976,10 +965,10 @@ public function billing(){
         print_r($this->data['customer_discount']);die;*/
 
         $notification_array['customer_role'] = CUSTOMER;
-        $notification_array['customer_msg'] = $this->session->userdata('username') . ' has been bil generator to customer';
+        $notification_array['customer_msg']  = $this->session->userdata('username') . ' has been bil generator to customer';
         $notification_array['customer_type'] = 'Your bil  generator';
-        $notification_array['from_role'] = $this->session->userdata('group_id');
-        $notification_array['insert_array'] = array(
+        $notification_array['from_role']     = $this->session->userdata('group_id');
+        $notification_array['insert_array']  = array(
             'msg' => $this->session->userdata('username') . ' has been bil generator to ' . $split_id,
             'type' => 'Bil generator (' . $split_id . ')',
             'table_id' => $table_id,
@@ -993,11 +982,11 @@ public function billing(){
             'tag' => 'bill-generated',
             'status' => 1,
         );
-        $this->data['current_user'] = $this->pos_model->getUserByID($this->session->userdata('user_id'));
+        $this->data['current_user']         = $this->pos_model->getUserByID($this->session->userdata('user_id'));
         if (!empty($table_id)) {
-            $item_data = $this->pos_model->getBill_all($table_id, $split_id, $this->session->userdata('user_id'),$bill_type);
+            $item_data                      = $this->pos_model->getBill_all($table_id, $split_id, $this->session->userdata('user_id'),$bill_type);
         } else {
-            $item_data = $this->pos_model->getBill_all($table_id, $split_id, $this->session->userdata('user_id'),$bill_type);
+            $item_data                      = $this->pos_model->getBill_all($table_id, $split_id, $this->session->userdata('user_id'),$bill_type);
         }
         foreach ($item_data['items'] as $item_row) {
             foreach ($item_row as $item) {
