@@ -759,7 +759,7 @@ $('#pi_discount').focus(function () {
         var row = $(this).closest('tr');        
         sellingprice = parseFloat($(this).val());
         item_id = row.attr('data-item-id');
-	$landcost = parseFloat(row.find('.landcost').val());
+     	$landcost = parseFloat(row.find('.landcost').val());
 	
 	if (sellingprice < $landcost) {
 	    
@@ -789,18 +789,22 @@ $('#pi_discount').focus(function () {
     
 
     $(document).on("change", '.bill_disc', function () {
-	bill_disc = $(this).val();
-	if (bill_disc.indexOf("%") !== -1) {
+	   bill_disc = $(this).val();
+		if (bill_disc.indexOf("%") !== -1) {
 	    bill_disc_per = bill_disc;
-	}else{
+		}else{
 	    $bil_dis_from = parseFloat($('#final_gross_amt').val())-parseFloat( $('#item_disc').val());
 	    $bill_disc_per = (bill_disc*100)/$bil_dis_from;
 	    bill_disc_per = $bill_disc_per+('%');
-	} 
+		}	 
         localStorage.setItem('inv_bill_disc',bill_disc);
 	    localStorage.setItem('inv_bill_disc_percentage',bill_disc_per);
         loadItems();
+		
+		
     }); 
+
+
 
 
     /* --------------------------

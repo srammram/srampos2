@@ -535,100 +535,46 @@ $('#store_rec_discount').focus(function () {
         return false;
     });
 
-    /* --------------------------
-     * Edit Row Quantity Method
-     -------------------------- */
-     var old_row_qty;
-     $(document).on("focus", '.rquantity', function () {
-        old_row_qty = $(this).val();
-    }).on("change", '.rquantity', function () {
-        var row = $(this).closest('tr');
-        if (!is_numeric($(this).val()) || parseFloat($(this).val()) < 0) {
-            $(this).val(old_row_qty);
-            bootbox.alert(lang.unexpected_value);
-            return;
-        }
-        var new_qty = parseFloat($(this).val()),
-        item_id = row.attr('data-item-id');
-        store_rec_items[item_id].row.base_quantity = new_qty;
-        if(store_rec_items[item_id].row.unit != store_rec_items[item_id].row.base_unit) {
-            $.each(store_rec_items[item_id].units, function(){
-                if (this.id == store_rec_items[item_id].row.unit) {
-                    store_rec_items[item_id].row.base_quantity = unitToBaseQty(new_qty, this);
-                }
-            });
-        }
-        store_rec_items[item_id].row.qty = new_qty;
-        store_rec_items[item_id].row.received = new_qty;
-        localStorage.setItem('store_rec_items', JSON.stringify(store_rec_items));
-        loadItems();
-    });
-	
-	$(document).on("change", '.rtax1', function () {
-		var row = $(this).closest('tr');
-		current_tax_method = $(this).val();
-		item_id = row.attr('data-item-id');
-		store_rec_items[item_id].row.tax_method = current_tax_method;
-		localStorage.setItem('store_rec_items', JSON.stringify(store_rec_items));
-		loadItems();
-	});
-	
-	$(document).on("change", '.rtax2', function () {
-		var row = $(this).closest('tr');
-		current_tax = $(this).val();
-		item_id = row.attr('data-item-id');
-		store_rec_items[item_id].tax_rate = current_tax;
-		localStorage.setItem('store_rec_items', JSON.stringify(store_rec_items));
-		loadItems();
-	});
 
+	
+	$(document).on('change', '.received-qty', function () {
+    var item_id = $(this).closest('tr').attr('data-item');
+    $row = $(this).closest('tr');
+    $index =  $(this).closest('tr').attr('data-batch');
+    var row = $(this).closest('tr').attr('id');
+    $rquantity = $(this).val();
+    store_rec_items[item_id].row.batches[$index].received_qty = $rquantity;
+	localStorage.setItem('store_rec_items', JSON.stringify(store_rec_items))
+    loadItems();
+});
+
+
+$(document).on('change', '.selling-price', function () {
+    var item_id = $(this).closest('tr').attr('data-item');
+    $row = $(this).closest('tr');
+    $index =  $(this).closest('tr').attr('data-batch');
+    var row = $(this).closest('tr').attr('id');
+    $sellingprice = $(this).val();
+    store_rec_items[item_id].row.batches[$index].price = $sellingprice;
+	localStorage.setItem('store_rec_items', JSON.stringify(store_rec_items))
+    loadItems();
+});
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
     var old_received;
-     $(document).on("focus", '.received', function () {
-        old_received = $(this).val();
-    }).on("change", '.received', function () {
-        var row = $(this).closest('tr');
-        new_received = $(this).val() ? $(this).val() : 0;
-        if (!is_numeric(new_received)) {
-            $(this).val(old_received);
-            bootbox.alert(lang.unexpected_value);
-            return;
-        }
-        var new_received = parseFloat($(this).val()),
-        item_id = row.attr('data-item-id');
-        if (new_received > store_rec_items[item_id].row.qty) {
-            $(this).val(old_received);
-            bootbox.alert(lang.unexpected_value);
-            return;
-        }
-        unit = formatDecimal(row.children().children('.runit').val()),
-        $.each(store_rec_items[item_id].units, function(){
-            if (this.id == unit) {
-                qty_received = formatDecimal(unitToBaseQty(new_received, this), 4);
-            }
-        });
-        store_rec_items[item_id].row.unit_received = new_received;
-        store_rec_items[item_id].row.received = qty_received;
-        localStorage.setItem('store_rec_items', JSON.stringify(store_rec_items));
-        loadItems();
-    });
-
-    $(document).on("change", '.rucost', function () {
-        var row = $(this).closest('tr');
-        current_ucost = $(this).val();
-        item_id = row.attr('data-item-id');
-        store_rec_items[item_id].row.real_unit_cost = current_ucost;
-        localStorage.setItem('store_rec_items', JSON.stringify(store_rec_items));
-        loadItems();
-    });
-
-    $(document).on("change", '.rdiscount', function () {
-        var row = $(this).closest('tr');
-        current_discount = $(this).val();
-        item_id = row.attr('data-item-id');
-        store_rec_items[item_id].row.discount = current_discount;
-        localStorage.setItem('store_rec_items', JSON.stringify(store_rec_items));
-        loadItems();
-    });       
     /* --------------------------
      * Edit Row Cost Method
      -------------------------- */
@@ -753,24 +699,26 @@ function loadItems() {
 			$product_vendor = (v.vendor_id)?v.vendor_id:0;
 	        $product_tax=0;
 			$tax_per = v.tax;
-	       $received_qty=($received_qty ==0 || isNaN($received_qty))?$transfer_qty:$received_qty;
+	        $received_qty=($received_qty ==0 || isNaN($received_qty))?$transfer_qty:$received_qty;
 		   
-		   
+		   $net_unit_price=$product_price;
+		   $unit_cost=$product_cost;
+		    $base_received_qty = $received_qty;
 		    if( product_unit != item.row.base_unit) {
 					$.each(item.units, function(){
                     if (this.id == product_unit) {
                         $base_received_qty = formatDecimal(unitToBaseQty($received_qty, this), 4);
-						$cost=formatDecimal(unitToBaseQty($cost, this), 4);
-						$product_cost=formatDecimal(unitToBaseQty($product_cost, this), 4);
-						$product_price=formatDecimal(unitToBaseQty($product_price, this), 4);
+						//$cost=formatDecimal(unitToBaseQty($cost, this), 4);
+						//$product_cost=formatDecimal(unitToBaseQty($product_cost, this), 4);
+						//$product_price=formatDecimal(unitToBaseQty($product_price, this), 4);
+						$net_unit_price=formatDecimal(baseToUnitQty($product_price, this), 4);;
+						$unit_cost     =formatDecimal(baseToUnitQty($product_cost, this), 4);;
                     }
                 });
             }
 		   $product_gross_amt = $transfer_qty*$product_price;
 		   
-		   
-		   
-			 $base_received_qty = $received_qty;
+			
 				$tax_method = v.tax_method;
 				var pr_tax = item.tax_rate;
                 var pr_tax_val = pr_tax_rate = 0;
@@ -796,7 +744,7 @@ function loadItems() {
 			$batch_html +='<th>total</th>';
 			$batch_html +='</thead><tbody>';
 			$batch_html +='<tr class="batch-row" data-item='+item_id+' data-batch='+n+'>';
-			$batch_html += '<td style="width: 78px;font-size: 13px;">'+$product_batch_label+'<input type="hidden" name="batch['+item_id+']['+n+'][stock_id]" value="'+$product_stock_id+'"><input type="hidden" name="batch['+item_id+']['+n+'][batch_no]" value="'+$product_batch+'"><input type="hidden" name="batch['+item_id+']['+n+'][vendor_id]" value="'+$product_vendor+'"><input type="hidden" name="batch['+item_id+']['+n+'][invoice_id]" value="'+v.invoice_id+'"><input type="hidden" name="batch['+item_id+']['+n+'][itemid]" value="'+v.itemid+'"><input type="hidden" name="batch['+item_id+']['+n+'][storereceiverid]" value="'+v.stri+'"><input type="hidden" name="batch['+item_id+']['+n+'][storereceiveritemid]" value="'+v.strii+'"></td>';
+			$batch_html += '<td style="width: 78px;font-size: 13px;">'+$product_batch_label+'<input type="hidden" name="batch['+item_id+']['+n+'][stock_id]" value="'+$product_stock_id+'"><input type="hidden" name="batch['+item_id+']['+n+'][catgory_id]" value="'+v.category_id+'"><input type="hidden" name="batch['+item_id+']['+n+'][subcatgory_id]" value="'+v.subcategory_id+'"><input type="hidden" name="batch['+item_id+']['+n+'][brand_id]" value="'+v.brand_id+'"><input type="hidden" name="batch['+item_id+']['+n+'][batch_no]" value="'+$product_batch+'"><input type="hidden" name="batch['+item_id+']['+n+'][vendor_id]" value="'+$product_vendor+'"><input type="hidden" name="batch['+item_id+']['+n+'][invoice_id]" value="'+v.invoice_id+'"><input type="hidden" name="batch['+item_id+']['+n+'][itemid]" value="'+v.itemid+'"><input type="hidden" name="batch['+item_id+']['+n+'][storereceiverid]" value="'+v.stri+'"><input type="hidden" name="batch['+item_id+']['+n+'][storereceiveritemid]" value="'+v.strii+'"></td>';
 	    
 			$batch_html += '<td><input type="hidden" name="batch['+item_id+']['+n+'][landing_cost]" value="'+$landingCost+'"><input type="text" name="batch['+item_id+']['+n+'][transfer_qty]" value="'+$transfer_qty+'" class="form-control text-center transfer-qty"></td>';	    
 		if($received_qty ==0 || isNaN($received_qty)){
@@ -807,8 +755,13 @@ function loadItems() {
 		}
 	    $batch_html += '<td style="width: 78px;font-size: 13px;">'+$product_expiry+'<input type="hidden" name="batch['+item_id+']['+n+'][expiry]" value="'+$product_expiry+'"></td>';
 	    
-	    $batch_html += '<td><input type="text" name="batch['+item_id+']['+n+'][cost_price]" readonly value="'+$product_cost+'" class="form-control text-center cost-price"></td>';
-	    $batch_html += '<td><input type="text" name="batch['+item_id+']['+n+'][selling_price]" value="'+$product_price+'" class="form-control text-center selling-price"></td>';
+	    $batch_html += '<td><input type="text" name="batch['+item_id+']['+n+'][cost_price]" readonly value="'+$product_cost+'" class="form-control text-center cost-price"><input type="hidden" name="batch['+item_id+']['+n+'][unit_cost]" value="'+$unit_cost+'"></td>';
+		
+	    $batch_html += '<td><input type="text" name="batch['+item_id+']['+n+'][selling_price]" value="'+$product_price+'" class="form-control text-center selling-price"><input type="hidden" name="batch['+item_id+']['+n+'][unit_price]" value="'+$net_unit_price+'"></td>';
+		
+		
+		
+		
 	    $batch_html += '<td>'+formatDecimal($product_tax_per)+'%<input type="hidden" name="batch['+item_id+']['+n+'][tax]" value="'+$product_tax_per+'" class="form-control text-center product-tax-per"><input type="hidden" name="batch['+item_id+']['+n+'][tax_method]" value="'+$product_tax_method+'"></td>';
 	    $batch_html += '<td><span class="product-gross-amt-label">'+formatDecimal($product_gross_amt)+'</span><input type="hidden" name="batch['+item_id+']['+n+'][gross]" value="'+$product_gross_amt+'" class="form-control text-center product-gross"></td>';
 	    $batch_html += '<td><span class="product-tax-amt-label">'+formatDecimal($product_tax)+'</span><input type="hidden" name="batch['+item_id+']['+n+'][tax_amount]" value="'+$product_tax+'" class="form-control text-center product-tax-amt"></td>';
@@ -909,3 +862,4 @@ if (typeof (Storage) === "undefined") {
         }
     });
 }
+

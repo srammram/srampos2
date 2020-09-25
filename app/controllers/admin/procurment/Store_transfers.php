@@ -28,7 +28,6 @@ class Store_transfers extends MY_Controller{
 		$poref =  $this->input->get('poref');
 		$data['store_transfers'] = $this->store_transfers_model->getRequestByID($poref);
 		$store_req_items = $this->store_transfers_model->getAllRequestItems($poref);
-		//echo '<pre>';print_r($store_req_items);exit;
 		$c = rand(100000, 9999999);
 		foreach ($store_req_items as $item) {
 			$row = $this->siteprocurment->getItemByID($item->product_id);
@@ -258,9 +257,9 @@ class Store_transfers extends MY_Controller{
 				'unit_quantity'    => $row['base_quantity'],
 				'transfer_unit_qty'=> $row['base_quantity'],
 				'product_unit_code' =>$unit->code,
-				'category_id'      => $_POST['catgory_id'][$r],
-				'subcategory_id'   => $_POST['subcatgory_id'][$r],
-				'brand_id'         => !empty($_POST['brand_id'][$r])?$_POST['brand_id'][$r]:0,
+				'category_id'      => $row['catgory_id'],
+				'subcategory_id'   => $row['subcatgory_id'],
+				'brand_id'         => !empty($row['brand_id'])?$row['brand_id']:0,
 				'invoice_id'       => !empty($row['invoice_id'])?$row['invoice_id']:0,
 				
 			);
@@ -407,9 +406,9 @@ class Store_transfers extends MY_Controller{
 				'unit_quantity'    => $row['base_quantity'],
 				'transfer_unit_qty'=> $row['base_quantity'],
 				'product_unit_code' =>$unit->code,
-				'category_id'      => $_POST['catgory_id'][$r],
-				'subcategory_id'   => $_POST['subcatgory_id'][$r],
-				'brand_id'         => $_POST['brand_id'][$r],
+				'category_id'      => $row['catgory_id'],
+				'subcategory_id'   => $row['subcatgory_id'],
+				'brand_id'         => !empty($row['brand_id'])?$row['brand_id']:0,
 				'invoice_id'       => !empty($row['invoice_id'])?$row['invoice_id']:0,
 				
 			);
@@ -497,6 +496,8 @@ class Store_transfers extends MY_Controller{
 			$row->tax_method          = $item->tax_method;
 			$row->variant_id          = $item->variant_id;
 			$row->brand_id            = $item->brand_id;
+			$row->category_id         = $item->category_id;
+			$row->subcategory_id      = $item->subcategory_id;
 			$p_ids                    = array($item->product_id);$s_ids =  array($this->store_id); 
 			$batches                  = $this->store_transfers_model->getbatchStockData($item->id);
 			$row->batches             = $batches;
@@ -597,13 +598,28 @@ class Store_transfers extends MY_Controller{
                 $row->qty              = 1;
                 $row->quantity_balance = '';
                 $row->discount = '0';
+				if($row->category_name != ''){
+					$cat = ' CAT - ' .$row->category_name;
+				}else{
+					$cat = '';
+				}
+				if($row->subcategory_name != ''){
+					$sub_cat = ' | SUBCAT - ' .$row->subcategory_name;
+				}else{
+					$sub_cat = '';
+				}
+				if($row->brand_name != ''){
+					$brand = ' | BRAND - ' .$row->brand_name;
+				}else{
+					$brand = '';
+				}
 				$unique_item_id = $this->store_id.$row->id.$row->variant_id.$row->batch.$row->category_id.$row->subcategory_id.$row->brand_id.$row->invoice_id;
                 unset($row->details, $row->product_details, $row->price, $row->file, $row->supplier1price, $row->supplier2price, $row->supplier3price, $row->supplier4price, $row->supplier5price, $row->supplier1_part_no, $row->supplier2_part_no, $row->supplier3_part_no, $row->supplier4_part_no, $row->supplier5_part_no);
                 $units        = $this->siteprocurment->getUnitsByBUID($row->base_unit);
                 $tax_rate     = $this->siteprocurment->getTaxRateByID($row->tax_rate);
 				$batches      =  $this->store_transfers_model->loadbatches($row->id);
 				$row->batches = $batches;
-                $pr[] = array('id' => $unique_item_id, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
+                $pr[] = array('id' => $unique_item_id, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")" . $cat.$sub_cat.$brand,
                     'row' => $row, 'unique_id'=>$unique_item_id,'tax_rate' => $tax_rate, 'units' => $units, 'options' => $options);
                 $r++;
             }

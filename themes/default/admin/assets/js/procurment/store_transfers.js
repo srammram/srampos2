@@ -524,19 +524,21 @@ function loadItems() {
         $.each(sortedItems, function () {
 	        var item = this;
 	        $product_grand_total_amt = 0;
-	        $product_gross_amt	=0;
-	        $product_tax		=0;
-            var item_id 		= item.item_id;
-	        item.order 			= item.order ? item.order : new Date().getTime();
-            $sno 				= ++$row_index;
-            $id 				= item.row.id;
-            $product_name 		= item.row.name;
-            $product_code 		= item.row.code;
-            $product_type 		= item.row.type;
-			item_tax_method 	= item.row.tax_method;
-			$product_tax_per 	= item.row.tax;
-			$product_tax_method = item.row.tax_method;
-            $qty 				= item.row.qty;
+	        $product_gross_amt		 = 0;
+	        $product_tax			 = 0;
+            var item_id 		     = item.item_id;
+	        item.order 			     = item.order ? item.order : new Date().getTime();
+			console.log(item.row);
+			
+            $sno 				     = ++$row_index;
+            $id 				     = item.row.id;
+            $product_name 		     = item.row.name;
+            $product_code 		     = item.row.code;
+            $product_type 		     = item.row.type;
+			item_tax_method 	     = item.row.tax_method;
+			$product_tax_per 	     = item.row.tax;
+			$product_tax_method      = item.row.tax_method;
+            $qty 				     = item.row.qty;
 			$ex_qty = (item.row.ex_qty!=undefined)?item.row.ex_qty:0;
 			$request_qty =item.row.request_qty ? item.row.request_qty : 0;
 			$html = '<tr class="order-item-row warning" data-item="'+item_id+'">';
@@ -560,12 +562,28 @@ function loadItems() {
 			$transfer_qty =v.transfer_qty ? v.transfer_qty : 0;
 			$vendor = (v.vendor_id)?v.vendor_id:0;
 			$pending_qty =v.pending_qty ? v.pending_qty : '';
-			$gross_amt = $transfer_qty*$recipe_price;
+			
 			$tax=0;
 			$tax_per = v.tax;   
 				$tax_method = v.tax_method;
 				var pr_tax = item.tax_rate;
                 var pr_tax_val = pr_tax_rate = 0;
+				
+				 if( product_unit != item.row.base_unit) {
+					$.each(item.units, function(){
+                    if (this.id == product_unit) {
+                        base_quantity = formatDecimal(unitToBaseQty($transfer_qty, this), 4);
+						$available_qty = formatDecimal(baseToUnitQty($available_qty, this), 4);
+						$pending_qty = $available_qty-$transfer_qty;
+						$cost   = formatDecimal(unitToBaseQty($cost, this), 4);
+						$recipe_price= formatDecimal(unitToBaseQty($recipe_price, this), 4);
+                    }
+                });
+            }
+				
+				$gross_amt = $transfer_qty*$recipe_price;
+				
+				
                 if (site.settings.tax1 == 1 && (ptax = calculateTax(pr_tax, $cost, item_tax_method))) {
                     pr_tax_val = ptax[0];
                     pr_tax_rate = ptax[1];
@@ -576,15 +594,7 @@ function loadItems() {
 						return true;
 					}
 				}
-				 if( product_unit != item.row.base_unit) {
-					$.each(item.units, function(){
-                    if (this.id == product_unit) {
-                        base_quantity = formatDecimal(unitToBaseQty($transfer_qty, this), 4);
-						$available_qty = formatDecimal(baseToUnitQty($available_qty, this), 4);
-						$pending_qty = $available_qty-$transfer_qty;
-                    }
-                });
-            }
+				
 			$grand_total_amt = $gross_amt+$tax;
 			$batch_html ='<table style="width: 100%;" class="table items  table-bordered table-condensed batch-table"><thead>';
 			$batch_html +='<th>batch</th>';
@@ -602,7 +612,12 @@ function loadItems() {
 			$batch_html +='<th>total</th>';
 			$batch_html +='</thead><tbody>';
 			$batch_html +='<tr class="batch-row" data-item='+item_id+' data-batch='+n+'>';
-			$batch_html += '<td style="width: 78px;font-size: 13px;">'+$batch_label+'<input type="hidden" name="batch['+item_id+']['+n+'][stock_id]" value="'+$recipe_stock_id+'"><input type="hidden" name="batch['+item_id+']['+n+'][landing_cost]" value="'+$landingCost+'"><input type="hidden" name="batch['+item_id+']['+n+'][batch_no]" value="'+$batch+'"><input type="hidden" name="batch['+item_id+']['+n+'][vendor_id]" value="'+v.supplier_id+'"><input type="hidden" name="batch['+item_id+']['+n+'][invoice_id]" value="'+v.invoice_id+'"></td>';
+			$batch_html += '<td style="width: 78px;font-size: 13px;">'+$batch_label+'<input type="hidden" name="batch['+item_id+']['+n+'][stock_id]" value="'+$recipe_stock_id+'"><input type="hidden" name="batch['+item_id+']['+n+'][catgory_id]" value="'+v.category_id+'"><input type="hidden" name="batch['+item_id+']['+n+'][subcatgory_id]" value="'+v.subcategory_id+'"><input type="hidden" name="batch['+item_id+']['+n+'][brand_id]" value="'+v.brand_id+'"><input type="hidden" name="batch['+item_id+']['+n+'][landing_cost]" value="'+$landingCost+'"><input type="hidden" name="batch['+item_id+']['+n+'][batch_no]" value="'+$batch+'"><input type="hidden" name="batch['+item_id+']['+n+'][vendor_id]" value="'+v.supplier_id+'"><input type="hidden" name="batch['+item_id+']['+n+'][invoice_id]" value="'+v.invoice_id+'"></td>';
+			
+			
+			
+			
+			
 			$batch_html += '<td  style="width: 78px;"><input type="text" name="batch['+item_id+']['+n+'][available_qty]" value="'+$available_qty+'" class="form-control text-center available-qty" readonly></td>';
 			$batch_html += '<td  style="width: 78px;"><input type="text" name="batch['+item_id+']['+n+'][transfer_qty]" value="'+$transfer_qty+'" class="numberonly form-control text-center transfer-qty"><input type="hidden" name="batch['+item_id+']['+n+'][product_unit]"  value="'+product_unit+'"><input type="hidden"  name="batch['+item_id+']['+n+'][base_quantity]" value="'+base_quantity+'"></td>';
 	    
@@ -627,7 +642,6 @@ function loadItems() {
         $('#store_transfersTable>tbody').append($html);
 	    $total_no_items++;
         });
-		
          $('#total_no_items').val($total_no_items);
 	     $('#total_no_qty').val($total_no_qty);
         set_page_focus();
@@ -688,7 +702,7 @@ if (typeof (Storage) === "undefined") {
 
 
 $(document).on('change', '.transfer-qty', function () {
-	store_transitems[12112];
+	
     var item_id = $(this).closest('tr').attr('data-item');
     $row = $(this).closest('tr');
     $index =  $(this).closest('tr').attr('data-batch');

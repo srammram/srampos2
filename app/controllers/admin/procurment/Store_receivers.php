@@ -234,8 +234,9 @@ class Store_receivers extends MY_Controller{
 			    'cost_price' => $row['cost_price'],
 			    'selling_price' => $row['selling_price'],
 			    'landing_cost' => $row['landing_cost'],
-			    'unit_price' => $row['selling_price'],
-			    'net_unit_price' => $row['selling_price']*$row['request_qty'],
+			    'unit_price' => $row['unit_price'],
+				'unit_cost' => $row['unit_cost'],
+			    'net_unit_price' => $row['selling_price']*$row['received_qty'],
 			    'tax' => $row['tax'],
 			    'tax_method' => $row['tax_method'],
 			    'gross_amount' => $row['gross'],
@@ -243,9 +244,9 @@ class Store_receivers extends MY_Controller{
 			    'net_amount' => $row['product_grand_total'],
 			    'store_id' =>$this->store_id,
 				 'invoice_id' => $row['invoice_id'],
-				'category_id'=>  $_POST['category_id'][$r],
-				'subcategory_id'=> $_POST['subcategory_id'][$r],  
-				'brand_id'=> $_POST['brand_id'][$r], 
+				'category_id'=>  $row['catgory_id'],
+				'subcategory_id'=> $row['subcatgory_id'],  
+				'brand_id'=> $row['brand_id'], 
 				'variant_id'=>$_POST['variant_id'][$r]
 			);
 			$total_t_qty +=$row['transfer_qty'];
@@ -260,6 +261,7 @@ class Store_receivers extends MY_Controller{
                 
                 krsort($items);
             }
+			
             /*update common_store_receivers*/
             $data = array(
                'intend_request_id' =>($this->input->post('intend_request_id'))?$this->input->post('intend_request_id'):0,
@@ -306,9 +308,9 @@ class Store_receivers extends MY_Controller{
 			  $row->tax            = $item->tax;
 			  $row->tax_method     = $item->tax_method;
 			  $row->variant_id     = $item->variant_id;
-			  $row->category_id    = $row->category_id;
-			  $row->subcategory_id = $row->subcategory_id;
-			  $row->brand_id       = $row->brand;
+			  $row->category_id    = $item->category_id;
+			  $row->subcategory_id = $item->subcategory_id;
+			  $row->brand_id       = $item->brand_id;
 			  $row->base_unit      = $row->unit;
               $row->unit           = $row->purchase_unit ? $row->purchase_unit : $row->unit;
 			  $batches             = $this->store_receivers_model->getTransferredStockData($item->id);

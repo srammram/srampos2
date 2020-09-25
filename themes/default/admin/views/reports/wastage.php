@@ -106,7 +106,7 @@
                                 foreach ($warehouses as $warehouse) {
                                     $wh[$warehouse->id] = $warehouse->name;
                                 }
-                                echo form_dropdown('warehouse_id', $wh, '', 'class="form-control" data-placeholder="' . lang("select") . ' ' . lang("warehouse") . '" id="warehouse_id" style="width:100%;" ');
+                                echo form_dropdown('warehouse_id', $wh,$this->store_id, 'class="form-control" data-placeholder="' . lang("select") . ' ' . lang("warehouse") . '" id="warehouse_id" style="width:100%;" ');
                                 ?>
                                 
                             </div>

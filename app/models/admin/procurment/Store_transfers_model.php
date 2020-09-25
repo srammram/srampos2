@@ -597,8 +597,7 @@ class Store_transfers_model extends CI_Model{
 
 
  
-    public function getProductOptions($product_id)
-    {
+    public function getProductOptions($product_id){
         $q = $this->db->get_where('product_variants', array('product_id' => $product_id));
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -625,6 +624,7 @@ class Store_transfers_model extends CI_Model{
 		$this->db->from('recipe r');
 		$this->db->join('tax_rates t','r.purchase_tax=t.id','left');
 		$this->db->join('pro_stock_master','pro_stock_master.product_id=r.id AND pro_stock_master.store_id='.$this->store_id);
+		$this->db->where('pro_stock_master.stock_in>0');
 		$this->db->where('r.id',$productid);
 		$this->db->where_in('r.type',$type);
         $q = $this->db->get();
@@ -639,7 +639,7 @@ class Store_transfers_model extends CI_Model{
         return FALSE;
     }
 	function getbatchStockData($item_transfer_id){
-		$this->db->select('pi.product_id as id,i.transfer_qty,i.tax_method,i.pending_qty,i.tax,pro_stock_master.stock_in ,pro_stock_master.unique_id as stock_id,pro_stock_master.supplier_id,pro_stock_master.invoice_id,pro_stock_master.selling_price,pro_stock_master.batch,pro_stock_master.expiry,pro_stock_master.cost_price,pro_stock_master.landing_cost,DATE(i.expiry) as expiry_date,i.brand_id as brand_id,i.variant_id as variant_id,i.stock_id as unique_id');
+		$this->db->select('pi.product_id as id,i.transfer_qty,i.tax_method,i.pending_qty,i.tax,pro_stock_master.stock_in ,pro_stock_master.unique_id as stock_id,pro_stock_master.supplier_id,pro_stock_master.invoice_id,pro_stock_master.selling_price,pro_stock_master.batch,pro_stock_master.expiry,pro_stock_master.cost_price,pro_stock_master.landing_cost,DATE(i.expiry) as expiry_date,i.category_id,i.subcategory_id,i.brand_id as brand_id,i.variant_id as variant_id,i.stock_id as unique_id');
 		$this->db->from('pro_store_transfer_item_details as i');
 		$this->db->join('pro_store_transfer_items pi', 'pi.id=i.store_transfer_item_id and pi.store_id='.$this->store_id);
 		$this->db->join('warehouses_recipe wr', 'wr.recipe_id=pi.product_id and warehouse_id='.$this->store_id,'left');

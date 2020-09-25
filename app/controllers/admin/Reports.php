@@ -6379,8 +6379,8 @@ GROUP BY B.id, PD.identify*/
         $data= '';
         if ($start != '' && $end != '') {
             $data = $this->reports_model->getWastageItemReports($start,$end,$warehouse_id,$varient_id,$limit,$offset,$this->report_view_access,$this->report_show,$category_id,$subcategory_id,$recipe_id);
-            $round_tot = $this->reports_model->getRoundamount($start,$end,$warehouse_id);
-			
+          print_r($data);
+		  die;
 		
              if (!empty($data['data'])) {                 
                  $wastageReport = $data['data'];

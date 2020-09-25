@@ -15,8 +15,7 @@ class Wastage_model extends CI_Model{
 				   $batches = $item['batches'];unset($item['batches']);
 				   foreach ($batches as $k => $batch) {
 					   $batch['wastage_id'] = $unique_id;
-				   $this->db->insert('wastage_items', $batch);
-				  
+						$this->db->insert('wastage_items', $batch);
 						$item_d_insert_id = $this->db->insert_id();
 						$id_unique_id = $this->site->generateUniqueTableID($item_d_insert_id);
 						if ($item_d_insert_id) {

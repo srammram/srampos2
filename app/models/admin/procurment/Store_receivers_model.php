@@ -215,7 +215,7 @@ class Store_receivers_model extends CI_Model{
     }
  public function getTransferredStockData($item_receiver_id)
     {
-        $this->db->select('i.id as itemid,i.store_receiver_id as stri ,i.store_receiver_item_id as strii,pi.product_id as id,i.selling_price as price,i.batch as batch_no,i.expiry,i.cost_price,i.transfer_qty,i.tax,i.tax_method,i.received_qty,i.vendor_id,i.landing_cost,i.invoice_id');
+        $this->db->select('i.id as itemid,i.store_receiver_id as stri ,i.store_receiver_item_id as strii,pi.product_id as id,i.selling_price as price,i.batch as batch_no,i.expiry,i.cost_price,i.transfer_qty,i.tax,i.tax_method,i.received_qty,i.category_id,i.subcategory_id,i.brand_id,i.vendor_id,i.landing_cost,i.invoice_id');
         $this->db->from('pro_store_receiver_item_details as i');
         $this->db->join('pro_store_receiver_items as pi', 'pi.id=i.store_receiver_item_id', 'left');
         $this->db->where('i.store_receiver_item_id', $item_receiver_id);
@@ -360,9 +360,9 @@ class Store_receivers_model extends CI_Model{
                 $this->db->update('pro_store_receiver_items', $item);
                 if ($batches) {
                     foreach ($batches as $k => $batch) {
-                        
                         $store_receiver_item_details_id = $batch['id'];
-                        unset($batch['id']);
+						$unit_cost=$batch['unit_cost'];
+                        unset($batch['id'],$batch['unit_cost']);
                         $batch['store_receiver_item_id'] = $batch['store_receiver_item_id'];
                         $batch['store_receiver_id'] = $id;
                         $this->db->where(array("id" => $store_receiver_item_details_id, "store_receiver_item_id" => $batch['store_receiver_item_id'], "store_receiver_id" => $batch['store_receiver_id']));
@@ -379,8 +379,8 @@ class Store_receivers_model extends CI_Model{
 							$stock_update['stock_in_piece'] = 0;
 							$stock_update['stock_out']      = 0;
 							$stock_update['stock_out_piece']= 0;
-							$stock_update['cost_price']     = $batch['cost_price'];
-							$stock_update['selling_price']  = $batch['selling_price'];
+							$stock_update['cost_price']     = $unit_cost;
+							$stock_update['selling_price']  = $batch['unit_price'];
 							$stock_update['landing_cost']   = $batch['landing_cost'];
 							$stock_update['tax_rate']       = $batch['tax_amount'];
 							$stock_update['invoice_id']     = $batch['invoice_id'];
@@ -396,15 +396,12 @@ class Store_receivers_model extends CI_Model{
 							}else if($item['expiry_type']=='year'){
 								$stock_update['expiry_date'] = $data['expiry'];
 							}
+							$batch['batch']=!empty($batch['batch'])?$batch['batch']:0;
 							$stock_update['unique_id']      =$item['store_id'].$item['product_id'].$batch['variant_id'].$batch['batch'].$batch['category_id'].$batch['subcategory_id'].$batch['brand_id'].$cp.$batch['vendor_id'].$batch['invoice_id'];
-
 			                $category_mappingID=$this->siteprocurment->item_cost_update_new($stock_update);
 					        $stock_update['cm_id']     = $category_mappingID ? $category_mappingID :0;
 					        $stock_id=$this->stock_master_update($stock_update);
-							
 							$this->negativeStockAdjustments($data['intend_request_id'],$stock_id);
-							
-							
                         }
                     }
                 }

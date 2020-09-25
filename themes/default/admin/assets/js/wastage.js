@@ -235,7 +235,9 @@ function loadItems() {
                         base_quantity = formatDecimal(unitToBaseQty($wastage_qty, this), 4);
 						$available_qty=formatDecimal(baseToUnitQty($available_qty, this), 4);
 						$pending_qty=$available_qty-$wastage_qty;
-						$g_cost=base_quantity*$cost;
+						$cost =formatDecimal(unitToBaseQty($cost, this), 4);
+						$recipe_price =formatDecimal(unitToBaseQty($recipe_price, this), 4);
+						$g_cost=$cost;
                     }
                 });
             }else{
