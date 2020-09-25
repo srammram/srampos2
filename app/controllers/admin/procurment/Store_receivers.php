@@ -165,7 +165,6 @@ class Store_receivers extends MY_Controller{
              print_r($inv_items);die;*/
              krsort($inv_items);
             $c = rand(100000, 9999999);
-			
 			 foreach ($inv_items as $item) {
                 $row = $this->siteprocurment->getRecipeByID($item->product_id);
                 if (!$row) {
@@ -174,13 +173,11 @@ class Store_receivers extends MY_Controller{
                 } else {
                     unset($row->details, $row->cost, $row->supplier1price, $row->supplier2price, $row->supplier3price, $row->supplier4price, $row->supplier5price);
                 }
-                
-                
                 $row->id = $item->product_id;
                 $row->code = $item->product_code;
                 $row->name = $item->product_name;
                 $row->type = $item->product_type;
-               $ri = $this->Settings->item_addition ? $row->id : $c;
+				$ri = $this->Settings->item_addition ? $row->id : $c;
                 $pr[$ri] = array('id' => $c, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")", 'row' => $item);
                 $c++;
             }
@@ -325,14 +322,14 @@ class Store_receivers extends MY_Controller{
 			  $pr[$unique_item_id] = array('unique_id'=>$unique_item_id,'id' => $row->id,'store_receiveItemid'=>$item->id, 'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
 				'row' => $row,  'options' => $options,'units'=>$units);
             }
-            $this->data['inv_items'] = json_encode($pr);
-            $this->data['id'] = $id;
-            $this->data['suppliers'] = $this->siteprocurment->getAllCompanies('supplier');
+            $this->data['inv_items'] 	   = json_encode($pr);
+            $this->data['id'] 			   = $id;
+            $this->data['suppliers'] 	   = $this->siteprocurment->getAllCompanies('supplier');
             $this->data['store_receivers'] = $this->store_receivers_model->getStore_receiversByID($id);
-			$this->data['warehouses'] = $this->siteprocurment->getAllWarehouses();
-			$this->data['all_stores'] = $this->siteprocurment->getAllWarehouses_Storeslist();
-			$this->data['store_req'] = $this->siteprocurment->getAll_respectiveSTOREREQUESTNUMBER();
-			$this->data['stores'] = $this->siteprocurment->getAllWarehouses_Stores();
+			$this->data['warehouses'] 	   = $this->siteprocurment->getAllWarehouses();
+			$this->data['all_stores']      = $this->siteprocurment->getAllWarehouses_Storeslist();
+			$this->data['store_req']       = $this->siteprocurment->getAll_respectiveSTOREREQUESTNUMBER();
+			$this->data['stores']          = $this->siteprocurment->getAllWarehouses_Stores();
             $this->load->helper('string');
             $value = random_string('alnum', 20);
             $this->session->set_userdata('user_csrf', $value);

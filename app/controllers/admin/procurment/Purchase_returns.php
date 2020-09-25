@@ -197,7 +197,6 @@ class Purchase_returns extends MY_Controller{
 				'shipping' => $this->input->post('shipping_charge'),
 				'bill_disc' => $this->input->post('bill_disc'),		
 				'round_off' => $this->input->post('round_off'),
-                
 				'supplier_address' => $this->input->post('supplier_address'),
                 'status' => $this->input->post('status'),
                 'currency' => $this->input->post('currency'),
@@ -225,10 +224,8 @@ class Purchase_returns extends MY_Controller{
 	    if(isset($_POST['product'])){
 		$p_count = count($_POST['product']);
 		for($i=0;$i<$p_count;$i++){
-			
 			$unit = $this->site->getUnitByID($this->input->post('product_unit['.$i.']'));
 			$product_unit_code=$unit->code;
-			
 		    $items[$i]['store_id'] = $this->input->post('store_id['.$i.']');
 		    $items[$i]['product_id'] = $this->input->post('product_id['.$i.']');
 		    $items[$i]['product_code'] = $this->input->post('product['.$i.']');
@@ -240,20 +237,17 @@ class Purchase_returns extends MY_Controller{
 		    $items[$i]['expiry_type']           = $this->input->post('expiry_type['.$i.']');
 		    $items[$i]['cost']                  = $this->input->post('unit_cost['.$i.']');
 		    $items[$i]['gross']                 = $this->input->post('unit_gross['.$i.']');
-		    
 		    $items[$i]['item_disc']             = $this->input->post('item_dis['.$i.']');
 		    $items[$i]['item_dis_type']         = @$this->input->post('item_dis_type['.$i.']');
 		    $items[$i]['item_disc_amt']         = $this->input->post('item_disc_amt['.$i.']');
-		    //$items[0]['item_bill_disc'] = $this->input->post('item_bill_disc['.$i.']');
 		    $items[$i]['item_bill_disc_amt']    = $this->input->post('item_bill_disc_amt['.$i.']');		    
 		    $items[$i]['total']                 = $this->input->post('total['.$i.']');
-		    $t_rate = $this->siteprocurment->getTaxRateByID($this->input->post('tax2['.$i.']'));
+		    $t_rate 							= $this->siteprocurment->getTaxRateByID($this->input->post('tax2['.$i.']'));
 		    $items[$i]['tax_rate_id']           = $this->input->post('tax2['.$i.']');
 		    $items[$i]['tax_rate']              = $t_rate->rate;
 		    $items[$i]['tax']                   = $this->input->post('item_tax['.$i.']');
 		    $items[$i]['landing_cost']          = $this->input->post('landing_cost['.$i.']');
 		    $items[$i]['selling_price']         = $this->input->post('selling_price['.$i.']');
-		    //$items[$i]['margin'] = $this->input->post('margin['.$i.']');
 		    $items[$i]['net_amt']               = $this->input->post('net_cost['.$i.']');
 		    $items[$i]['category_id']           = $_POST['category_id'][$i];
 		    $items[$i]['category_name']         = $_POST['category_name'][$i];
@@ -264,7 +258,7 @@ class Purchase_returns extends MY_Controller{
 		    $items[$i]['product_unit_code']     = $product_unit_code;
 			$items[$i]['unit_quantity']         = $_POST['product_base_quantity'][$i];
 		    $items[$i]['product_unit_id']       = $_POST['product_unit'][$i];
-			$items[$i]['variant_id'] = $_POST['product_option'][$i];
+			$items[$i]['variant_id'] 			= $_POST['product_option'][$i];
 		}
 	    }
             
@@ -287,7 +281,7 @@ class Purchase_returns extends MY_Controller{
 	        $pi_array = array();
 	        if($this->input->post('invoice_id') != ''){
 				$pi_array = array(
-					'status' => 'completed',
+					'status' => 'Returned',
 				);
 			}
 		// echo '<pre>';print_R($data);print_R($items);print_R($pi_array);exit;
@@ -297,13 +291,12 @@ class Purchase_returns extends MY_Controller{
             $this->session->set_flashdata('message', $this->lang->line("purchase_return_added"));
             admin_redirect('procurment/purchase_returns');
         } else {
-            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
-            $this->data['suppliers'] = $this->siteprocurment->getAllCompanies('supplier');
-            $this->data['categories'] = $this->siteprocurment->getAllCategories();
-            $this->data['currencies'] = $this->siteprocurment->getAllCurrencies();
-            $this->data['tax_rates'] = $this->siteprocurment->getAllTaxRates();
-            $this->data['warehouses'] = $this->siteprocurment->getAllWarehouses();
-	    
+            $this->data['error'] 		   = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
+            $this->data['suppliers'] 	   = $this->siteprocurment->getAllCompanies('supplier');
+            $this->data['categories'] 	   = $this->siteprocurment->getAllCategories();
+            $this->data['currencies'] 	   = $this->siteprocurment->getAllCurrencies();
+            $this->data['tax_rates'] 	   = $this->siteprocurment->getAllTaxRates();
+            $this->data['warehouses'] 	   = $this->siteprocurment->getAllWarehouses();
             $this->data['purchaseinvoice'] = $this->siteprocurment->getAllInvoiceNumbers();
             $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('procurment/purchase_returns'), 'page' => lang('purchase_returns')), array('link' => '#', 'page' => lang('add_purchase_return')));
             $meta = array('page_title' => lang('add_purchase_return'), 'bc' => $bc);

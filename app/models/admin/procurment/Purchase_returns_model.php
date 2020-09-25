@@ -363,6 +363,7 @@ class Purchase_returns_model extends CI_Model{
 				if($data['status']=="approved"){
 				$stock_update['unique_id']      = $item['unique_id'];
 				$stock_update['quantity']       = $item['unit_quantity'];
+				$stock_update['stock_status']         = "return";
 			    $this->stockReturnUpdate($stock_update);
                 $item['return_id'] = $id;
                 $this->db->insert('pro_purchase_return_items', $item);
@@ -424,7 +425,9 @@ class Purchase_returns_model extends CI_Model{
 				if($data['status']=="approved"){
 				$stock_update['unique_id']      = $item['unique_id'];
 				$stock_update['quantity']       = $item['unit_quantity'];
+				$stock_update['stock_status']         = "return";
 			    $this->stockReturnUpdate($stock_update);
+			    
                 $item['return_id'] = $id;
                 $this->db->insert('pro_purchase_return_items', $item);
 				$purchaseOrder_item[]=$item;
@@ -897,7 +900,8 @@ class Purchase_returns_model extends CI_Model{
 		$stock_unique_id=$stock['unique_id'];
 		$query = 'update '.$this->db->dbprefix('pro_stock_master').'
 			set stock_in = stock_in - '.$stock['quantity'].' ,
-			    stock_out = stock_out + '.$stock['quantity'].'
+			    stock_out = stock_out + '.$stock['quantity'].',
+				stock_status="returned"
 			where unique_id="'.$stock_unique_id.'"';
 	    $this->db->query($query);
 		return $stock_unique_id;

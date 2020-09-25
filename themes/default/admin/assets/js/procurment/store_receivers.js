@@ -747,13 +747,29 @@ function loadItems() {
 			$transfer_qty =v.transfer_qty ? v.transfer_qty : 0;
 			$landingCost =v.landing_cost ? v.landing_cost : 0;
 			$received_qty =v.received_qty ? v.received_qty : '';
-			$product_gross_amt = $transfer_qty*$product_price;
+			
 			$product_tax_per = v.tax;
 			$product_tax_method =v.tax_method;
 			$product_vendor = (v.vendor_id)?v.vendor_id:0;
 	        $product_tax=0;
 			$tax_per = v.tax;
-		
+	       $received_qty=($received_qty ==0 || isNaN($received_qty))?$transfer_qty:$received_qty;
+		   
+		   
+		    if( product_unit != item.row.base_unit) {
+					$.each(item.units, function(){
+                    if (this.id == product_unit) {
+                        $base_received_qty = formatDecimal(unitToBaseQty($received_qty, this), 4);
+						$cost=formatDecimal(unitToBaseQty($cost, this), 4);
+						$product_cost=formatDecimal(unitToBaseQty($product_cost, this), 4);
+						$product_price=formatDecimal(unitToBaseQty($product_price, this), 4);
+                    }
+                });
+            }
+		   $product_gross_amt = $transfer_qty*$product_price;
+		   
+		   
+		   
 			 $base_received_qty = $received_qty;
 				$tax_method = v.tax_method;
 				var pr_tax = item.tax_rate;
@@ -764,20 +780,7 @@ function loadItems() {
                     $product_tax += pr_tax_val * item_qty;
                 }
 				
-				
-					 if( product_unit != item.row.base_unit) {
-					$.each(item.units, function(){
-                    if (this.id == product_unit) {
-                        $base_received_qty = formatDecimal(unitToBaseQty($received_qty, this), 4);
-						
-                    }
-                });
-            }
-				
-				
-				
-				
-				
+					
 				
 			$product_grand_total_amt = $product_gross_amt+$product_tax;
 			$batch_html ='<table style="width: 100%;" class="table items  table-bordered table-condensed batch-table"><thead>';

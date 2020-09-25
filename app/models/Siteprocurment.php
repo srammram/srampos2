@@ -2169,6 +2169,7 @@ class Siteprocurment extends CI_Model{
         return FALSE;
 	}
 	function getAllInvoiceNumbers(){
+		
 	  $q = $this->db->get_where('pro_purchase_invoices', array('status' => 'completed','store_id'=>$this->store_id));
       if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
