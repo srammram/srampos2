@@ -11047,7 +11047,26 @@ public function getrawstock_empty($product_id,$variant_id,$category_id,$subcateg
         return $q;
     }        
 
-	
+	function get_recipe_products_new($product_id,$variant_id){
+        $this->db->select('recipe_products.product_id,recipe_products.quantity,recipe.type,cm.id as cm_id,cm.category_id,cm.subcategory_id,cm.brand_id,IFNULL(u.operator,"") as operator,IFNULL(u.operation_value,"1") as operation_value,u.name,u.id as unit_id,cm.purchase_cost  ,cm.selling_price');
+        $this->db->from('recipe_products');
+        $this->db->join('recipe','recipe.id=recipe_products.product_id');
+        $this->db->join('category_mapping as cm','cm.id=recipe_products.cm_id','left');
+        $this->db->join('units as u','u.id=recipe_products.unit_id','left');
+        $this->db->where('recipe_id',$product_id);
+        if($variant_id != 0){
+            $this->db->where('recipe_products.variant_id',$variant_id);
+        }
+        $q = $this->db->get(); 
+		
+if($q->num_rows()>0)		{
+	foreach($q->result() as $row){
+		$data[]=$row;
+	}
+	return $data;
+}
+        return false;
+    }  
 	
 	function get_table_order_count($table_id,$split_id=null){
 		$current_date = $this->site->getTransactionDate();
@@ -12004,14 +12023,16 @@ if($this->pos_settings->kot_enable_disable == 1){
 				$this->site->updateUniqueTableId($wastage_id,$unique_id,'wastage');
 			}
 		$item=array();
-		  $q = $this->get_recipe_products($recipeId,$variantId); 
-		
-            if($q->num_rows()>0){
+		  $q = $this->get_recipe_products_new($recipeId,$variantId); 
 				$i=0;
-                foreach($q->result() as $k => $row){
-					$quantity=$cancelQty *$this->site->unitToBaseQty($row->quantity,$row->operator,$row->operation_value);
-					$items=$this->site->getrecipeByID($recipeId);
+                foreach($q as $k => $row){
 					$unit=$this->site->getUnitByID($row->unit_id);
+					$quantity=$cancelQty *$this->site->unitToBaseQty($row->quantity,$row->operator,$row->operation_value);
+					$items=$this->site->getrecipeByID($row->product_id);
+					if($items->type=="semi_finished" ||$items->type=="raw"){
+						$items->price=$row->selling_price;
+						$items->cost=$row->purchase_cost;
+					}
 					$item=array("store_id"=>$this->store_id,
 					"wastage_id"=>$unique_id,
 					"variant_id"=>$row->variant_id,
@@ -12019,7 +12040,7 @@ if($this->pos_settings->kot_enable_disable == 1){
 					"unit_price"=>$items->price,
 					"wastage_unit_qty"=>$quantity,
 					"product_unit_id"=>$row->unit_id,
-					"product_unit_code"=>$unit->name,
+					"product_unit_code"=>$row->name,
 					"cost_price"=>$items->cost,
 					"gross_amount"=>$items->cost*$quantity,
 					"net_amount"=>$items->cost*$quantity,
@@ -12035,14 +12056,13 @@ if($this->pos_settings->kot_enable_disable == 1){
 					
 			);
 			      $this->db->insert("wastage_items",$item);
-				  
 				  $item_d_insert_id = $this->db->insert_id();
 				  $id_unique_id = $this->site->generateUniqueTableID($item_d_insert_id);
 				  $this->site->updateUniqueTableId($item_d_insert_id,$id_unique_id,'wastage_items');
                 }
 				
 				return true;
-            }
+            
 		
 	}
 }

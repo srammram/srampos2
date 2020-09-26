@@ -6025,14 +6025,10 @@ public function getWastageItemReports($start,$end,$warehouse_id,$varient_id,$lim
 					JOIN " . $this->db->dbprefix('recipe') . " R ON R.id = WI.product_id
 					JOIN " . $this->db->dbprefix('wastage') . " W ON W.id = WI.wastage_id
 					JOIN " . $this->db->dbprefix('warehouses') . " WH ON WH.id = WI.store_id
-				
 					JOIN " . $this->db->dbprefix('units') . " U ON U.id = r.purchase_unit
 					LEFT JOIN " . $this->db->dbprefix('recipe_variants') . " RV ON RV.id = WI.variant_id
 					WHERE DATE(W.date) BETWEEN '".$start."' AND '".$end."' AND   W.status ='approved'" .$where. " GROUP BY R.id,WI.variant_id,WI.brand_id,W.type,WI.net_unit_price" ;
                     $o = $this->db->query($myQuery);
-			/* 	echo $this->db->last_query();
-				echo "<pre>"; */
-				//die;  
                         $split[$row->cate_id][] = $sow;
                         if ($o->num_rows() > 0) {                                    
                             foreach($o->result() as $oow){
