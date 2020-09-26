@@ -92,6 +92,7 @@ class Production_model extends CI_Model{
 	}
 	function productionItemStockout($product_id,$variant_id,$category_id,$subcategory_id,$brand_id,$base_quantity){
 		$batches=$this->getBatchwisestock($product_id,$variant_id,$category_id,$subcategory_id,$brand_id);
+		if(!empty($batches)){
 		foreach($batches as $batch){
 			//print_r($batch);
 			if($batch->stock_in>0){
@@ -109,6 +110,19 @@ class Production_model extends CI_Model{
 					break;
 				}
 			}
+		}
+		}else{
+			$rawstock =$this->getrawstock_empty($product_id,$variant_id,$category_id,$subcategory_id,$brand_id); 
+			 foreach($rawstock as $row){
+				 $query = 'update srampos_pro_stock_master set stock_in=stock_in - '.$base_quantity.', stock_out = stock_out + '.$base_quantity.'  where id='.$row->id;
+                    $this->db->query($query); 
+                    $stock_id = $row->id;
+					$stock=$this->db->get_where("pro_stock_master",array("id"=>$row->id))->row();
+					 $recipe_cost=$stock->cost_price;
+					break;
+			 }
+			
+			
 		}
 		return $recipe_cost;
 	}
@@ -341,6 +355,7 @@ function getAllProductionItemsWithDetails($p_id){
             $this->db->where('variant_id',$variant_id);
         }
 		$this->db->where('stock_in>0');
+	//	$this->db->where('store_id',$this->store_id);
         $this->db->where_not_in('stock_status','closed');
         $this->db->group_by('id');
         $this->db->order_by('id', 'asc');
@@ -353,6 +368,44 @@ function getAllProductionItemsWithDetails($p_id){
         }
         return array();
 
+}
+
+public function getrawstock_empty($product_id,$variant_id,$category_id,$subcategory_id,$brand_id){
+       $this->db->select('pro_stock_master.*');
+        $this->db->from('pro_stock_master');
+        if($category_id !=''){
+            $this->db->where('category_id',$category_id);
+        }
+        if($subcategory_id !=''){
+            $this->db->where('subcategory_id',$subcategory_id);
+        }
+        if($brand_id !=''){
+            $this->db->where('brand_id',$brand_id);
+        }
+		if($variant_id !='' && $variant_id !=0){
+        $this->db->where('variant_id',$variant_id);   
+		}	
+        //$this->db->where('variant_id',$variant_id);        
+        $this->db->where('product_id',$product_id);
+      //  $this->db->where_not_in('stock_status','closed');
+		$this->db->where('store_id',$this->store_id);
+		$this->db->limit(1);
+        $this->db->group_by('id');
+        $this->db->order_by('id', 'asc');
+        $q = $this->db->get(); 
+        // print_r($this->db->last_query());die; 
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return array();
+
+     /*   if ($q->num_rows() > 0) {
+            return $q->result_array();
+        }
+        return FALSE;*/
 }
 	function unitToBaseUnit($qty,$operator,$operation_value) {
     switch($operator) {

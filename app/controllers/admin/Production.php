@@ -39,21 +39,16 @@ class Production extends MY_Controller{
         $this->page_construct('production/index', $meta, $this->data);
     }
 
-    function getproduction($warehouse_id = NULL)
-    {
+    function getproduction($warehouse_id = NULL){
         $this->sma->checkPermissions('index', TRUE);
         //$supplier = $this->input->get('supplier') ? $this->input->get('supplier') : NULL;
-
         if ((! $this->Owner || ! $this->Admin)) {
             $user = $this->site->getUser();
         }
-     
         $action = '<div class="text-center"><div class="btn-group text-left">'
             . '<button type="button" class="btn btn-default btn-xs btn-primary dropdown-toggle" data-toggle="dropdown">'
             . lang('actions') . ' <span class="caret"></span></button>
         <ul class="dropdown-menu pull-right" role="menu">
-          
-           
             <li><a href="' . admin_url('production/edit/$1') . '"><i class="fa fa-edit"></i> ' . lang('edit_production') . '</a></li>';
         if ($warehouse_id) {
             $action .= '<li><a href="' . admin_url('production/set_rack/$1/' . $warehouse_id) . '" data-toggle="modal" data-target="#myModal"><i class="fa fa-bars"></i> '
