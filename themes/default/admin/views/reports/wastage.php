@@ -320,7 +320,7 @@ function GetData($url) {
                                                var sub_price = 0;
                                              $.each(d.order, function (e,f) {
 												 sub_price += parseFloat(f.w_price);
-                                                $('#SlRData > tbody').append('<tr  class="text-right"><td class="text-center">'+f.name+'</td><td class="text-center">'+f.variant+'</td><td>'+f.warehouse+'</td><td>'+formatQuantity(f.w_qty)+'</td><td>'+f.unit_name+'</td><td>'+formatMoney(f.w_price)+'</td><td>'+f.type+'</td></tr>');
+                                                $('#SlRData > tbody').append('<tr  class="text-right"><td class="text-center">'+f.name+'</td><td class="text-center">'+f.variant+'</td><td>'+f.warehouse+'</td><td>'+formatDecimal(f.w_qty,4)+'</td><td>'+f.unit_name+'</td><td>'+formatMoney(f.w_price)+'</td><td>'+f.type+'</td></tr>');
                                             }); 
 											grp_price +=parseFloat(sub_price);
                                              $('#SlRData > tbody').append('<tr style="font-weight:bold" class="text-right"><td class="text-left">Sub Total:</td><td>&nbsp;</td><td>&nbsp;</td><td>'+formatQuantity(sub_qty)+'</td><td>&nbsp;</td><td>'+formatMoney(sub_price)+'</td><td></tr>');
