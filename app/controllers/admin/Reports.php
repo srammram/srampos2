@@ -6344,7 +6344,7 @@ GROUP BY B.id, PD.identify*/
 
 
   function wastage(){        
-        $this->sma->checkPermissions();
+       
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         $this->data['users'] = $this->reports_model->getStaff();
         $this->data['warehouses'] = $this->site->getAllWarehouses();
@@ -6361,7 +6361,7 @@ GROUP BY B.id, PD.identify*/
    
 
    public function get_ItemwiseWastageReport($start_date = NULL, $end_date = NULL, $warehouse_id = NULL, $varient_id = NULL){
-        $this->sma->checkPermissions('recipe',TRUE);        
+       
         $start 			= $this->input->post('start_date');
         $end 			= $this->input->post('end_date');
         $warehouse_id 	= $this->input->post('warehouse_id');
@@ -6401,7 +6401,6 @@ GROUP BY B.id, PD.identify*/
    
    
    function yields(){        
-        $this->sma->checkPermissions();
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         $this->data['users'] = $this->reports_model->getStaff();
         $this->data['warehouses'] = $this->site->getAllWarehouses();
@@ -6417,8 +6416,7 @@ GROUP BY B.id, PD.identify*/
    
 
    public function get_ItemwiseYieldReport($start_date = NULL, $end_date = NULL, $warehouse_id = NULL, $varient_id = NULL){
-
-        $this->sma->checkPermissions('recipe',TRUE);        
+      
         $start 			= $this->input->post('start_date');
         $end 			= $this->input->post('end_date');
         $warehouse_id 	= $this->input->post('warehouse_id');

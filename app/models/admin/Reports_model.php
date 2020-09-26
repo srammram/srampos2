@@ -5973,28 +5973,15 @@ public function getWastageItemReports($start,$end,$warehouse_id,$varient_id,$lim
         JOIN " . $this->db->dbprefix('recipe_categories') . " RC ON WI.category_id = RC.id
         JOIN " . $this->db->dbprefix('wastage') . " W ON W.id = WI.wastage_id        
         WHERE DATE(W.date) BETWEEN '".$start."' AND '".$end."' AND
-        W.status ='approved' ".$where." GROUP BY RC.id";
+        W.status ='approved' ".$where." GROUP BY WI.category_id";
 		
-		
-		/*       
-        SELECT *
-        FROM srampos_wastage_items  WI
-        LEFT JOIN srampos_recipe R ON    WI.product_id = R.id
-        JOIN srampos_recipe_categories RC ON WI.category_id = RC.id
-        JOIN srampos_wastage W ON W.id = WI.wastage_id        
-        WHERE DATE(W.date) BETWEEN '2020-05-01' AND '2020-09-25' AND
-        W.status ='approved' AND W.store_id =2 GROUP BY RC.id LIMIT 0,10
-		 */
-		
-		
-		
-		
-		
+	
 
         $limit_q = " limit $offset,$limit";
         $total = $this->db->query($category);
         if($limit!=0) $category .=$limit_q;
         $t = $this->db->query($category);
+		
         if ($t->num_rows() > 0) {
             foreach ($t->result() as $row) {
                 $this->db->select("recipe_categories.id AS sub_id,recipe_categories.name AS sub_category")
@@ -6015,17 +6002,25 @@ public function getWastageItemReports($start,$end,$warehouse_id,$varient_id,$lim
 				}
                 $this->db->group_by('recipe.subcategory_id');
                 $s = $this->db->get('wastage_items');
+				/*  echo $this->db->last_query();
+				  echo "<pre>"; */
             if ($s->num_rows() > 0) {
                 foreach ($s->result() as $sow) {
                     $where = '';
+					if($sow->sub_id ){
+						$where .= " AND WI.subcategory_id =".$sow->sub_id."";
+					}
+					if($row->cate_id){
+						$where .= " AND WI.category_id =".$row->cate_id."";
+					}
 					if($varient_id != 0){
-						$where .= "AND WI.variant_id =".$varient_id."";
+						$where .= " AND WI.variant_id =".$varient_id."";
 					}
 					if($product_id != 0){
-						$where .= "AND WI.product_id =".$recipe_id."";
+						$where .= " AND WI.product_id =".$recipe_id."";
 					}
                    $myQuery = "SELECT WI.unit_price AS rate,WH.name as warehouse,R.name,CASE WHEN RV.name  is NOT NULL THEN RV.name ELSE 'No Variant' END AS variant,W.type,U.name as unitname,WI.product_unit_code as unit_name,
-				   SUM(WI.net_amount)*SUM(WI.wastage_qty)  w_price, sum(WI.wastage_qty) w_qty
+				   WI.net_unit_price*SUM(WI.wastage_qty)  w_price, sum(WI.wastage_qty) w_qty
 					FROM " . $this->db->dbprefix('wastage_items') . " WI
 					JOIN " . $this->db->dbprefix('recipe') . " R ON R.id = WI.product_id
 					JOIN " . $this->db->dbprefix('wastage') . " W ON W.id = WI.wastage_id
@@ -6033,10 +6028,11 @@ public function getWastageItemReports($start,$end,$warehouse_id,$varient_id,$lim
 				
 					JOIN " . $this->db->dbprefix('units') . " U ON U.id = r.purchase_unit
 					LEFT JOIN " . $this->db->dbprefix('recipe_variants') . " RV ON RV.id = WI.variant_id
-					WHERE DATE(W.date) BETWEEN '".$start."' AND '".$end."' AND   W.status ='approved'" .$where. " GROUP BY R.id,WI.variant_id,WI.brand_id,W.type" ;
+					WHERE DATE(W.date) BETWEEN '".$start."' AND '".$end."' AND   W.status ='approved'" .$where. " GROUP BY R.id,WI.variant_id,WI.brand_id,W.type,WI.net_unit_price" ;
                     $o = $this->db->query($myQuery);
-				/*  echo $this->db->last_query();
-				die;  */
+			/* 	echo $this->db->last_query();
+				echo "<pre>"; */
+				//die;  
                         $split[$row->cate_id][] = $sow;
                         if ($o->num_rows() > 0) {                                    
                             foreach($o->result() as $oow){
@@ -6051,6 +6047,7 @@ public function getWastageItemReports($start,$end,$warehouse_id,$varient_id,$lim
 						}                
 						$data[] = $row;
             }
+			
             return array('data'=>$data,'total'=>$total->num_rows());
         }        
         return FALSE;   
@@ -6063,13 +6060,13 @@ public function getWastageItemReports($start,$end,$warehouse_id,$varient_id,$lim
 public function getItemWiseYieldReports($start,$end,$warehouse_id,$varient_id,$limit,$offset,$report_view_access,$report_show,$category_id,$subcategory_id,$product_id){
 		$where ='';
         if($warehouse_id != 0){
-            $where = "AND W.store_id =".$warehouse_id."";
+            $where = " AND W.store_id =".$warehouse_id."";
         }
 		if($varient_id != 0){
-            $where .= "AND WI.variant_id =".$varient_id."";
+            $where .= " AND WI.variant_id =".$varient_id."";
         }
         if($product_id != 0){
-            $where .= "AND WI.product_id =".$recipe_id."";
+            $where .= " AND WI.product_id =".$recipe_id."";
         }
         if($category_id != 0){
             $where .= " AND R.category_id =".$category_id."";

@@ -403,7 +403,7 @@ function GetData($url){
 										$uom=(b.unit_name !=null)?b.unit_name:'';
 								    $s_v_c_p = b.stock_in * b.cost_price;
 								    $s_v_l_c = b.stock_in * b.selling_price;
-									$current_stock =(b.stock_in>0)?b.stock_in-b.stock_out:b.stock_in;
+									$current_stock =b.stock_in;
                                     $html = '<tr>';
                                     $html +='<td>'+$row_index+'</td>';
                                     $html +='<td>'+b.item_name+'</td>';

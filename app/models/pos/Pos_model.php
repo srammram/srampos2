@@ -5290,8 +5290,8 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
     }    
     public function CancelOrdersItem($notification_array, $cancel_remarks, $order_item_id, $user_id, $split_id,$timelog_array,$cancelQty,$cancel_type){
     	
-		$cancelledQty=$cancelQty;
 		$q = $this->db->select('*')->where('id', $order_item_id)->get('order_items');
+		$order_item=$q->row();
 		if ($q->num_rows() > 0) {
             $sale_id =  $q->row('sale_id');
 	        $recipe_id = $q->row('recipe_id');
@@ -5353,7 +5353,7 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
 			->where('order_items.order_item_cancel_status', 0)
 			->get('orders');
 			
-			
+			$cancelledQty=($cancelQty!='all' && $cancelQty!=NULL)?$cancelQty:$order_item->quantity;
 			
 				if($cancel_type     =="out_of_stock" || $cancel_type  == "kitchen_cancel" ){
 					if($recipe_type =='standard' || $recipe_type =='production' ){ 
@@ -5363,7 +5363,7 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
 					}
 				//}elseif($cancel_type=="reusable" && $recipe_type=="quick_service"){
 					}elseif($cancel_type=="reusable" ){
-	                 $this->siteprocurment->production_salestock_in($recipe_id,$cancelQty,$q->row('recipe_variant_id'));
+	                 $this->siteprocurment->production_salestock_in($recipe_id,$cancelledQty,$q->row('recipe_variant_id'));
 				}elseif($cancel_type=="spoiled"){
 					$this->wastageItem($q->row('recipe_id'),$q->row('recipe_variant_id'),$cancelledQty,$order_item_id);
 				}
@@ -12004,7 +12004,8 @@ if($this->pos_settings->kot_enable_disable == 1){
 				$this->site->updateUniqueTableId($wastage_id,$unique_id,'wastage');
 			}
 		$item=array();
-		  $q = $this->get_recipe_products($product_id,$variant_id); 
+		  $q = $this->get_recipe_products($recipeId,$variantId); 
+		
             if($q->num_rows()>0){
 				$i=0;
                 foreach($q->result() as $k => $row){
@@ -12017,11 +12018,11 @@ if($this->pos_settings->kot_enable_disable == 1){
 					"net_unit_price"=>$items->price,
 					"unit_price"=>$items->price,
 					"wastage_unit_qty"=>$quantity,
-					"product_unit_id"=>$row->recipe_unit_id,
+					"product_unit_id"=>$row->unit_id,
 					"product_unit_code"=>$unit->name,
 					"cost_price"=>$items->cost,
-					"gross_amount"=>$items->cost*$cancelQty,
-					"net_amount"=>$items->cost*$cancelQty,
+					"gross_amount"=>$items->cost*$quantity,
+					"net_amount"=>$items->cost*$quantity,
 					"unit_quantity"=>$quantity,
 					"category_id"=>$row->category_id,
 					"subcategory_id"=>$row->subcategory_id,
@@ -12030,13 +12031,16 @@ if($this->pos_settings->kot_enable_disable == 1){
 					"product_id"=>$items->id,
 					"product_name"=>$items->name,
 					"product_type"=>$items->type,
+					"wastage_qty"=>$quantity
 					
 			);
 			      $this->db->insert("wastage_items",$item);
+				  
 				  $item_d_insert_id = $this->db->insert_id();
 				  $id_unique_id = $this->site->generateUniqueTableID($item_d_insert_id);
 				  $this->site->updateUniqueTableId($item_d_insert_id,$id_unique_id,'wastage_items');
                 }
+				
 				return true;
             }
 		
