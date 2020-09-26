@@ -78,6 +78,7 @@
 					
 					
 					<div class="negative_stock" style="margin-top:72px;">
+					<h2>Negative Stock</h2>
                         <div class="col-md-12" id="negative_stock_table">
                         <table class="table negative_stock_table" >
                             <thead>
