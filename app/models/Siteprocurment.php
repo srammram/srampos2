@@ -2470,7 +2470,28 @@ function production_salestock_in($product_id,$stock_out_qty,$variant_id){
                     $updated_stock = $this->productionStockMaster_in($row->product_id,$variant_id,$ingredi_stock_out,$cate);
                 }
             }
-        }   // die;    
+        } elseif($item->type=="standard"){
+			 $rawstock =$this->getrawstock($product_id,$variant_id,$item->category_id,$item->subcategory_id,$item->brand); 
+			 if(!empty($rawstock)){
+				 foreach($rawstock as $batch){
+				   $query = 'update srampos_pro_stock_master set stock_in=stock_in + '.$stock_out_qty.', stock_out = stock_out - '.$stock_out_qty.'    where id='.$batch->id;
+                    $this->db->query($query); 
+                    $stock_id = $batch->id;
+					break;
+				  
+			  }
+			 }else{
+			   $batches =$this->getrawstock_empty($product_id,$variant_id,$item->category_id,$item->subcategory_id,$item->brand);
+			  foreach($batches as $batch){
+				   $query = 'update srampos_pro_stock_master set stock_in=stock_in + '.$stock_out_qty.', stock_out = stock_out - '.$stock_out_qty.'    where id='.$batch->id;
+                    $this->db->query($query); 
+                    $stock_id = $batch->id;
+					break;
+				  
+			  }
+			 }
+
+		}			// die;    
     }
 
     function productionupdateStockMaster_old($product_id,$stock_out,$cm_id,$cate){     
@@ -2524,6 +2545,7 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
         //}
         //$this->db->where('variant_id',$variant_id);
         $this->db->where_not_in('stock_status','closed');
+		$this->db->where('stock_in>0');
         $this->db->group_by('id');
         $this->db->order_by('id', 'asc');
         $q = $this->db->get(); 
@@ -2573,49 +2595,21 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
         $stock_overflow =0;
         if(!empty($rawstock)){
             foreach($rawstock as $row){     
-                if($stock_overflow == 0)     {
-                    $tobedetect = $stock_out; 
-                }else{
-                    $tobedetect =$stock_overflow; 
-                }                 
-                 $stock = $row->stock_in + $row->stock_out;                 
-                if ($stock > $tobedetect){
-                    $stock_overflow = $stock+$tobedetect;  
-                    $stock_qty_taken = $tobedetect-$stock;
-                    if($stock_overflow >= 0){                        
-                       $query = 'update srampos_pro_stock_master set  stock_out = stock_out - '.$tobedetect.' where id='.$row->id;
-                      // echo $query;
-                      $this->db->query($query);  
-                      $stock_id = $row->id;
-                      $date =date('Y-m-d h:m:s');
-                      $ledger_query ='insert into srampos_pro_stock_ledger(stock_id,store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, transaction_identify,transaction_type,transaction_qty,date)values('.$stock_id.','.$store_id.','.$product_id.','.$variant_id.', '.$cate['cm_id'].', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', "Sales","O",'.$tobedetect.',"'.$date.'")';
-                       $this->db->query($ledger_query);   
-                    }   
-                      if($stock_qty_taken <= 0){                        
-                        break;
-                    }
-                }else{                    
-                    $stock = $row->stock_in + $row->stock_out;
-                    $stock_overflow = $tobedetect -$stock;
-                    $out = $stock + $tobedetect;                    
-                    $cloased='';
-                    if($out > 0){
-                        $closed=', stock_status =  "available"';
-                    }                    
-                    $query = 'update srampos_pro_stock_master set  stock_out = stock_out - '.$stock.'  '.$closed.'  where id='.$row->id;
-                    //echo $query;
-                    $this->db->query($query);   
-                    $stock_id = $row->id;
-                    $date =date('Y-m-d h:m:s');
-                    $ledger_query ='insert into srampos_pro_stock_ledger(stock_id,store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, transaction_identify,transaction_type,transaction_qty,date)values('.$stock_id.','.$store_id.','.$product_id.','.$variant_id.', '.$cate['cm_id'].', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', "Sales","O",'.$stock.',"'.$date.'")';   
-                     $this->db->query($ledger_query);
-					
-                    if($stock_overflow <= 0){
-                        break;
-                    }
-                }
+                            $query = 'update srampos_pro_stock_master set stock_in=stock_in + '.$stock_out.', stock_out = stock_out - '.$stock_out.'    where id='.$row->id;
+                    $this->db->query($query); 
+                    $stock_id = $row->id;  
+               break;
             }
-        }
+        }else{
+			$rawstock =$this->getrawstock_empty($product_id,$variant_id,$cate['category_id'],$cate['subcategory_id'],$cate['brand_id']); 
+			 foreach($rawstock as $row){
+				 $query = 'update srampos_pro_stock_master set stock_in=stock_in + '.$stock_out.', stock_out = stock_out - '.$stock_out.'    where id='.$row->id;
+                    $this->db->query($query); 
+                    $stock_id = $row->id;
+					break;
+			 }
+			
+		}
             
     }
      function getWarehouse($id=false){
@@ -2710,4 +2704,43 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
         }
         return 0;
     }
+	
+public function getrawstock_empty($product_id,$variant_id,$category_id,$subcategory_id,$brand_id){
+       $this->db->select('pro_stock_master.*');
+        $this->db->from('pro_stock_master');
+        if($category_id !=''){
+            $this->db->where('category_id',$category_id);
+        }
+        if($subcategory_id !=''){
+            $this->db->where('subcategory_id',$subcategory_id);
+        }
+        if($brand_id !=''){
+            $this->db->where('brand_id',$brand_id);
+        }
+		if($variant_id !='' && $variant_id !=0){
+        $this->db->where('variant_id',$variant_id);   
+		}	
+        //$this->db->where('variant_id',$variant_id);        
+        $this->db->where('product_id',$product_id);
+      //  $this->db->where_not_in('stock_status','closed');
+		$this->db->where('store_id',$this->store_id);
+		$this->db->limit(1);
+        $this->db->group_by('id');
+        $this->db->order_by('id', 'asc');
+        $q = $this->db->get(); 
+        // print_r($this->db->last_query());die; 
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return array();
+
+     /*   if ($q->num_rows() > 0) {
+            return $q->result_array();
+        }
+        return FALSE;*/
+}
+	
 }

@@ -5361,7 +5361,8 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
 					}else if($recipe_type =='standard' || $recipe_type =='production' ){ 
 						$this->site->saleStockIn_new($recipe_id,$cancelQty,$order_item_id);
 					}
-				}elseif($cancel_type=="reusable" && $recipe_type=="quick_service"){
+				//}elseif($cancel_type=="reusable" && $recipe_type=="quick_service"){
+					}elseif($cancel_type=="reusable" ){
 	                 $this->siteprocurment->production_salestock_in($recipe_id,$cancelQty,$q->row('recipe_variant_id'));
 				}elseif($cancel_type=="spoiled"){
 					$this->wastageItem($q->row('recipe_id'),$q->row('recipe_variant_id'),$cancelledQty,$order_item_id);
@@ -11972,6 +11973,9 @@ if($this->pos_settings->kot_enable_disable == 1){
 			
 			);
 			$this->db->insert("wastage_items",$item);
+			$wastage_items_id = $this->db->insert_id();
+			 $Wunique_id = $this->site->generateUniqueTableID($wastage_items_id);
+			 $this->site->updateUniqueTableId($wastage_items_id,$Wunique_id,'wastage_items');
 		return true;
 	}
 	function  wastageQuickServiceItem($recipeId,$variantId,$cancelQty,$OrderItemId){
