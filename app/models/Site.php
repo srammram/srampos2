@@ -7655,7 +7655,7 @@ public function getrawstock_empty($product_id,$variant_id,$category_id,$subcateg
         if($brand_id !=''){
             $this->db->where('brand_id',$brand_id);
         }
-		if($brand_id !='' && $variant_id !=0){
+		if($variant_id !='' && $variant_id !=0){
         $this->db->where('variant_id',$variant_id);   
 		}	
         //$this->db->where('variant_id',$variant_id);        

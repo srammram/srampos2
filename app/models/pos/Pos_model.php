@@ -10911,23 +10911,33 @@ $consolidate_kitchen_details = $this->db->select('restaurant_kitchens.id,restaur
         $store_id = $this->data['pos_store'];
         $batches =$this->getrawstock($product_id,$variant_id,$cate['category_id'],$cate['subcategory_id'],$cate['brand_id']); 
 		if(!empty($batches)){
-       foreach($batches as $batch){
-			if($batch->stock_in>0){
+			$total_row=count($batches);
+			$row=1;
+		foreach($batches as $batch){
+			if($total_row==$row){
+				$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$base_quantity.',  stock_out = stock_out + '.$base_quantity.' where store_id='.$this->store_id.' and id='.$batch->id;
+                    $this->db->query($query); 
+					$stock=$this->db->get_where("pro_stock_master",array("id"=>$batch->id))->row();
+					 $recipe_cost=$stock->cost_price;
+					break;
+			}else{
 				$balance_quantity =$base_quantity-$batch->stock_in;
 				if($balance_quantity>0){
 				$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$batch->stock_in.',  stock_out = stock_out + '.$batch->stock_in.'  ,stock_status="closed" where store_id='.$this->store_id.' and id='.$batch->id;
                 $this->db->query($query); 
 				$base_quantity =$base_quantity-$batch->stock_in;
+				$stock=$this->db->get_where("pro_stock_master",array("id"=>$batch->id))->row();
 				}else{
 					$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$base_quantity.',  stock_out = stock_out + '.$base_quantity.' where store_id='.$this->store_id.' and id='.$batch->id;
                     $this->db->query($query); 
+					$stock=$this->db->get_where("pro_stock_master",array("id"=>$batch->id))->row();
+					 $recipe_cost=$stock->cost_price;
 					break;
 				}
 			}
-			
+			$row++;
 		}
 		}else{
-			
 			$batches =$this->getrawstock_empty($product_id,$variant_id,$cate['category_id'],$cate['subcategory_id'],$cate['brand_id']); 
 			  foreach($batches as $batch){
 				   $query = 'update srampos_pro_stock_master set stock_in=stock_in - '.$base_quantity.', stock_out = stock_out + '.$base_quantity.'    where id='.$batch->id;
@@ -12053,14 +12063,12 @@ if($this->pos_settings->kot_enable_disable == 1){
 					"product_name"=>$items->name,
 					"product_type"=>$items->type,
 					"wastage_qty"=>$quantity
-					
-			);
+					);
 			      $this->db->insert("wastage_items",$item);
 				  $item_d_insert_id = $this->db->insert_id();
 				  $id_unique_id = $this->site->generateUniqueTableID($item_d_insert_id);
 				  $this->site->updateUniqueTableId($item_d_insert_id,$id_unique_id,'wastage_items');
                 }
-				
 				return true;
             
 		

@@ -25,6 +25,7 @@ class Production_model extends CI_Model{
 						 $cate['selling_price']      = 0;
 						 // Ingredient stock out
 						$cate['purchase_cost']= $this->productionStockOut($item['product_id'],$item['variant_id'],$item['quantity'],$item['base_quantity'],$item['uom']);
+						
 						// ProductionItem Stock In
 						$this->updateStockMaster_new($item['product_id'],$item['variant_id'],$item['base_quantity'],$cate); // $category_mappingID
 					}				
@@ -81,7 +82,8 @@ class Production_model extends CI_Model{
 			if($rp_items->num_rows()>0){
 				foreach($rp_items->result() as $row){
 							 $base_quantity=$row->quantity*$quantity;
-							$r_cost          = $this->productionItemStockout($row->product_id,$row->variant_id,$row->category_id,$row->sub_category_id,$row->brand_id,$base_quantity); 
+							 $r_cost          = $this->productionItemStockout($row->product_id,$row->variant_id,$row->category_id,$row->sub_category_id,$row->brand_id,$base_quantity); 
+							
 							 $cost +=$r_cost;
 						
 				}	
@@ -92,10 +94,19 @@ class Production_model extends CI_Model{
 	}
 	function productionItemStockout($product_id,$variant_id,$category_id,$subcategory_id,$brand_id,$base_quantity){
 		$batches=$this->getBatchwisestock($product_id,$variant_id,$category_id,$subcategory_id,$brand_id);
+		
 		if(!empty($batches)){
+			$total_row=count($batches);
+			$row=1;
 		foreach($batches as $batch){
-			//print_r($batch);
-			if($batch->stock_in>0){
+			if($total_row==$row){
+				$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$base_quantity.',  stock_out = stock_out + '.$base_quantity.' where store_id='.$this->store_id.' and id='.$batch->id;
+                    $this->db->query($query); 
+					$stock=$this->db->get_where("pro_stock_master",array("id"=>$batch->id))->row();
+					 $recipe_cost=$stock->cost_price;
+					break;
+			}else{
+				
 				$balance_quantity =$base_quantity-$batch->stock_in;
 				if($balance_quantity>0){
 				$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$batch->stock_in.',  stock_out = stock_out + '.$batch->stock_in.'  ,stock_status="closed" where store_id='.$this->store_id.' and id='.$batch->id;
@@ -110,6 +121,7 @@ class Production_model extends CI_Model{
 					break;
 				}
 			}
+			$row++;
 		}
 		}else{
 			$rawstock =$this->getrawstock_empty($product_id,$variant_id,$category_id,$subcategory_id,$brand_id); 
@@ -360,6 +372,7 @@ function getAllProductionItemsWithDetails($p_id){
         $this->db->group_by('id');
         $this->db->order_by('id', 'asc');
         $q = $this->db->get();
+		
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
