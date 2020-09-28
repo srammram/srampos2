@@ -135,8 +135,6 @@ if (localStorage.getItem('pi_items')) {
                 if (localStorage.getItem('inv_bill_disc_percentage')) {
                     localStorage.removeItem('inv_bill_disc_percentage');
                 }
-
-
                 $('#modal-loading').show();
                 location.reload();
             }
@@ -225,9 +223,6 @@ $(document).on('click', '.rmfg', function () {
 		}
 	}).datepicker('widget').wrap('<div class="ll-skin-nigran"/>');
 	
-	
-	
-   
     pi_items[item_id].row.mfg = $(this).val();
 	 pi_items[item_id].row.days = day_val;
     localStorage.setItem('pi_items', JSON.stringify(pi_items));

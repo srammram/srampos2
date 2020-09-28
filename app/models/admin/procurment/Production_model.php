@@ -401,10 +401,6 @@ public function getrawstock_empty($product_id,$variant_id,$category_id,$subcateg
         }
         return array();
 
-     /*   if ($q->num_rows() > 0) {
-            return $q->result_array();
-        }
-        return FALSE;*/
 }
 	function unitToBaseUnit($qty,$operator,$operation_value) {
     switch($operator) {

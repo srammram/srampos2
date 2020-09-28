@@ -708,6 +708,8 @@ $lang['add_inventory']                     = " Add Inventory";
 $lang['stock_audit']                       = " Stock Audit";
 $lang['stock_audit_rep']                   = " Stock Audit Report";
 $lang['copy_bill']                         = "Copy Bill";
+$lang['process']                         = "process";
+$lang['approved']                         = "approved";
 
 
 

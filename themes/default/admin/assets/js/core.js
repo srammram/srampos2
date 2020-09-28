@@ -1241,8 +1241,8 @@ function product_status(x) {
 function row_status(x) {
     if(x == null) {
         return '';
-    } else if(x == 'pending') {
-        return '<div class="text-center"><span class="row_status label label-warning">'+lang[x]+'</span></div>';
+    } else if(x == 'pending' ||x == 'process') {
+        return '<div class="text-center"><span class="row_status label label-warning">process</span></div>';
     } else if(x == 'completed' || x == 'paid' || x == 'sent' || x == 'received') {
         return '<div class="text-center"><span class="row_status label label-success">'+lang[x]+'</span></div>';
     } else if(x == 'partial' || x == 'transferring' || x == 'ordered') {

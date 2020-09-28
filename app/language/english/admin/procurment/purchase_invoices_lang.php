@@ -294,3 +294,5 @@ $lang['net_amt']                              = "Net Amount";
 $lang['shipping_charge'] = 'Shipping Charge';
 $lang['remarks_note']                              = "Remarks";
 $lang['load_po']                              = "Load PO";
+$lang['process']                         = "process";
+$lang['approved']                         = "approved";

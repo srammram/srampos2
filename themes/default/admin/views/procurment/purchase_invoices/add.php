@@ -297,7 +297,20 @@
                                             echo form_dropdown('po_number', $po, 0, ' class="form-control input-tip select" data-placeholder="' . lang("select") . ' ' . lang("po_number") . '"style="width:100%;" id="pi_requestnumber"     ');
                                         ?>
                                     </td>
+									
+									<td>
+                                        <?= lang("stock_type", "stock_type") ?>
+                                    </td>
                                     <td>
+                                       <?php
+                                        $st = array('0' => lang('None'), '1' => lang('Negative_Stock_adjustment'));
+                                        echo form_dropdown('stock_type', $st, "0", 'id="tax_method" class="form-control pos-input-tip" style="width:100%"');
+                                        ?>
+                                    </td>
+                                   
+                                </tr>
+                                <tr>
+								 <td>
                                         <?= lang("tax_type", "tax_type") ?>
                                     </td>
                                     <td>
@@ -306,8 +319,6 @@
                                         echo form_dropdown('tax_method', $tm, "1", 'id="tax_method" class="form-control pos-input-tip" style="width:100%"');
                                         ?>
                                     </td>
-                                </tr>
-                                <tr>
                                     <td>
                                         <?= lang("invoice_date", "invoice_date") ?>
                                     </td>
@@ -320,31 +331,32 @@
                                     <td>                                        
                                         <input type="datetime" name="invoice_no" id="invoice_no"  class="required form-control" value="">
                                     </td>
-                                     <td>
+                                     
+                                </tr>
+                                <tr>       
+<td>
                                         <?= lang("invoice_amt", "invoice_amt") ?>
                                     </td>
                                     <td> 
                                        <input type="text" name="invoice_amt" id="invoice_amt" class="required form-control numberonly" value="">
-                                    </td>
-                                </tr>
-                                <tr>                                   
+                                    </td>								
                                     <td>
                                         <?= lang("remarks_note", "ponote") ?>
                                     </td>
                                     <td colspan="3">                                        
                                         <input type="text" name="note" id="pi_note" class="form-control" value="">
                                     </td>                                                                   
-                                    <td>
+                                   
+
+                                </tr>
+                                 <tr>   
+                                           <td>
                                         <?= lang("bill_disc", "bill_disc") ?>
                                     </td>
                                     <td>
                                        <div class="col-sm-6" style="padding-left:0px;"><input type="text" name="bill_disc" class="number_percentage_only form-control text-right bill_disc"  value="" style="display: inline-block!important;"></div>
                                        <div class="col-sm-6" style="padding-right:0px;"><input type="text" name="bill_disc_val" class="form-control text-right bill_disc_val"  readonly="" tabindex=-1 value="" style="display: inline-block!important;"></div>
-                                    </td>
-
-                                </tr>
-                                 <tr>   
-                                                                       
+                                    </td>                             
                                     <td>
                                         <?= lang("shipping_charge", "shipping_charge") ?>
                                     </td>
@@ -359,13 +371,16 @@
                                        <input type="text" name="round_off" id="round_off_amt"  class="form-control text-right number_minus"  value="">
                                     </td>
                                                                    
-                                    <td>
+                                    
+                                </tr>        
+<tr>								
+<td>
                                         <?= lang("net_amt", "net_amt") ?>
                                     </td>
                                     <td>
                                        <input type="text" name="bill_net_amt" readonly tabindex=-1 class="form-control text-right net_amt" value="">
                                     </td>
-                                </tr>                                
+</tr>
                             </tbody>
                         </table>                          
                     </div>

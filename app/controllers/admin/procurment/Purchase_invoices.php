@@ -580,7 +580,8 @@ class Purchase_invoices extends MY_Controller{
             'processed_on' => date('Y-m-d H:i:s'),
             'total_discount' => $this->input->post('item_disc')+$this->input->post('bill_disc_val'),
 			'request_id'=>($join_ref_no->request_id)?$join_ref_no->request_id:'',
-			'req_reference_no'=>($join_ref_no->req_reference_no)?$join_ref_no->req_reference_no:''
+			'req_reference_no'=>($join_ref_no->req_reference_no)?$join_ref_no->req_reference_no:'',
+			'stock_type'=>$this->input->post('stock_type'),
             );
 			if(empty($join_ref_no)){
 				$notification = array(
@@ -1132,6 +1133,7 @@ class Purchase_invoices extends MY_Controller{
                     'updated_by' => $this->session->userdata('user_id'),
                     'updated_on' => date('Y-m-d H:i:s'),
                     'total_discount' => $this->input->post('item_disc')+$this->input->post('bill_disc_val'),
+					'stock_type'=>$this->input->post('stock_type'),
                     );
                 if($status=="approved"){
                 $data['approved_by'] = $this->session->userdata('user_id');

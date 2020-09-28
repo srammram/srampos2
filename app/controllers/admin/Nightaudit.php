@@ -189,6 +189,7 @@ class Nightaudit extends MY_Controller
             'created_on' => date('Y-m-d H:i:s'),
             'processed_by' => $this->session->userdata('user_id'),
             'processed_on' => date('Y-m-d H:i:s'),
+			'stock_type'=>1
             );
 			$row = $this->siteprocurment->getItemByID($stock->product_id);
             $unit = $this->siteprocurment->getUnitByID($row->unit);   
