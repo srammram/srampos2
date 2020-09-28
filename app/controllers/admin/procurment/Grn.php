@@ -182,6 +182,8 @@ class Grn extends MY_Controller{
 				'delivery_address'=>$this->input->post('delivery_address'),
 				'supplier_id' =>$supplier_id,
 				'supplier'   =>$supplier,
+				'stock_type'   =>$this->input->post('stock_type'),
+				'delivery_challan'=>$this->input->post('delivery_challan'),
 				);
 
             if ($_FILES['document']['size'] > 0) {
@@ -289,7 +291,9 @@ class Grn extends MY_Controller{
 				'no_of_items' => $this->input->post('titems'),
 				'no_of_qty' => $this->input->post('total_items'),
 				'updated_by' => $this->session->userdata('user_id'),
-				'updated_on'=>$date
+				'updated_on'=>$date,
+				'stock_type'   =>$this->input->post('stock_type'),
+				'delivery_challan'=>$this->input->post('delivery_challan'),
 				);
 				if($status=="approved"){
 		        $data['approved_by'] = $this->session->userdata('user_id');

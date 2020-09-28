@@ -304,7 +304,7 @@
                                     <td>
                                        <?php
                                         $st = array('0' => lang('None'), '1' => lang('Negative_Stock_adjustment'));
-                                        echo form_dropdown('stock_type', $st, "0", 'id="tax_method" class="form-control pos-input-tip" style="width:100%"');
+                                        echo form_dropdown('stock_type', $st, "0", 'id="stock_type" class="form-control pos-input-tip" style="width:100%"');
                                         ?>
                                     </td>
                                    

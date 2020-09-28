@@ -41,6 +41,13 @@
 		if (pi_number = localStorage.getItem('pi_number')) {
             $('.pi_number').val(pi_number);
         }
+		
+		if (stock_type = localStorage.getItem('stock_type')) {
+            $('#stock_type').val(stock_type);
+        }
+		
+		
+		
         ItemnTotals();
     });
 </script>
@@ -114,14 +121,23 @@
                                         }
                                         echo form_dropdown('status', $st, '', 'class="form-control input-tip" id="store_reqstatus"'); ?> 
                                     </td>
-                                     <td>
+									
+									 <td>
+                                        <?= lang("delivery_challan", "delivery_challan"); ?>
+                                    </td>
+                                    <td>
+                                      <input  name="delivery_challan" id="delivery_challan" class="form-control" >
+                                    </td>
+								
+                                   
+                                </tr>
+								<tr>
+								   <td>
                                         <?= lang("Remarks/Note", "note") ?>
                                     </td>
                                     <td>
                                         <input  name="note" id="note" class="form-control" >
-                                    </td>  
-                                </tr>
-								<tr>
+                                    </td> 
 								 <td>
                                         <?= lang("load_pi", "load_pi") ?>
                                     </td>
@@ -150,15 +166,16 @@
 										</div>
 										</div>
 										</td>
-										 <td>
+										
+                                </tr>
+								<tr>
+								 <td>
                                         <?= lang("invoice_date", "invoice_date") ?>
                                     </td>
                                     <td>                                        
                                         <input type="datetime"   class="required form-control invoice_date" readonly>
 										   <input type="hidden" name="invoice_date" id="invoice_date"  class="required form-control invoice_date">
                                     </td>
-                                </tr>
-								<tr>
 								<td>
                                         <?= lang("supplier_address", "supplier_address") ?>
                                     </td>
@@ -174,14 +191,28 @@
 									   
 									      <input type="hidden" name="invoice_amt"  class="required form-control invoice_amt numberonly" value="">
                                     </td>
-									<td>
+									
+                                </tr>
+								<tr>
+								<td>
                                         <?= lang("delivery_address", "delivery_address") ?>
                                     </td>
                                     <td> 
                                        <input type="text"  id="delivery_address" class="required form-control delivery_address numberonly" readonly>
 									     <input type="hidden" name="delivery_address"  class="required form-control delivery_address " >
                                     </td>
-                                </tr>
+								<td>
+                                        <?= lang("stock_type", "stock_type") ?>
+                                    </td>
+                                    <td>
+                                     
+										 <?php
+                                        $st = array('0' => lang('None'), '1' => lang('Negative_Stock_adjustment'));
+                                        echo form_dropdown('stock_type', $st, $inv->stock_type, 'id="stock_type" class="form-control pos-input-tip" style="width:100%"');
+                                       
+                                        ?>
+                                    </td>       
+								</tr>
                             </tbody>
                         </table>
                         
@@ -322,6 +353,7 @@ $(document).on('change', '#pi_number', function(){
 			localStorage.setItem('pi_invoiceno',purchase_invoices_value["invoice_no"]);
 			localStorage.setItem('invoice_amt',purchase_invoices_value["invoice_amt"]);
 			localStorage.setItem('delivery_address',purchase_invoices_value["address"]);
+			localStorage.setItem('stock_type',purchase_invoices_value["stock_type"]);
 			$('.invoice_date').val(localStorage.getItem('pi_date'));
 			$('.supplier_address').val(localStorage.getItem('supplier_address'));
 			$('.invoice_amt').val(localStorage.getItem('invoice_amt'));
@@ -330,6 +362,8 @@ $(document).on('change', '#pi_number', function(){
 			$('.pi_supplier').change();
 			$('.currency').val(localStorage.getItem('pi_currency'));
 			$('.currency').change();
+			$('#stock_type').val(localStorage.getItem('stock_type'));
+			$('#stock_type').change();
 			localStorage.setItem('grn_items', items);
 			loadItems();
 		}

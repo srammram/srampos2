@@ -121,14 +121,25 @@
                                         }
                                         echo form_dropdown('status', $st, '', 'class="form-control input-tip" id="store_reqstatus"'); ?> 
                                     </td>
+									
+									 <td>
+                                        <?= lang("delivery_challan", "delivery_challan"); ?>
+                                    </td>
+                                    <td>
+                               <input  name="delivery_challan" id="delivery_challan" class="form-control" value="<?php echo $inv->delivery_challan;   ?>" >
+                                    </td>
+									
+									
+								
+                                </tr>
+								<tr>
+									
                                      <td>
                                         <?= lang("Remarks/Note", "note") ?>
                                     </td>
                                     <td>
                                         <input  name="note" id="note" class="form-control" value="<?php echo $inv->note;   ?>">
                                     </td>  
-                                </tr>
-								<tr>
 								 <td>
                                         <?= lang("load_pi", "load_pi") ?>
                                     </td>
@@ -158,15 +169,17 @@
 										</div>
 										</div>
 										</td>
-										 <td>
+										
+                                </tr>
+								<tr>
+								
+								 <td>
                                         <?= lang("invoice_date", "invoice_date") ?>
                                     </td>
                                     <td>                                        
                                         <input type="datetime"   class="required form-control invoice_date" readonly>
 										   <input type="hidden" name="invoice_date" id="invoice_date"  class="required form-control invoice_date" value="<?php echo $inv->invoice_date;   ?>">
                                     </td>
-                                </tr>
-								<tr>
 								<td>
                                         <?= lang("supplier_address", "supplier_address") ?>
                                     </td>
@@ -182,14 +195,28 @@
 									   
 									      <input type="hidden" name="invoice_amt"  class="required form-control invoice_amt numberonly" value="">
                                     </td>
-									<td>
+									
+                                </tr>
+								<tr>
+								<td>
                                         <?= lang("delivery_address", "delivery_address") ?>
                                     </td>
                                     <td> 
                                        <input type="text"  id="delivery_address" class="required form-control delivery_address numberonly" readonly>
 									     <input type="hidden" name="delivery_address"  class="required form-control delivery_address " >
                                     </td>
-                                </tr>
+								<td>
+                                        <?= lang("stock_type", "stock_type") ?>
+                                    </td>
+                                    <td>
+                                     
+										 <?php
+                                        $st = array('0' => lang('None'), '1' => lang('Negative_Stock_adjustment'));
+                                        echo form_dropdown('stock_type', $st, $inv->stock_type, 'id="stock_type" class="form-control pos-input-tip" style="width:100%"');
+                                       
+                                        ?>
+                                    </td>       
+								</tr>
                             </tbody>
                         </table>
                         

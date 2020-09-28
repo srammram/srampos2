@@ -130,10 +130,15 @@ class Grn_model extends CI_Model{
 					$stock_update['unique_id'] = $item['pi_uniqueId'];
 					$category_mappingID=$this->siteprocurment->item_cost_update_new($stock_update);
 					$stock_update['cm_id']     = $category_mappingID ? $category_mappingID :0;
-					$stock_id=$this->stock_master_update($stock_update);
-					if(!empty($stock_id) && !empty($stock_update['parent_unique_id']))	{
+					if(!empty($stock_id) && !empty($stock_update['parent_unique_id']) &&$data['stock_type']==1)	{
+							$stock_id=$this->stock_master_update($stock_update);
 							$this->negative_stock_balancing($stock_update['parent_unique_id'],$stock_id);
+					}elseif($data['stock_type']==1){
+						$this->negative_stock_adjustment($stock_update);
+					}else{
+						$stock_id=$this->stock_master_update($stock_update);
 					}
+					
 	            }
             }
 		    $bal_count +=($item['quantity']>=$item['pi_qty'])?0:1;
@@ -149,7 +154,68 @@ class Grn_model extends CI_Model{
         return false;
     }
 	}
-	
+	function negative_stock_adjustment($stock_data){
+		$batches=$this->getNegativeBatches($stock_data['product_id'],$stock_data['variant_id'],$stock_data['category_id'],$stock_data['subcategory_id'],$stock_data['brand_id']);
+		$total_row=count($batches);
+		$row=0;
+		foreach($batches as $batch){
+				if($total_row==$row){
+					$a_stock=($batch->stock_in>=0)$batch->stock_in:abs($batch->stock_in);
+					$balance_quantity=$stock_data['stock_in']-$a_stock;
+					$status=($balance_quantity>0)?"available":"closed";
+				    $query = 'update srampos_pro_stock_master set stock_in = '.$balance_quantity.',stock_status='.$status.' where store_id='.$this->store_id.' and id='.$batch->id;
+                    $this->db->query($query); 
+					break;
+			}else{
+				$a_stock=($batch->stock_in>=0)$batch->stock_in:abs($batch->stock_in);
+				$balance_quantity=$stock_data['stock_in']-$a_stock;
+				if($balance_quantity>0){
+				$query = 'update srampos_pro_stock_master set stock_in =  '.$a_stock.' stock_status="closed" where store_id='.$this->store_id.' and id='.$batch->id;
+                $this->db->query($query); 
+				$base_quantity =$base_quantity-$a_stock;
+				}else{
+					$query = 'update srampos_pro_stock_master set stock_in = stock_in + '.$base_quantity.'  where store_id='.$this->store_id.' and id='.$batch->id;
+                    $this->db->query($query); 
+					break;
+				}
+			}
+			$row++;
+			
+		}
+		return  true;
+	}
+	public function getNegativeBatches($product_id,$variant_id,$category_id,$subcategory_id,$brand_id){
+       $this->db->select('pro_stock_master.*');
+        $this->db->from('pro_stock_master');
+        if($category_id !=''){
+            $this->db->where('category_id',$category_id);
+        }
+        if($subcategory_id !=''){
+            $this->db->where('subcategory_id',$subcategory_id);
+        }
+        if($brand_id !=''){
+            $this->db->where('brand_id',$brand_id);
+        }
+		if($variant_id !='' && $variant_id !=0){
+        $this->db->where('variant_id',$variant_id);   
+		}	
+        
+        $this->db->where('product_id',$product_id);
+		$this->db->where('store_id',$this->store_id);
+		$this->db->where('store_in<0');
+		$this->db->limit(1);
+        $this->db->group_by('id');
+        $this->db->order_by('id', 'asc');
+        $q = $this->db->get(); 
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return array();
+
+}
 	function negative_stock_balancing($old_stockId,$new_stockId){
 		$oq=$this->db->get_where("pro_stock_master",array("unique_id"=>$old_stockId));
 		$nq=$this->db->get_where("pro_stock_master",array("unique_id"=>$new_stockId));
@@ -174,6 +240,7 @@ class Grn_model extends CI_Model{
 		return false;
 		
 	}
+	
 	function getGRNById($id){
 		$this->db->select("pro_grn.*");
 		$this->db->where("id",$id);
@@ -247,9 +314,17 @@ class Grn_model extends CI_Model{
 					$stock_update['unique_id'] = $item['pi_uniqueId'];
 					$category_mappingID=$this->siteprocurment->item_cost_update_new($stock_update);
 					$stock_update['cm_id']     = $category_mappingID ? $category_mappingID :0;
-					$this->stock_master_update($stock_update);
+					/* $this->stock_master_update($stock_update);
 					if(!empty($stock_id) && !empty($stock_update['parent_unique_id']))	{
 							$this->negative_stock_balancing($stock_update['parent_unique_id'],$stock_id);
+					} */
+					if(!empty($stock_id) && !empty($stock_update['parent_unique_id']) && $data['stock_type']==1)	{
+							$stock_id=$this->stock_master_update($stock_update);
+							$this->negative_stock_balancing($stock_update['parent_unique_id'],$stock_id);
+					}elseif($data['stock_type']==1){
+						$this->negative_stock_adjustment($stock_update);
+					}else{
+						$stock_id=$this->stock_master_update($stock_update);
 					}
 			}	
             }   
