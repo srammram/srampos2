@@ -329,7 +329,6 @@ $('#pi_discount').focus(function () {
      * Edit Row Modal Hanlder
      ----------------------- */
      $(document).on('click', '.edit', function () {
-
         var row = $(this).closest('tr');
         var row_id = row.attr('id');
         item_id = row.attr('data-item-id');
@@ -362,7 +361,6 @@ $('#pi_discount').focus(function () {
                 $.each(tax_rates, function () {
                     if(this.id == pr_tax){
                         if (this.type == 1) {
-
                             if (pi_items[item_id].row.tax_method == 0) {
                                 pr_tax_val = formatDecimal((((real_unit_cost-item_discount) * parseFloat(this.rate)) / (100 + parseFloat(this.rate))), 4);
                                 pr_tax_rate = formatDecimal(this.rate) + '%';
@@ -373,7 +371,6 @@ $('#pi_discount').focus(function () {
                             }
 
                         } else if (this.type == 2) {
-
                             pr_tax_val = parseFloat(this.rate);
                             pr_tax_rate = this.rate;
 
@@ -406,7 +403,6 @@ $('#pi_discount').focus(function () {
                 $("<option />", {value: this.id, text: this.name}).appendTo(uopt);
             }
         });
-
         $('#poptions-div').html(opt);
         $('#punits-div').html(uopt);
         $('select.select').select2({minimumResultsForSearch: 7});
@@ -426,7 +422,6 @@ $('#pi_discount').focus(function () {
         $('#pro_tax').text(formatMoney(pr_tax_val));
         $('#psubtotal').val('');
         $('#prModal').appendTo("body").modal('show');
-
     });
 
     $('#prModal').on('shown.bs.modal', function (e) {
@@ -527,7 +522,6 @@ $('#pi_discount').focus(function () {
 		$('#dsproduct_id').val(product_id);
 		$('#dsquote_id').val(quote_id);
         $('#DSModalLabel').text(item.row.name + ' (' + item.row.code + ')');
-        
       	$.ajax({
 			type: "get", 
 			url: site.base_url+"purchase_invoices/getProductStores/?product_id="+product_id+"&row="+row_id+"&qty="+qty+"&quote_id="+quote_id,
@@ -536,7 +530,6 @@ $('#pi_discount').focus(function () {
 				$('.ds_addon').html(data);
 			}
 		});
-        
         $('#DSModal').appendTo("body").modal('show');
 
     });
@@ -703,8 +696,16 @@ $('#pi_discount').focus(function () {
         current_ucost = $(this).val();
         item_id = row.attr('data-item-id');        
         pi_items[item_id].row.unit_cost = current_ucost;
+	 if( pi_items[item_id].row.unit != pi_items[item_id].row.base_unit) {
+                $.each(pi_items[item_id].units, function() {
+                    if (this.id == pi_items[item_id].row.unit) {
+                        current_ucost = formatDecimal((parseFloat(current_ucost)*(baseToUnitQty(1, this))), 4);
+                    }
+                });
+            } 
+		pi_items[item_id].row.unit_cost = current_ucost;
+	    pi_items[item_id].row.real_unit_cost = current_ucost;
 	
-	pi_items[item_id].row.real_unit_cost = current_ucost;
         localStorage.setItem('pi_items', JSON.stringify(pi_items));
         loadItems();
     });
@@ -780,6 +781,16 @@ $('#pi_discount').focus(function () {
         localStorage.setItem('pi_items', JSON.stringify(pi_items));
         loadItems();
     });
+$(document).on("change", '.qtyuom', function () {
+		var row = $(this).closest('tr');
+		qtyuom = $(this).val();
+		current_tax_rate = $(this).find('option:selected').attr('data-value');
+		item_id = row.attr('data-item-id');
+		pi_items[item_id].row.unit = qtyuom;
+		pi_items[item_id].row.spunit = qtyuom;
+		localStorage.setItem('pi_items', JSON.stringify(pi_items));
+		loadItems();
+	});
 
     
 
@@ -799,7 +810,34 @@ $('#pi_discount').focus(function () {
 		
     }); 
 
-
+	
+	$(document).on("change", '.spuom', function () {
+        var row = $(this).closest('tr');        
+        spunit = $(this).val();
+        item_id = row.attr('data-item-id');
+          var inv_crate=(localStorage.getItem('inv_crate') ==null || localStorage.getItem('inv_crate')==undefined)?formatDecimal(1):formatDecimal(localStorage.getItem('inv_crate'));
+		 if( spunit != pi_items[item_id].row.base_unit) {
+                $.each(pi_items[item_id].units, function() {
+                    if (this.id == pi_items[item_id].row.spunit) {
+				var 	sp_base_unit_price=	pi_items[item_id].row.sp_base_unit_price;
+                        sp_base_unit_price = formatDecimal((parseFloat(sp_base_unit_price)*(baseToUnitQty(1, this))), 4);
+						pi_items[item_id].row.sp_base_unit_price=sp_base_unit_price;
+						
+                    }
+                });
+            }else{
+				var selling_price=pi_items[item_id].row.item_selling_price;
+				selling_price=formatDecimal((parseFloat(selling_price)/parseFloat(inv_crate)));
+			//	 pi_items[item_id].row.item_selling_price = selling_price;
+				 pi_items[item_id].row.sp_base_unit_price=selling_price;
+				 
+			}
+			pi_items[item_id].row.spunit=spunit;
+        localStorage.setItem('pi_items', JSON.stringify(pi_items));
+        loadItems();
+    });
+	
+	
 
 
     /* --------------------------
@@ -1055,18 +1093,28 @@ function loadItems() {
 		    variant_id = item.row.variant_id,
 		    brand_name = item.row.brand_name;
 		    var product_unit = item.row.unit, base_quantity = item.row.base_quantity;
+			var sp_product_unit = item.row.spunit;
+			 var unit_cost = item.row.unit_cost;
+			
 			if( product_unit != item.row.base_unit) {
                 $.each(item.units, function(){
                     if (this.id == product_unit) {
                         base_quantity = formatDecimal(unitToBaseQty(item.row.qty, this), 4);
+						item.row.real_unit_cost=formatDecimal((parseFloat(item.row.unit_cost)*(unitToBaseQty(1, this))), 4);
+						unit_cost=  formatDecimal((parseFloat(item.row.unit_cost)*(unitToBaseQty(1, this))), 4);
                     }
                 });
-            }
+            }else{
+				base_quantity=item.row.qty;
+				item.row.real_unit_cost=unit_cost;
+				item.row.unit_cost=unit_cost;
+			}
 			
+		//	console.log("step2="+item.row.unit_cost);
             if (item_ds) {
 		     $disType = item.row.item_dis_type;
 		     var itemdiscount = item_ds+(($disType=="p")?'%':'');
-		     item_ds_amt = calculateDiscount(itemdiscount, ((parseFloat(item.row.unit_cost)) * parseFloat(item_qty))); 
+		     item_ds_amt = calculateDiscount(itemdiscount, ((parseFloat(unit_cost)) * parseFloat(item_qty))); 
 		     item_ds_amt = format2Decimals(item_ds_amt);
               }
  
@@ -1074,7 +1122,7 @@ function loadItems() {
             var item_supplier_part_no = item.row.supplier_part_no ? item.row.supplier_part_no : '';
             if (item.row.new_entry == 1) { item_bqty = 0;//item_qty;
 	        item_oqty = item_qty; }
-            var unit_cost = item.row.unit_cost;
+           
             var product_unit = item.row.unit, base_quantity = item.row.base_quantity;
             var supplier = localStorage.getItem('pi_supplier'), belong = false;
             var item_tax_method = localStorage.getItem('tax_method');
@@ -1175,7 +1223,7 @@ function loadItems() {
             }
           //  var newTr = $('<tr id="row_' + row_no + '" class="row_' + item_id + '" data-item-id="' + item_id +'_'+$store_id+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id + '_'+item.row.variant_id + '"></tr>');
 			tr_html = '<td class="text-center">' + $i + '</td>';
-			console.log("variant"+item.row.variant_id);
+			
 			
 			$variant_id=(item.row.variant_id ==undefined)?0:item.row.variant_id;
 			 var newTr = $('<tr id="row_' + row_no + '" class="row_' + item_id + '" data-item-id="' + item_id +'_'+$store_id+'_'+item.row.category_id+'_'+item.row.subcategory_id+'_'+item.row.brand_id + '_'+$variant_id + '"></tr>');
@@ -1207,8 +1255,26 @@ function loadItems() {
 			//tabindex="'+((site.settings.set_focus == 1) ? an : (an+1))+'"
             tr_html += '<td><input class="form-control text-center po_quantity numberonly" name="po_quantity[]" type="text"  value="' + formatQuantity2(item_po_qty) + '" data-id="' + row_no + '" data-item="' + item_id + '" id="po_quantity_' + row_no + '"></td>';
 	        tr_html += '<td><input name="quantity_balance[]" type="hidden" class="rbqty" value="' + item_bqty + '"><input class="form-control text-center rquantity numberonly" name="quantity[]" type="text"  value="' + formatQuantity2(item_qty) + '" data-id="' + row_no + '" data-item="' + item_id + '" id="quantity_' + row_no + '" onClick="this.select();"><input name="product_unit[]" type="hidden" class="runit" value="' + product_unit + '"><input name="product_base_quantity[]" type="hidden" class="rbase_quantity" value="' + base_quantity + '"></td>';
+			
+			 tr_html += '<td><select class="form-control  qtyuom" name="qtyuom[]" value="' + product_unit + '" data-id="' + row_no + '" data-item="' + item_id + '" id="tax2_' + row_no + '" style="width:100px!important">';
+				$.each(item.units, function () {
+                 if(product_unit == this.id){
+                     selected_qtyuom = "selected";
+                 } else {
+                     selected_qtyuom = "";
+                 }
+                 tr_html += '<option value="'+ this.id +'" '+ selected_qtyuom +' data-value="'+ this.rate +'"> '+ this.name +'</option>';
+             });
+             tr_html += '</select></td>';
+			
+			
+			
+			
+			
+			
+			
 
-            tr_html += '<td class="text-right"><input class="form-control text-right ruom" type="hidden" readonly name="unit[]" value="' + (item.row.unit_name) + '" style="width:100px!important" id="ruom_' + row_no + '" >' + (item.row.unit_name) + '</td>';
+           // tr_html += '<td class="text-right"><input class="form-control text-right ruom" type="hidden" readonly name="unit[]" value="' + (item.row.unit_name) + '" style="width:100px!important" id="ruom_' + row_no + '" >' + (item.row.unit_name) + '</td>';
 
 	  
 			$batch_required = (item.row.batch_required==1)?' required':'';
@@ -1302,17 +1368,37 @@ function loadItems() {
              tr_html += '</select></td>';
 
             tr_html += '<td class="text-right"><input  type="hidden" class="form-control text-right input-sm item_tax" name="item_tax[]" value="'+ parseFloat(pr_tax_val) +  '"  id="item_tax_' + row_no + '" ><span class="text-right ru_taxamt" id="ru_taxamt_' + row_no + '" style="width:100px!important">' + formatDecimal(parseFloat(pr_tax_val)) + '</span></td>';
-	         $landingCost = formatDecimal(((parseFloat(item.row.unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)+parseFloat(tax_val))/parseFloat(item_qty));
+	         $landingCost = formatDecimal(((parseFloat(item.row.real_unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)+parseFloat(tax_val))/parseFloat(item_qty));
 	    
             tr_html += '<td class="text-right"><input  type="hidden" class="form-control text-right input-sm landcost" name="landing_cost[]" value="'+ $landingCost+  '"  id="landcost_' + row_no + '" ><span class="text-right ru_landcost" id="ru_landcost_' + row_no + '">' + formatMoney($landingCost) + '</span></td>';
 			$selling_price_required = (item_type=='standard')?' required':'';
-            tr_html += '<td><input class="form-control ru_sellingprice numberonly'+$selling_price_required+'" name="selling_price[]" type="text" value="' + item_selling + '" data-id="' + row_no + '" data-item="' + item_id + '" id="ru_sellingprice_' + row_no + '" style="width:100px!important"></td>';  
-	   
+            tr_html += '<td><input class="form-control ru_sellingprice numberonly'+$selling_price_required+'" name="selling_price[]" type="text" value="' + item_selling + '" data-id="' + row_no + '" data-item="' + item_id + '" id="ru_sellingprice_' + row_no + '" style="width:100px!important"></td>'; 
+
+			tr_html += '<td><select class="form-control  spuom" name="spuom[]" value="' + sp_product_unit + '" data-id="' + row_no + '" data-item="' + item_id + '" id="tax2_' + row_no + '" style="width:100px!important">';
+				$.each(item.units, function () {
+                 if(sp_product_unit == this.id){
+                     selected_spuom = "selected";
+                 } else {
+                     selected_spuom = "";
+                 }
+                 tr_html += '<option value="'+ this.id +'" '+ selected_spuom +' data-value="'+ this.rate +'"> '+ this.name +'</option>';
+             });
+             tr_html += '</select></td>';			
+	       if( item.row.spunit != product_unit) {
+                     $.each(item.units, function() {
+                      if (this.id == product_unit) {
+                        item_selling = formatDecimal((parseFloat(item_selling)*(unitToBaseQty(1, this))), 4);
+                      }
+                     });
+                      }else{
+			           item_selling=item_selling;
+			       }
+				
 	        $margin_dif = item_selling - $landingCost;
             margin = formatDecimal(($margin_dif*100)/$landingCost);
             tr_html += '<td class="text-right"><input class="form-control input-sm text-right nmargin" name="margin[]" type="hidden" id="nmargin_' + row_no + '" value="' + margin + '"><span class="text-right ru_margin" id="ru_margin_' + row_no + '">' + margin + '</span></td>';       			
 			
-			tr_html += '<td class="text-right"><input class="form-control input-sm text-right ncost" name="net_cost[]" type="hidden" id="ncost_' + row_no + '" value="' + formatDecimal(((parseFloat(item.row.unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)+parseFloat(tax_val))) + '"><input class="netucost" name="net_unit_cost[]" type="hidden" value="' + item.row.unit_cost + '"><span class="text-right netcost" id="netcost_' + row_no + '">' + formatMoney(((parseFloat(item.row.unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)+parseFloat(tax_val))) + '</span></td>';                   
+			tr_html += '<td class="text-right"><input class="form-control input-sm text-right ncost" name="net_cost[]" type="hidden" id="ncost_' + row_no + '" value="' + formatDecimal(((parseFloat(item.row.real_unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)+parseFloat(tax_val))) + '"><input class="netucost" name="net_unit_cost[]" type="hidden" value="' + item.row.real_unit_cost + '"><span class="text-right netcost" id="netcost_' + row_no + '">' + formatMoney(((parseFloat(item.row.real_unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)+parseFloat(tax_val))) + '</span></td>';                   
             
             tr_html += '<td class="text-center"><i class="fa fa-times tip podel" id="' + row_no + '" title="Remove" style="cursor:pointer;"></i></td>';
             newTr.html(tr_html);
@@ -1483,7 +1569,7 @@ function loadItems() {
         item.tax_rate = item.row.purchase_tax;
 	item.tax_rate_id = item.row.purchase_tax;
 	item.tax_rate_val = item.row.purchase_tax_rate;
-	console.log('tax_rate='+item.tax_rate+'||tax_rate_id='+item.tax_rate_id+'||tax_val='+item.tax_rate_val)
+	
         pi_items[item_id] = item;
 		pi_items[item_id].row.batch_no = '';
 		pi_items[item_id].row.mfg = '';

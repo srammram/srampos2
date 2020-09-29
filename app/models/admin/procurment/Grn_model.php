@@ -100,15 +100,15 @@ class Grn_model extends CI_Model{
 					$this->db->update("pro_purchase_invoice_items",array("is_complete"=>1));
 				}  
 				if($data['status']=="approved"){
-				    $warehouse_id                = $this->siteprocurment->default_warehouse_id();
-					$stock_update['store_id']    = $item['store_id'];
-                    $stock_update['product_id']  = $item['product_id'];
-					$stock_update['variant_id']  = $item['variant_id'];
-					$stock_update['category_id'] = $item['category_id'];
+				    $warehouse_id                  = $this->siteprocurment->default_warehouse_id();
+					$stock_update['store_id']      = $item['store_id'];
+                    $stock_update['product_id']    = $item['product_id'];
+					$stock_update['variant_id']    = $item['variant_id'];
+					$stock_update['category_id']   = $item['category_id'];
 					$stock_update['subcategory_id'] = $item['subcategory_id'];
-					$stock_update['brand_id']    = $item['brand_id'];
-					$stock_update['stock_in']    = $item['unit_quantity'];
-					$stock_update['stock_out']   = 0;
+					$stock_update['brand_id']      = $item['brand_id'];
+					$stock_update['stock_in']      = $item['unit_quantity'];
+					$stock_update['stock_out']     = 0;
 					$stock_update['cost_price']    = $product_base_cost;
 					$stock_update['selling_price'] = $product_base_price;
 					$stock_update['landing_cost']  = $item['landing_cost'];
@@ -199,7 +199,6 @@ class Grn_model extends CI_Model{
 		if($variant_id !='' && $variant_id !=0){
         $this->db->where('variant_id',$variant_id);   
 		}	
-        
         $this->db->where('product_id',$product_id);
 		$this->db->where('store_id',$this->store_id);
 		$this->db->where('store_in<0');
@@ -284,7 +283,6 @@ class Grn_model extends CI_Model{
 					$this->db->where("pi_uniqueId",$item['pi_uniqueId']);
 					$this->db->update("pro_purchase_invoice_items",array("is_complete"=>0));
 				}
-				
 					if($data['status']=="approved"){
 	   	            $warehouse_id = $this->siteprocurment->default_warehouse_id();
 					$stock_update['store_id']    = $item['store_id'];

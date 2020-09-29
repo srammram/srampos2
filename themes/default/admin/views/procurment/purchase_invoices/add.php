@@ -442,6 +442,7 @@
                                             <th ><?= lang("tax_amt"); ?></th>
                                             <th ><?= lang("landing_cost"); ?></th>
                                             <th ><?= lang("selling_price"); ?></th>
+											<th ><?= lang("SP.UOM"); ?></th>
                                             <th ><?= lang("margin_%"); ?></th>
 											<!-- <th class="col-md-1"><?= lang("unit_cost"); ?>(<span
                                                     class="currency"><?= $default_currency->code ?></span>)</th> -->

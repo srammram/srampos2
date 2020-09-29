@@ -1896,6 +1896,9 @@ print_r($inv_items);die;*/
                 $row->item_bill_discount = '0';
                 $row->item_tax_rate = '0';
                 $row->item_selling_price = '0';
+				$row->spunit             	= $row->purchase_unit ? $row->purchase_unit : $row->unit;
+			    $row->qtyunit            	= $row->purchase_unit ? $row->purchase_unit : $row->unit;
+				$row->sp_base_unit_price 	= $row->price;
 				$row->unit_name=!empty($row->purchase_unitName)?$row->purchase_unitName:$row->unit_name;
                 unset($row->details, $row->product_details, $row->price, $row->file, $row->supplier1price, $row->supplier2price, $row->supplier3price, $row->supplier4price, $row->supplier5price, $row->supplier1_part_no, $row->supplier2_part_no, $row->supplier3_part_no, $row->supplier4_part_no, $row->supplier5_part_no);
                 $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
