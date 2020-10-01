@@ -141,6 +141,8 @@ class Grn_model extends CI_Model{
 					
 	            }
             }
+			
+			
 		    $bal_count +=($item['quantity']>=$item['pi_qty'])?0:1;
 		    if($bal_count<=0){
 				$this->db->where("id",$data['invoice_id']);
@@ -149,6 +151,8 @@ class Grn_model extends CI_Model{
 			if($this->isStore && $data['status']=="approved"){	
 			    $this->sync_center->sync_grn($unique_id);
 			}
+			
+			
             return true;
         }
         return false;
@@ -156,32 +160,49 @@ class Grn_model extends CI_Model{
 	}
 	function negative_stock_adjustment($stock_data){
 		$batches=$this->getNegativeBatches($stock_data['product_id'],$stock_data['variant_id'],$stock_data['category_id'],$stock_data['subcategory_id'],$stock_data['brand_id']);
-		$total_row=count($batches);
-		$row=0;
-		foreach($batches as $batch){
-				if($total_row==$row){
-					$a_stock=($batch->stock_in>=0)$batch->stock_in:abs($batch->stock_in);
-					$balance_quantity=$stock_data['stock_in']-$a_stock;
+		$total_row=count($batches);$row=1;
+		$balance_quantity=$stock_data['stock_in'];
+		if(!empty($batches)){
+		    foreach($batches as $batch){
+				if($total_row == $row){
+					$a_stock=($batch->stock_in>=0)?$batch->stock_in:abs($batch->stock_in);
+					$balance_quantity=$balance_quantity-$a_stock;
 					$status=($balance_quantity>0)?"available":"closed";
-				    $query = 'update srampos_pro_stock_master set stock_in = '.$balance_quantity.',stock_status='.$status.' where store_id='.$this->store_id.' and id='.$batch->id;
-                    $this->db->query($query); 
+				    $query = 'update srampos_pro_stock_master set stock_in = '.$balance_quantity.',stock_status='.'"'.$status.'"'.' where store_id='.$this->store_id.' and id='.$batch->id;
+                    $this->db->query($query);
 					break;
 			}else{
-				$a_stock=($batch->stock_in>=0)$batch->stock_in:abs($batch->stock_in);
-				$balance_quantity=$stock_data['stock_in']-$a_stock;
-				if($balance_quantity>0){
-				$query = 'update srampos_pro_stock_master set stock_in =  '.$a_stock.' stock_status="closed" where store_id='.$this->store_id.' and id='.$batch->id;
-                $this->db->query($query); 
-				$base_quantity =$base_quantity-$a_stock;
-				}else{
-					$query = 'update srampos_pro_stock_master set stock_in = stock_in + '.$base_quantity.'  where store_id='.$this->store_id.' and id='.$batch->id;
-                    $this->db->query($query); 
-					break;
+					$a_stock=($batch->stock_in>=0)?$batch->stock_in:abs($batch->stock_in);
+					$balance_quantity=($balance_quantity-$a_stock>=0)?$balance_quantity-$a_stock:$balance_quantity;
+					$status=($balance_quantity>0)?"available":"closed";
+					if($balance_quantity>0){
+						$query = 'update srampos_pro_stock_master set stock_in =  0 ,stock_status="closed" where store_id='.$this->store_id.' and id='.$batch->id;
+						$this->db->query($query);
+					}else{
+						$query = 'update srampos_pro_stock_master set stock_in ='.$balance_quantity.'  where store_id='.$this->store_id.' and id='.$batch->id;
+						$this->db->query($query); 
+						break;
 				}
 			}
 			$row++;
 			
 		}
+		if($balance_quantity>0){
+			$stock_data['stock_in']=($balance_quantity>0)?$balance_quantity:$stock_data['stock_in'];
+			$this->db->insert('pro_stock_master',$stock_data);
+			$insertID                  = $this->db->insert_id();
+			$UniqueID                  = $this->site->generateUniqueTableID($insertID);
+			$this->site->updateUniqueTableId($insertID,$UniqueID,'pro_stock_master');
+			$stock_id = $this->db->insert_id();
+		}
+		}else{
+			$this->db->insert('pro_stock_master',$stock_data);
+			$insertID                  = $this->db->insert_id();
+			$UniqueID                  = $this->site->generateUniqueTableID($insertID);
+			$this->site->updateUniqueTableId($insertID,$UniqueID,'pro_stock_master');
+			$stock_id = $this->db->insert_id();
+		}
+		
 		return  true;
 	}
 	public function getNegativeBatches($product_id,$variant_id,$category_id,$subcategory_id,$brand_id){
@@ -201,11 +222,10 @@ class Grn_model extends CI_Model{
 		}	
         $this->db->where('product_id',$product_id);
 		$this->db->where('store_id',$this->store_id);
-		$this->db->where('store_in<0');
-		$this->db->limit(1);
+		$this->db->where('stock_in<0');
         $this->db->group_by('id');
         $this->db->order_by('id', 'asc');
-        $q = $this->db->get(); 
+        $q = $this->db->get();
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -317,6 +337,7 @@ class Grn_model extends CI_Model{
 							$this->negative_stock_balancing($stock_update['parent_unique_id'],$stock_id);
 					} */
 					if(!empty($stock_id) && !empty($stock_update['parent_unique_id']) && $data['stock_type']==1)	{
+						echo 3;
 							$stock_id=$this->stock_master_update($stock_update);
 							$this->negative_stock_balancing($stock_update['parent_unique_id'],$stock_id);
 					}elseif($data['stock_type']==1){
@@ -337,6 +358,7 @@ class Grn_model extends CI_Model{
 				if($this->isStore && $data['status']=="approved"){	
 			    $this->sync_center->sync_purchase_invoice($id);
 			}
+			die;
             return true;
         }        
         return false;
@@ -471,11 +493,13 @@ class Grn_model extends CI_Model{
 			$this->site->updateUniqueTableId($insertID,$UniqueID,'pro_stock_master');
 			$stock_id = $this->db->insert_id();
 		}
+		
 		if($this->isStore){
 			$this->sync_center->sync_stock_auto($stock_update['unique_id']);
 		}
 		return $stock_id;
     }
     
+	
 
 }

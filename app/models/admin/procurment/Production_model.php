@@ -25,7 +25,6 @@ class Production_model extends CI_Model{
 						 $cate['selling_price']      = 0;
 						 // Ingredient stock out
 						$cate['purchase_cost']= $this->productionStockOut($item['product_id'],$item['variant_id'],$item['quantity'],$item['base_quantity'],$item['uom']);
-						
 						// ProductionItem Stock In
 						$this->updateStockMaster_new($item['product_id'],$item['variant_id'],$item['base_quantity'],$cate); // $category_mappingID
 					}				
@@ -247,7 +246,7 @@ function getAllProductionItemsWithDetails($p_id){
 						$cate['brand_id'] = $item['brand_id'];
 						$this->siteprocurment->production_salestock_out($item['product_id'],$item['base_quantity'],$item['variant_id']);
 						$this->siteprocurment->product_stockIn($item['product_id'],$item['base_quantity'],$cate);
-						$this->updateStockMaster($item['product_id'],$item['base_quantity'],$cate); // ,$category_mappingID);
+						$this->updateStockMaster_new($item['product_id'],$item['variant_id'],$item['base_quantity'],$cate); 
 		       }
             }
             return true;
@@ -267,6 +266,7 @@ function getAllProductionItemsWithDetails($p_id){
 					$this->db->query($query);
 					$id = $this->db->insert_id();
 			  } 	
+			 
 		return true;
     }
 	
@@ -277,6 +277,7 @@ function getAllProductionItemsWithDetails($p_id){
 					$batch                = strtotime("now");
 					$cate['batch_no']     = $batch;
 					$cate['unique_id']    = $unique_id;
+					$cate['purchase_cost']=!empty($cate['purchase_cost'])?$cate['purchase_cost']:0;
 					$expiry=$this->site->getExpiryDate($pro_id);
 					$this->db->insert("category_mapping",$cate);
 					$cm_id=$this->db->insert_id();

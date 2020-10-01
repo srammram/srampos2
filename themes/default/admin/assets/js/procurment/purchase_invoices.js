@@ -1267,12 +1267,6 @@ function loadItems() {
              });
              tr_html += '</select></td>';
 			
-			
-			
-			
-			
-			
-			
 
            // tr_html += '<td class="text-right"><input class="form-control text-right ruom" type="hidden" readonly name="unit[]" value="' + (item.row.unit_name) + '" style="width:100px!important" id="ruom_' + row_no + '" >' + (item.row.unit_name) + '</td>';
 
@@ -1310,15 +1304,15 @@ function loadItems() {
            }
             tr_html += '<td><label class="expiry-val-container"><input name="expiry_type[]" type="hidden" value="' + $expiry_type + '"><input class="'+$expiryClass+' form-control  rexpiry'+$mfg_required+'" '+$mfg_readonly+' name="expiry[]" type="text" value="' + item_expiry + '" data-id="' + row_no + '" data-item="' + item_id + '" id="expiry_' + row_no + '"  ><span>'+$expiry_type+'</span></label></td>';
             
-			
-			tr_html += '<td class="text-right"><input class="form-control text-right rucost numberonly" name="unit_cost[]" value="' + format2Decimals(unit_cost) + '" style="width:100px!important" id="rucost_' + row_no + '" ></td>';
+			var baseUnit_cost=formatDecimal(unit_cost/base_quantity);
+			tr_html += '<td class="text-right"><input class="form-control text-right rucost numberonly" name="unit_cost[]" value="' + format2Decimals(unit_cost) + '" style="width:100px!important" id="rucost_' + row_no + '" ><input class="form-control text-right  numberonly" name="baseunit_cost[]" type="hidden" value="' + format2Decimals(baseUnit_cost) + '" style="width:100px!important" id="baseunit_cost_' + row_no + '" ></td>';
 
             tr_html += '<td class="text-right"><input class="form-control text-right rugross" readonly tabindex=-1 name="unit_gross[]" value="' + format2Decimals(((parseFloat(unit_cost)) * parseFloat(item_qty))) + '" style="width:100px!important" id="rugross_' + row_no + '" ></td>';
 
 			if (site.settings.product_discount == 1) {
 
-			$p_checked = (item.row.item_dis_type=="p")?'checked="checked"':'';
-			$f_checked = (item.row.item_dis_type=="f")?'checked="checked"':'';
+				$p_checked = (item.row.item_dis_type=="p")?'checked="checked"':'';
+				$f_checked = (item.row.item_dis_type=="f")?'checked="checked"':'';
                 tr_html += '<td class="text-right"><div style="width:100px !important"><input class="form-control text-right input-sm rdiscount numberonly" name="item_dis[]" maxlength="20" type="text" id="discount_' + row_no + '" value="' + (item_ds != 0 ? item_ds :  '') + '" style="width:60px !important"><input type="radio" class="item-dis-type skip" name="item_dis_type['+$row_cnt+']" id="item-dis-type-p-'+$row_cnt+'" value="p" '+$p_checked+'><label for="item-dis-type-p-'+$row_cnt+'">%</label>'+'<input type="radio" class="item-dis-type skip" name="item_dis_type['+$row_cnt+']" id="item-dis-type-f-'+$row_cnt+'" value="f" '+$f_checked+'><label for="item-dis-type-f-'+$row_cnt+'">F</label></div></td>';
                 tr_html += '<td class="text-right"><input class="form-control text-right input-sm rudisamt" name="item_disc_amt[]" readonly tabindex=-1 value="'+ (item_ds_amt != 0 ? item_ds_amt :  '') +  '" style="width:100px!important" id="discount_' + row_no + '" ></td>';
             }
@@ -1352,11 +1346,11 @@ function loadItems() {
                     tax_val = unit_cost*(purchase_tax_rate/100);    
 		        }
  
-                item_cost = item_tax_method == 0 ? formatDecimal(unit_cost-pr_tax_val, 4) : formatDecimal(unit_cost);
-                unit_cost = formatDecimal(unit_cost+item_discount, 4);
+             item_cost = item_tax_method == 0 ? formatDecimal(unit_cost-pr_tax_val, 4) : formatDecimal(unit_cost);
+             unit_cost = formatDecimal(unit_cost+item_discount, 4);
 
 
-             tr_html += '<td><select class="form-control  rtax2" name="tax2[]" value="' + item_tax2 + '" data-id="' + row_no + '" data-item="' + item_id + '" id="tax2_' + row_no + '" style="width:100px!important">';
+            tr_html += '<td><select class="form-control  rtax2" name="tax2[]" value="' + item_tax2 + '" data-id="' + row_no + '" data-item="' + item_id + '" id="tax2_' + row_no + '" style="width:100px!important">';
              $.each(tax_rates, function () {
                  if(pr_tax == this.id){
                      selected_taxrate = "selected";
@@ -1369,10 +1363,29 @@ function loadItems() {
 
             tr_html += '<td class="text-right"><input  type="hidden" class="form-control text-right input-sm item_tax" name="item_tax[]" value="'+ parseFloat(pr_tax_val) +  '"  id="item_tax_' + row_no + '" ><span class="text-right ru_taxamt" id="ru_taxamt_' + row_no + '" style="width:100px!important">' + formatDecimal(parseFloat(pr_tax_val)) + '</span></td>';
 	         $landingCost = formatDecimal(((parseFloat(item.row.real_unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)+parseFloat(tax_val))/parseFloat(item_qty));
-	    
-            tr_html += '<td class="text-right"><input  type="hidden" class="form-control text-right input-sm landcost" name="landing_cost[]" value="'+ $landingCost+  '"  id="landcost_' + row_no + '" ><span class="text-right ru_landcost" id="ru_landcost_' + row_no + '">' + formatMoney($landingCost) + '</span></td>';
-			$selling_price_required = (item_type=='standard')?' required':'';
-            tr_html += '<td><input class="form-control ru_sellingprice numberonly'+$selling_price_required+'" name="selling_price[]" type="text" value="' + item_selling + '" data-id="' + row_no + '" data-item="' + item_id + '" id="ru_sellingprice_' + row_no + '" style="width:100px!important"></td>'; 
+			 
+	        var basUnit_landing_cost=formatDecimal($landingCost/base_quantity);
+            tr_html += '<td class="text-right"><input  type="hidden" class="form-control text-right input-sm landcost" name="landing_cost[]" value="'+ $landingCost+  '"  id="landcost_' + row_no + '" ><span class="text-right ru_landcost" id="ru_landcost_' + row_no + '">' + formatMoney($landingCost) + '</span><input type="hidden" name="basUnit_landing_cost[]"  value="'+basUnit_landing_cost+'"></td>';
+			
+			
+			      $selling_price_required = (item_type=='standard')?' required':'';
+			      if( item.row.spunit != product_unit) {
+                       $.each(item.units, function() {
+                      if (this.id == product_unit) {
+						 console.log(1);
+						var baseUnit_selling_price=formatDecimal(item_selling/base_quantity);
+                        item_selling = formatDecimal((parseFloat(item_selling)*(unitToBaseQty(1, this))), 4);
+							
+                       }
+                     });
+                      }else{
+						  var baseUnit_selling_price=unitToBasePrice(item_selling,this);
+							item_selling  =  item_selling;
+			           }
+					   
+				   
+            tr_html += '<td><input class="form-control ru_sellingprice numberonly'+$selling_price_required+'" name="selling_price[]" type="text" value="' + item_selling + '" data-id="' + row_no + '" data-item="' + item_id + '" id="ru_sellingprice_' + row_no + '" style="width:100px!important"><input  type="hidden" class="form-control text-right input-sm base_unit_price" name="base_unit_price[]" value="'+ baseUnit_selling_price+  '"  id="base_unit_price' + row_no + '" ></td>'; 
+			
 
 			tr_html += '<td><select class="form-control  spuom" name="spuom[]" value="' + sp_product_unit + '" data-id="' + row_no + '" data-item="' + item_id + '" id="tax2_' + row_no + '" style="width:100px!important">';
 				$.each(item.units, function () {
@@ -1383,37 +1396,33 @@ function loadItems() {
                  }
                  tr_html += '<option value="'+ this.id +'" '+ selected_spuom +' data-value="'+ this.rate +'"> '+ this.name +'</option>';
              });
-             tr_html += '</select></td>';			
-	       if( item.row.spunit != product_unit) {
-                     $.each(item.units, function() {
-                      if (this.id == product_unit) {
-                        item_selling = formatDecimal((parseFloat(item_selling)*(unitToBaseQty(1, this))), 4);
-                      }
-                     });
-                      }else{
-			           item_selling=item_selling;
-			       }
+             tr_html += '</select></td>';	
+			 
 				
 	        $margin_dif = item_selling - $landingCost;
             margin = formatDecimal(($margin_dif*100)/$landingCost);
-            tr_html += '<td class="text-right"><input class="form-control input-sm text-right nmargin" name="margin[]" type="hidden" id="nmargin_' + row_no + '" value="' + margin + '"><span class="text-right ru_margin" id="ru_margin_' + row_no + '">' + margin + '</span></td>';       			
+			var base_margin=formatDecimal(margin/base_quantity);
 			
-			tr_html += '<td class="text-right"><input class="form-control input-sm text-right ncost" name="net_cost[]" type="hidden" id="ncost_' + row_no + '" value="' + formatDecimal(((parseFloat(item.row.real_unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)+parseFloat(tax_val))) + '"><input class="netucost" name="net_unit_cost[]" type="hidden" value="' + item.row.real_unit_cost + '"><span class="text-right netcost" id="netcost_' + row_no + '">' + formatMoney(((parseFloat(item.row.real_unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)+parseFloat(tax_val))) + '</span></td>';                   
+			
+            tr_html += '<td class="text-right"><input class="form-control input-sm text-right nmargin" name="margin[]" type="hidden" id="nmargin_' + row_no + '" value="' + margin + '"><span class="text-right ru_margin" id="ru_margin_' + row_no + '">' + margin + '</span><input class="form-control input-sm text-right nmargin" name="base_margin[]" type="hidden" id="base_margin' + row_no + '" value="' + base_margin + '"></td>';       			
+			
+			tr_html += '<td class="text-right"><input class="form-control input-sm text-right ncost" name="net_cost[]" type="hidden" id="ncost_' + row_no + '" value="' + formatDecimal(((parseFloat(item.row.real_unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)+parseFloat(tax_val))) + '"><input class="netucost" name="net_unit_cost[]" type="hidden" value="' + item.row.real_unit_cost + '"><span class="text-right netcost" id="netcost_' + row_no + '">' + formatMoney(((parseFloat(item.row.real_unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)+parseFloat(tax_val))) + '</span></td>';    
+
             
             tr_html += '<td class="text-center"><i class="fa fa-times tip podel" id="' + row_no + '" title="Remove" style="cursor:pointer;"></i></td>';
             newTr.html(tr_html);
           //  newTr.appendTo("#purchase_invoicesTable");
 			 newTr.prependTo("#purchase_invoicesTable");
-	       $('#total_no_items').val(++$total_no_items);
-	       $total_no_qty = parseFloat($total_no_qty)+parseFloat(item_qty);
+	        $('#total_no_items').val(++$total_no_items);
+	        $total_no_qty = parseFloat($total_no_qty)+parseFloat(item_qty);
 	        $('#total_no_qty').val($total_no_qty);
             total += formatDecimal(((parseFloat(item_cost) + parseFloat(tax_val)) * parseFloat(item_qty)), 4);
 
-            gross_total += formatDecimal(((parseFloat(item.row.unit_cost)) * parseFloat(item_qty)), 4);
+            gross_total += formatDecimal(((parseFloat(unit_cost)) * parseFloat(item_qty)), 4);
             item_discount_total += formatDecimal(((parseFloat(item_ds_amt))), 4);
             bill_discount_total += formatDecimal(((parseFloat($bill_dis_val))), 4);
-            subtotal_total += formatDecimal(((parseFloat(item.row.unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)), 4);
-            netamount_total += formatDecimal(((parseFloat(item.row.unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)+parseFloat(tax_val)), 4);
+            subtotal_total += formatDecimal(((parseFloat(unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)), 4);
+            netamount_total += formatDecimal(((parseFloat(unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)+parseFloat(tax_val)), 4);
 
             tax_total += formatDecimal((parseFloat(pr_tax_val)), 4);                 
             an++;            

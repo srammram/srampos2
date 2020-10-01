@@ -418,7 +418,7 @@ function loadItems() {
                     }
                 });
             }
-
+				
             if(item.options !== false) {
                 $.each(item.options, function () {
                     if(this.id == item.row.option && this.price != 0 && this.price != '' && this.price != null) {

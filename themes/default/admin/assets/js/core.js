@@ -1322,6 +1322,52 @@ function baseToUnitQty(qty, unitObj) {
     }
 }
 
+function baseToUnitPrice(price, unitObj) {
+    switch(unitObj.operator) {
+        case '*':
+            return parseFloat(price)*parseFloat(unitObj.operation_value);
+            break;
+        case '/':
+            return parseFloat(price)/parseFloat(unitObj.operation_value);
+            break;
+        case '+':
+            return parseFloat(price)+parseFloat(unitObj.operation_value);
+            break;
+        case '-':
+            return parseFloat(price)-parseFloat(unitObj.operation_value);
+            break;
+        default:
+            return parseFloat(price);
+    }
+}
+
+
+
+function unitToBasePrice(price, unitObj) {
+    switch(unitObj.operator) {
+        case '*':
+            return parseFloat(price)/parseFloat(unitObj.operation_value);
+            break;
+        case '/':
+            return parseFloat(price)*parseFloat(unitObj.operation_value);
+            break;
+        case '+':
+            return parseFloat(price)-parseFloat(unitObj.operation_value);
+            break;
+        case '-':
+            return parseFloat(price)+parseFloat(unitObj.operation_value);
+            break;
+        default:
+            return parseFloat(price);
+    }
+}
+
+
+
+
+
+
+
 function set_page_focus() {
     if (site.settings.set_focus == 1) {
         $('#add_item').attr('tabindex', an);

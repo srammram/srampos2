@@ -1,5 +1,8 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 <script>
+$(window).load(function(e) {
+        localStorage.clear();
+    });
 	$(document).ready(function () {
         oTable = $('#QUData').dataTable({
             "aaSorting": [[1, "desc"], [2, "desc"]],

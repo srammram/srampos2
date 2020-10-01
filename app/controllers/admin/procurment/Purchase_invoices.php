@@ -654,6 +654,12 @@ class Purchase_invoices extends MY_Controller{
 				$items[$i]['product_unit_code'] = $product_unit_code;
 				$items[$i]['unit_quantity'] = $_POST['product_base_quantity'][$i];
 				$items[$i]['product_unit_id'] = $_POST['product_unit'][$i];
+				
+				$items[$i]['base_unit_price']    = $_POST['base_unit_price'][$i];
+				$items[$i]['base_unit_cost']     = $_POST['baseUnit_cost'][$i];
+				$items[$i]['base_margin']        = $_POST['base_margin'][$i];
+				$items[$i]['selling_price_unit'] = $_POST['spuom'][$i];
+				$items[$i]['base_landing_cost']  = $_POST['basUnit_landing_cost'][$i];
 			}
 	    }
             
@@ -737,6 +743,7 @@ class Purchase_invoices extends MY_Controller{
             $row->unit_name = $item->product_unit_code;
             $row->base_unit = $row->unit ? $row->unit : $item->product_unit_id;
 			$row->unit = $row->purchase_unit ? $row->purchase_unit : $row->unit;
+			$row->spunit                = $row->purchase_unit ? $row->purchase_unit : $row->unit;
             $options = $this->purchase_invoices_model->getProductOptions($row->id);
             $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
             $ri = $this->Settings->item_addition ? $row->id : $row->id;
@@ -1187,6 +1194,12 @@ class Purchase_invoices extends MY_Controller{
 			$items[$i]['unit_quantity'] = $_POST['product_base_quantity'][$i];
 			$items[$i]['product_unit_id'] = $_POST['product_unit'][$i];
 			$items[$i]['parent_stock_unique_id'] = $_POST['parent_stock_unique_id'][$i];
+			
+			$items[$i]['base_unit_price']    = $_POST['base_unit_price'][$i];
+			$items[$i]['base_unit_cost']     = $_POST['baseUnit_cost'][$i];
+			$items[$i]['base_margin']        = $_POST['base_margin'][$i];
+			$items[$i]['selling_price_unit'] = $_POST['spuom'][$i];
+		    $items[$i]['base_landing_cost']  = $_POST['basUnit_landing_cost'][$i];
 		    
 		}
 	    }
@@ -1236,7 +1249,7 @@ class Purchase_invoices extends MY_Controller{
 	        //echo "<pre>";
             //print_r($this->data['inv_items']);die;
 	    $c=1;
-	    foreach ($this->data['inv_items'] as $item) {                          
+			foreach ($this->data['inv_items'] as $item) {                          
             $row = $this->siteprocurment->getItemByID($item->product_id);        
             $unit = $this->siteprocurment->getUnitByID($row->unit);   
             if($unit->name){
@@ -1245,40 +1258,42 @@ class Purchase_invoices extends MY_Controller{
                 $row->unit_name = '';
             }
                              
-            $row->name 		 = $item->product_name;
-            $row->id		 = $item->product_id;
-            $row->code 		 = $item->product_code;
-            $row->po_qty 	 = $item->po_quantity;
-            $row->qty 		 = $item->quantity;
-            $row->quantity_balance = $item->quantity;
-            $row->batch_no   = $item->batch_no;
-            $row->expiry = $item->expiry;
-            $row->expiry_type = $row->type_expiry;
-            $row->unit_cost = $item->cost;
-            $row->real_unit_cost = $item->cost;
+            $row->name 		 		 = $item->product_name;
+            $row->id		 		 = $item->product_id;
+            $row->code 		  		 = $item->product_code;
+            $row->po_qty 	 		 = $item->po_quantity;
+            $row->qty 				 = $item->quantity;
+            $row->quantity_balance   = $item->quantity;
+            $row->batch_no           = $item->batch_no;
+            $row->expiry             = $item->expiry;
+            $row->expiry_type        = $row->type_expiry;
+            $row->unit_cost          = $item->cost;
+            $row->real_unit_cost     = $item->cost;
             //$row->real_unit_cost = $item->gross;
             $row->item_discount_percent = $item->item_disc ? $item->item_disc : '0';
-            $row->item_discount_amt = $item->item_disc_amt ? $item->item_disc_amt : '0';
-            $row->item_dis_type = $item->item_dis_type;
+            $row->item_discount_amt  = $item->item_disc_amt ? $item->item_disc_amt : '0';
+            $row->item_dis_type      = $item->item_dis_type;
             $row->item_bill_discount = $item->item_bill_disc_amt ? $item->item_bill_disc_amt : '0';
-            $row->tax_rate = $item->tax_rate_id;
+            $row->tax_rate           = $item->tax_rate_id;
             $tax = $this->siteprocurment->getTaxRateByID($item->tax_rate_id);
-            $row->tax_rate_val = $tax->rate;
-            $row->item_selling_price =$item->selling_price;
-			$row->base_quantity = $item->unit_quantity ? $item->unit_quantity : $item->unit;
-			$row->base_unit = $row->unit;
-            $row->base_unit_cost = $row->cost;
-            $options = $this->purchase_invoices_model->getProductOptions($row->id);
-            $units = $this->siteprocurment->getUnitsByBUID($row->base_unit);
+            $row->tax_rate_val       = $tax->rate;
+            $row->item_selling_price = $item->selling_price;
+			$row->base_quantity      = $item->unit_quantity ? $item->unit_quantity : $item->unit;
+			$row->base_unit          = $row->unit;
+            $row->base_unit_cost     = $row->cost;
+			  $row->unit             = $item->product_unit_id ? $item->product_unit_id : $row->unit;
+            $options 			     = $this->purchase_invoices_model->getProductOptions($row->id);
+            $units                   = $this->siteprocurment->getUnitsByBUID($row->base_unit);
             $ri = $this->Settings->item_addition ? $row->id : $row->id;
-            $row->category_id = $item->category_id;
-            $row->category_name = $item->category_name;
+            $row->category_id 			 = $item->category_id;
+            $row->category_name 		 = $item->category_name;
             $row->subcategory_id         = $item->subcategory_id;
             $row->subcategory_name       = $item->subcategory_name;
             $row->brand_id 				 = $item->brand_id;
             $row->brand_name 			 = $item->brand_name;
 		    $row->parent_stock_unique_id = $item->parent_stock_unique_id;
 			$row->variant_id 			 = $item->variant_id;
+			$row->spunit                 = $item->selling_price_unit;
             $item_key = $ri.'_'.$item->store_id.'_'.$item->category_id.'_'.$item->subcategory_id.'_'.$item->brand_id.'_'.$item->variant_id;
             $pr[$item_key] = array('id' => $c,'store_id'=>$item->store_id,'item_id' => $row->id, 'label' => $row->name . " (" . $row->code . ")",
             'row' => $row, 'tax_rate_val' => $item->tax_rate,'tax_rate_id' => $item->tax_rate_id,'tax_rate' => $item->tax_rate, 'units' => $units, 'options' => $options);
