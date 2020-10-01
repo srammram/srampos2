@@ -705,7 +705,6 @@ $('#pi_discount').focus(function () {
             } 
 		pi_items[item_id].row.unit_cost = current_ucost;
 	    pi_items[item_id].row.real_unit_cost = current_ucost;
-	
         localStorage.setItem('pi_items', JSON.stringify(pi_items));
         loadItems();
     });
@@ -758,11 +757,10 @@ $('#pi_discount').focus(function () {
      	$landcost = parseFloat(row.find('.landcost').val());
 	
 	if (sellingprice < $landcost) {
-	    
             bootbox.alert({ 
-		size: "small",
-		message: 'Selling price should not be less than landing cost', 
-		callback: function(){		    
+			size: "small",
+			message: 'Selling price should not be less than landing cost', 
+			callback: function(){		    
 		    $("html, body").
 		    animate({ scrollTop: $obj.offset().top }, 1000)
 		    $("html, body").animate({scrollLeft: $obj.offset().left},"slow");
@@ -773,15 +771,29 @@ $('#pi_discount').focus(function () {
 	}
 	
     });
-    $(document).on("change", '.ru_sellingprice', function () {
-        var row = $(this).closest('tr');        
-        sellingprice = $(this).val();
-        item_id = row.attr('data-item-id');
-        pi_items[item_id].row.item_selling_price = sellingprice;
+ $(document).on("change", '.ru_sellingprice', function () {
+	  var row = $(this).closest('tr');        
+	  sellingprice = $(this).val();
+	  item_id = row.attr('data-item-id');
+	  var base_price=0;
+	  pi_items[item_id].row.item_selling_price = sellingprice;
+		 if( pi_items[item_id].row.unit != pi_items[item_id].row.base_unit) {
+                $.each(pi_items[item_id].units, function() {
+                    if (this.id == pi_items[item_id].row.unit) {
+                       base_price = formatDecimal((parseFloat(sellingprice)*(baseToUnitQty(1, this))), 4);
+                    }
+                });
+            } else{
+				base_price =sellingprice
+			}
+			pi_items[item_id].row.item_selling_price = sellingprice;
+			pi_items[item_id].row.sp_base_unit_price = base_price;
         localStorage.setItem('pi_items', JSON.stringify(pi_items));
         loadItems();
-    });
-$(document).on("change", '.qtyuom', function () {
+  });
+	
+	
+	$(document).on("change", '.qtyuom', function () {
 		var row = $(this).closest('tr');
 		qtyuom = $(this).val();
 		current_tax_rate = $(this).find('option:selected').attr('data-value');
@@ -1099,9 +1111,10 @@ function loadItems() {
 			if( product_unit != item.row.base_unit) {
                 $.each(item.units, function(){
                     if (this.id == product_unit) {
-                        base_quantity = formatDecimal(unitToBaseQty(item.row.qty, this), 4);
-						item.row.real_unit_cost=formatDecimal((parseFloat(item.row.unit_cost)*(unitToBaseQty(1, this))), 4);
-						unit_cost=  formatDecimal((parseFloat(item.row.unit_cost)*(unitToBaseQty(1, this))), 4);
+                        base_quantity 			= formatDecimal(unitToBaseQty(item.row.qty, this), 4);
+						item.row.real_unit_cost = formatDecimal((parseFloat(item.row.unit_cost)*(unitToBaseQty(1, this))), 4);
+						unit_cost               = formatDecimal((parseFloat(item.row.unit_cost)*(unitToBaseQty(1, this))), 4);
+						
                     }
                 });
             }else{
@@ -1367,24 +1380,18 @@ function loadItems() {
 	        var basUnit_landing_cost=formatDecimal($landingCost/base_quantity);
             tr_html += '<td class="text-right"><input  type="hidden" class="form-control text-right input-sm landcost" name="landing_cost[]" value="'+ $landingCost+  '"  id="landcost_' + row_no + '" ><span class="text-right ru_landcost" id="ru_landcost_' + row_no + '">' + formatMoney($landingCost) + '</span><input type="hidden" name="basUnit_landing_cost[]"  value="'+basUnit_landing_cost+'"></td>';
 			
-			
-			      $selling_price_required = (item_type=='standard')?' required':'';
-			      if( item.row.spunit != product_unit) {
+				
+			      /* if( item.row.spunit != product_unit) {
                        $.each(item.units, function() {
                       if (this.id == product_unit) {
-						 console.log(1);
-						var baseUnit_selling_price=formatDecimal(item_selling/base_quantity);
-                        item_selling = formatDecimal((parseFloat(item_selling)*(unitToBaseQty(1, this))), 4);
-							
+							 baseUnit_selling_price=formatDecimal(((unitToBasePrice(item_selling, this))), 4);
                        }
                      });
                       }else{
-						  var baseUnit_selling_price=unitToBasePrice(item_selling,this);
-							item_selling  =  item_selling;
-			           }
-					   
-				   
-            tr_html += '<td><input class="form-control ru_sellingprice numberonly'+$selling_price_required+'" name="selling_price[]" type="text" value="' + item_selling + '" data-id="' + row_no + '" data-item="' + item_id + '" id="ru_sellingprice_' + row_no + '" style="width:100px!important"><input  type="hidden" class="form-control text-right input-sm base_unit_price" name="base_unit_price[]" value="'+ baseUnit_selling_price+  '"  id="base_unit_price' + row_no + '" ></td>'; 
+						   baseUnit_selling_price=formatDecimal(item_selling/base_quantity);
+			           } */
+				    $selling_price_required = (item_type=='standard')?' required':'';
+            tr_html += '<td><input class="form-control ru_sellingprice numberonly'+$selling_price_required+'" name="selling_price[]" type="text" value="' + item_selling + '" data-id="' + row_no + '" data-item="' + item_id + '" id="ru_sellingprice_' + row_no + '" style="width:100px!important"><input  type="hidden" class="form-control text-right input-sm base_unit_price" name="base_unit_price[]" value="'+ item.row.sp_base_unit_price+  '"  id="base_unit_price' + row_no + '" ></td>'; 
 			
 
 			tr_html += '<td><select class="form-control  spuom" name="spuom[]" value="' + sp_product_unit + '" data-id="' + row_no + '" data-item="' + item_id + '" id="tax2_' + row_no + '" style="width:100px!important">';
@@ -1397,7 +1404,18 @@ function loadItems() {
                  tr_html += '<option value="'+ this.id +'" '+ selected_spuom +' data-value="'+ this.rate +'"> '+ this.name +'</option>';
              });
              tr_html += '</select></td>';	
-			 
+			 if( item.row.spunit != product_unit) {
+                       $.each(item.units, function() {
+                      if (this.id == product_unit) {
+						  console.log(this);
+							// item_selling=formatDecimal(((unitToBasePrice(item_selling, this))), 4);
+                       }
+                     });
+			 }
+			 console.log(item_selling);
+                      /* else{
+						   baseUnit_selling_price=formatDecimal(item_selling/base_quantity);
+			           } */
 				
 	        $margin_dif = item_selling - $landingCost;
             margin = formatDecimal(($margin_dif*100)/$landingCost);

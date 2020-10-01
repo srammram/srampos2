@@ -656,7 +656,7 @@ class Purchase_invoices extends MY_Controller{
 				$items[$i]['product_unit_id'] = $_POST['product_unit'][$i];
 				
 				$items[$i]['base_unit_price']    = $_POST['base_unit_price'][$i];
-				$items[$i]['base_unit_cost']     = $_POST['baseUnit_cost'][$i];
+				$items[$i]['base_unit_cost']     = $_POST['baseunit_cost'][$i];
 				$items[$i]['base_margin']        = $_POST['base_margin'][$i];
 				$items[$i]['selling_price_unit'] = $_POST['spuom'][$i];
 				$items[$i]['base_landing_cost']  = $_POST['basUnit_landing_cost'][$i];
@@ -685,6 +685,7 @@ class Purchase_invoices extends MY_Controller{
 					'status' => 'completed',
 				);
 			}
+			
           }
 		 
         if ($this->form_validation->run() == true && $this->purchase_invoices_model->addPurchase_invoices($data,$items,$po_array)) {
@@ -1196,7 +1197,7 @@ class Purchase_invoices extends MY_Controller{
 			$items[$i]['parent_stock_unique_id'] = $_POST['parent_stock_unique_id'][$i];
 			
 			$items[$i]['base_unit_price']    = $_POST['base_unit_price'][$i];
-			$items[$i]['base_unit_cost']     = $_POST['baseUnit_cost'][$i];
+			$items[$i]['base_unit_cost']     = $_POST['baseunit_cost'][$i];
 			$items[$i]['base_margin']        = $_POST['base_margin'][$i];
 			$items[$i]['selling_price_unit'] = $_POST['spuom'][$i];
 		    $items[$i]['base_landing_cost']  = $_POST['basUnit_landing_cost'][$i];
@@ -2717,7 +2718,7 @@ print_r($inv_items);die;*/
                 $row->expiry = (($item->expiry && $item->expiry != '0000-00-00') ? $this->sma->hrsd($item->expiry) : '');
                 $row->base_quantity = $item->quantity;
                 $row->base_unit = $row->unit ? $row->unit : $item->product_unit_id;
-                $row->base_unit_cost = $row->cost ? $row->cost : $item->unit_cost;
+                $row->base_unit_cost = $row->base_unit_cost ? $row->base_unit_cost : $item->unit_cost;
                 $row->unit = $item->product_unit_id;
                 $row->qty = $item->unit_quantity;
                 $row->oqty = $item->unit_quantity;
