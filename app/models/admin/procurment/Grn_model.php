@@ -138,11 +138,8 @@ class Grn_model extends CI_Model{
 					}else{
 						$stock_id=$this->stock_master_update($stock_update);
 					}
-					
 	            }
             }
-			
-			
 		    $bal_count +=($item['quantity']>=$item['pi_qty'])?0:1;
 		    if($bal_count<=0){
 				$this->db->where("id",$data['invoice_id']);
@@ -151,8 +148,6 @@ class Grn_model extends CI_Model{
 			if($this->isStore && $data['status']=="approved"){	
 			    $this->sync_center->sync_grn($unique_id);
 			}
-			
-			
             return true;
         }
         return false;
