@@ -291,37 +291,7 @@ class Recipe_model extends CI_Model{
     }
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 
 public function getProductWithRecipe($recipe_id)
     {

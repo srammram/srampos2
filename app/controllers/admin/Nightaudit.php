@@ -1,17 +1,12 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Nightaudit extends MY_Controller
-{
-
-    function __construct()
-    {
+class Nightaudit extends MY_Controller{
+    function __construct(){
         parent::__construct();
-
         if (!$this->loggedIn) {
             $this->session->set_userdata('requested_page', $this->uri->uri_string());
             $this->sma->md('login');
         }
-
         if (!$this->Owner) {
            // $this->session->set_flashdata('warning', lang('access_denied'));
           //  redirect('admin');
@@ -19,46 +14,47 @@ class Nightaudit extends MY_Controller
 		$this->lang->admin_load('sma', $this->Settings->user_language);
         $this->load->library('form_validation');
         $this->load->admin_model('nightaudit_model');
-        
     }
 
 	/* Tables*/
 	
-	function index($dates = NULL, $warehouses_id = NULL)
-    {
+	function index($dates = NULL, $warehouses_id = NULL){
     	if($this->Settings->night_audit_rights == 0){
     		admin_redirect('welcome');
     	}
-	$this->sma->checkPermissions();
+		$this->sma->checkPermissions();
 		$this->session->userdata('user_id');		
 		$id = $this->session->userdata('user_id');
      	$dates = $this->input->get('dates');  
 		$warehouses_id = $this->input->get('warehouses_id');
-		$warehouses              = $this->site->getAllWarehouses();
-		$this->data['sales']     = $this->nightaudit_model->getDataviewSales($dates, $warehouses_id); 
-		$this->data['status']    = $this->nightaudit_model->checkNightaudit($dates, $warehouses_id);
-		$this->data['dates']     = $this->nightaudit_model->Check_Not_Closed_Nightaudit();
-		$this->data['last_date'] = $this->nightaudit_model->Last_Nightaudit();
-		$this->data['negative_stock'] = $this->nightaudit_model->getNegativeStock();
-		$group_id 				 = $this->nightaudit_model->getUserGroupid($id);
-		$this->data['p'] = $this->nightaudit_model->getGroupPermissions($group_id->group_id);
-		$this->data['warehouses'] = $warehouses;
+		$warehouses                  = $this->site->getAllWarehouses();
+		$this->data['sales']         = $this->nightaudit_model->getDataviewSales($dates, $warehouses_id); 
+		$this->data['status']        = $this->nightaudit_model->checkNightaudit($dates, $warehouses_id);
+		$this->data['dates']     	 = $this->nightaudit_model->Check_Not_Closed_Nightaudit();
+		$this->data['last_date']	 = $this->nightaudit_model->Last_Nightaudit();
+		$this->data['negative_stock']= $this->nightaudit_model->getNegativeStock();
+		$group_id 				     = $this->nightaudit_model->getUserGroupid($id);
+		$this->data['p']             = $this->nightaudit_model->getGroupPermissions($group_id->group_id);
+		/* $this->data['ongoingOrder']  = count($this->nightaudit_model->ongoingOrder());
+		$this->data['inProcessOrder']  = count($this->nightaudit_model->inProcessOrder());
+		$this->data['inProcessBill']   = count($this->nightaudit_model->inProcessBill()); */
+		$this->data['warehouses']      = $warehouses;
 		$bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('nightaudit'), 'page' => lang('night_audit')), array('link' => '#', 'page' => lang('night_audit')));
         $meta = array('page_title' => lang('night_audit'), 'bc' => $bc);
         $this->page_construct('nightaudit', $meta, $this->data);
     }
 	
 	function getNightauditData($dates = NULL, $warehouses_id = NULL){
-		$dates = $this->input->get('dates');
-		$warehouses_id = $this->input->get('warehouses_id');
+		$dates           = $this->input->get('dates');
+		$warehouses_id   = $this->input->get('warehouses_id');
 		$Last_Nightaudit =  $this->nightaudit_model->Last_Nightaudit();
-		$before_date = date('Y-m-d', strtotime($dates . ' -1 day'));
-		$before_status = $this->nightaudit_model->checkbeforedate($before_date, $warehouses_id);
-		$sales = $this->nightaudit_model->getDataviewSales($dates, $warehouses_id); 
-		$status = $this->nightaudit_model->checkNightaudit($dates, $warehouses_id);
-		$total_sales = 0;
-		$complete_sales = 0;
-		$pending_sales = 0;
+		$before_date     = date('Y-m-d', strtotime($dates . ' -1 day'));
+		$before_status   = $this->nightaudit_model->checkbeforedate($before_date, $warehouses_id);
+		$sales           = $this->nightaudit_model->getDataviewSales($dates, $warehouses_id); 
+		$status          = $this->nightaudit_model->checkNightaudit($dates, $warehouses_id);
+		$total_sales     = 0;
+		$complete_sales  = 0;
+		$pending_sales   = 0;
 		foreach($sales as $sales_row){
 			$total_sales++;
 			if($sales_row->sale_status == 'Closed'){
@@ -75,7 +71,6 @@ class Nightaudit extends MY_Controller
 		$total_amount = array_sum($total);
 		$complete_amount = array_sum($complete);
 		$pending_amount = array_sum($pending);
-		
 		$row['total_sales'] = $total_sales;	
 		$row['complete_sales'] = $complete_sales;	
 		$row['pending_sales'] = $pending_sales;	
@@ -84,7 +79,6 @@ class Nightaudit extends MY_Controller
 		$row['pending_amount'] = $pending_amount ? $pending_amount : 0;	
 		$row['status'] = $status;	
 		$row['before_status'] = $before_status;	
-		
 		echo json_encode($row);
 		exit;
 	}
@@ -103,8 +97,10 @@ class Nightaudit extends MY_Controller
 			'nightaudit' => $this->input->post('nightaudit'),
 			'created' => date('Y-m-d H:m:s'),
 			'created_by' => $this->session->userdata('user_id'),
+			'stock_audit'=>($this->input->post('stock_audit'))?$this->input->post('stock_audit'):0,
+			'stock_audit_status'=>($this->input->post('stock_audit'))?"Processing":"Not Run",
 		);	
-		
+	   
 		if ($this->nightaudit_model->addNightaudit($data)) {
 			
             $this->session->set_flashdata('message', lang("Night Audit process complete"));
@@ -240,4 +236,5 @@ class Nightaudit extends MY_Controller
 		}
 	   
    }
+  
 }

@@ -784,7 +784,7 @@ $('#pi_discount').focus(function () {
                     }
                 });
             } else{
-				base_price =sellingprice
+				     base_price =sellingprice
 			}
 			pi_items[item_id].row.item_selling_price = sellingprice;
 			pi_items[item_id].row.sp_base_unit_price = base_price;
@@ -1391,6 +1391,8 @@ function loadItems() {
 						   baseUnit_selling_price=formatDecimal(item_selling/base_quantity);
 			           } */
 				    $selling_price_required = (item_type=='standard')?' required':'';
+					item.row.sp_base_unit_price = (item_selling!=0)?item.row.sp_base_unit_price:0;
+					
             tr_html += '<td><input class="form-control ru_sellingprice numberonly'+$selling_price_required+'" name="selling_price[]" type="text" value="' + item_selling + '" data-id="' + row_no + '" data-item="' + item_id + '" id="ru_sellingprice_' + row_no + '" style="width:100px!important"><input  type="hidden" class="form-control text-right input-sm base_unit_price" name="base_unit_price[]" value="'+ item.row.sp_base_unit_price+  '"  id="base_unit_price' + row_no + '" ></td>'; 
 			
 

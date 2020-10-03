@@ -1,8 +1,7 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Nightaudit_model extends CI_Model{
-    public function __construct()
-    {
+    public function __construct(){
         parent::__construct();
     }
 	public function getDataviewSales($dates = NULL, $warehouses_id = NULL){
@@ -73,6 +72,10 @@ class Nightaudit_model extends CI_Model{
 	
 	function addNightaudit($data = array()){
 		if ($this->db->insert('nightaudit', $data)){
+			$insert_id= $this->db->insert_id();
+			if($data['stock_audit']==1){
+			$this->stockAduitProcess($data['nightaudit_date'],$insert_id);
+			}
 			return true;	
 		}
         return false;
@@ -111,8 +114,7 @@ class Nightaudit_model extends CI_Model{
 			        return $misdate;
 			    }
 			    return FALSE;
-        }
-        else{
+        }else{
 	        	$date_format = 'Y-m-d';
 				$yesterday = strtotime('-1 day');
 				$previous_date = date($date_format, $yesterday);
@@ -267,6 +269,194 @@ class Nightaudit_model extends CI_Model{
         }
         return false;
     }
+	}
+	function ongoingOrder(){
+		$q=$this->db->get_where("restaurant_tables",array("current_order_status !=0"));
+		if($q->num_rows()>0){
+			return $q->result();
+		}
+		return false;
+	}
+	function inProcessOrder(){
+		$q=$this->db->get_where("orders",array("payment_status IS NULL"));
+		if($q->num_rows()>0){
+			return $q->result();
+		}
+		return false;
+	}
 	
+	function inProcessBill(){
+		$q=$this->db->get_where("bils",array("payment_status IS NULL"));
+		if($q->num_rows()>0){
+			return $q->result();
+		}
+		return false;
+		
+	}
+	function stockAduitProcess($nightAudit_date,$nightAuditId){
+		$q=$this->db->select("*");
+		$this->db->where_in("type",array("standard","production","addon","semi_finished","raw","service"));
+		$q=$this->db->get("recipe");
+		if($q->num_rows()>0){
+			foreach($q->result() as $row){
+				$categoryMapping=$this->getRecipeMapping($row->id);
+				  foreach($categoryMapping as $recipe){
+						$stock    = $this->getStock($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id); 
+						$purchase  =$this->getInvoice($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
+						$transfer =$this->getTransfer($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
+						$receiver =$this->getReceiver($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
+						$wastage  =$this->getWastage($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
+						$stock_quantity      =($stock->stock)?$stock->stock:0;
+						$purchase_quantity   =($purchase->quantity)?$purchase->quantity:0;
+						$transfer_quantity   =($transfer->quantity)?$transfer->quantity:0;
+						$receiver_quantity   =($receiver->quantity)?$receiver->quantity:0;
+						$wastage_quantity    =($wastage->quantity)?$wastage->quantity:0;
+						$opening_stock       =($stock_quantity+$wastage_quantity+$transfer_quantity)-($purchase_quantity-$receiver_quantity);
+						$closing_stock       =$stock_quantity;
+						$item=array("date"=>date("Y-m-d H:i:s"),
+						"night_audit_date"=>$nightAudit_date,
+						"product_id"=>$recipe->product_id,
+						"variant_id"=>$recipe->variant_id,
+						"category_id"=>$recipe->category_id,
+						"sub_category_id"=>$recipe->subcategory_id,
+						"brand_id"=>$recipe->brand_id,
+						"opening_stock"=>$opening_stock,
+						"stock_uom"=>$row->unit,
+						"purchase_stock"=>$purchase_quantity,
+						"store_transfer_stock"=>$transfer_quantity,
+						"store_receiver_stock"=>$receiver_quantity,
+						"wastage_stock"=>$wastage_quantity,
+						"closing_stock"=>$closing_stock,
+						"created_on"=>date("Y-m-d H:i:s"),
+						"created_by"=>$this->session->userdata('user_id'),
+						"brand_name"=>$recipe->brand_name,
+						"category_name"=>$recipe->category_name,
+						"subcategory_name"=>$recipe->subcategory_name,
+						"variant_name"=>$recipe->variant);
+						$this->db->insert("stock_audit",$item);
+				        $insertID= $this->db->insert_id();
+						$UniqueID                  = $this->site->generateUniqueTableID($insertID);
+						$this->site->updateUniqueTableId($insertID,$UniqueID,'stock_audit');
+			   }
+			   $this->db->where("id",$nightAuditId);
+			   $this->db->update("nightaudit",array("stock_audit_status"=>"Completed"));
+			}
+			return true;
+		}
+		return false;
+	}
+	function  getRecipeMapping($recipe_id){
+		$this->db->select("category_mapping.*,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,rv.name as variant");
+		$this->db->join('recipe_categories as rc','rc.id=category_mapping.category_id','left');
+		$this->db->join('recipe_categories rsc','rsc.id=category_mapping.subcategory_id','left');	
+		$this->db->join('brands b','b.id=category_mapping.brand_id','left');
+		$this->db->join('recipe_variants_values rvv','rvv.recipe_id=category_mapping.product_id','left');
+		$this->db->join('recipe_variants rv','rv.id=rvv.attr_id','left');
+		$this->db->where("product_id",$recipe_id);
+		$this->db->where("store_id",$this->store_id);
+		$this->db->group_by(array("product_id", "variant_id","category_id", "subcategory_id","brand_id"));
+		$q=$this->db->get("category_mapping ");
+	
+		if($q->num_rows()>0){
+			foreach($q->result() as $row){
+				$data[]=$row;
+			}
+			return $data;
+		}
+		return false;
+	}
+	
+	function getStock($recipe_id,$variant_id,$catgory_id,$subcategory_id,$brand_id){
+		$this->db->select("sum(stock_in) as stock");
+		$this->db->where(array("store_id"=>$this->store_id,
+		"product_id"=>$recipe_id,
+		"variant_id"=>$variant_id,
+		"category_id"=>$catgory_id,
+		"subcategory_id"=>$subcategory_id,
+		"brand_id"=>$brand_id));
+		$q=$this->db->get("pro_stock_master");
+		if($q->num_rows()>0){
+			return $q->row();
+		}
+		return false;
+	}
+	function getInvoice($recipe_id,$variant_id,$catgory_id,$subcategory_id,$brand_id,$nightaudit_date){
+		$this->db->select("sum(".$this->db->dbprefix('pro_purchase_invoice_items').".unit_quantity ) as quantity");
+		$this->db->join("pro_purchase_invoices P","P.id=pro_purchase_invoice_items.invoice_id");
+		$this->db->where('P.date >=', $nightaudit_date);
+		$this->db->where('P.date <=', $nightaudit_date);
+		$this->db->where('P.status !="process"');
+		$this->db->where(array("pro_purchase_invoice_items.store_id"=>$this->store_id,
+		"product_id"=>$recipe_id,
+		"variant_id"=>$variant_id,
+		"category_id"=>$catgory_id,
+		"subcategory_id"=>$subcategory_id,
+		"brand_id"=>$brand_id));
+		$q=$this->db->get("pro_purchase_invoice_items");
+		if($q->num_rows()>0){
+			return $q->row();
+		}
+		return false;
+		
+		
+	}
+	function getTransfer($recipe_id,$variant_id,$catgory_id,$subcategory_id,$brand_id,$nightaudit_date){
+		$this->db->select("sum(".$this->db->dbprefix('pro_store_transfer_item_details').".transfer_unit_qty ) as quantity");
+		$this->db->join("pro_store_transfers ","pro_store_transfers.id=pro_store_transfer_item_details.store_transfer_id");
+		$this->db->join("pro_store_transfer_items ","pro_store_transfer_items.id=pro_store_transfer_item_details.store_transfer_item_id");
+		$this->db->where('date(created_on) ', $nightaudit_date);
+		$this->db->where($this->db->dbprefix('pro_store_transfer_item_details').'.variant_id ', $variant_id);
+		$this->db->where('status !="process"');
+		$this->db->where($this->db->dbprefix('pro_store_transfer_item_details').".store_id",$this->store_id);
+		$this->db->where(array(
+		"product_id"=>$recipe_id,
+	
+		"category_id"=>$catgory_id,
+		"subcategory_id"=>$subcategory_id,
+		"brand_id"=>$brand_id));
+		$q=$this->db->get("pro_store_transfer_item_details");
+		if($q->num_rows()>0){
+			return $q->row();
+		}
+		return false;
+	}
+	function getReceiver($recipe_id,$variant_id,$catgory_id,$subcategory_id,$brand_id,$nightaudit_date){
+		$this->db->select("sum(".$this->db->dbprefix('pro_store_receiver_item_details').".received_unit_qty ) as quantity");
+		$this->db->join("pro_store_receivers R","R.id=pro_store_receiver_item_details.store_receiver_id");
+		$this->db->join("pro_store_receiver_items ","pro_store_receiver_items.id=pro_store_receiver_item_details.store_receiver_item_id");
+		$this->db->where('R.date ', $nightaudit_date);
+		$this->db->where($this->db->dbprefix('pro_store_receiver_item_details').'.variant_id ', $variant_id);
+		$this->db->where('R.status !="process"');
+		$this->db->where($this->db->dbprefix('pro_store_receiver_item_details').".store_id",$this->store_id);
+		$this->db->where(array(
+		"product_id"=>$recipe_id,
+		"category_id"=>$catgory_id,
+		"subcategory_id"=>$subcategory_id,
+		"brand_id"=>$brand_id));
+		$q=$this->db->get("pro_store_receiver_item_details ");
+		if($q->num_rows()>0){
+			return $q->row();
+		}
+		return false;
+	}
+	
+	function getWastage($recipe_id,$variant_id,$catgory_id,$subcategory_id,$brand_id,$nightaudit_date){
+		$this->db->select("sum(".$this->db->dbprefix('wastage_items').".wastage_unit_qty ) as quantity");
+		$this->db->join("wastage W","W.id=wastage_items.wastage_id","left");
+		$this->db->where('W.date >=', $nightaudit_date);
+		$this->db->where('W.date <=', $nightaudit_date);
+		$this->db->where('W.status !="process"');
+	    $this->db->where("W.store_id",$this->store_id);
+		$this->db->where(array(
+		"product_id"=>$recipe_id,
+		"variant_id"=>$variant_id,
+		"category_id"=>$catgory_id,
+		"subcategory_id"=>$subcategory_id,
+		"brand_id"=>$brand_id));
+		$q=$this->db->get("wastage_items ");
+		if($q->num_rows()>0){
+			return $q->row();
+		}
+		return false;
 	}
 }

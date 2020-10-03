@@ -192,9 +192,12 @@
                     
                     <div class="clearfix"></div>
                     <br>
-                    
+                     <div class="form-group " >
+                        <div class="col-md-8">
+                            <input type="checkbox" class="form-control" value="1" name="stock_audit" id="stock_audit"> Stock Audit.
+                         </div> 
+                    </div>
                     <div class="form-group nightaudit_check" <?php if($status == 'yes'){ ?> style="display:none" <?php }else{ ?> style="display:block" <?php } ?>>
-                        
                         <div class="col-md-8">
                             <input type="checkbox" class="form-control" value="1" name="nightaudit" id="nightaudit"> Night audit status complete process. once check process also complete.
                          </div> 
