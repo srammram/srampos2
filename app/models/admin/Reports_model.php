@@ -6141,7 +6141,91 @@ public function getItemWiseYieldReports($start,$end,$warehouse_id,$varient_id,$l
         }        
         return FALSE;   
     }  
+	
+
+
+public function getstockAuditReports($start,$end,$warehouse_id,$varient_id,$limit,$offset,$report_view_access,$report_show,$category_id,$subcategory_id,$product_id){
+		$where ='';
+        if($warehouse_id != 0){
+            $where = " AND W.store_id =".$warehouse_id."";
+        }
+		if($varient_id != 0){
+            $where .= " AND WI.variant_id =".$varient_id."";
+        }
+        if($product_id != 0){
+            $where .= " AND WI.product_id =".$recipe_id."";
+        }
+        if($category_id != 0){
+            $where .= " AND R.category_id =".$category_id."";
+        }
+        if($subcategory_id != 0){
+            $where .= " AND R.subcategory_id =".$subcategory_id."";
+        }
+        $category = "SELECT RC.id AS cate_id,RC.name as category
+        FROM " . $this->db->dbprefix('recipe_categories') . " RC
+        JOIN " . $this->db->dbprefix('recipe') . " R ON  R.category_id = RC.id
+        JOIN " . $this->db->dbprefix('stock_audit') . "  ON " . $this->db->dbprefix('stock_audit') . ".product_id = R.id
+        WHERE DATE(" . $this->db->dbprefix('stock_audit') . ".invoice_date) BETWEEN '".$start."' AND '".$end."' 
+      ".$where." GROUP BY RC.id";
+        $limit_q = " limit $offset,$limit";
+        $total = $this->db->query($category);
+        if($limit!=0) $category .=$limit_q;
+        $t = $this->db->query($category);
 		
+        if ($t->num_rows() > 0) {
+            foreach ($t->result() as $row) {
+                $this->db->select("recipe_categories.id AS sub_id,recipe_categories.name AS sub_category")
+                ->join('recipe', 'recipe.subcategory_id = recipe_categories.id')
+                ->join('stock_audit', 'stock_audit.product_id = recipe.id')
+               
+                ->where('DATE('. $this->db->dbprefix('stock_audit') .'.invoice_date) BETWEEN "' . $start . '" and "' . $end.'"')
+                ->where('recipe.category_id', $row->cate_id);
+               
+				if($varient_id != 0){
+						$where .= "AND stock_audit.variant_id =".$varient_id."";
+					}
+				if($product_id != 0){
+						$where .= "AND stock_audit.product_id =".$recipe_id."";
+				}
+                $this->db->group_by('recipe.subcategory_id');
+                $s = $this->db->get('recipe_categories');
+				
+            if ($s->num_rows() > 0) {
+                foreach ($s->result() as $sow) {
+                    $where = '';
+					if($varient_id != 0){
+						$where .= "AND stock_audit.variant_id =".$varient_id."";
+					}
+					if($product_id != 0){
+						$where .= "AND stock_audit.product_id =".$recipe_id."";
+					}
+                   $myQuery = "SELECT opening_stock,purchase_stock,store_transfer_stock,store_receiver_stock,wastage_stock,closing_stock,brand_name , category_name,  subcategory_name , variant_name
+					FROM " . $this->db->dbprefix('stock_audit') . " S
+					left JOIN " . $this->db->dbprefix('recipe') . " R ON R.id = S.product_id
+					left JOIN " . $this->db->dbprefix('wastage_items') . " WI ON WI.stock_id = S.unique_id
+					left JOIN " . $this->db->dbprefix('warehouses') . " WH ON WH.id = S.store_id
+					left JOIN " . $this->db->dbprefix('units') . " U ON U.id = r.purchase_unit
+					LEFT JOIN " . $this->db->dbprefix('recipe_variants') . " RV ON RV.id = S.variant_id
+					WHERE DATE(S.date) BETWEEN '".$start."' AND '".$end."'   " .$where. " and S.store_id=".$this->store_id." GROUP BY S.id order by R.name ASC" ;
+                    $o = $this->db->query($myQuery);
+                        $split[$row->cate_id][] = $sow;
+                        if ($o->num_rows() > 0) {                    
+						foreach($o->result() as $oow){
+                                $order[$sow->sub_id][] = $oow;
+                            }
+                        }
+                        $sow->order = $order[$sow->sub_id];                   
+						}                    
+                        $row->split_order = $split[$row->cate_id];
+						}else{
+						$row->split_order = array();
+						}                
+						$data[] = $row;
+            }
+            return array('data'=>$data,'total'=>$total->num_rows());
+        }        
+        return FALSE;   
+    }  	
       
 }
 

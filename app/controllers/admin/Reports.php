@@ -6416,7 +6416,6 @@ GROUP BY B.id, PD.identify*/
    
 
    public function get_ItemwiseYieldReport($start_date = NULL, $end_date = NULL, $warehouse_id = NULL, $varient_id = NULL){
-      
         $start 			= $this->input->post('start_date');
         $end 			= $this->input->post('end_date');
         $warehouse_id 	= $this->input->post('warehouse_id');
@@ -6429,20 +6428,16 @@ GROUP BY B.id, PD.identify*/
         $offset = $this->uri->segment($offsetSegment,0);
         $this->session->set_userdata('start_date', $this->input->post('start_date'));
         $this->session->set_userdata('end_date', $this->input->post('end_date'));
-
         $data= '';
         if ($start != '' && $end != '') {
             $data = $this->reports_model->getItemWiseYieldReports($start,$end,$warehouse_id,$varient_id,$limit,$offset,$this->report_view_access,$this->report_show,$category_id,$subcategory_id,$recipe_id);
             $round_tot = $this->reports_model->getRoundamount($start,$end,$warehouse_id);
-			
-		
              if (!empty($data['data'])) {                 
                  $yield = $data['data'];
              }
              else{                
                 $yield = 'empty';
              }
-             
         }
         else{
             $yield = 'error';
@@ -6451,14 +6446,6 @@ GROUP BY B.id, PD.identify*/
         $pagination = $this->pagination('reports/get_itemreports',$limit,$offsetSegment,$total);
         $this->sma->send_json(array('yield' => $yield,'pagination'=>$pagination));
    } 
-   
-   
-   
-   
-   
-   
-   
-   
    
    
       
@@ -6478,7 +6465,6 @@ GROUP BY B.id, PD.identify*/
    
 
    public function getStockAudit($start_date = NULL, $end_date = NULL, $warehouse_id = NULL, $varient_id = NULL){
-      
         $start 			= $this->input->post('start_date');
         $end 			= $this->input->post('end_date');
         $warehouse_id 	= $this->input->post('warehouse_id');
@@ -6488,16 +6474,13 @@ GROUP BY B.id, PD.identify*/
 		$recipe_id      = $this->input->post('recipe_id');
         $limit          = $this->input->post('pagelimit');    
         $offsetSegment  = 4;
-        $offset = $this->uri->segment($offsetSegment,0);
+        $offset 		= $this->uri->segment($offsetSegment,0);
         $this->session->set_userdata('start_date', $this->input->post('start_date'));
         $this->session->set_userdata('end_date', $this->input->post('end_date'));
-
         $data= '';
         if ($start != '' && $end != '') {
-            $data = $this->reports_model->getItemWiseYieldReports($start,$end,$warehouse_id,$varient_id,$limit,$offset,$this->report_view_access,$this->report_show,$category_id,$subcategory_id,$recipe_id);
+            $data = $this->reports_model->getstockAuditReports($start,$end,$warehouse_id,$varient_id,$limit,$offset,$this->report_view_access,$this->report_show,$category_id,$subcategory_id,$recipe_id);
             $round_tot = $this->reports_model->getRoundamount($start,$end,$warehouse_id);
-			
-		
              if (!empty($data['data'])) {                 
                  $yield = $data['data'];
              }
@@ -6513,20 +6496,6 @@ GROUP BY B.id, PD.identify*/
         $pagination = $this->pagination('reports/get_itemreports',$limit,$offsetSegment,$total);
         $this->sma->send_json(array('yield' => $yield,'pagination'=>$pagination));
    } 
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
    
    
 }
