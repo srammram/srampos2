@@ -74,9 +74,7 @@ class Nightaudit_model extends CI_Model{
 		if ($this->db->insert('nightaudit', $data)){
 			$insert_id= $this->db->insert_id();
 			if($data['stock_audit']==1){
-			$this->stockAduitProcess($data['nightaudit_date'],$insert_id);
-			
-			die;
+				$this->stockAduitProcess($data['nightaudit_date'],$insert_id);
 			}
 			return true;	
 		}
@@ -384,18 +382,17 @@ class Nightaudit_model extends CI_Model{
 		return false;
 	}
 	function getPurchase($recipe_id,$variant_id,$catgory_id,$subcategory_id,$brand_id,$nightaudit_date){
-		$this->db->select("sum(".$this->db->dbprefix('pro_purchase_invoice_items').".unit_quantity ) as quantity");
-		$this->db->join("pro_purchase_invoices P","P.id=pro_purchase_invoice_items.invoice_id");
-		$this->db->where('P.date >=', $nightaudit_date);
-		$this->db->where('P.date <=', $nightaudit_date);
-		$this->db->where('P.status !="process"');
-		$this->db->where(array("pro_purchase_invoice_items.store_id"=>$this->store_id,
+		$this->db->select("sum(".$this->db->dbprefix('pro_grn_items').".unit_quantity ) as quantity");
+		$this->db->join("pro_grn G","G.id=pro_grn_items.grn_id");
+		$this->db->where('date(date)', $nightaudit_date);
+		$this->db->where('G.status !="process"');
+		$this->db->where(array("pro_grn_items.store_id"=>$this->store_id,
 		"product_id"=>$recipe_id,
 		"variant_id"=>$variant_id,
 		"category_id"=>$catgory_id,
 		"subcategory_id"=>$subcategory_id,
 		"brand_id"=>$brand_id));
-		$q=$this->db->get("pro_purchase_invoice_items");
+		$q=$this->db->get("pro_grn_items");
 		if($q->num_rows()>0){
 			return $q->row();
 		}
