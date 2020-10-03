@@ -75,6 +75,8 @@ class Nightaudit_model extends CI_Model{
 			$insert_id= $this->db->insert_id();
 			if($data['stock_audit']==1){
 			$this->stockAduitProcess($data['nightaudit_date'],$insert_id);
+			
+			die;
 			}
 			return true;	
 		}
@@ -302,7 +304,7 @@ class Nightaudit_model extends CI_Model{
 				$categoryMapping=$this->getRecipeMapping($row->id);
 				  foreach($categoryMapping as $recipe){
 						$stock    = $this->getStock($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id); 
-						$purchase  =$this->getInvoice($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
+						$purchase  =$this->getPurchase($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
 						$transfer =$this->getTransfer($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
 						$receiver =$this->getReceiver($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
 						$wastage  =$this->getWastage($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
@@ -315,6 +317,7 @@ class Nightaudit_model extends CI_Model{
 						$closing_stock       =$stock_quantity;
 						$item=array("date"=>date("Y-m-d H:i:s"),
 						"night_audit_date"=>$nightAudit_date,
+						"nightaudit_id"=>$nightAuditId,
 						"product_id"=>$recipe->product_id,
 						"variant_id"=>$recipe->variant_id,
 						"category_id"=>$recipe->category_id,
@@ -380,7 +383,7 @@ class Nightaudit_model extends CI_Model{
 		}
 		return false;
 	}
-	function getInvoice($recipe_id,$variant_id,$catgory_id,$subcategory_id,$brand_id,$nightaudit_date){
+	function getPurchase($recipe_id,$variant_id,$catgory_id,$subcategory_id,$brand_id,$nightaudit_date){
 		$this->db->select("sum(".$this->db->dbprefix('pro_purchase_invoice_items').".unit_quantity ) as quantity");
 		$this->db->join("pro_purchase_invoices P","P.id=pro_purchase_invoice_items.invoice_id");
 		$this->db->where('P.date >=', $nightaudit_date);
@@ -415,6 +418,7 @@ class Nightaudit_model extends CI_Model{
 		"subcategory_id"=>$subcategory_id,
 		"brand_id"=>$brand_id));
 		$q=$this->db->get("pro_store_transfer_item_details");
+		
 		if($q->num_rows()>0){
 			return $q->row();
 		}
@@ -424,7 +428,7 @@ class Nightaudit_model extends CI_Model{
 		$this->db->select("sum(".$this->db->dbprefix('pro_store_receiver_item_details').".received_unit_qty ) as quantity");
 		$this->db->join("pro_store_receivers R","R.id=pro_store_receiver_item_details.store_receiver_id");
 		$this->db->join("pro_store_receiver_items ","pro_store_receiver_items.id=pro_store_receiver_item_details.store_receiver_item_id");
-		$this->db->where('R.date ', $nightaudit_date);
+		$this->db->where('date(date) ', $nightaudit_date);
 		$this->db->where($this->db->dbprefix('pro_store_receiver_item_details').'.variant_id ', $variant_id);
 		$this->db->where('R.status !="process"');
 		$this->db->where($this->db->dbprefix('pro_store_receiver_item_details').".store_id",$this->store_id);
@@ -443,8 +447,7 @@ class Nightaudit_model extends CI_Model{
 	function getWastage($recipe_id,$variant_id,$catgory_id,$subcategory_id,$brand_id,$nightaudit_date){
 		$this->db->select("sum(".$this->db->dbprefix('wastage_items').".wastage_unit_qty ) as quantity");
 		$this->db->join("wastage W","W.id=wastage_items.wastage_id","left");
-		$this->db->where('W.date >=', $nightaudit_date);
-		$this->db->where('W.date <=', $nightaudit_date);
+		$this->db->where('date(date) ', $nightaudit_date);
 		$this->db->where('W.status !="process"');
 	    $this->db->where("W.store_id",$this->store_id);
 		$this->db->where(array(
@@ -454,6 +457,7 @@ class Nightaudit_model extends CI_Model{
 		"subcategory_id"=>$subcategory_id,
 		"brand_id"=>$brand_id));
 		$q=$this->db->get("wastage_items ");
+		
 		if($q->num_rows()>0){
 			return $q->row();
 		}
