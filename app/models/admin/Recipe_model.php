@@ -2289,7 +2289,6 @@ public function getrecipevariantaddondetails($id){
 			if ( !empty($items)) {
 				foreach ($items as $item) {
 					$this->db->insert('recipe_products', $item);
-					print_r($this->db->error());
 				}
 				 return true;
 			}
