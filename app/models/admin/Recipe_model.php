@@ -304,9 +304,10 @@ public function getProductWithRecipe($recipe_id)
             ->join('units', 'units.id=rp.unit_id', 'left')
             ->join('brands b','b.id=category_mapping.brand_id','left')            
             ->where('ING.id', $recipe_id)
+			 ->where('rp.parent_item_id is null')
             ->group_by('rp.id');       
             $q = $this->db->get('category_mapping');   
-             //print_r($this->db->last_query());die;                     
+          //   print_r($this->db->last_query());die;                     
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -2218,5 +2219,81 @@ public function getrecipevariantaddondetails($id){
 		 }
 		 return false;
 	 }
-	
+	 function  getIngredientById($id){
+		 $q=$this->db->get_where("recipe_products",array("id"=>$id));
+		 if($q->num_rows()>0){
+			 return $q->row();
+		 }
+		 return false;
+	 }
+	 function  getIngredientParentById($id){
+		   $this->db->select('rp.*, units.name AS units_name, r.name AS recipe_name,r.code,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,category_mapping.category_id,category_mapping.subcategory_id,category_mapping.brand_id,category_mapping.id as cm_id,r.item_customizable as r_item_customizable')
+            ->join('recipe as r', 'r.id=category_mapping.product_id','left')
+            ->join('recipe_products as rp', 'rp.product_id=r.id','left')
+            ->join('ingrediend_head as ING', 'ING.id=rp.ingrediends_hd_id')            
+            ->join('recipe_categories as rc', 'rc.id=category_mapping.category_id', 'left')
+            ->join('recipe_categories as rsc', 'rsc.id=category_mapping.subcategory_id', 'left')
+            ->join('units', 'units.id=rp.unit_id', 'left')
+            ->join('brands b','b.id=category_mapping.brand_id','left')            
+			 ->where('rp.parent_item_id',$id)
+            ->group_by('rp.id');       
+            $q = $this->db->get('category_mapping');   
+        //    print_r($this->db->last_query());die;                     
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return FALSE;
+		 
+		
+		 
+	 }
+	 
+	 	function getPurchase_itemsNew($term,$existing,$type,$catgeoryId,$subCatgoryId){
+		$limit=10;
+		$this->db->select('r.*,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,cm.category_id as cat_id,cm.subcategory_id as sub_id,cm.brand_id as brandid,cm.purchase_cost,cm.selling_price as cost, cm.id as cm_id,u.name as unit_name');
+		$this->db->from('recipe r');
+		$this->db->join('category_mapping as cm','cm.product_id=r.id','left');
+		$this->db->join('recipe_categories as rc','rc.id=cm.category_id');
+		$this->db->join('recipe_categories rsc','rsc.id=cm.subcategory_id');	
+		$this->db->join('brands b','b.id=cm.brand_id','left');
+        $this->db->join('units u','u.id=r.unit');
+		if($this->Settings->item_search ==1){
+		$this->db->where("(r.name LIKE '%" . $term . "%' OR r.code LIKE '%" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '%" . $term . "%')");
+		}else{
+			$this->db->where("(r.name LIKE '" . $term . "%' OR r.code LIKE '" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '" . $term . "%')");
+		}
+		if(!empty($catgeoryId)){
+		$this->db->where('rc.id',$catgeoryId);
+		}
+	/* 	 if(!empty($subCatgoryId)){
+		$this->db->where('rsc.id',$subCatgoryId);
+		}  */
+		$this->db->where_in('r.type',array('raw','semi_finished','production','addon','raw')); 
+	// echo $this->db->get_compiled_select();exit;
+		$this->db->group_by("r.id,b.id,rc.id,rsc.id");
+		$this->db->limit($limit);
+		$q = $this->db->get(); 
+			if ($q->num_rows() > 0) {
+				foreach (($q->result()) as $row) {
+					$row->units=$this->site->getUnitByID($row->unit);
+					$data[] = $row;
+				}
+				return $data;
+			}
+			return '';
+    }
+   public function productionItemGroupUpdate($items){
+			if ( !empty($items)) {
+				foreach ($items as $item) {
+					$this->db->insert('recipe_products', $item);
+					print_r($this->db->error());
+				}
+				 return true;
+			}
+        return false;
+    }
+
 }

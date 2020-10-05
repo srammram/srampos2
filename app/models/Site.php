@@ -7695,8 +7695,7 @@ public function getrawstock_empty($product_id,$variant_id,$category_id,$subcateg
 			return $order_item;
     }
 
-	public function unit_of_measurement($product_id,$select_unit = null, $purchase = false, $empty_opt = false)
-    {
+	public function unit_of_measurement($product_id,$select_unit = null, $purchase = false, $empty_opt = false){
         $opts = '';
         if ($empty_opt) {
             $opts .= '<option value="">'.lang('select').'</option>';
@@ -7704,7 +7703,6 @@ public function getrawstock_empty($product_id,$variant_id,$category_id,$subcateg
 		    $recipe=$this->site->getrecipeByID($product_id);
             $Unit  = $this->site->getUnitByID($recipe->unit);
             $opts .= '<option value="'.$Unit->id.'"'.($select_unit && $select_unit == $Unit->id ? ' selected="selected"' : '').'>'.lang($Unit->name).'</option>';
-        
         return $opts;
     }
 

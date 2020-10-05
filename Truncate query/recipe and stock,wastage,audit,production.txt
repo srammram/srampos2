@@ -1,0 +1,36 @@
+/* recipe  */
+TRUNCATE `srampos_recipe`;
+TRUNCATE `srampos_warehouses_recipe`;
+TRUNCATE `srampos_warehouses_recipe_variants`;
+TRUNCATE `srampos_recipe_combo_items`;
+TRUNCATE `srampos_recipe_photos`;
+TRUNCATE `srampos_recipe_variants_values`;
+TRUNCATE `srampos_recipe_variants`;
+TRUNCATE `srampos_product_variants`;
+TRUNCATE `srampos_variants`;
+TRUNCATE `srampos_warehouses_products_variants`;
+TRUNCATE `srampos_warehouses_recipe_variants`;
+
+TRUNCATE `srampos_recipe_addon_details`;
+TRUNCATE `srampos_recipe_addon`;
+/*   stock   */
+
+TRUNCATE `srampos_category_mapping`;
+TRUNCATE `srampos_pro_stock_master`;
+
+/* production */
+
+TRUNCATE `srampos_ingrediend_head`;
+TRUNCATE `srampos_recipe_products`;
+
+TRUNCATE `srampos_pro_production`;
+TRUNCATE `srampos_pro_production_items`;
+
+/* wastage */
+TRUNCATE `srampos_wastage`;
+TRUNCATE `srampos_wastage_items`;
+
+/*  audit data  */
+
+TRUNCATE `srampos_nightaudit`;
+TRUNCATE `srampos_stock_audit`;

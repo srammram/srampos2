@@ -3286,9 +3286,58 @@ function edit_item_with_varient($id){
 		
     }    
     /*recipe and variant add on mapping end*/    
-     
-    
-	  
+       function search_purchase_itemsNew(){
+		$term = $this->input->post('term');
+		$type = $this->input->post('item_type');
+		$existing = $this->input->post('existing');
+		$category_id=$this->input->post('category_id');
+		$subcategory_id=$this->input->post('subcategory_id');
+		$result = $this->recipe_model->getPurchase_itemsNew($term,$existing,$type,$category_id,$subcategory_id);
+		$this->sma->send_json($result);
+    }
+    function proudctionItemGroups($id,$productionId){
+		$this->data['product_recipe']		   = $this->recipe_model->getIngredientById($id);
+		$this->data['groupItem']		   = $this->recipe_model->getIngredientParentById($id);
+		$this->data['parentItemid']		       = $id;
+		$this->data['production_id']		   = $productionId;
+		$this->form_validation->set_rules('recipe_id[]', lang("recipe_id"), 'required');
+        if ($this->form_validation->run() == true) {   
+		 for($j=0; $j<count($this->input->post('recipe_id[]')); $j++){
+			 for($j=0; $j<count($this->input->post('purchase_item_id[]')); $j++){
+				$item_id = $this->input->post('recipe_id');
+				$variant_id = $this->input->post('variant_id');		
+				$data['uom']=$this->input->post('item_uom');
+				$items[] = array(
+				    'ingrediends_hd_id'=>$productionId,
+					'parent_item_id'=>$id,
+                    'recipe_id' => $item_id,
+					'variant_id' => $variant_id,
+					'product_id' => $this->input->post('purchase_item_id['.$j.']'),
+					'create_on' =>date('Y-m-d H:i:s'),
+					'quantity' => $this->input->post('purchase_item_quantity['.$j.']'),
+					'unit_id' => $this->input->post('purchase_item_unit['.$j.']'),
+					'cm_id' => $this->input->post('purchase_item_cm_id['.$j.']'),
+					'category_id' => $this->input->post('category_id['.$j.']'),
+					'sub_category_id' => $this->input->post('subcategory_id['.$j.']'),
+					'brand_id' => $this->input->post('brand_id['.$j.']'),
+                    'item_customizable' => $this->input->post('item_customizable['.$j.']') ? $this->input->post('item_customizable['.$j.']') :0,
+				);
+                
+            } 
+		
+		}
+		
+		}
+		  if ($this->form_validation->run() == true && $this->recipe_model->productionItemGroupUpdate($items)) {              
+            $this->session->set_flashdata('message', lang("Production_item_groups_added"));
+            admin_redirect('recipe/edit_ingredients/'.$productionId);
+        } else {
+            $this->data['error'] = (validation_errors() ? validation_errors() : $this->session->flashdata('error'));
+            $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('recipe/production_item_group'), 'page' => lang('production_item_group')), array('link' => '#', 'page' => lang('production_item_group')));            
+            $meta = array('page_title' => lang('production_item_group'), 'bc' => $bc);
+			$this->load->view($this->theme . 'recipe/production_item_group', $this->data);
+        }
+	}
 	  
 	  
 }
