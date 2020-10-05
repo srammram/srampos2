@@ -7528,7 +7528,7 @@ public function getOrderStatus($split_id){
 
 
 
- function updateStockMaster_new($product_id,$variant_id,$stock_out,$cate,$order_item_id=null){
+ function updateStockMaster_new($product_id,$variant_id,$stock_out,$cate,$order_item_id=null,$order_id=null){
         $stock_out = $stock_out;       	
         $rawstock =$this->getrawstock($product_id,$variant_id,$cate['category_id'],$cate['subcategory_id'],$cate['brand_id']); 
         $stock_overflow =0;
@@ -7547,12 +7547,23 @@ public function getOrderStatus($split_id){
                     if($stock_overflow >= 0){
                        $query = 'update srampos_pro_stock_master set stock_in=stock_in - '.$tobedetect.', stock_out = stock_out + '.$tobedetect.' where id='.$row->id;
                         $this->db->query($query); 
-
                         $stock_id = $row->id;
 	                    $date =date('Y-m-d h:m:s');
-
-	                    $ledger_query ='insert into srampos_pro_stock_ledger(stock_id,store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, transaction_identify,transaction_type,transaction_qty,date)values('.$stock_id.','.$store_id.','.$product_id.','.$variant_id.', '.$cate['cm_id'].', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', "Sales","O",'.$tobedetect.',"'.$date.'")';                       
-	                    $this->db->query($ledger_query); 
+	                 /*    $ledger_query ='insert into srampos_pro_stock_ledger(stock_id,store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, transaction_identify,transaction_type,transaction_qty,date)values('.$stock_id.','.$store_id.','.$product_id.','.$variant_id.', '.$cate['cm_id'].', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', "Sales","O",'.$tobedetect.',"'.$date.'")';                       
+	                    $this->db->query($ledger_query);  */
+						                            
+						$this->db->insert("pos_orderItem_ingredient",array("store_id"=>$this->store_id,"order_id"=>$order_id,"order_item_id"=>$order_item_id,
+						"recipe_id"=>$product_id,
+						"variant_id"=>$variant_id,
+						"quantity"=>0,
+						"unit_quantity"=>$tobedetect,
+						"category_id"=>$cate['category_id'],
+						"subcategory_id"=>$cate['subcategory_id'],
+						"brand_id"=>$cate['brand_id'],
+						"created_by"=>$this->session->userdata('user_id'),
+						"stock_id"=>$row->id,
+						"stock_unique_id"=>$row->unique_id));
+						
                          $order_item['stock']['s_id'] = $row->id;
 					     $order_item['stock']['qty'] = $tobedetect;
                         
@@ -7574,7 +7585,17 @@ public function getOrderStatus($split_id){
                     $query = 'update srampos_pro_stock_master set stock_in=stock_in - '.$stock.', stock_out = stock_out + '.$stock.'  '.$closed.'  where id='.$row->id;
                     $this->db->query($query); 
                     $stock_id = $row->id;
-                    $date =date('Y-m-d h:m:s');
+                 $this->db->insert("pos_orderItem_ingredient",array("store_id"=>$this->store_id,"order_id"=>$order_id,"order_item_id"=>$order_item_id,
+						"recipe_id"=>$product_id,
+						"variant_id"=>$variant_id,
+						"quantity"=>0,
+						"unit_quantity"=>$stock,
+						"category_id"=>$cate['category_id'],
+						"subcategory_id"=>$cate['subcategory_id'],
+						"brand_id"=>$cate['brand_id'],
+						"created_by"=>$this->session->userdata('user_id'),
+						"stock_id"=>$row->id,
+						"stock_unique_id"=>$row->unique_id));
 
                    /*  $ledger_query ='insert into srampos_pro_stock_ledger(stock_id,store_id, product_id,variant_id, cm_id, category_id, subcategory_id, brand_id, transaction_identify,transaction_type,transaction_qty,date)values('.$stock_id.','.$store_id.','.$product_id.','.$variant_id.', '.$cate['cm_id'].', '.$cate['category_id'].', '.$cate['subcategory_id'].', '.$cate['brand_id'].', "Sales","O",'.$stock.',"'.$date.'")';                       
                     $this->db->query($ledger_query);  */
@@ -7599,6 +7620,17 @@ public function getOrderStatus($split_id){
 			 foreach($rawstock as $row){
 				 $query = 'update srampos_pro_stock_master set stock_in=stock_in - '.$stock_out.', stock_out = stock_out + '.$stock_out.'  '.$closed.'  where id='.$row->id;
                     $this->db->query($query); 
+					$this->db->insert("pos_orderItem_ingredient",array("store_id"=>$this->store_id,"order_id"=>$order_id,"order_item_id"=>$order_item_id,
+						"recipe_id"=>$product_id,
+						"variant_id"=>$variant_id,
+						"quantity"=>0,
+						"unit_quantity"=>$stock_out,
+						"category_id"=>$cate['category_id'],
+						"subcategory_id"=>$cate['subcategory_id'],
+						"brand_id"=>$cate['brand_id'],
+						"created_by"=>$this->session->userdata('user_id'),
+						"stock_id"=>$row->id,
+						"stock_unique_id"=>$row->unique_id));
                     $stock_id = $row->id;
 					break;
 			 }
@@ -7622,14 +7654,14 @@ public function getrawstock($product_id,$variant_id,$category_id,$subcategory_id
         $this->db->where('variant_id',$variant_id);   
 		}		
         $this->db->where('product_id',$product_id);
-        $this->db->where_not_in('stock_status','closed');
+       // $this->db->where_not_in('stock_status','closed');
 		$this->db->where('store_id',$this->store_id);
 		$this->db->where('stock_in>0');
         $this->db->group_by('id');
         $this->db->order_by('id', 'asc');
 		
         $q = $this->db->get(); 
-      //   print_r($this->db->last_query());die; 
+       /*  print_r($this->db->last_query());die; */ 
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;

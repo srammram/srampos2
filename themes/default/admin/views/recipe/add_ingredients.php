@@ -275,7 +275,13 @@
 			 }else{
 				var brand = '';
 			 }
-             $results[n]['html'] = v.name+cat_label+cat+sub_label+sub+brand_label+brand;
+			 if(v.variant != ''){
+				$results[n]['variant'] = v.variant
+				var variant = ' - '+v.variant;
+			 }else{
+				var variant = '';
+			 }
+             $results[n]['html'] = v.name+variant+cat_label+cat+sub_label+sub+brand_label+brand;
 			 $results[n]['text'] = v.name+' Cat '+cat+' | Sub '+sub+' | Brand'+brand;
              $results[n]['unit'] = v.unit_name;
              $results[n]['cost'] = v.cost;

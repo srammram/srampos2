@@ -2928,14 +2928,19 @@ public function getQSRBillDetailsReport_archival($start,$end,$bill_no,$warehouse
 	   $this->db->select("DATE(". $this->db->dbprefix('stock_audit') .".night_audit_date) as date,opening_stock, purchase_stock , store_transfer_stock,  store_receiver_stock , wastage_stock , closing_stock  ,brand_name , category_name  ,subcategory_name , IFNULL(variant_name, '') AS variant,recipe.name as recipeName,units.name as unitname");
 	   $this->db->join("recipe","recipe.id=stock_audit.product_id","left");
 	   $this->db->join("units","units.id=stock_audit.stock_uom","left");
-	   if(!empty($product_id)){
+	   if(!empty($warehouse_id)){
 			$this->db->where('store_id',$warehouse_id);
 	   }
-	   if(!empty($warehouse_id)){
+	   if(!empty($product_id)){
 	       $this->db->where('product_id',$product_id);
 	   }
+	   
+	   if(!empty($start) && !empty($end)){
 	    $this->db->where('DATE(night_audit_date) >=', $start);
 	    $this->db->where('DATE(night_audit_date) <=', $end);
+	   }else{
+		    $this->db->where('DATE(night_audit_date)', $start);
+	   }
 	    $this->db->limit($limit, $offset);
 	    $q=$this->db->get("stock_audit");
 	   if($q->num_rows()>0){

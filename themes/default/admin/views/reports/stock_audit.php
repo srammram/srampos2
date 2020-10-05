@@ -132,13 +132,13 @@ if ($this->input->post('start_date')) {
 
                        <div class="col-md-3">
                             <div class="form-group">
-                                <?= lang("product", "product"); ?>
+                                <?= lang("recipe", "recipe"); ?>
                                 <?php
-                                $prd['0'] = lang('all');
-                                foreach ($Products as $product) {
-                                    $prd[$product->id] = $product->name;
+                                $recip['0'] = lang('all');
+                                foreach ($sale_items as $item) {
+                                    $recip[$item->id] = $item->name;
                                 }
-                                echo form_dropdown('product_id', $prd, '', 'class="form-control" data-placeholder="' . lang("select") . ' ' . lang("recipe") . '" id="product_id" style="width:100%;" ');
+                                echo form_dropdown('recipe_id', $recip, $this->input->post('recipe_id'), 'class="form-control" data-placeholder="' . lang("select") . ' ' . lang("recipe") . '" id="recipe_id" style="width:100%;" ');
                                 ?>
                                 
                             </div>
@@ -260,7 +260,7 @@ if ($this->input->post('start_date')) {
 function GetData($url){
             var start_date = $('#start_date').val();
 			var end_date = $('#end_date').val();
-            var product_id = $('#product_id').val();
+            var recipe_id = $('#recipe_id').val();
             var warehouse_id = $('#warehouse_id').val();
             var pagelimit = $('#pagelimit').val();
             if (start_date !='' ) {
@@ -269,7 +269,7 @@ function GetData($url){
                   $.ajax({
                         type: 'POST',
                         url: $url,
-                        data: {start_date: start_date,end_date:end_date,product_id: product_id,warehouse_id: warehouse_id,pagelimit:pagelimit},
+                        data: {start_date: start_date,end_date:end_date,recipe_id: recipe_id,warehouse_id: warehouse_id,pagelimit:pagelimit},
                         dataType: "json",
                         cache: false,
                         success: function (data) {

@@ -187,14 +187,11 @@ public function ajaxrecipe_consolidate($category_id = null, $warehouse_id = null
                 $class = '';
                 $vari = '';
                 $varients = false;
-
                 $varients = $this->pos_model->isVarientExist($recipe->id);
-
                 if (!empty($varients)) {
                     $class = "has-varients";
 
-                    if ($this->pos_settings->variant_display_option == 0) 
-					{
+                    if ($this->pos_settings->variant_display_option == 0) {
                         $vari = '<div class="variant-popup" style="display: none;">';
                         foreach ($varients as $k => $varient) {
                             if ($this->Settings->user_language == 'khmer') {

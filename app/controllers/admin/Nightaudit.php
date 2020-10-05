@@ -102,7 +102,6 @@ class Nightaudit extends MY_Controller{
 		);	
 	   
 		if ($this->nightaudit_model->addNightaudit($data)) {
-			
             $this->session->set_flashdata('message', lang("Night Audit process complete"));
             admin_redirect('nightaudit');
         } else {
@@ -124,7 +123,6 @@ class Nightaudit extends MY_Controller{
           $reference       = 'SR'.str_pad($n + 1, 5, 0, STR_PAD_LEFT);
 		  $date            = date('Y-m-d H:i:s');
           $stock=$this->nightaudit_model->getStockDetails($stockId);
-		  
 		  $data = array(
 				'reference_no' 	=> $reference,
 				'date' 			=> $date,

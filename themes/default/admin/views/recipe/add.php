@@ -257,21 +257,18 @@ if (!empty($variants)) {
                 });
     }
     function loadSubcategories(type,v){
-	
-	$.ajax({
+					$.ajax({
                     type: "get",
                     async: false,
                     url: "<?= admin_url('recipe/getrecipeSubCategories') ?>/"+type+"/" + v,
                     dataType: "json",
                     success: function (scdata) {
-			console.log(scdata)
                         if (scdata != null) {
                             scdata.push({id: '', text: '<?= lang('select_subcategory') ?>'});
                             $("#subcategory").select2("destroy").empty().attr("placeholder", "<?= lang('select_subcategory') ?>").select2({
                                 placeholder: "<?= lang('select_subcategory') ?>",
                                 minimumResultsForSearch: 7,
                                 data: scdata,
-				
                             });
 			    if ($('#subcategory-hidden').val()!='') {
 				$h_v = $('#subcategory-hidden').val();

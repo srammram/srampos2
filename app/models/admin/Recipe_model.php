@@ -1908,10 +1908,11 @@ public function deactivate($id = NULL)
 		}
 		$this->db->where_not_in('cm.id',$existing);
 		$this->db->where_in('r.type',array('raw','semi_finished','production','addon','raw')); 
-		// echo $this->db->get_compiled_select();exit;
-		$this->db->group_by("r.id,b.id,rc.id,rsc.id");
+		$this->db->group_by("r.id,b.id,rc.id,rsc.id,rv.id");
 		$this->db->limit($limit);
-		$q = $this->db->get(); 
+		$q = $this->db->get(); /* 
+		 echo $this->db->last_query();
+		 die; */
 			if ($q->num_rows() > 0) {
 				foreach (($q->result()) as $row) {
 					$row->units=$this->site->getUnitByID($row->unit);

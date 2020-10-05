@@ -302,16 +302,24 @@ class Nightaudit_model extends CI_Model{
 				$categoryMapping=$this->getRecipeMapping($row->id);
 				  foreach($categoryMapping as $recipe){
 						$stock    = $this->getStock($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id); 
-						$purchase  =$this->getPurchase($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
+						if($recipe->type !="production"){
+							$purchase  =$this->getPurchase($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
+						}else{
+							$production=$this->getproduction($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
+							$purchase=$production;
+						}
+						
 						$transfer =$this->getTransfer($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
 						$receiver =$this->getReceiver($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
 						$wastage  =$this->getWastage($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
+						$sale=$this->getsales($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
 						$stock_quantity      =($stock->stock)?$stock->stock:0;
 						$purchase_quantity   =($purchase->quantity)?$purchase->quantity:0;
 						$transfer_quantity   =($transfer->quantity)?$transfer->quantity:0;
 						$receiver_quantity   =($receiver->quantity)?$receiver->quantity:0;
 						$wastage_quantity    =($wastage->quantity)?$wastage->quantity:0;
-						$opening_stock       =($stock_quantity+$wastage_quantity+$transfer_quantity)-($purchase_quantity-$receiver_quantity);
+						$sale_quantity       =($sale->quantity)?$sale->quantity:0;
+						$opening_stock       =($stock_quantity+$wastage_quantity+$transfer_quantity+$sale_quantity)-($purchase_quantity+$receiver_quantity);
 						$closing_stock       =$stock_quantity;
 						$item=array("date"=>date("Y-m-d H:i:s"),
 						"store_id"=>$this->store_id,
@@ -324,6 +332,7 @@ class Nightaudit_model extends CI_Model{
 						"brand_id"=>$recipe->brand_id,
 						"opening_stock"=>$opening_stock,
 						"stock_uom"=>$row->unit,
+						"sales_stock"=>$sale_stock,
 						"purchase_stock"=>$purchase_quantity,
 						"store_transfer_stock"=>$transfer_quantity,
 						"store_receiver_stock"=>$receiver_quantity,
@@ -336,6 +345,7 @@ class Nightaudit_model extends CI_Model{
 						"subcategory_name"=>$recipe->subcategory_name,
 						"variant_name"=>$recipe->variant);
 						$this->db->insert("stock_audit",$item);
+						
 				        $insertID= $this->db->insert_id();
 						$UniqueID                  = $this->site->generateUniqueTableID($insertID);
 						$this->site->updateUniqueTableId($insertID,$UniqueID,'stock_audit');
@@ -348,17 +358,17 @@ class Nightaudit_model extends CI_Model{
 		return false;
 	}
 	function  getRecipeMapping($recipe_id){
-		$this->db->select("category_mapping.*,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,rv.name as variant");
+		$this->db->select("category_mapping.*,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,rv.name as variant,r.type");
 		$this->db->join('recipe_categories as rc','rc.id=category_mapping.category_id','left');
 		$this->db->join('recipe_categories rsc','rsc.id=category_mapping.subcategory_id','left');	
 		$this->db->join('brands b','b.id=category_mapping.brand_id','left');
-		$this->db->join('recipe_variants_values rvv','rvv.recipe_id=category_mapping.product_id','left');
-		$this->db->join('recipe_variants rv','rv.id=rvv.attr_id','left');
+		$this->db->join('recipe r','r.id=category_mapping.product_id','left');
+		$this->db->join('recipe_variants rv','rv.id=category_mapping.variant_id','left');
 		$this->db->where("product_id",$recipe_id);
 		$this->db->where("store_id",$this->store_id);
 		$this->db->group_by(array("product_id", "variant_id","category_id", "subcategory_id","brand_id"));
 		$q=$this->db->get("category_mapping ");
-	
+		
 		if($q->num_rows()>0){
 			foreach($q->result() as $row){
 				$data[]=$row;
@@ -398,8 +408,24 @@ class Nightaudit_model extends CI_Model{
 			return $q->row();
 		}
 		return false;
-		
-		
+	}
+	function getproduction($recipe_id,$variant_id,$catgory_id,$subcategory_id,$brand_id,$nightaudit_date){
+		$this->db->select("sum(".$this->db->dbprefix('pro_production_items').".base_quantity ) as quantity");
+		$this->db->join("pro_production G","G.id=pro_production_items.production_id");
+		$this->db->where('date(date)', $nightaudit_date);
+		$this->db->where('G.status !="process"');
+		$this->db->where(array("pro_production_items.store_id"=>$this->store_id,
+		"product_id"=>$recipe_id,
+		"variant_id"=>$variant_id,
+		"category_id"=>$catgory_id,
+		"subcategory_id"=>$subcategory_id,
+		"brand_id"=>$brand_id));
+		$q=$this->db->get("pro_production_items");
+	
+		if($q->num_rows()>0){
+			return $q->row();
+		}
+		return false;
 	}
 	function getTransfer($recipe_id,$variant_id,$catgory_id,$subcategory_id,$brand_id,$nightaudit_date){
 		$this->db->select("sum(".$this->db->dbprefix('pro_store_transfer_item_details').".transfer_unit_qty ) as quantity");
@@ -411,12 +437,10 @@ class Nightaudit_model extends CI_Model{
 		$this->db->where($this->db->dbprefix('pro_store_transfer_item_details').".store_id",$this->store_id);
 		$this->db->where(array(
 		"product_id"=>$recipe_id,
-	
 		"category_id"=>$catgory_id,
 		"subcategory_id"=>$subcategory_id,
 		"brand_id"=>$brand_id));
 		$q=$this->db->get("pro_store_transfer_item_details");
-		
 		if($q->num_rows()>0){
 			return $q->row();
 		}
@@ -454,8 +478,26 @@ class Nightaudit_model extends CI_Model{
 		"category_id"=>$catgory_id,
 		"subcategory_id"=>$subcategory_id,
 		"brand_id"=>$brand_id));
-		$q=$this->db->get("wastage_items ");
-		
+		$q=$this->db->get("wastage_items");
+		if($q->num_rows()>0){
+			return $q->row();
+		}
+		return false;
+	}
+	
+	function getsales($recipe_id,$variant_id,$catgory_id,$subcategory_id,$brand_id,$nightaudit_date){
+		$this->db->select("sum(".$this->db->dbprefix('pos_orderitem_ingredient').".unit_quantity ) as quantity");
+		$this->db->where('date(created_on) ', $nightaudit_date);
+	    $this->db->where("store_id",$this->store_id);
+		$this->db->where(array(
+		"recipe_id"=>$recipe_id,
+		"variant_id"=>$variant_id,
+		"category_id"=>$catgory_id,
+		"subcategory_id"=>$subcategory_id,
+		"brand_id"=>$brand_id));
+		$q=$this->db->get("pos_orderitem_ingredient");/* 
+		echo $this->db->last_query();
+		die; */
 		if($q->num_rows()>0){
 			return $q->row();
 		}

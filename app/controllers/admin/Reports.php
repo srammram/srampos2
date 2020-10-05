@@ -1,12 +1,9 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Reports extends MY_Controller{
-
     function __construct()
     {
         parent::__construct();
-
-
 /* 
 ~~~~~~~~~~~~~~
 report_view_access
@@ -68,21 +65,17 @@ print_r($usergrop_permission->include_reports_view_access);die;*/
 
     }
 
-    function index()
-    {               
+    function index(){               
         //$this->sma->checkPermissions();
         $data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         $this->data['monthly_sales'] = $this->reports_model->getChartData();
-
         $this->data['stock'] = $this->reports_model->getStockValue();
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => '#', 'page' => lang('reports')));
         $meta = array('page_title' => lang('reports'), 'bc' => $bc);
         $this->page_construct('reports/index', $meta, $this->data);
-
     }
 
-    function warehouse_stock($warehouse = NULL)
-    {
+    function warehouse_stock($warehouse = NULL){
         $this->sma->checkPermissions();
         $data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         if ($this->input->get('warehouse')) {
@@ -99,11 +92,9 @@ print_r($usergrop_permission->include_reports_view_access);die;*/
 
     }
 
-    function expiry_alerts($warehouse_id = NULL)
-    {
+    function expiry_alerts($warehouse_id = NULL){
         $this->sma->checkPermissions();
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
-
         if ($this->Owner || $this->Admin || !$this->session->userdata('warehouse_id')) {
             $this->data['warehouses'] = $this->site->getAllWarehouses();
             $this->data['warehouse_id'] = $warehouse_id;
@@ -114,7 +105,6 @@ print_r($usergrop_permission->include_reports_view_access);die;*/
             $this->data['warehouse_id'] = $user->warehouse_id;
             $this->data['warehouse'] = $user->warehouse_id ? $this->site->getWarehouseByID($user->warehouse_id) : NULL;
         }
-
         $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('reports'), 'page' => lang('reports')), array('link' => '#', 'page' => lang('product_expiry_alerts')));
         $meta = array('page_title' => lang('product_expiry_alerts'), 'bc' => $bc);
         $this->page_construct('reports/expiry_alerts', $meta, $this->data);
@@ -1758,7 +1748,7 @@ function stock_audit()
         $this->sma->checkPermissions();
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         $this->data['users'] = $this->reports_model->getStaff();        
-        $this->data['Products'] = $this->reports_model->getProducts();
+         $this->data['sale_items'] = $this->site->getAllRecipes();
 
         $this->data['warehouses'] = $this->site->getAllWarehouses();
         $this->data['billers'] = $this->site->getAllCompanies('biller');
@@ -1767,18 +1757,18 @@ function stock_audit()
         
         $this->page_construct('reports/stock_audit', $meta, $this->data);
     }   
-    public function get_StockAuditreports($start = NULL, $product_id = NULL,$warehouse_id = NULL){
+    public function get_StockAuditreports($start = NULL, $recipe_id = NULL,$warehouse_id = NULL){
         $this->sma->checkPermissions('stock_audit',TRUE);
         $start 				= $this->input->post('start_date');
 		$end_date 			= $this->input->post('end_date');
-        $product_id 		= $this->input->post('product_id');
+        $recipe_id 		= $this->input->post('recipe_id');
         $warehouse_id 		= $this->input->post('warehouse_id');
         $limit 				= $this->input->post('pagelimit');        
         $offsetSegment 		= 4;
         $offset 			= $this->uri->segment($offsetSegment,0);
         $data= '';
         if ($start != '') {
-            $data = $this->reports_model->getStockVariance($start,$end_date, $product_id, $warehouse_id,$limit,$offset,$this->report_view_access,$this->report_show);
+            $data = $this->reports_model->getStockVariance($start,$end_date, $recipe_id, $warehouse_id,$limit,$offset,$this->report_view_access,$this->report_show);
             if (!empty($data['data'])){             
                  $stockaudit = $data['data'];
              }

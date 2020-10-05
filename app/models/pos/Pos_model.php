@@ -5640,7 +5640,7 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
 		);
 		if($this->Settings->procurment == 1){
 			if($ritem->recipe_type=='standard' || $ritem->recipe_type =='production'){
-			$this->site->updateStockMaster_new($ritem->recipe_id,$ritem->recipe_variant_id,$ritem->quantity+1,$cate,$ritem->id);
+			$this->site->updateStockMaster_new($ritem->recipe_id,$ritem->recipe_variant_id,$ritem->quantity+1,$cate,$ritem->id,$sale_id);
 			}else if($ritem->recipe_type =="quick_service"){
 			$this->siteprocurment->production_salestock_in($ritem->recipe_id,$ritem->quantity-1,$ritem->recipe_variant_id);
 			}	
@@ -5654,7 +5654,7 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
 		);
 		if($this->Settings->procurment == 1){
 			if($ritem->recipe_type=='standard' || $ritem->recipe_type =='production'){
-			$this->site->updateStockMaster_new($ritem->recipe_id,$ritem->recipe_variant_id,$ritem->quantity+1,$cate,$ritem->id);
+			$this->site->updateStockMaster_new($ritem->recipe_id,$ritem->recipe_variant_id,$ritem->quantity+1,$cate,$ritem->id,$sale_id);
 			}else if($ritem->recipe_type =="quick_service"){
 			$this->siteprocurment->production_salestock_in($ritem->recipe_id,$ritem->quantity-1,$ritem->recipe_variant_id);
 			}	
@@ -5707,9 +5707,9 @@ public function ALLCancelOrdersItem($cancel_remarks, $split_table_id, $user_id, 
 			$cate['brand_id'] = $cm->brand_id;
 			if($this->Settings->procurment == 1){
 			if($ritem->recipe_type=='standard' || $ritem->recipe_type =='production'){
-			$this->site->updateStockMaster_new($ritem->recipe_id,$ritem->recipe_variant_id,1,$cate,$ritem->id);
+			$this->site->updateStockMaster_new($ritem->recipe_id,$ritem->recipe_variant_id,1,$cate,$ritem->id,$ritem->sale_id);
 			}else if($ritem->recipe_type =="quick_service"){
-			$this->production_salestock_out($ritem->recipe_id,1,$ritem->recipe_variant_id);
+			$this->production_salestock_out($ritem->recipe_id,1,$ritem->recipe_variant_id,$ritem->id,$ritem->sale_id);
 			}	
 		}
         }
@@ -10511,14 +10511,14 @@ public function ALLCancelOrdersItem_consolidate($cancel_remarks, $split_table_id
 						if($this->Settings->procurment == 1){
 							if($item['recipe_type'] =='standard' || $item['recipe_type'] =='production'){
 								//var_dump($item['recipe_variant_id']);die;
-								$this->site->updateStockMaster_new($item['recipe_id'],$item['recipe_variant_id'],$item['quantity'],$cate,$order_item_id);
+								$this->site->updateStockMaster_new($item['recipe_id'],$item['recipe_variant_id'],$item['quantity'],$cate,$order_item_id,$sale_id);
 							}elseif($item['recipe_type'] =='quick_service'){
 								//echo '@@';
-								$this->production_salestock_out($item['recipe_id'],$item['quantity'],$item['recipe_variant_id']);
+								$this->production_salestock_out($item['recipe_id'],$item['quantity'],$item['recipe_variant_id'],$order_item_id,$sale_id);
 							}	
-						}
+						}						
 						if($item['recipe_type'] =="combo"){
-							$combo_items=$this->get_comboItems($item['recipe_id'],$item['recipe_name']);
+							$combo_items=$this->get_comboItems($item['recipe_id'],$item['recipe_name'],$order_item_id,$sale_id);
 							$print_items=array_merge($print_items,$combo_items);
 						}
 						$print_items[] = $item;
@@ -10882,7 +10882,7 @@ $consolidate_kitchen_details = $this->db->select('restaurant_kitchens.id,restaur
 		return false;
 	}
 	
-	   function production_salestock_out($product_id,$stock_out_qty,$variant_id){
+	   function production_salestock_out($product_id,$stock_out_qty,$variant_id,$order_item_id,$sale_id){
 		// ingredient stock
         //$item = $this->getrecipedeatilsByID($product_id);  
         //if($item->type=="production" || $item->type=="quick_service" || $item->type=="semi_finished"){
@@ -10901,11 +10901,11 @@ $consolidate_kitchen_details = $this->db->select('restaurant_kitchens.id,restaur
             if($q->num_rows()>0){
                 foreach($q->result() as $k => $row){
                     $cate['category_id']     = $row->category_id;
-                    $cate['subcategory_id']  = $row->subcategory_id;
+                    $cate['subcategory_id']  = $row->sub_category_id;
                     $cate['brand_id']        = $row->brand_id;
                     $cate['cm_id']           = $row->cm_id;
 					$ingredint_stock_out     = $stock_out_qty *$row->quantity;
-                    $updated_stock           = $this->productionupdateStockMaster($row->id,$row->product_id,$variant_id,$ingredint_stock_out,$cate);
+                    $updated_stock           = $this->productionupdateStockMaster($row->id,$row->product_id,$variant_id,$ingredint_stock_out,$cate,$order_item_id,$sale_id);
                 }
             }
 		
@@ -10915,32 +10915,63 @@ $consolidate_kitchen_details = $this->db->select('restaurant_kitchens.id,restaur
 
 	
 	
-	
-	
-    function productionupdateStockMaster($rowId,$product_id,$variant_id,$base_quantity,$cate){   
+    function productionupdateStockMaster($rowId,$product_id,$variant_id,$base_quantity,$cate,$order_item_id,$sale_id){   
 		 $productionItemGroup=$this->getProductionGroupItems($rowId);
 		 $batches=array();
 		   foreach($productionItemGroup as $item){
 		      $batches=array_merge($this->getBatchwisestock($item->product_id,$item->variant_id,$item->category_id,$item->sub_category_id,$item->brand_id),$batches);
 		   }
-		  $batches = array_reverse($batches);
-		  if(!empty($batches)){
-			$total_row=count($batches);
+		   $batches = array_reverse($batches);
+		   if(!empty($batches)){
+			  $total_row=count($batches);
 			$row=1;
 		    foreach($batches as $batch){
 			 if($total_row==$row){
 				    $query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$base_quantity.',  stock_out = stock_out + '.$base_quantity.' where store_id='.$this->store_id.' and id='.$batch->id;
                     $this->db->query($query); 
+					$this->db->insert("pos_orderItem_ingredient",array("store_id"=>$this->store_id,"order_id"=>$order_id,"order_item_id"=>$order_item_id,
+						"recipe_id"=>$product_id,
+						"variant_id"=>$variant_id,
+						"quantity"=>0,
+						"unit_quantity"=>$base_quantity,
+						"category_id"=>$cate['category_id'],
+						"subcategory_id"=>$cate['subcategory_id'],
+						"brand_id"=>$cate['brand_id'],
+						"created_by"=>$this->session->userdata('user_id'),
+						"stock_id"=>$batch->id,
+						"stock_unique_id"=>$batch->unique_id));
 					break;
 			 }else{
 				 $balance_quantity =$base_quantity-$batch->stock_in;
 				if($balance_quantity>0){
 			    	$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$batch->stock_in.',  stock_out = stock_out + '.$batch->stock_in.'  ,stock_status="closed" where store_id='.$this->store_id.' and id='.$batch->id;
                     $this->db->query($query); 
+					$this->db->insert("pos_orderItem_ingredient",array("store_id"=>$this->store_id,"order_id"=>$order_id,"order_item_id"=>$order_item_id,
+						"recipe_id"=>$product_id,
+						"variant_id"=>$variant_id,
+						"quantity"=>0,
+						"unit_quantity"=>$batch->stock_in,
+						"category_id"=>$cate['category_id'],
+						"subcategory_id"=>$cate['subcategory_id'],
+						"brand_id"=>$cate['brand_id'],
+						"created_by"=>$this->session->userdata('user_id'),
+						"stock_id"=>$batch->id,
+						"stock_unique_id"=>$batch->unique_id));
 				    $base_quantity =$base_quantity-$batch->stock_in;
 				}else{
 					$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$base_quantity.',  stock_out = stock_out + '.$base_quantity.' where store_id='.$this->store_id.' and id='.$batch->id;
                     $this->db->query($query); 
+					$this->db->insert("pos_orderItem_ingredient",array("store_id"=>$this->store_id,"order_id"=>$order_id,"order_item_id"=>$order_item_id,
+						"recipe_id"=>$product_id,
+						"variant_id"=>$variant_id,
+						"quantity"=>0,
+						"unit_quantity"=>$base_quantity,
+						"category_id"=>$cate['category_id'],
+						"subcategory_id"=>$cate['subcategory_id'],
+						"brand_id"=>$cate['brand_id'],
+						"created_by"=>$this->session->userdata('user_id'),
+						"stock_id"=>$batch->id,
+						"stock_unique_id"=>$batch->unique_id));
 					break;
 				}
 			}
@@ -10951,6 +10982,17 @@ $consolidate_kitchen_details = $this->db->select('restaurant_kitchens.id,restaur
 			  foreach($batches as $batch){
 				   $query = 'update srampos_pro_stock_master set stock_in=stock_in - '.$base_quantity.', stock_out = stock_out + '.       $base_quantity.'    where id='.$batch->id;
                    $this->db->query($query); 
+				   $this->db->insert("pos_orderItem_ingredient",array("store_id"=>$this->store_id,"order_id"=>$order_id,"order_item_id"=>$order_item_id,
+						"recipe_id"=>$product_id,
+						"variant_id"=>$variant_id,
+						"quantity"=>0,
+						"unit_quantity"=>$base_quantity,
+						"category_id"=>$cate['category_id'],
+						"subcategory_id"=>$cate['subcategory_id'],
+						"brand_id"=>$cate['brand_id'],
+						"created_by"=>$this->session->userdata('user_id'),
+						"stock_id"=>$batch->id,
+						"stock_unique_id"=>$batch->unique_id));
                     $stock_id = $batch->id;
 					break;
 			  }
@@ -11841,7 +11883,7 @@ if($this->pos_settings->kot_enable_disable == 1){
     	}    	
     	return false;
     }   
-	function get_comboItems($recipeId,$recipe_name){
+	function get_comboItems($recipeId,$recipe_name,$order_item_id,$sale_id){
 		$combos=$this->site->get_comboItems($recipeId);
 		if(!empty($combos)){
 		foreach($combos as $row){
@@ -11859,9 +11901,9 @@ if($this->pos_settings->kot_enable_disable == 1){
 						$cate['brand_id'] = $cm->brand_id;
 						if($this->Settings->procurment == 1){
 							if($recipe->type =='standard' || $recipe->type =='production'){
-								$this->site->updateStockMaster_new($items['recipe_id'],$items['recipe_variant_id'],$items['quantity'],$cate);
+								$this->site->updateStockMaster_new($items['recipe_id'],$items['recipe_variant_id'],$items['quantity'],$cate,$order_item_id,$sale_id);
 							}elseif($recipe->type =='quick_service'){
-								$this->siteprocurment->production_salestock_out($items['recipe_id'],$items['quantity'],$items['recipe_variant_id']);
+								$this->siteprocurment->production_salestock_out($items['recipe_id'],$items['quantity'],$items['recipe_variant_id'],$order_item_id,$sale_id);
 							}	
 						}
 		   $data[]=$items;
