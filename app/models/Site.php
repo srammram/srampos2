@@ -7616,7 +7616,6 @@ public function getOrderStatus($split_id){
             // return $order_item;
         }else{
 			$rawstock =$this->getrawstock_empty($product_id,$variant_id,$cate['category_id'],$cate['subcategory_id'],$cate['brand_id']); 
-		
 			 foreach($rawstock as $row){
 				 $query = 'update srampos_pro_stock_master set stock_in=stock_in - '.$stock_out.', stock_out = stock_out + '.$stock_out.'  '.$closed.'  where id='.$row->id;
                     $this->db->query($query); 
@@ -7751,15 +7750,15 @@ public function getrawstock_empty($product_id,$variant_id,$category_id,$subcateg
 		$wrap_cnt = count($lines)-1; 
 		if($this->pos_settings->kot_font_size == 0)	{
 		$lines[$wrap_cnt] = sprintf('%-37.37s %8.0f',$lines[$wrap_cnt], $r_qty); 
-	}elseif($this->pos_settings->kot_font_size == 1){ 
+		}elseif($this->pos_settings->kot_font_size == 1){ 
 		$lines[$wrap_cnt] = sprintf('%-20.20s %2.0f', $lines[$wrap_cnt], $r_qty); 
-	}else{
+		}else{
 		$lines[$wrap_cnt] = sprintf('%-19.19s %2.0f',$lines[$wrap_cnt], $r_qty); 
-	}
-	$items = implode("\n",$lines);
-	if($newline) {
-	 $items = $items."\n";
-	}
+		}
+		$items = implode("\n",$lines);
+		if($newline) {
+		$items = $items."\n";
+		}
 	return $items;
     }
 public function checkTableActiveStatus($table_id){

@@ -52,7 +52,7 @@ TRUNCATE srampos_archive_bbq_bil_items;
 TRUNCATE srampos_sale_return;
 TRUNCATE TABLE srampos_notiy;
 
-
+truncate table srampos_pos_orderitem_ingredient;
 
 TRUNCATE srampos_archive_rough_tender_sale_currency;
 TRUNCATE srampos_archive_rough_tender_payments;

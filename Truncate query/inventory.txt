@@ -32,3 +32,6 @@ TRUNCATE  `srampos_pro_store_transfer_items`;
 TRUNCATE  `srampos_pro_store_transfers`;
 TRUNCATE  `srampos_pro_transfer_items`;
 TRUNCATE  `srampos_pro_transfers`;
+
+TRUNCATE `srampos_pro_grn`;
+TRUNCATE `srampos_pro_grn_items`;

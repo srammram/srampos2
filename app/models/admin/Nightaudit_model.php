@@ -352,6 +352,16 @@ class Nightaudit_model extends CI_Model{
 			   }
 			   $this->db->where("id",$nightAuditId);
 			   $this->db->update("nightaudit",array("stock_audit_status"=>"Completed"));
+			   
+			   //api_log clear
+			      $old_date=date('Y-m-d', strtotime('+30 day', strtotime($nightAudit_date)));
+			      $this->db->where("date(".$this->db->dbprefix('api_logs')."created_on) <",$old_date);
+			      $this->db->delete("api_logs");
+			   //orderitem ingredient clear
+			      $this->db->where("date(".$this->db->dbprefix('pos_orderitem_ingredient')."created_on) <",$old_date);
+			      $this->db->delete("pos_orderitem_ingredient");
+			   
+			   
 			}
 			return true;
 		}
