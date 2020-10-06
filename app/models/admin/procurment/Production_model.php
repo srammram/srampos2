@@ -71,7 +71,7 @@ class Production_model extends CI_Model{
 		$rp=$this->db->get("ingrediend_head");
 		if($rp->num_rows()>0){
 			$rp_details=$rp->row();
-			$rp_uom=$this->siteprocurment->getUnitByID($rp_details->uom);
+			//$rp_uom=$this->siteprocurment->getUnitByID($rp_details->uom);
 			         $this->db->select("*");
 			         $this->db->where("parent_item_id",0);
 					 $this->db->where("ingrediends_hd_id",$rp_details->id);
@@ -94,6 +94,7 @@ class Production_model extends CI_Model{
 		 foreach($productionItemGroup as $item){
 		      $batches=array_merge($this->getBatchwisestock($item->product_id,$item->variant_id,$item->category_id,$item->sub_category_id,$item->brand_id),$batches);
 		 }
+		 $batches = array_reverse($batches);
 		if(!empty($batches)){
 			   $total_row=count($batches);
 			   $row=1;
@@ -396,7 +397,7 @@ function getAllProductionItemsWithDetails($p_id){
 }
 
 public function getrawstock_empty($product_id,$variant_id,$category_id,$subcategory_id,$brand_id){
-       $this->db->select('pro_stock_master.*');
+        $this->db->select('pro_stock_master.*');
         $this->db->from('pro_stock_master');
         if($category_id !=''){
             $this->db->where('category_id',$category_id);

@@ -10516,6 +10516,7 @@ public function ALLCancelOrdersItem_consolidate($cancel_remarks, $split_table_id
 							}elseif($item['recipe_type'] =='quick_service'){
 								//echo '@@';
 								$this->production_salestock_out($item['recipe_id'],$item['quantity'],$item['recipe_variant_id']);
+								
 							}	
 						}
 						if($item['recipe_type'] =="combo"){
@@ -10885,17 +10886,28 @@ $consolidate_kitchen_details = $this->db->select('restaurant_kitchens.id,restaur
 	
 	   function production_salestock_out($product_id,$stock_out_qty,$variant_id){
 		// ingredient stock
-        $item = $this->getrecipedeatilsByID($product_id);  
+        //$item = $this->getrecipedeatilsByID($product_id);  
         //if($item->type=="production" || $item->type=="quick_service" || $item->type=="semi_finished"){
-           $q = $this->get_recipe_products($product_id,$variant_id); 
+          // $q = $this->get_recipe_products($product_id,$variant_id); 
+			$this->db->select("*");
+			$this->db->where("recipe_id",$product_id);
+			if(empty($variantid)){
+			  $this->db->where("variant_id",$variant_id);
+			}
+	       	$rp=$this->db->get("ingrediend_head");
+			$rp=$rp->row();
+			 $this->db->select("*");
+			 $this->db->where("parent_item_id",0);
+			 $this->db->where("ingrediends_hd_id",$rp->id);
+			 $q= $this->db->get("recipe_products");
             if($q->num_rows()>0){
                 foreach($q->result() as $k => $row){
-                    $cate['category_id'] = $row->category_id;
-                    $cate['subcategory_id'] = $row->subcategory_id;
-                    $cate['brand_id'] = $row->brand_id;
-                    $cate['cm_id'] = $row->cm_id;
-					$ingredint_stock_out=$stock_out_qty *$this->site->unitToBaseQty($row->quantity,$row->operator,$row->operation_value);
-                    $updated_stock = $this->productionupdateStockMaster($row->product_id,$variant_id,$ingredint_stock_out,$cate);
+                    $cate['category_id']     = $row->category_id;
+                    $cate['subcategory_id']  = $row->subcategory_id;
+                    $cate['brand_id']        = $row->brand_id;
+                    $cate['cm_id']           = $row->cm_id;
+					$ingredint_stock_out     = $stock_out_qty *$row->quantity;
+                    $updated_stock           = $this->productionupdateStockMaster($row->id,$row->product_id,$variant_id,$ingredint_stock_out,$cate);
                 }
             }
 		
@@ -10907,31 +10919,30 @@ $consolidate_kitchen_details = $this->db->select('restaurant_kitchens.id,restaur
 	
 	
 	
-    function productionupdateStockMaster($product_id,$variant_id,$base_quantity,$cate){   
-        $store_id = $this->data['pos_store'];
-        $batches =$this->getrawstock($product_id,$variant_id,$cate['category_id'],$cate['subcategory_id'],$cate['brand_id']); 
-		if(!empty($batches)){
+    function productionupdateStockMaster($rowId,$product_id,$variant_id,$base_quantity,$cate){   
+		 $productionItemGroup=$this->getProductionGroupItems($rowId);
+		 $batches=array();
+		   foreach($productionItemGroup as $item){
+		      $batches=array_merge($this->getBatchwisestock($item->product_id,$item->variant_id,$item->category_id,$item->sub_category_id,$item->brand_id),$batches);
+		   }
+		  $batches = array_reverse($batches);
+		  if(!empty($batches)){
 			$total_row=count($batches);
 			$row=1;
-		foreach($batches as $batch){
-			if($total_row==$row){
-				$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$base_quantity.',  stock_out = stock_out + '.$base_quantity.' where store_id='.$this->store_id.' and id='.$batch->id;
+		    foreach($batches as $batch){
+			 if($total_row==$row){
+				    $query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$base_quantity.',  stock_out = stock_out + '.$base_quantity.' where store_id='.$this->store_id.' and id='.$batch->id;
                     $this->db->query($query); 
-					$stock=$this->db->get_where("pro_stock_master",array("id"=>$batch->id))->row();
-					 $recipe_cost=$stock->cost_price;
 					break;
-			}else{
-				$balance_quantity =$base_quantity-$batch->stock_in;
+			 }else{
+				 $balance_quantity =$base_quantity-$batch->stock_in;
 				if($balance_quantity>0){
-				$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$batch->stock_in.',  stock_out = stock_out + '.$batch->stock_in.'  ,stock_status="closed" where store_id='.$this->store_id.' and id='.$batch->id;
-                $this->db->query($query); 
-				$base_quantity =$base_quantity-$batch->stock_in;
-				$stock=$this->db->get_where("pro_stock_master",array("id"=>$batch->id))->row();
+			    	$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$batch->stock_in.',  stock_out = stock_out + '.$batch->stock_in.'  ,stock_status="closed" where store_id='.$this->store_id.' and id='.$batch->id;
+                    $this->db->query($query); 
+				    $base_quantity =$base_quantity-$batch->stock_in;
 				}else{
 					$query = 'update srampos_pro_stock_master set stock_in = stock_in - '.$base_quantity.',  stock_out = stock_out + '.$base_quantity.' where store_id='.$this->store_id.' and id='.$batch->id;
                     $this->db->query($query); 
-					$stock=$this->db->get_where("pro_stock_master",array("id"=>$batch->id))->row();
-					 $recipe_cost=$stock->cost_price;
 					break;
 				}
 			}
@@ -10940,16 +10951,13 @@ $consolidate_kitchen_details = $this->db->select('restaurant_kitchens.id,restaur
 		}else{
 			$batches =$this->getrawstock_empty($product_id,$variant_id,$cate['category_id'],$cate['subcategory_id'],$cate['brand_id']); 
 			  foreach($batches as $batch){
-				   $query = 'update srampos_pro_stock_master set stock_in=stock_in - '.$base_quantity.', stock_out = stock_out + '.$base_quantity.'    where id='.$batch->id;
-                    $this->db->query($query); 
-					echo $this->db->last_query();
+				   $query = 'update srampos_pro_stock_master set stock_in=stock_in - '.$base_quantity.', stock_out = stock_out + '.       $base_quantity.'    where id='.$batch->id;
+                   $this->db->query($query); 
                     $stock_id = $batch->id;
 					break;
-				  
 			  }
-			
-			
-		}  
+		} 
+		return true;		
     }
 	
 	
@@ -12073,4 +12081,51 @@ if($this->pos_settings->kot_enable_disable == 1){
             
 		
 	}
+		function getProductionGroupItems($itemId){
+		 $this->db->select("*");
+		 $this->db->where("id",$itemId);
+		 $this->db->or_where("parent_item_id",$itemId);
+		 $this->db->order_by("id", "asc");
+		 $q=$this->db->get("recipe_products");
+	/* 	  echo $this->db->last_query();
+		 die; */ 
+		 if($q->num_rows()>0){
+			 foreach($q->result() as $row){
+				 $data[]=$row;
+			 }
+			 return $data;
+		 }
+		return false;
+	}
+		public function getBatchwisestock($product_id,$variant_id,$category_id,$subcategory_id,$brand_id){
+        $this->db->select('pro_stock_master.*');
+        $this->db->from('pro_stock_master');
+        if($category_id !=''){
+            $this->db->where('category_id',$category_id);
+        }
+        if($subcategory_id !=''){
+            $this->db->where('subcategory_id',$subcategory_id);
+        }
+        if($brand_id !=''){
+            $this->db->where('brand_id',$brand_id);
+        }
+        $this->db->where('product_id',$product_id);
+		if($variant_id !='0'){
+            $this->db->where('variant_id',$variant_id);
+        }
+		$this->db->where('stock_in>0');
+	//	$this->db->where('store_id',$this->store_id);
+        $this->db->where_not_in('stock_status','closed');
+        $this->db->group_by('id');
+        $this->db->order_by('id', 'asc');
+        $q = $this->db->get();
+	//	 echo $this->db->last_query();die;
+        if ($q->num_rows() > 0) {
+            foreach (($q->result()) as $row) {
+                $data[] = $row;
+            }
+            return $data;
+        }
+        return array();
+}
 }
