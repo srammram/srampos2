@@ -81,9 +81,7 @@ class Store_receivers_model extends CI_Model{
 		return 0;	
 	}
 	
-	public function getAllStore_receiverItems($store_receiver_id)
-    {
-		
+	public function getAllStore_receiverItems($store_receiver_id){
         $this->db->select('pro_store_receiver_items.*, tax_rates.code as tax_code, tax_rates.name as tax_name, tax_rates.rate as tax_rate, products.unit, products.details as details, product_variants.name as variant, products.hsn_code as hsn_code')
             ->join('products', 'products.id=pro_store_receiver_items.product_id', 'left')
             ->join('product_variants', 'product_variants.id=pro_store_receiver_items.option_id', 'left')
@@ -100,8 +98,7 @@ class Store_receivers_model extends CI_Model{
         return FALSE;
     }
 	
-    public function getAllProducts()
-    {
+    public function getAllProducts(){
         $q = $this->db->get('products');
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -112,8 +109,7 @@ class Store_receivers_model extends CI_Model{
         return FALSE;
     }
 
-    public function getProductByID($id)
-    {
+    public function getProductByID($id){
         $q = $this->db->get_where('products', array('id' => $id), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -128,8 +124,7 @@ class Store_receivers_model extends CI_Model{
         }
         return FALSE;
 	}
-    public function getProductsByCode($code)
-    {
+    public function getProductsByCode($code){
         $this->db->select('*')->from('products')->like('code', $code, 'both');
         $q = $this->db->get();
         if ($q->num_rows() > 0) {
@@ -140,8 +135,7 @@ class Store_receivers_model extends CI_Model{
         }
     }
 
-    public function getProductByCode($code)
-    {
+    public function getProductByCode($code){
         $q = $this->db->get_where('products', array('code' => $code), 1);
         if ($q->num_rows() > 0) {
             return $q->row();
@@ -348,10 +342,8 @@ class Store_receivers_model extends CI_Model{
 	
    
 
-    public function updateStore_receivers($id, $data, $items = array())
-    {
+    public function updateStore_receivers($id, $data, $items = array()){
         if ($this->db->update('pro_store_receivers', $data, array('id' => $id))) {
-            
             foreach ($items as $item) {
                 $batches = $item['batches'];unset($item['batches']);
                 $store_receive_itemid = $item['store_receive_itemid'];
@@ -368,7 +360,6 @@ class Store_receivers_model extends CI_Model{
                         $this->db->where(array("id" => $store_receiver_item_details_id, "store_receiver_item_id" => $batch['store_receiver_item_id'], "store_receiver_id" => $batch['store_receiver_id']));
                         $this->db->update('pro_store_receiver_item_details', $batch);
                         if ($data['status'] == "approved") {    
-						
                             $stock_update['store_id']       = $batch['store_id'];
 							$stock_update['product_id']     = $item['product_id'];
 							$stock_update['variant_id']     = $batch['variant_id'];
@@ -406,8 +397,6 @@ class Store_receivers_model extends CI_Model{
                     }
                 }
             }
-			
-			
             return true;
         }
         return false;

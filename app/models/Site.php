@@ -7708,17 +7708,16 @@ public function getrawstock_empty($product_id,$variant_id,$category_id,$subcateg
 
 
     function wraprecipe_name_qty($r_name,$r_qty,$newline){
-    if($this->pos_settings->kot_font_size == 0)	{
-    	$wrapped = wordwrap($r_name,37,"\n");
-    }elseif($this->pos_settings->kot_font_size == 1){
-    	$wrapped = wordwrap($r_name,50,"\n");
-    }else{
-		$wrapped = wordwrap($r_name,25,"\n");    	
-    }
-	
-	$lines = explode("\n", $wrapped);
-	$wrap_cnt = count($lines)-1; 
-	if($this->pos_settings->kot_font_size == 0)	{
+		if($this->pos_settings->kot_font_size == 0)	{
+			$wrapped = wordwrap($r_name,37,"\n");
+		}elseif($this->pos_settings->kot_font_size == 1){
+			$wrapped = wordwrap($r_name,50,"\n");
+		}else{
+			$wrapped = wordwrap($r_name,25,"\n");    	
+		}
+		$lines = explode("\n", $wrapped);
+		$wrap_cnt = count($lines)-1; 
+		if($this->pos_settings->kot_font_size == 0)	{
 		$lines[$wrap_cnt] = sprintf('%-37.37s %8.0f',$lines[$wrap_cnt], $r_qty); 
 	}elseif($this->pos_settings->kot_font_size == 1){ 
 		$lines[$wrap_cnt] = sprintf('%-20.20s %2.0f', $lines[$wrap_cnt], $r_qty); 
@@ -8576,8 +8575,8 @@ function basePriceToUnitPrice($price,$operator,$operation_value){
 	
     }
 	 function start_sync($sync_now=false){
-	$sync_time = $this->site->get_syncTime();
-	if($sync_time){
+		$sync_time = $this->site->get_syncTime();
+		if($sync_time){
 	    $end_time = $sync_time->end_time;
 	    $now = date('Y-m-d H:i:s');
 	    $seconds = strtotime($now) - strtotime($end_time);
@@ -8624,18 +8623,17 @@ function basePriceToUnitPrice($price,$operator,$operation_value){
      
     }
     function update_sync_endTime(){
-	$time['end_time'] = date('Y-m-d H:i:s');
-	$time['status'] = 'completed';
-	if($this->get_syncTime()){
-	    $this->db->where(array('id'=>1));
-	    $this->db->update('last_sync',$time);
-	}else{
-	    $this->insert_lastsync($time);
-	}
+		$time['end_time'] = date('Y-m-d H:i:s');
+		$time['status'] = 'completed';
+		if($this->get_syncTime()){
+			$this->db->where(array('id'=>1));
+			$this->db->update('last_sync',$time);
+			}else{
+				$this->insert_lastsync($time);
+			}
     }
 	function getExpiryDate($recipeId){
 		$recipe=$this->getrecipeByID($recipeId);
-		
 		if($recipe->expiry_date_required==1){
 			switch($recipe->type_expiry){
 				case 'days':
@@ -8647,13 +8645,15 @@ function basePriceToUnitPrice($price,$operator,$operation_value){
 				case 'year':
 				  $date=date('Y-m-d', strtotime("+".$recipe->value_expiry." years"));
 				break;
-				
 			}
 			return $date;
 		}else{
 			return 'null';
 		}
-		
-		
 	}
+	
+   
+	
+	
+	
 }

@@ -35,8 +35,8 @@
 									$rv=!empty($product_recipe_master->varient_name)?$product_recipe_master->varient_name:"";
 									$product_name=$product_name.$rv;
 								foreach($productlist as $row){ 
-								$variant=!empty($row->varient_name)?$row->varient_name:""; 
-									   $product_lst_name=$row->id .$variant; ?>
+										$variant=!empty($row->varient_name)?$row->varient_name:""; 
+									    $product_lst_name=$row->id .$variant; ?>
 								<option value="<?php echo  $row->id ?>" <?php  echo  ($product_lst_name == $product_name)?"selected":"";     ?>><?php  echo $row->name .$variant  ?></option>
 								<?php  }  }  ?>
 							</select>  
@@ -125,7 +125,8 @@
                                        <tbody>
 						<?php  $existingPIDS = array();							
 						?>
-						<?php foreach($product_recipe as $k => $row) :
+						<?php
+						foreach($product_recipe as $k => $row) :
 						array_push($existingPIDS,$row->product_id.'-'.$row->cm_id);
 							if($row->r_item_customizable == 0 ){ 
 							    $disabled ='disabled="disabled"';
@@ -170,7 +171,7 @@
                                     <?= $this->site->unit_of_measurement($row->product_id,$row->unit_id); ?>                                   
                                 </select>
 							</td>    
-							<td class="col-sm-1 text-center"><a href="<?php echo base_url()."admin/recipe/proudctionItemGroups/".$row->id."/".$row->product_id   ?>" data-id="<?=$row->id?>" data-vid="<?=$row->product_id?>" class="btn btn-primary btn-xs groups"   data-toggle="modal" data-target="#myModal"><i class="fa fa-bars"></i></a></td>
+							<td class="col-sm-1 text-center"><a href="<?php echo base_url()."admin/recipe/proudctionItemGroups/".$row->id."/".$row->ingrediends_hd_id   ?>" data-id="<?=$row->id?>" data-vid="<?=$row->product_id?>" class="btn btn-primary btn-xs groups"   data-toggle="modal" data-target="#myModal"><i class="fa fa-bars"></i></a></td>
 							<!-- <td  class="col-sm-1"><input class="form-control" type="hidden" name="purchase_item_unit[]" value="<?=$row->unit_id?>"> -->
        						<td class="col-sm-1 text-center"><a href="" data-id="<?=$row->id?>" data-vid="<?=$row->product_id?>" class="btn btn-primary btn-xs remove-purchase-item"><i class="fa fa-trash-o"></i></a></td>
 						    </tr>
@@ -300,6 +301,7 @@
 			$results[n]['unit_id'] = v.unit;
 			$results[n]['units'] = v.units;
 			$results[n]['item_customizable'] = v.item_customizable;
+			$results[n]['variant_id'] = v.variant_id;
         })
        // console.log($results)
                 return {results: $results};
@@ -342,7 +344,7 @@
 
         $html +='<td  class="col-sm-4"><input class="form-control" type="text" value="'+$lable+'" disabled>';
         $html +='<input class="form-control" type="hidden" id="purchase_item_id" name="purchase_item_id[]" value="'+$pid+'"><input class="form-control" type="hidden" id="item_cm_id[]" name="purchase_item_cm_id[]" value="'+$cm_id+'"></td>';
-        $html +='<td  class="col-sm-2"><input class="p-item-quantity form-control numberonly" maxlength="15" type="text" id="purchase_item_quantity" name="purchase_item_quantity[]" value=""></td>';
+        $html +='<td  class="col-sm-2"><input class="p-item-quantity form-control numberonly" maxlength="15" type="text" id="purchase_item_quantity" name="purchase_item_quantity[]" value=""><input class="form-control" type="hidden" id="variant_id" name="item_variant_id[]" value="'+v.added.variant_id+'"></td>';
 		// $html +='<td  class="col-sm-2"><input class="form-control" type="hidden" id="purchase_item_unit" name="purchase_item_unit[]" value="'+$unitid+'"><input readonly="readonly" class="p-item-unit form-control" type="test" name="purchase_item[unit][]" value="'+$unit+'"></td>';
 
 		$html +='<td  class="col-sm-2">'+htm+'</td>';

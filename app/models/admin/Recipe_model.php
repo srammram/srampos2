@@ -304,10 +304,10 @@ public function getProductWithRecipe($recipe_id)
             ->join('units', 'units.id=rp.unit_id', 'left')
             ->join('brands b','b.id=category_mapping.brand_id','left')            
             ->where('ING.id', $recipe_id)
-			 ->where('rp.parent_item_id is null')
+			 ->where('rp.parent_item_id',0)
             ->group_by('rp.id');       
             $q = $this->db->get('category_mapping');   
-          //   print_r($this->db->last_query());die;                     
+         //    print_r($this->db->last_query());die;                     
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -1892,12 +1892,14 @@ public function deactivate($id = NULL)
     }
 	
 	function getPurchase_items_new($term,$existing,$type,$limit=10){
-		$this->db->select('r.*,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,cm.category_id as cat_id,cm.subcategory_id as sub_id,cm.brand_id as brandid,cm.purchase_cost,cm.selling_price as cost, cm.id as cm_id,u.name as unit_name');
+		$this->db->select('r.*,IFNULL(rvv.attr_id,0) as variant_id,rv.name as variant,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,cm.category_id as cat_id,cm.subcategory_id as sub_id,cm.brand_id as brandid,cm.purchase_cost,cm.selling_price as cost, cm.id as cm_id,u.name as unit_name');
 		$this->db->from('recipe r');
 		$this->db->join('category_mapping as cm','cm.product_id=r.id','left');
 		$this->db->join('recipe_categories as rc','rc.id=cm.category_id');
 		$this->db->join('recipe_categories rsc','rsc.id=cm.subcategory_id');	
 		$this->db->join('brands b','b.id=cm.brand_id','left');
+		$this->db->join('recipe_variants_values rvv','rvv.recipe_id=r.id','left');
+		$this->db->join('recipe_variants rv','rv.id=rvv.attr_id','left');
         $this->db->join('units u','u.id=r.unit');
 		if($this->Settings->item_search ==1){
 		$this->db->where("(r.name LIKE '%" . $term . "%' OR r.code LIKE '%" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '%" . $term . "%')");
@@ -1986,6 +1988,7 @@ function getTotalStock($productID){
     }
 	
 	public function ingredients_mapping($recipe_pro,$ingrediends_head) {	
+
        if ($this->db->insert('ingrediend_head', $ingrediends_head)) {		
             $ingrediends_hd_id = $this->db->insert_id();	
 			if ($recipe_pro && !empty($recipe_pro)) {
@@ -1999,8 +2002,7 @@ function getTotalStock($productID){
         return false;
     }
 	
-	public function update_ingredients_mapping($ingrediends_hd_id,$recipe_pro,$data) //$production_array,
-    {
+	public function update_ingredients_mapping($ingrediends_hd_id,$recipe_pro,$data){
 		$this->db->where("id",$ingrediends_hd_id);
 		$this->db->update("ingrediend_head",$data);
 			$this->db->delete('recipe_products', array('ingrediends_hd_id' => $ingrediends_hd_id));			
@@ -2231,14 +2233,14 @@ public function getrecipevariantaddondetails($id){
             ->join('recipe as r', 'r.id=category_mapping.product_id','left')
             ->join('recipe_products as rp', 'rp.product_id=r.id','left')
             ->join('ingrediend_head as ING', 'ING.id=rp.ingrediends_hd_id')            
-            ->join('recipe_categories as rc', 'rc.id=category_mapping.category_id', 'left')
-            ->join('recipe_categories as rsc', 'rsc.id=category_mapping.subcategory_id', 'left')
+            ->join('recipe_categories as rc', 'rc.id=rp.category_id', 'left')
+            ->join('recipe_categories as rsc', 'rsc.id=rp.sub_category_id', 'left')
             ->join('units', 'units.id=rp.unit_id', 'left')
-            ->join('brands b','b.id=category_mapping.brand_id','left')            
+            ->join('brands b','b.id=rp.brand_id','left')            
 			 ->where('rp.parent_item_id',$id)
             ->group_by('rp.id');       
             $q = $this->db->get('category_mapping');   
-        //    print_r($this->db->last_query());die;                     
+         //  print_r($this->db->last_query());die;                     
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
                 $data[] = $row;
@@ -2253,26 +2255,28 @@ public function getrecipevariantaddondetails($id){
 	 
 	 	function getPurchase_itemsNew($term,$existing,$type,$catgeoryId,$subCatgoryId){
 		$limit=10;
-		$this->db->select('r.*,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,cm.category_id as cat_id,cm.subcategory_id as sub_id,cm.brand_id as brandid,cm.purchase_cost,cm.selling_price as cost, cm.id as cm_id,u.name as unit_name');
+		$this->db->select('r.*,IFNULL(rvv.attr_id,0) as variant_id,rv.name as variant,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,cm.category_id as cat_id,cm.subcategory_id as sub_id,cm.brand_id as brandid,cm.purchase_cost,cm.selling_price as cost, cm.id as cm_id,u.name as unit_name');
 		$this->db->from('recipe r');
 		$this->db->join('category_mapping as cm','cm.product_id=r.id','left');
 		$this->db->join('recipe_categories as rc','rc.id=cm.category_id');
 		$this->db->join('recipe_categories rsc','rsc.id=cm.subcategory_id');	
 		$this->db->join('brands b','b.id=cm.brand_id','left');
+		$this->db->join('recipe_variants_values rvv','rvv.recipe_id=r.id','left');
+		$this->db->join('recipe_variants rv','rv.id=rvv.attr_id','left');
         $this->db->join('units u','u.id=r.unit');
 		if($this->Settings->item_search ==1){
-		$this->db->where("(r.name LIKE '%" . $term . "%' OR r.code LIKE '%" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '%" . $term . "%')");
+			$this->db->where("(r.name LIKE '%" . $term . "%' OR r.code LIKE '%" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '%" . $term . "%')");
 		}else{
 			$this->db->where("(r.name LIKE '" . $term . "%' OR r.code LIKE '" . $term . "%' OR  concat(r.name, ' (', r.code, ')') LIKE '" . $term . "%')");
 		}
 		if(!empty($catgeoryId)){
 		$this->db->where('rc.id',$catgeoryId);
 		}
-	/* 	 if(!empty($subCatgoryId)){
-		$this->db->where('rsc.id',$subCatgoryId);
+		/* 	 if(!empty($subCatgoryId)){
+	     	$this->db->where('rsc.id',$subCatgoryId);
 		}  */
 		$this->db->where_in('r.type',array('raw','semi_finished','production','addon','raw')); 
-	// echo $this->db->get_compiled_select();exit;
+	    //echo $this->db->get_compiled_select();exit;
 		$this->db->group_by("r.id,b.id,rc.id,rsc.id");
 		$this->db->limit($limit);
 		$q = $this->db->get(); 
@@ -2285,10 +2289,11 @@ public function getrecipevariantaddondetails($id){
 			}
 			return '';
     }
-   public function productionItemGroupUpdate($items){
-			if ( !empty($items)) {
+   public function productionItemGroupUpdate($id,$items){
+			if ( !empty($items)&& $this->db->delete('recipe_products', array('parent_item_id' =>$id))) {
 				foreach ($items as $item) {
 					$this->db->insert('recipe_products', $item);
+					
 				}
 				 return true;
 			}

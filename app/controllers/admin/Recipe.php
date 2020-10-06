@@ -2957,22 +2957,22 @@ function edit_item_with_varient($id){
                 'created_on' => date('Y-m-d H:i:s'),                             
             );		
 			for($j=0; $j<count($this->input->post('purchase_item_id[]')); $j++){
+				
 					$recipe_pro[] = array(
-                        'recipe_id' => $item_id,
-						'variant_id' => $variant_id,
+                        'recipe_id'  => $item_id,
+						'variant_id' => !empty($this->input->post('item_variant_id['.$j.']'))?$this->input->post('item_variant_id['.$j.']'):0,
 						'product_id' => $this->input->post('purchase_item_id['.$j.']'), 
-						'create_on' => date('Y-m-d'),
-						'quantity' => $this->input->post('purchase_item_quantity['.$j.']'),
-						'unit_id' => $this->input->post('purchase_item_unit['.$j.']'),
-                        'cm_id' => $this->input->post('purchase_item_cm_id['.$j.']'),
-						    
+						'create_on'  => date('Y-m-d'),
+						'quantity'   => $this->input->post('purchase_item_quantity['.$j.']'),
+						'unit_id'    => $this->input->post('purchase_item_unit['.$j.']'),
+                        'cm_id'      => $this->input->post('purchase_item_cm_id['.$j.']'),
 						'category_id' => $this->input->post('category_id['.$j.']'),
 						'sub_category_id' => $this->input->post('subcategory_id['.$j.']'),
 						'brand_id' => $this->input->post('brand_id['.$j.']'),
 						'item_customizable' => $this->input->post('item_customizable['.$j.']') ? $this->input->post('item_customizable['.$j.']') : 0,
+						'parent_item_id'=>0
 					);
 			}	
-			
 			
 			if(empty($production_array) || empty($recipe_pro)){
 				 $this->session->set_flashdata('error', lang("purchase_item_is_empty_or_quantity_value_empty"));
@@ -3038,7 +3038,6 @@ function edit_item_with_varient($id){
         $this->load->library('datatables');
 		if ($warehouse_id) {
 			$this->datatables
-              
                 ->select("'sno',".$this->db->dbprefix('ingrediend_head') . ".id as recipeid,".$this->db->dbprefix('recipe') . ".type as item_type, (CASE WHEN {$this->db->dbprefix('recipe')}.recipe_standard = '1' THEN  'Alakat' WHEN {$this->db->dbprefix('recipe')}.recipe_standard = '2' THEN  'BBQ' ELSE 'Alakat and BBQ' END) as recipe_standard,  (CASE  WHEN (".$this->db->dbprefix('recipe') . ".variants = 0) THEN ".$this->db->dbprefix('recipe') . ".name ELSE CONCAT(".$this->db->dbprefix('recipe') . ".name,'-', ".$this->db->dbprefix('recipe_variants') . ".name) END)  as name,{$this->db->dbprefix('recipe')}.khmer_name as khmer_name,{$this->db->dbprefix('recipe_categories')}.name as cname,{$this->db->dbprefix('recipe')}.image as image,".$this->db->dbprefix('recipe') . ".id as stock_r_id, ".$this->db->dbprefix('category_mapping') . ".selling_price AS price", FALSE)
                 ->from('recipe')
                 ->join('category_mapping','category_mapping.product_id=recipe.id','left')
@@ -3101,18 +3100,17 @@ function edit_item_with_varient($id){
 			    for($j=0; $j<count($this->input->post('purchase_item_id[]')); $j++){
 				$recipe_pro[] = array(
                     'recipe_id' => $item_id,
-					'variant_id' => $variant_id,
+				'variant_id' => !empty($this->input->post('item_variant_id['.$j.']'))?$this->input->post('item_variant_id['.$j.']'):0,
 					'product_id' => $this->input->post('purchase_item_id['.$j.']'),
 					'create_on' =>date('Y-m-d H:i:s'),
 					'quantity' => $this->input->post('purchase_item_quantity['.$j.']'),
 					'unit_id' => $this->input->post('purchase_item_unit['.$j.']'),
 					'cm_id' => $this->input->post('purchase_item_cm_id['.$j.']'),
-					 
-						'category_id' => $this->input->post('category_id['.$j.']'),
-						'sub_category_id' => $this->input->post('subcategory_id['.$j.']'),
-						'brand_id' => $this->input->post('brand_id['.$j.']'),
-
+					'category_id' => $this->input->post('category_id['.$j.']'),
+					'sub_category_id' => $this->input->post('subcategory_id['.$j.']'),
+					'brand_id' => $this->input->post('brand_id['.$j.']'),
                     'item_customizable' => $this->input->post('item_customizable['.$j.']') ? $this->input->post('item_customizable['.$j.']') :0,
+					'parent_item_id'=>0
 				);
 			}
 			
@@ -3297,7 +3295,7 @@ function edit_item_with_varient($id){
     }
     function proudctionItemGroups($id,$productionId){
 		$this->data['product_recipe']		   = $this->recipe_model->getIngredientById($id);
-		$this->data['groupItem']		   = $this->recipe_model->getIngredientParentById($id);
+		$this->data['groupItem']		       = $this->recipe_model->getIngredientParentById($id);
 		$this->data['parentItemid']		       = $id;
 		$this->data['production_id']		   = $productionId;
 		$this->form_validation->set_rules('recipe_id[]', lang("recipe_id"), 'required');
@@ -3311,7 +3309,7 @@ function edit_item_with_varient($id){
 				    'ingrediends_hd_id'=>$productionId,
 					'parent_item_id'=>$id,
                     'recipe_id' => $item_id,
-					'variant_id' => $variant_id,
+					'variant_id' => !empty($this->input->post('item_variant_id['.$j.']'))?$this->input->post('item_variant_id['.$j.']'):0,
 					'product_id' => $this->input->post('purchase_item_id['.$j.']'),
 					'create_on' =>date('Y-m-d H:i:s'),
 					'quantity' => $this->input->post('purchase_item_quantity['.$j.']'),
@@ -3322,13 +3320,12 @@ function edit_item_with_varient($id){
 					'brand_id' => $this->input->post('brand_id['.$j.']'),
                     'item_customizable' => $this->input->post('item_customizable['.$j.']') ? $this->input->post('item_customizable['.$j.']') :0,
 				);
-                
             } 
-		
+			
 		}
 		
 		}
-		  if ($this->form_validation->run() == true && $this->recipe_model->productionItemGroupUpdate($items)) {              
+		  if ($this->form_validation->run() == true && $this->recipe_model->productionItemGroupUpdate($id,$items)) {              
             $this->session->set_flashdata('message', lang("Production_item_groups_added"));
             admin_redirect('recipe/edit_ingredients/'.$productionId);
         } else {
