@@ -182,7 +182,6 @@ class Production extends MY_Controller{
             } else {
                 $products;
             }					
-			
         }
 		//echo '<pre>';print_r($products);exit;	
         if ($this->form_validation->run() == true && $this->production_model->addProduction($data, $products)) {
