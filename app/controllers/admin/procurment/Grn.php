@@ -418,7 +418,7 @@ class Grn extends MY_Controller{
             $row->code                  = $item->product_code;
             $row->pi_qty                = $item->quantity;
             $row->qty                   = $item->quantity;
-			$row->base_quantity         = $item->quantity;
+			$row->base_quantity         = $item->unit_quantity;
             $row->quantity_balance      = $item->quantity;
             $tax                        = $this->siteprocurment->getTaxRateByID($item->item_tax_method);
             $row->tax_rate_val          = $tax->rate;
