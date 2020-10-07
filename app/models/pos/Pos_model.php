@@ -10484,7 +10484,7 @@ public function ALLCancelOrdersItem_consolidate($cancel_remarks, $split_table_id
 									'addon_name_img' => $addon_name_img[$key] ? $addon_name_img[$key] :'',
 									'subtotal'      => ($addonqty[$key] * $recipeDetails->price),
 								);
-							endif;	
+							  endif;	
 							}											
 							foreach ($recipe_addon_item as $recipe_addon) {
 								$this->db->insert('addon_sale_items', $recipe_addon);
@@ -10492,7 +10492,6 @@ public function ALLCancelOrdersItem_consolidate($cancel_remarks, $split_table_id
 								if($kit_item['addon_id'] !='null'){	
 									if($this->pos_settings->kot_print_lang_option ==1){  //if kot only for local language
 										$this->db->update('addon_sale_items', array('image_path' => str_replace(' ', '-',$order_item_id.$addon_sale_items_id).'.png'), array('id' => $addon_sale_items_id));
-
 										$filename = 'assets/language/'.$kotimagefolder.'/'.str_replace(' ', '-',$order_item_id.$addon_sale_items_id).'.png';								
 				            			$this->base64ToImage($recipe_addon['addon_name_img'],$filename);
 				            			$this->db->update('addon_sale_items', array('addon_name_img' => ''), array('id' => $addon_sale_items_id));
@@ -10516,7 +10515,6 @@ public function ALLCancelOrdersItem_consolidate($cancel_remarks, $split_table_id
 							}elseif($item['recipe_type'] =='quick_service'){
 								//echo '@@';
 								$this->production_salestock_out($item['recipe_id'],$item['quantity'],$item['recipe_variant_id']);
-								
 							}	
 						}
 						if($item['recipe_type'] =="combo"){

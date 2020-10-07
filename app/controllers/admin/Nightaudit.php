@@ -170,7 +170,7 @@ class Nightaudit extends MY_Controller{
 	    $n=($n !=0)?$n+1:$this->store_id .'1';
 	    $reference = 'PI'.str_pad($n , 8, 0, STR_PAD_LEFT);
 		$date=date('Y-m-d H:i:s');
-	   $data = array(
+	    $data = array(
             'reference_no' => $reference,
             'date' => $date,
 			'store_id'=>$this->store_id,

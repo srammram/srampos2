@@ -1768,18 +1768,17 @@ function stock_audit()
         $this->page_construct('reports/stock_audit', $meta, $this->data);
     }   
     public function get_StockAuditreports($start = NULL, $product_id = NULL,$warehouse_id = NULL){
-     $this->sma->checkPermissions('stock_audit',TRUE);
-        $start = $this->input->post('start_date');
-        $product_id = $this->input->post('product_id');
-        $warehouse_id = $this->input->post('warehouse_id');
-        $limit = $this->input->post('pagelimit');        
-        $offsetSegment = 4;
-        $offset = $this->uri->segment($offsetSegment,0);
-        /*echo "<pre>";
-        print_r($this->input->post());die;*/
+        $this->sma->checkPermissions('stock_audit',TRUE);
+        $start 				= $this->input->post('start_date');
+		$end_date 			= $this->input->post('end_date');
+        $product_id 		= $this->input->post('product_id');
+        $warehouse_id 		= $this->input->post('warehouse_id');
+        $limit 				= $this->input->post('pagelimit');        
+        $offsetSegment 		= 4;
+        $offset 			= $this->uri->segment($offsetSegment,0);
         $data= '';
         if ($start != '') {
-            $data = $this->reports_model->getStockVariance($start, $product_id, $warehouse_id,$limit,$offset,$this->report_view_access,$this->report_show);
+            $data = $this->reports_model->getStockVariance($start,$end_date, $product_id, $warehouse_id,$limit,$offset,$this->report_view_access,$this->report_show);
             if (!empty($data['data'])){             
                  $stockaudit = $data['data'];
              }
@@ -6396,10 +6395,6 @@ GROUP BY B.id, PD.identify*/
 
 //***************** wastage report end  **************//  
    
-   
-   
-   
-   
    function yields(){        
         $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
         $this->data['users'] = $this->reports_model->getStaff();
@@ -6413,8 +6408,6 @@ GROUP BY B.id, PD.identify*/
         $meta = array('page_title' => lang('yields_report'), 'bc' => $bc);
         $this->page_construct('reports/yield', $meta, $this->data);
     }
-   
-
    public function get_ItemwiseYieldReport($start_date = NULL, $end_date = NULL, $warehouse_id = NULL, $varient_id = NULL){
         $start 			= $this->input->post('start_date');
         $end 			= $this->input->post('end_date');
@@ -6446,56 +6439,5 @@ GROUP BY B.id, PD.identify*/
         $pagination = $this->pagination('reports/get_itemreports',$limit,$offsetSegment,$total);
         $this->sma->send_json(array('yield' => $yield,'pagination'=>$pagination));
    } 
-   
-   
-      
-   function stockAudit(){        
-        $this->data['error'] = (validation_errors()) ? validation_errors() : $this->session->flashdata('error');
-        $this->data['users'] = $this->reports_model->getStaff();
-        $this->data['warehouses'] = $this->site->getAllWarehouses();
-        $this->data['categories'] = $this->site->getAllrecipeCategories();        
-        $this->data['sub_categories'] = $this->site->getAllrecipe_subCategories();
-        $this->data['recipes'] = $this->reports_model->getItems();
-        $this->data['billers'] = $this->site->getAllCompanies('biller');
-		$this->data['varients'] = $this->recipe_model->getAllvarients();
-        $bc = array(array('link' => base_url(), 'page' => lang('home')), array('link' => admin_url('reports'), 'page' => lang('reports')), array('link' => '#', 'page' => lang('stock_audit_report')));
-        $meta = array('page_title' => lang('stock_audit_report'), 'bc' => $bc);
-        $this->page_construct('reports/stock_audit', $meta, $this->data);
-    }
-   
-
-   public function getStockAudit($start_date = NULL, $end_date = NULL, $warehouse_id = NULL, $varient_id = NULL){
-        $start 			= $this->input->post('start_date');
-        $end 			= $this->input->post('end_date');
-        $warehouse_id 	= $this->input->post('warehouse_id');
-        $varient_id 	= $this->input->post('varient_id');
-        $category_id 	= $this->input->post('category_id');
-        $subcategory_id = $this->input->post('subcategory_id');
-		$recipe_id      = $this->input->post('recipe_id');
-        $limit          = $this->input->post('pagelimit');    
-        $offsetSegment  = 4;
-        $offset 		= $this->uri->segment($offsetSegment,0);
-        $this->session->set_userdata('start_date', $this->input->post('start_date'));
-        $this->session->set_userdata('end_date', $this->input->post('end_date'));
-        $data= '';
-        if ($start != '' && $end != '') {
-            $data = $this->reports_model->getstockAuditReports($start,$end,$warehouse_id,$varient_id,$limit,$offset,$this->report_view_access,$this->report_show,$category_id,$subcategory_id,$recipe_id);
-            $round_tot = $this->reports_model->getRoundamount($start,$end,$warehouse_id);
-             if (!empty($data['data'])) {                 
-                 $yield = $data['data'];
-             }
-             else{                
-                $yield = 'empty';
-             }
-             
-        }
-        else{
-            $yield = 'error';
-        }
-        $total = $data['total'];
-        $pagination = $this->pagination('reports/get_itemreports',$limit,$offsetSegment,$total);
-        $this->sma->send_json(array('yield' => $yield,'pagination'=>$pagination));
-   } 
-   
    
 }

@@ -2848,8 +2848,7 @@ public function getQSRBillDetailsReport_archival($start,$end,$bill_no,$warehouse
 
 
     
-public function getStockVariance($start,$product_id,$warehouse_id,$limit,$offset)
-    {   
+/* public function getStockVariance($start,$product_id,$warehouse_id,$limit,$offset){   
         $where ='';
         $prd_where ='';
         $prd_where1 ='';
@@ -2864,7 +2863,7 @@ public function getStockVariance($start,$product_id,$warehouse_id,$limit,$offset
         if($product_id != 0)
         {
             $prd_where1 = "WHERE PR.id =".$product_id."";
-        }
+        } */
 
        /* $myQuery = "SELECT DATE_FORMAT(P.date, '%d-%m-%Y') AS bill_date,PR.id,PR.name,SU.name AS saleunit,PU.name AS productunit,(CASE
         WHEN SU.name = 'Gram' and PU.name = 'Kg'  THEN SUM(RP.max_quantity)/1000
@@ -2884,9 +2883,11 @@ public function getStockVariance($start,$product_id,$warehouse_id,$limit,$offset
         LEFT JOIN ". $this->db->dbprefix('units') ." SU ON SU.id = RP.units_id
         LEFT JOIN ". $this->db->dbprefix('units') ." PU ON PU.id = PR.unit
         WHERE P.payment_status ='Completed' AND DATE(P.date) = '".$start."' ".$where." ".$prd_where."";*/
-$originalDate = $start;
+		
+		
+/* 	$originalDate = $start;
 
-$newDate = date("d-m-Y", strtotime($originalDate));
+	$newDate = date("d-m-Y", strtotime($originalDate));
         $myQuery = "SELECT '".$newDate."'
 
  AS bill_date,PR.id,PR.name,SU.name AS saleunit,PU.name AS productunit,(CASE
@@ -2911,7 +2912,7 @@ $newDate = date("d-m-Y", strtotime($originalDate));
         $t = $this->db->query($myQuery);
         $limit_q = " limit $offset,$limit";
         if($limit!=0) $myQuery .=$limit_q;/*echo $myQuery;die;*/
-        $q = $this->db->query($myQuery);
+      /*  $q = $this->db->query($myQuery);
 
         if ($q->num_rows() > 0) {
             foreach (($q->result()) as $row) {
@@ -2920,9 +2921,35 @@ $newDate = date("d-m-Y", strtotime($originalDate));
             return array('data'=>$data,'total'=>$t->num_rows());
         }
         return FALSE;
-    }
+    } */
+	
+	
+	public function getStockVariance($start,$end,$product_id,$warehouse_id,$limit,$offset){   
+	   $this->db->select("DATE(". $this->db->dbprefix('stock_audit') .".night_audit_date) as date,opening_stock, purchase_stock , store_transfer_stock,  store_receiver_stock , wastage_stock , closing_stock  ,brand_name , category_name  ,subcategory_name , IFNULL(variant_name, '') AS variant,recipe.name as recipeName,units.name as unitname");
+	   $this->db->join("recipe","recipe.id=stock_audit.product_id","left");
+	   $this->db->join("units","units.id=stock_audit.stock_uom","left");
+	   if(!empty($product_id)){
+			$this->db->where('store_id',$warehouse_id);
+	   }
+	   if(!empty($warehouse_id)){
+	       $this->db->where('product_id',$product_id);
+	   }
+	    $this->db->where('DATE(night_audit_date) >=', $start);
+	    $this->db->where('DATE(night_audit_date) <=', $end);
+	    $this->db->limit($limit, $offset);
+	    $q=$this->db->get("stock_audit");
+	   if($q->num_rows()>0){
+		   foreach($q->result() as $row){
+			   $data[]=$row;
+		   }
+		    return array('data'=>$data,'total'=>$q->num_rows());
+	   }
+		return false;
+	}
+	
+	
+	
     public function getHourlysummaryReport($start,$end,$warehouse_id,$time_range,$limit,$offset,$report_view_access,$report_show){  
-
         $where ='';
         if($warehouse_id != 0)
         {

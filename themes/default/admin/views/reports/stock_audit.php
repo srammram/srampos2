@@ -10,7 +10,12 @@ if ($this->input->post('start_date')) {
 }
 
 ?>
-
+<style>
+.submit{
+	margin-top:32px;
+	margin-left:32px;
+}
+</style>
 <script type="text/javascript">
     $(document).ready(function () {
         $('#form').hide();
@@ -111,7 +116,7 @@ if ($this->input->post('start_date')) {
 
                     <div class="row">   
 
-                      <div class="col-md-4">
+                      <div class="col-md-3">
                             <div class="form-group">
                                 <?= lang("warehouse", "warehouse"); ?>
                                 <?php
@@ -125,7 +130,7 @@ if ($this->input->post('start_date')) {
                             </div>
                         </div>  
 
-                       <div class="col-md-4">
+                       <div class="col-md-3">
                             <div class="form-group">
                                 <?= lang("product", "product"); ?>
                                 <?php
@@ -139,13 +144,20 @@ if ($this->input->post('start_date')) {
                             </div>
                         </div>  
 
-                        <div class="col-sm-4">
+                        <div class="col-sm-3">
                             <div class="form-group">
-                                <?= lang("date", "date"); ?>
+                                <?= lang("start_date", "date"); ?>
                                 <?php echo form_input('start_date', (isset($_POST['start_date']) ? $_POST['start_date'] : ""), 'class="form-control " autocomplete="off"  id="start_date"'); ?>
                             </div>
                         </div>
-                        <div class="col-sm-3">
+						<div class="col-sm-3">
+                            <div class="form-group">
+                                <?= lang("end_date", "end_date"); ?>
+                                <?php echo form_input('end_date', ($this->session->userdata('end_date')), 'class="form-control "  autocomplete="off" id="end_date"'); ?>                                
+                            </div>
+                        </div>
+						
+                        <div class="col-sm-3" style="margin-top:28px;float:right;">
                             <div class="form-group">
                                 <label for="category">Show</label>
                                 <select name="pagelimit" class="form-control select" id="pagelimit" style="width:100px">
@@ -161,11 +173,12 @@ if ($this->input->post('start_date')) {
                                 </select>
                             </div>
                         </div>
-                    </div>
-                    <div class="form-group">
+						 <div class="form-group">
                         <div
-                            class="controls"> <?php echo form_submit('submit_report', $this->lang->line("submit"), 'class="btn btn-primary stock_audit"'); ?> </div>
+                            class="controls"> <?php echo form_submit('submit_report', $this->lang->line("submit"), 'class="btn submit btn-primary stock_audit"'); ?> </div>
                     </div>
+                    </div>
+                   
                 </div>
                     <!-- <?php echo form_close(); ?> -->
                 <div class="clearfix"></div>
@@ -176,11 +189,17 @@ if ($this->input->post('start_date')) {
                         <tr>
                             <th><?= lang("date"); ?></th>
                             <th><?= lang("product_name"); ?></th>
+							<th><?= lang("Variant"); ?></th>
+							<th><?= lang("Catgeory"); ?></th>
+							<th><?= lang("SubCatgory"); ?></th>
+							<th><?= lang("Brand"); ?></th>
                             <th><?= lang("opening_stock"); ?></th>
-                            <th><?= lang("current_stock"); ?></th>
-                            <th><?= lang("consumed_of_the_day"); ?></th>
-                            <th><?= lang("stock_avli_and_physical"); ?></th>
-                            <th><?= lang("variance"); ?></th>
+							<th><?= lang("Uom"); ?></th>
+                            <th><?= lang("Purchase"); ?></th>
+                            <th><?= lang("Transfer"); ?></th>
+                            <th><?= lang("Receiver"); ?></th>
+                            <th><?= lang("Wastage"); ?></th>
+							<th><?= lang("Closing_stock"); ?></th>
                         </tr>
                   
                         </thead>
@@ -239,36 +258,27 @@ if ($this->input->post('start_date')) {
     });
 
 function GetData($url){
-
             var start_date = $('#start_date').val();
+			var end_date = $('#end_date').val();
             var product_id = $('#product_id').val();
             var warehouse_id = $('#warehouse_id').val();
             var pagelimit = $('#pagelimit').val();
             if (start_date !='' ) {
-                
                  $('#start_date').css('border-color', '#ccc');
                  /*$('#product_id').siblings(".select2-container").find('.select2-choice').css('border-color', '#ccc'); */
                   $.ajax({
                         type: 'POST',
                         url: $url,
-                        data: {start_date: start_date,product_id: product_id,warehouse_id: warehouse_id,pagelimit:pagelimit},
+                        data: {start_date: start_date,end_date:end_date,product_id: product_id,warehouse_id: warehouse_id,pagelimit:pagelimit},
                         dataType: "json",
                         cache: false,
                         success: function (data) {
                             $('#StockAuditData > tbody').empty();
                             $('.dataTables_paginate').html(data.pagination);
-                                $.each(data.stock_audit, function (a,b) 
-                                {
-                                   if(b.given_quantity != null){
-
-                                    var  current = parseInt(b.given_quantity) -parseInt(b.soldQty);
-
-                                    $('#StockAuditData > tbody').append('<tr class="text-center"><td>'+b.bill_date+'</td><td>'+b.name +'</td><td>'+b.given_quantity+'<input type="hidden"  class="given_quantity" value="'+b.given_quantity+'"/></td><td>'+current+'<input type="hidden"  class="current" value="'+current+'"/></td><td>'+b.soldQty+'<input type="hidden"  class="sold" value="'+b.soldQty+'"/></td><td><input type="text"  class="avail_stock form-control" /><span class="errmsg"></span></td><td><sapn class="variance"></span></td></tr>');   
-                                   }
-                                   else
-                                   {
-                                    $('#StockAuditData > tbody').append('<tr><td colspan="7" class="dataTables_empty"><?= lang('sEmptyTable') ?></td></tr>');  
-                                   }               
+                                $.each(data.stock_audit, function (a,b) {
+									
+                                    $('#StockAuditData > tbody').append('<tr class="text-center"><td>'+b.date+'</td><td>'+b.recipeName+'</td><td>'+b.variant+'</td><td>'+b.category_name+'</td><td>'+b.subcategory_name+'</td><td>'+b.brand_name+'</td><td>'+formatDecimal(b.opening_stock,4)+'</td><td>'+b.unitname+'</td><td>'+formatDecimal(b.purchase_stock,2)+'</td><td>'+formatDecimal(b.store_transfer_stock,4)+'</td><td>'+formatDecimal(b.store_receiver_stock)+'</td><td>'+formatDecimal(b.wastage_stock,4)+'</td><td>'+formatDecimal(b.closing_stock,2)+'</td></tr>');   
+                                             
                                 });                                
                             }
                     });  
@@ -297,48 +307,13 @@ $(document).ready(function(){
         dateFormat: "yy-mm-dd" ,
         maxDate:  0,      
     });
+	$('#end_date').datepicker({
+        dateFormat: "yy-mm-dd" ,
+        maxDate:  0,      
+    });
 });
- $(document).on('keypress','.avail_stock',function (e) { 
 
-     if (e.which != 8 && e.which != 0 && (e.which < 48 || e.which > 57)) {
-        
-        $(".errmsg").html("Digits Only").show().delay(2000).fadeOut();
-        
-        return false;
-    }
-   });
    
-$(document).on('keyup','.avail_stock',function () { 
-
-        var avail_stock = $(this).val();
-        
-        var sold =   $(this).parent().parent().children().find('.sold').val(); 
-        var current =   $(this).parent().parent().children().find('.current').val(); 
-        var given_quantity =   $(this).parent().parent().children().find('.given_quantity').val(); 
-
-        var variance = parseInt(current) - parseInt(avail_stock);
-        if(isNaN(variance))
-        {
-         variance  ='';
-        }
-        if(parseInt(variance) < 5 &&  parseInt(variance) > 0){
-            $(this).parent().parent().children().find('.variance').css("color", "Green");
-        }
-        else  if(parseInt(variance) < 10 &&  parseInt(variance) > 5){
-            $(this).parent().parent().children().find('.variance').css("color", "Orange");
-        }
-         else  if(parseInt(variance) >= 10){
-            $(this).parent().parent().children().find('.variance').css("color", "red");
-        }
-        /*else if(parseInt(variance) < 10 parseInt(variance) > 5){
-            $(this).parent().parent().children().find('.variance').css("color", "Orange");
-        }
-         else if(parseInt(variance) > 10){
-            $(this).parent().parent().children().find('.variance').css("color", "red");
-        }*/
-        $(this).parent().parent().children().find('.variance').text(variance);    
-}); 
-
 
 </script>
 <style type="text/css">

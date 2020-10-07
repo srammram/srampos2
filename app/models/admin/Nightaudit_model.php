@@ -314,6 +314,7 @@ class Nightaudit_model extends CI_Model{
 						$opening_stock       =($stock_quantity+$wastage_quantity+$transfer_quantity)-($purchase_quantity-$receiver_quantity);
 						$closing_stock       =$stock_quantity;
 						$item=array("date"=>date("Y-m-d H:i:s"),
+						"store_id"=>$this->store_id,
 						"night_audit_date"=>$nightAudit_date,
 						"nightaudit_id"=>$nightAuditId,
 						"product_id"=>$recipe->product_id,
