@@ -6183,12 +6183,9 @@ CREATE TABLE `srampos_kitchen_orders` (
   `chef_id` bigint(20) NOT NULL,
   `status` varchar(20) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Data for the table `srampos_kitchen_orders` */
-
-insert  into `srampos_kitchen_orders`(`id`,`sale_id`,`waiter_id`,`chef_id`,`status`) values 
-(1,1,17,0,'Inprocess');
 
 /*Table structure for table `srampos_kitchen_orders_archival` */
 
@@ -6276,9 +6273,12 @@ CREATE TABLE `srampos_login_attempts` (
   `login` varchar(100) NOT NULL,
   `time` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 /*Data for the table `srampos_login_attempts` */
+
+insert  into `srampos_login_attempts`(`id`,`ip_address`,`login`,`time`) values 
+(1,'::1','superadmi',1602066478);
 
 /*Table structure for table `srampos_loyalty` */
 
@@ -6748,7 +6748,7 @@ CREATE TABLE `srampos_nightaudit` (
   `stock_audit` tinyint(4) DEFAULT '0',
   `stock_audit_status` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=624 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=625 DEFAULT CHARSET=latin1;
 
 /*Data for the table `srampos_nightaudit` */
 
@@ -7343,7 +7343,8 @@ insert  into `srampos_nightaudit`(`id`,`nightaudit_date`,`warehouse_id`,`total_s
 (599,'2020-09-27',1,0,'$0.00',0,'$0.00',0,'$0.00',1,'2020-10-03 17:10:16',1,1,'Processing'),
 (606,'2020-09-28',1,0,'$0.00',0,'$0.00',0,'$0.00',1,'2020-10-03 17:10:31',1,1,'Completed'),
 (622,'2020-09-29',1,0,'$0.00',0,'$0.00',0,'$0.00',1,'2020-10-03 18:10:49',1,1,'Completed'),
-(623,'2020-09-30',1,0,'$0.00',0,'$0.00',0,'$0.00',1,'2020-10-03 18:10:50',1,1,'Completed');
+(623,'2020-10-05',1,0,'$0.00',0,'$0.00',0,'$0.00',1,'2020-10-03 18:10:50',1,1,'Completed'),
+(624,'2020-10-06',1,0,'$0.00',0,'$0.00',0,'$0.00',1,'2020-10-07 17:10:23',1,1,'Completed');
 
 /*Table structure for table `srampos_notifications` */
 
@@ -7386,13 +7387,9 @@ CREATE TABLE `srampos_notiy` (
   `task_completed` tinyint(4) NOT NULL,
   `stop` tinyint(4) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Data for the table `srampos_notiy` */
-
-insert  into `srampos_notiy`(`id`,`msg`,`type`,`table_id`,`user_id`,`role_id`,`to_user_id`,`order_item_id`,`warehouse_id`,`is_read`,`created_on`,`respective_steward`,`split_id`,`unique_notifi_name`,`tag`,`count`,`status`,`task_completed`,`stop`) values 
-(1,'admin  has been create new dine in order. it will be process sent to kitchen','Send to kitchen',79,17,6,0,0,1,0,'2020-10-06 17:10:30',0,'SPILT20201006170230017',NULL,'send-to-kitchen',0,1,0,0),
-(2,' to  Kitchen','Send to kitchen',79,17,5,0,0,1,0,'2020-10-06 17:10:30',NULL,NULL,NULL,NULL,0,0,0,0);
 
 /*Table structure for table `srampos_notiy_archival` */
 
@@ -7537,12 +7534,9 @@ CREATE TABLE `srampos_order_items` (
   KEY `product_id` (`recipe_id`),
   KEY `product_id_2` (`recipe_id`,`sale_id`),
   KEY `sale_id_2` (`sale_id`,`recipe_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `srampos_order_items` */
-
-insert  into `srampos_order_items`(`id`,`sale_id`,`item_status`,`kitchen_id`,`kitchen_type_id`,`recipe_id`,`recipe_code`,`recipe_name`,`recipe_type`,`option_id`,`addon_id`,`addon_qty`,`buy_id`,`buy_quantity`,`get_item`,`get_quantity`,`total_get_quantity`,`net_unit_price`,`unit_price`,`quantity`,`warehouse_id`,`order_item_cancel_id`,`order_item_cancel_status`,`order_item_cancel_note`,`item_cancel_type`,`item_tax`,`tax_rate_id`,`tax`,`discount`,`item_discount`,`manual_item_discount`,`manual_item_discount_val`,`subtotal`,`serial_no`,`real_unit_price`,`sale_item_id`,`recipe_unit_id`,`recipe_unit_code`,`unit_quantity`,`comment`,`comment_price`,`gst`,`cgst`,`sgst`,`igst`,`time_started`,`time_end`,`escalation_one_time`,`escalation_two_time`,`created_on`,`variant`,`recipe_variant_id`,`stock_out_data`,`image_path`,`recipe_name_img`,`addon_name_img`,`unwanted_ingredients`,`parent_order_item_id`) values 
-(1,1,'Inprocess',1,1,8,'05635791','dosai','quick_service',NULL,'null','',0,0,0,0,0,30.000000,30.000000,3,1,0,0,'',NULL,0.000000,0,'',NULL,0.000000,0.00,'0',90.000000,'',30.000000,NULL,3,'Pieces',1.000000,'',0.00,NULL,NULL,NULL,NULL,'2020-10-06 17:02:30','0000-00-00 00:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00','2020-10-06 17:02:30','',0,'','','','','0',0);
 
 /*Table structure for table `srampos_order_items_archival` */
 
@@ -7745,12 +7739,9 @@ CREATE TABLE `srampos_orders` (
   `shift_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 /*Data for the table `srampos_orders` */
-
-insert  into `srampos_orders`(`id`,`order_type`,`customer_request`,`table_id`,`seats_id`,`split_id`,`order_status`,`order_from`,`date`,`created_on`,`reference_no`,`customer_id`,`customer`,`biller_id`,`biller`,`warehouse_id`,`note`,`staff_note`,`total`,`recipe_discount`,`manual_item_discount`,`manual_item_discount_val`,`order_discount_id`,`total_discount`,`order_discount`,`recipe_tax`,`order_tax_id`,`order_tax`,`total_tax`,`shipping`,`grand_total`,`sale_status`,`payment_status`,`payment_term`,`due_date`,`order_cancel_id`,`order_cancel_status`,`order_cancel_note`,`created_by`,`updated_by`,`updated_at`,`total_items`,`pos`,`paid`,`return_id`,`surcharge`,`attachment`,`return_sale_ref`,`sale_id`,`return_sale_total`,`rounding`,`suspend_note`,`api`,`shop`,`address_id`,`reserve_id`,`hash`,`manual_payment`,`cgst`,`sgst`,`igst`,`table_whitelisted`,`ordered_by`,`waiter_id`,`store_id`,`till_id`,`shift_id`) values 
-(1,1,0,79,0,'SPILT20201006170230017','Open','web','2020-10-06 00:00:00','2020-10-06 17:02:29','ORDER20201006170230',13,'Walkin Customer',12,'Royal Gold Town Suki Soup & BBQ',1,'','',30.000000,0.000000,0.00,'',NULL,0.000000,0.000000,0.000000,NULL,0.000000,0.000000,0.000000,30.000000,NULL,NULL,0,NULL,0,0,'',17,NULL,NULL,NULL,1,0.000000,NULL,0.000000,NULL,NULL,NULL,0.000000,0.000000,NULL,0,0,NULL,NULL,'6ec04d9bce3921608acdefb9c26eda2fe1a04d4c0ac764d04bdc48eb51278485',NULL,NULL,NULL,NULL,0,'steward',17,1,1,2);
 
 /*Table structure for table `srampos_orders_archival` */
 
@@ -11308,12 +11299,9 @@ CREATE TABLE `srampos_restaurant_table_orders` (
   `table_id` int(11) NOT NULL,
   `session_id` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Data for the table `srampos_restaurant_table_orders` */
-
-insert  into `srampos_restaurant_table_orders`(`id`,`order_id`,`table_id`,`session_id`) values 
-(1,1,79,0);
 
 /*Table structure for table `srampos_restaurant_table_orders_archival` */
 
@@ -11351,12 +11339,9 @@ CREATE TABLE `srampos_restaurant_table_sessions` (
   `customer_id` int(11) NOT NULL,
   `split_id` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 /*Data for the table `srampos_restaurant_table_sessions` */
-
-insert  into `srampos_restaurant_table_sessions`(`id`,`order_id`,`table_id`,`session_started`,`session_end`,`customer_id`,`split_id`) values 
-(1,1,79,'2020-10-06 17:02:30','0000-00-00 00:00:00',13,'SPILT20201006170230017');
 
 /*Table structure for table `srampos_restaurant_table_sessions_archival` */
 
@@ -11491,7 +11476,7 @@ insert  into `srampos_restaurant_tables`(`id`,`name`,`native_name`,`steward_id`,
 (76,'555','555',2,'',7,NULL,NULL,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,1,1,0,'alacarte',0,17,'2020-03-19 16:27:46'),
 (77,'666','',2,'',5,NULL,NULL,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,1,1,0,'alacarte',0,0,NULL),
 (78,'888','',2,'',7,NULL,NULL,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,1,1,0,'alacarte',0,0,'2020-01-06 10:11:51'),
-(79,'2333','',2,'',1,NULL,NULL,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,1,1,0,'alacarte',1,17,'2020-10-06 17:02:31'),
+(79,'2333','',2,'',1,NULL,NULL,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,1,1,0,'alacarte',0,17,'2020-10-06 17:02:31'),
 (80,'5555555','',2,'',5,NULL,NULL,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,1,1,0,'alacarte',0,17,'2020-03-19 16:28:53'),
 (81,'special Table','special Table',2,'',2,NULL,NULL,'0000-00-00 00:00:00','0000-00-00 00:00:00',0,4,2,0,'alacarte',0,0,NULL);
 
@@ -12152,8 +12137,10 @@ insert  into `srampos_sessions`(`id`,`ip_address`,`timestamp`,`data`) values
 ('15dadchq53400140mov5o2gkjg39i1d9','::1',1601721099,'__ci_last_regenerate|i:1601720905;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601705909\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601716096;admin_panel|b:1;session_id|s:32:\"aes4o39ovh816j6ac4rnnoqlao1bleo6\";user_csrf|s:20:\"fwklPchSrbNzXHEB0Vmv\";remove_pols|i:1;remove_quls|i:1;message|s:28:\"Night Audit Process Complete\";__ci_vars|a:1:{s:7:\"message\";s:3:\"old\";}'),
 ('17hncbqm1cdghh41vgghm4a1kthr0jpl','::1',1601698608,'__ci_last_regenerate|i:1601698566;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601622817\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601698578;admin_panel|b:1;session_id|s:32:\"17hncbqm1cdghh41vgghm4a1kthr0jpl\";'),
 ('17qaadq8d6epfk1adh13mlgcq9mo4f8f','::1',1601360488,'__ci_last_regenerate|i:1601360488;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601291435\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601353455;admin_panel|b:1;session_id|s:32:\"24h5gq3m6cqvd3oj3hmjco17ahfj4g88\";'),
+('1dpuo92qln9qllg8n7pbr8kcih8hhdih','::1',1602069806,'__ci_last_regenerate|i:1602069519;requested_page|s:20:\"admin/procurment/grn\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601969370\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1602066486;admin_panel|b:1;session_id|s:32:\"sutja7bvr2334n5a6bmn5m6a12mgapdg\";report_view_access|i:1;'),
 ('1dushpaufcf2ultjb6rja0rg3hg142g2','::1',1601439649,'__ci_last_regenerate|i:1601439399;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601353455\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601439399;admin_panel|b:1;session_id|s:32:\"1dushpaufcf2ultjb6rja0rg3hg142g2\";'),
 ('1ei0iksvfb2u6sh6vqaospeje5q6knsu','::1',1601543453,'__ci_last_regenerate|i:1601543199;requested_page|s:24:\"admin/procurment/grn/add\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601532212\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601537032;admin_panel|b:1;session_id|s:32:\"vqkbk2vu19logu8abasb9juh8ggsn3g0\";remove_pols|i:1;remove_quls|s:1:\"1\";'),
+('1eliineulu3tmn2brsudg4u08td8k3da','::1',1602068327,'__ci_last_regenerate|i:1602068033;requested_page|s:20:\"admin/procurment/grn\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601969370\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1602066486;admin_panel|b:1;session_id|s:32:\"sutja7bvr2334n5a6bmn5m6a12mgapdg\";report_view_access|i:1;'),
 ('1hr1tqte27mr2gbuo7qnd7s1q525j03p','::1',1601611588,'__ci_last_regenerate|i:1601611587;'),
 ('1q8atbq5k3ve997g021ee2mbmg35gnua','::1',1601976646,'__ci_last_regenerate|i:1601976645;'),
 ('1r6d7luqp232ab0ouettf1mstkpuhuij','::1',1601533483,'__ci_last_regenerate|i:1601533272;requested_page|s:24:\"admin/procurment/grn/add\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601523075\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601532212;admin_panel|b:1;session_id|s:32:\"3vvq1de5a2qal5i1t5d1pme33jeichh3\";'),
@@ -12168,7 +12155,9 @@ insert  into `srampos_sessions`(`id`,`ip_address`,`timestamp`,`data`) values
 ('3e5bkf1udblfs99505ip4h791b6pjqpv','::1',1601542856,'__ci_last_regenerate|i:1601542566;requested_page|s:24:\"admin/procurment/grn/add\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601532212\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601537032;admin_panel|b:1;session_id|s:32:\"vqkbk2vu19logu8abasb9juh8ggsn3g0\";remove_pols|i:1;remove_quls|s:1:\"1\";'),
 ('3ig9a82pnkfb2kr4ah3bsjijdigfsdae','::1',1601530906,'__ci_last_regenerate|i:1601530611;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601439399\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601523075;admin_panel|b:1;session_id|s:32:\"e2r97vddpo2mr8aml0seddc6c4p3c2ff\";report_view_access|i:1;remove_quls|i:1;type|s:1:\"0\";subcategory_id|s:1:\"0\";category_id|s:1:\"0\";recipe_id|s:2:\"11\";store_id|s:1:\"1\";remove_pols|i:1;'),
 ('3o8pevf7j3dbepeppds76h5iio5p0l9u','::1',1601448186,'__ci_last_regenerate|i:1601448186;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601353455\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601439399;admin_panel|b:1;session_id|s:32:\"1dushpaufcf2ultjb6rja0rg3hg142g2\";user_csrf|s:20:\"zVcmbeTukq5i4CtXjpAQ\";'),
+('3ukf92ceducsdvn2eob3jsm62mi3ta9g','::1',1601979144,'__ci_last_regenerate|i:1601978741;requested_page|s:31:\"admin/procurment/production/add\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601966426\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601969370;admin_panel|b:1;session_id|s:32:\"j9b642lv6mldsa5r0j3htseqtohgt2u9\";report_view_access|i:1;type|s:1:\"0\";subcategory_id|s:1:\"0\";category_id|s:1:\"0\";recipe_id|s:1:\"0\";store_id|s:1:\"0\";remove_quls|i:1;remove_pols|i:1;'),
 ('3vvq1de5a2qal5i1t5d1pme33jeichh3','::1',1601532431,'__ci_last_regenerate|i:1601532189;requested_page|s:24:\"admin/procurment/grn/add\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601523075\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601532212;admin_panel|b:1;session_id|s:32:\"3vvq1de5a2qal5i1t5d1pme33jeichh3\";'),
+('414j6ii35n8egp7uqa4e19lpstc596it','::1',1602068645,'__ci_last_regenerate|i:1602068345;requested_page|s:20:\"admin/procurment/grn\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601969370\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1602066486;admin_panel|b:1;session_id|s:32:\"sutja7bvr2334n5a6bmn5m6a12mgapdg\";report_view_access|i:1;'),
 ('4hututtrht2c068ea1rc0ovsgngjem10','::1',1601896648,'__ci_last_regenerate|i:1601896396;identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601716096\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601870327;admin_panel|b:1;session_id|s:32:\"5h5mf2hsqj8um1gub4u2q9dddc2mq016\";remove_pols|i:1;remove_quls|i:1;report_view_access|i:1;type|s:1:\"0\";subcategory_id|s:1:\"0\";category_id|s:1:\"0\";recipe_id|s:1:\"0\";store_id|s:1:\"0\";'),
 ('4jnlqd19mpns3hvhedvmqtuovqti4el5','::1',1601459394,'__ci_last_regenerate|i:1601459097;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601353455\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601439399;admin_panel|b:1;session_id|s:32:\"1dushpaufcf2ultjb6rja0rg3hg142g2\";user_csrf|s:20:\"zVcmbeTukq5i4CtXjpAQ\";remove_pols|i:1;remove_quls|i:1;'),
 ('4ofu5qbsk7jq44e6uvsjl61alejfgnoj','::1',1601893132,'__ci_last_regenerate|i:1601892825;identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601716096\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601870327;admin_panel|b:1;session_id|s:32:\"5h5mf2hsqj8um1gub4u2q9dddc2mq016\";remove_pols|i:1;remove_quls|i:1;report_view_access|i:1;type|s:1:\"0\";subcategory_id|s:1:\"0\";category_id|s:1:\"0\";recipe_id|s:1:\"0\";store_id|s:1:\"0\";'),
@@ -12201,6 +12190,7 @@ insert  into `srampos_sessions`(`id`,`ip_address`,`timestamp`,`data`) values
 ('957bo3fgji5c67k3hndor0r4pjdec63d','::1',1601963590,'__ci_last_regenerate|i:1601963373;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601870327\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601956207;admin_panel|b:1;session_id|s:32:\"6k9ul22t38of0fmle9u00k7u04t97v9e\";'),
 ('95j49e6051l5f1qoerjbe3phkrv160n6','::1',1601611579,'__ci_last_regenerate|i:1601611312;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601543516\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601610856;admin_panel|b:1;session_id|s:32:\"sn7mnoe3gelg3l3uv5ucec89f6qs4tv1\";remove_quls|i:1;'),
 ('9lmvcbmnsn44t0hpb15a452pqaje43mf','::1',1601612189,'__ci_last_regenerate|i:1601612189;'),
+('9oj47s5lt2hapin19060t46jsgt1m8d2','::1',1602070021,'__ci_last_regenerate|i:1602069822;requested_page|s:20:\"admin/procurment/grn\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601969370\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1602066486;admin_panel|b:1;session_id|s:32:\"sutja7bvr2334n5a6bmn5m6a12mgapdg\";report_view_access|i:1;type|s:1:\"0\";subcategory_id|s:1:\"0\";category_id|s:1:\"0\";recipe_id|s:1:\"0\";store_id|s:1:\"0\";'),
 ('9po1fivlejvfr0pvvjdnqbi3vjet90sb','::1',1601889087,'__ci_last_regenerate|i:1601888988;identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601716096\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601870327;admin_panel|b:1;session_id|s:32:\"5h5mf2hsqj8um1gub4u2q9dddc2mq016\";remove_pols|i:1;remove_quls|i:1;report_view_access|i:1;type|s:1:\"0\";subcategory_id|s:1:\"0\";category_id|s:1:\"0\";recipe_id|s:1:\"0\";store_id|s:1:\"0\";'),
 ('9rih662avjvepvgb7ggdl5g2ap1ep9ro','::1',1601966723,'__ci_last_regenerate|i:1601966415;requested_page|s:38:\"admin/recipe/proudctionItemGroups/10/1\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601966289\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601966426;admin_panel|b:1;session_id|s:32:\"9rih662avjvepvgb7ggdl5g2ap1ep9ro\";'),
 ('9viq57a4ttv17fn0smuv623d4tvs5egi','::1',1601549388,'__ci_last_regenerate|i:1601549388;requested_page|s:38:\"admin/procurment/purchase_invoices/add\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601537032\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601543516;admin_panel|b:1;session_id|s:32:\"stvodeve9lddoc8k0kqhjpfsds76ebk9\";'),
@@ -12209,9 +12199,11 @@ insert  into `srampos_sessions`(`id`,`ip_address`,`timestamp`,`data`) values
 ('aes4o39ovh816j6ac4rnnoqlao1bleo6','::1',1601716367,'__ci_last_regenerate|i:1601716082;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601705909\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601716096;admin_panel|b:1;session_id|s:32:\"aes4o39ovh816j6ac4rnnoqlao1bleo6\";'),
 ('aflvbm2h83ka5s75ulau8kj3s5mdf2pk','::1',1601541940,'__ci_last_regenerate|i:1601541614;requested_page|s:24:\"admin/procurment/grn/add\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601532212\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601537032;admin_panel|b:1;session_id|s:32:\"vqkbk2vu19logu8abasb9juh8ggsn3g0\";'),
 ('afmaens565noc71h6dmth60vrnol8r8s','::1',1601530582,'__ci_last_regenerate|i:1601530307;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601439399\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601523075;admin_panel|b:1;session_id|s:32:\"e2r97vddpo2mr8aml0seddc6c4p3c2ff\";report_view_access|i:1;remove_quls|i:1;type|s:1:\"0\";subcategory_id|s:1:\"0\";category_id|s:1:\"0\";recipe_id|s:2:\"11\";store_id|s:1:\"1\";'),
+('ai0uh4angm22fra3fq8fkbdq1hqn3717','::1',1602069461,'__ci_last_regenerate|i:1602069179;requested_page|s:20:\"admin/procurment/grn\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601969370\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1602066486;admin_panel|b:1;session_id|s:32:\"sutja7bvr2334n5a6bmn5m6a12mgapdg\";report_view_access|i:1;'),
 ('aijptrlrq28b9c67a3fqvm5dtqahgqcn','::1',1601706622,'__ci_last_regenerate|i:1601705894;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601698578\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601705909;admin_panel|b:1;session_id|s:32:\"aijptrlrq28b9c67a3fqvm5dtqahgqcn\";'),
 ('ao5aqjbsk2e9rvsg6vu8pd172vfdu39l','::1',1601613008,'__ci_last_regenerate|i:1601613006;identity|s:4:\"8562\";user_number|s:4:\"8562\";username|s:5:\"admin\";email|s:15:\"admin@gmail.com\";user_id|s:2:\"17\";old_last_login|s:10:\"1601268242\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:2:\"10\";warehouse_id|s:1:\"1\";view_right|s:1:\"1\";edit_right|s:1:\"1\";allow_discount|s:1:\"1\";biller_id|s:2:\"12\";company_id|N;show_cost|s:1:\"1\";show_price|s:1:\"1\";first_name|s:5:\"admin\";last_name|s:0:\"\";group_name|s:7:\"Manager\";last_activity|i:1601613006;'),
 ('b1am97sukd7jdsu78dq3n34tgpj3qqh4','::1',1601977964,'__ci_last_regenerate|i:1601977963;'),
+('b5gcs6vc8k3qbh3vjlq7dar8kho6fovs','::1',1602067447,'__ci_last_regenerate|i:1602067447;requested_page|s:20:\"admin/procurment/grn\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601969370\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1602066486;admin_panel|b:1;session_id|s:32:\"sutja7bvr2334n5a6bmn5m6a12mgapdg\";report_view_access|i:1;'),
 ('bagkj3n3j1u87kdg91lhk43f8tk04dbd','::1',1601977939,'__ci_last_regenerate|i:1601977939;'),
 ('bd597d9rsk0m5rui5s2q2vgtbspji8sn','::1',1601536807,'__ci_last_regenerate|i:1601536766;requested_page|s:24:\"admin/procurment/grn/add\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601523075\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601532212;admin_panel|b:1;session_id|s:32:\"3vvq1de5a2qal5i1t5d1pme33jeichh3\";'),
 ('beab4f43ju6s07ouptr0upfjn3lbeph2','::1',1601546971,'__ci_last_regenerate|i:1601546971;requested_page|s:38:\"admin/procurment/purchase_invoices/add\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601537032\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601543516;admin_panel|b:1;session_id|s:32:\"stvodeve9lddoc8k0kqhjpfsds76ebk9\";'),
@@ -12287,6 +12279,7 @@ insert  into `srampos_sessions`(`id`,`ip_address`,`timestamp`,`data`) values
 ('kssm5j1kufiq6tei1etb3v7mqlcued2v','::1',1601974251,'__ci_last_regenerate|i:1601974094;requested_page|s:31:\"admin/procurment/production/add\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601966426\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601969370;admin_panel|b:1;session_id|s:32:\"j9b642lv6mldsa5r0j3htseqtohgt2u9\";report_view_access|i:1;type|s:1:\"0\";subcategory_id|s:1:\"0\";category_id|s:1:\"0\";recipe_id|s:1:\"1\";store_id|s:1:\"0\";remove_quls|i:1;'),
 ('lbcaajf7rjqt653eb531k86ujhlsa81h','::1',1601966404,'__ci_last_regenerate|i:1601966274;requested_page|s:38:\"admin/recipe/proudctionItemGroups/10/1\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601956207\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601966289;admin_panel|b:1;session_id|s:32:\"lbcaajf7rjqt653eb531k86ujhlsa81h\";'),
 ('ljo0l9kc49efaqrj7b6rpvij8og94ni4','::1',1601966028,'__ci_last_regenerate|i:1601965730;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601870327\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601956207;admin_panel|b:1;session_id|s:32:\"6k9ul22t38of0fmle9u00k7u04t97v9e\";'),
+('lojbs0jrrbrdo24gcdga25h77pgjit0i','::1',1602068987,'__ci_last_regenerate|i:1602068682;requested_page|s:20:\"admin/procurment/grn\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601969370\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1602066486;admin_panel|b:1;session_id|s:32:\"sutja7bvr2334n5a6bmn5m6a12mgapdg\";report_view_access|i:1;'),
 ('m0ftg32r2d1u4fvhhqt8o9k7hfoq0uis','::1',1601457103,'__ci_last_regenerate|i:1601456804;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601353455\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601439399;admin_panel|b:1;session_id|s:32:\"1dushpaufcf2ultjb6rja0rg3hg142g2\";user_csrf|s:20:\"zVcmbeTukq5i4CtXjpAQ\";remove_pols|i:1;remove_quls|s:1:\"1\";'),
 ('m4n02gf45fkookmloc964c4pi5jgurtp','::1',1601535623,'__ci_last_regenerate|i:1601535426;requested_page|s:24:\"admin/procurment/grn/add\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601523075\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601532212;admin_panel|b:1;session_id|s:32:\"3vvq1de5a2qal5i1t5d1pme33jeichh3\";'),
 ('mh4vpjmd8amp89u1e4una09tbpjta3af','::1',1601457418,'__ci_last_regenerate|i:1601457188;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601353455\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601439399;admin_panel|b:1;session_id|s:32:\"1dushpaufcf2ultjb6rja0rg3hg142g2\";user_csrf|s:20:\"zVcmbeTukq5i4CtXjpAQ\";remove_pols|i:1;remove_quls|s:1:\"1\";'),
@@ -12338,6 +12331,7 @@ insert  into `srampos_sessions`(`id`,`ip_address`,`timestamp`,`data`) values
 ('sn7mnoe3gelg3l3uv5ucec89f6qs4tv1','::1',1601610857,'__ci_last_regenerate|i:1601610824;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601543516\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601610856;admin_panel|b:1;session_id|s:32:\"sn7mnoe3gelg3l3uv5ucec89f6qs4tv1\";message|s:38:\"<p>You are successfully logged in.</p>\";__ci_vars|a:1:{s:7:\"message\";s:3:\"old\";}'),
 ('snqvp2o91m4ro4u29m34tptkgtmjuptt','::1',1601553791,'__ci_last_regenerate|i:1601553517;requested_page|s:38:\"admin/procurment/purchase_invoices/add\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601537032\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601543516;admin_panel|b:1;session_id|s:32:\"stvodeve9lddoc8k0kqhjpfsds76ebk9\";'),
 ('stvodeve9lddoc8k0kqhjpfsds76ebk9','::1',1601543760,'__ci_last_regenerate|i:1601543503;requested_page|s:38:\"admin/procurment/purchase_invoices/add\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601537032\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601543516;admin_panel|b:1;session_id|s:32:\"stvodeve9lddoc8k0kqhjpfsds76ebk9\";'),
+('sutja7bvr2334n5a6bmn5m6a12mgapdg','::1',1602066568,'__ci_last_regenerate|i:1602066462;requested_page|s:20:\"admin/procurment/grn\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601969370\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1602066486;admin_panel|b:1;session_id|s:32:\"sutja7bvr2334n5a6bmn5m6a12mgapdg\";report_view_access|i:1;message|s:28:\"Night Audit Process Complete\";__ci_vars|a:1:{s:7:\"message\";s:3:\"old\";}'),
 ('t19gpp688va6vvn7a9sbggahfajgu8r6','::1',1601961140,'__ci_last_regenerate|i:1601960394;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601870327\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601956207;admin_panel|b:1;session_id|s:32:\"6k9ul22t38of0fmle9u00k7u04t97v9e\";'),
 ('tbjmshh0ruv82h6h50lte0f92j5tviio','::1',1601958026,'__ci_last_regenerate|i:1601957718;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601870327\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601956207;admin_panel|b:1;session_id|s:32:\"6k9ul22t38of0fmle9u00k7u04t97v9e\";'),
 ('tbukc4nc61lgo8lf9ab5jee43kje49f3','::1',1601358891,'__ci_last_regenerate|i:1601358891;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601291435\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601353455;admin_panel|b:1;session_id|s:32:\"24h5gq3m6cqvd3oj3hmjco17ahfj4g88\";'),
@@ -12351,6 +12345,7 @@ insert  into `srampos_sessions`(`id`,`ip_address`,`timestamp`,`data`) values
 ('uihl7v9pc6clistdvm13ccoul0qglnec','::1',1601717001,'__ci_last_regenerate|i:1601716762;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601705909\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601716096;admin_panel|b:1;session_id|s:32:\"aes4o39ovh816j6ac4rnnoqlao1bleo6\";'),
 ('ukffhnk8ur1a6ur295mrrt1d0vtic8m8','::1',1601537467,'__ci_last_regenerate|i:1601537307;requested_page|s:24:\"admin/procurment/grn/add\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601532212\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601537032;admin_panel|b:1;session_id|s:32:\"vqkbk2vu19logu8abasb9juh8ggsn3g0\";'),
 ('uo3eitid4vfmha8euc8tdejqng03orri','::1',1601897010,'__ci_last_regenerate|i:1601896740;identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601716096\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601870327;admin_panel|b:1;session_id|s:32:\"5h5mf2hsqj8um1gub4u2q9dddc2mq016\";remove_pols|i:1;remove_quls|i:1;report_view_access|i:1;type|s:1:\"0\";subcategory_id|s:1:\"0\";category_id|s:1:\"0\";recipe_id|s:1:\"0\";store_id|s:1:\"0\";'),
+('utmvl1ilqnq71sh3eo47fhml4jrntaat','::1',1602067155,'__ci_last_regenerate|i:1602067096;requested_page|s:20:\"admin/procurment/grn\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601969370\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1602066486;admin_panel|b:1;session_id|s:32:\"sutja7bvr2334n5a6bmn5m6a12mgapdg\";report_view_access|i:1;'),
 ('v240l82v7pf8j2le1hm3ikf0mu1vke3g','::1',1601966132,'__ci_last_regenerate|i:1601966077;requested_page|s:5:\"admin\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601870327\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601956207;admin_panel|b:1;session_id|s:32:\"6k9ul22t38of0fmle9u00k7u04t97v9e\";'),
 ('ve3vectj18jm7ti473m6ln5rt7ei6t6c','::1',1601978473,'__ci_last_regenerate|i:1601978473;'),
 ('vj48f4ljkkpebmi9rbq17kp4rb30bban','::1',1601553031,'__ci_last_regenerate|i:1601552995;requested_page|s:38:\"admin/procurment/purchase_invoices/add\";identity|s:10:\"superadmin\";username|s:10:\"superadmin\";email|s:22:\"superadmin@srampos.com\";user_id|s:1:\"1\";old_last_login|s:10:\"1601537032\";last_ip|s:3:\"::1\";avatar|N;gender|s:4:\"male\";group_id|s:1:\"1\";warehouse_id|s:1:\"1\";view_right|s:1:\"0\";edit_right|s:1:\"0\";allow_discount|s:1:\"0\";biller_id|N;company_id|N;show_cost|s:1:\"0\";show_price|s:1:\"0\";last_activity|i:1601543516;admin_panel|b:1;session_id|s:32:\"stvodeve9lddoc8k0kqhjpfsds76ebk9\";'),
@@ -12697,6 +12692,7 @@ CREATE TABLE `srampos_stock_audit` (
   `s_no` int(11) NOT NULL AUTO_INCREMENT,
   `id` int(11) DEFAULT NULL,
   `date` datetime DEFAULT NULL,
+  `store_id` int(11) DEFAULT NULL,
   `nightaudit_id` int(11) DEFAULT NULL,
   `night_audit_date` datetime DEFAULT NULL,
   `product_id` int(11) DEFAULT NULL,
@@ -12718,9 +12714,32 @@ CREATE TABLE `srampos_stock_audit` (
   `subcategory_name` varchar(200) DEFAULT NULL,
   `variant_name` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`s_no`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=latin1;
 
 /*Data for the table `srampos_stock_audit` */
+
+insert  into `srampos_stock_audit`(`s_no`,`id`,`date`,`store_id`,`nightaudit_id`,`night_audit_date`,`product_id`,`variant_id`,`category_id`,`sub_category_id`,`brand_id`,`opening_stock`,`stock_uom`,`purchase_stock`,`store_transfer_stock`,`store_receiver_stock`,`wastage_stock`,`closing_stock`,`created_on`,`created_by`,`brand_name`,`category_name`,`subcategory_name`,`variant_name`) values 
+(1,11,'2020-10-07 17:29:24',1,624,'2020-10-06 00:00:00',1,0,14,15,1,-250.000000,1,0.000000,0.000000,0.000000,0.000000,-250.000000,'2020-10-07 16:03:53',1,'Default','rice','basmati rice',NULL),
+(2,12,'2020-10-07 17:29:24',1,624,'2020-10-06 00:00:00',1,0,14,16,1,1000.000000,1,0.000000,0.000000,0.000000,0.000000,1000.000000,'2020-10-07 16:03:53',1,'Default','rice','normal rice',NULL),
+(3,13,'2020-10-07 17:29:24',1,624,'2020-10-06 00:00:00',1,0,14,16,2,10000.000000,1,0.000000,0.000000,0.000000,0.000000,10000.000000,'2020-10-07 16:03:53',1,'Test Brand','rice','normal rice',NULL),
+(4,14,'2020-10-07 17:29:24',1,624,'2020-10-06 00:00:00',2,0,17,18,1,3840.000000,1,0.000000,0.000000,0.000000,0.000000,3840.000000,'2020-10-07 16:03:53',1,'Default','masala','gram masala',NULL),
+(5,15,'2020-10-07 17:29:25',1,624,'2020-10-06 00:00:00',2,0,17,19,1,5000.000000,1,0.000000,0.000000,0.000000,0.000000,5000.000000,'2020-10-07 16:03:53',1,'Default','masala','chilli masala',NULL),
+(6,16,'2020-10-07 17:29:25',1,624,'2020-10-06 00:00:00',3,1,3,4,2,12.000000,3,0.000000,0.000000,0.000000,0.000000,12.000000,'2020-10-07 16:03:53',1,'Test Brand','Beverage','beverages','1 Ltrs'),
+(7,17,'2020-10-07 17:29:25',1,624,'2020-10-06 00:00:00',3,2,3,4,2,12.000000,3,0.000000,0.000000,0.000000,0.000000,12.000000,'2020-10-07 16:03:53',1,'Test Brand','Beverage','beverages','1 Ltrs'),
+(8,18,'2020-10-07 17:29:25',1,624,'2020-10-06 00:00:00',3,3,3,4,2,12.000000,3,0.000000,0.000000,0.000000,0.000000,12.000000,'2020-10-07 16:03:53',1,'Test Brand','Beverage','beverages','1 Ltrs'),
+(9,19,'2020-10-07 17:29:25',1,624,'2020-10-06 00:00:00',4,0,5,6,1,-750.000000,1,10000.000000,0.000000,0.000000,0.000000,9250.000000,'2020-10-07 16:03:53',1,'Default','flour','Rice flour',NULL),
+(10,110,'2020-10-07 17:29:25',1,624,'2020-10-06 00:00:00',5,0,5,9,1,-250.000000,1,10000.000000,0.000000,0.000000,0.000000,9750.000000,'2020-10-07 16:03:53',1,'Default','flour','Dal flour',NULL),
+(11,111,'2020-10-07 17:29:26',1,624,'2020-10-06 00:00:00',6,0,20,21,1,0.000000,1,0.000000,0.000000,0.000000,0.000000,0.000000,'2020-10-07 16:03:53',1,'Default','Batter','dosai Batter',NULL),
+(12,112,'2020-10-07 17:29:26',1,624,'2020-10-06 00:00:00',6,0,20,22,1,0.000000,1,0.000000,0.000000,0.000000,0.000000,0.000000,'2020-10-07 16:03:53',1,'Default','Batter','chapati batter',NULL),
+(13,113,'2020-10-07 17:29:26',1,624,'2020-10-06 00:00:00',7,0,23,24,2,0.000000,1,0.000000,0.000000,0.000000,0.000000,0.000000,'2020-10-07 16:03:53',1,'Test Brand','briyani','briyani','Prawn briyani'),
+(14,114,'2020-10-07 17:29:26',1,624,'2020-10-06 00:00:00',7,4,23,24,2,21001.000000,1,0.000000,0.000000,0.000000,0.000000,21001.000000,'2020-10-07 16:03:53',1,'Test Brand','briyani','briyani','Prawn briyani'),
+(15,115,'2020-10-07 17:29:26',1,624,'2020-10-06 00:00:00',7,5,23,24,2,0.000000,1,0.000000,0.000000,0.000000,0.000000,0.000000,'2020-10-07 16:03:53',1,'Test Brand','briyani','briyani','Prawn briyani'),
+(16,116,'2020-10-07 17:29:26',1,624,'2020-10-06 00:00:00',7,6,23,24,2,0.000000,1,0.000000,0.000000,0.000000,0.000000,0.000000,'2020-10-07 16:03:53',1,'Test Brand','briyani','briyani','Prawn briyani'),
+(17,117,'2020-10-07 17:29:27',1,624,'2020-10-06 00:00:00',10,0,27,28,1,5960.000000,1,0.000000,0.000000,0.000000,0.000000,5960.000000,'2020-10-07 16:03:53',1,'Default','Meat','Meat',NULL),
+(18,118,'2020-10-07 17:29:27',1,624,'2020-10-06 00:00:00',10,0,27,29,1,10000.000000,1,0.000000,0.000000,0.000000,0.000000,10000.000000,'2020-10-07 16:03:53',1,'Default','Meat','Chicken Meat',NULL),
+(19,119,'2020-10-07 17:29:27',1,624,'2020-10-06 00:00:00',10,0,27,31,1,10000.000000,1,0.000000,0.000000,0.000000,0.000000,10000.000000,'2020-10-07 16:03:53',1,'Default','Meat','fresh Prawn',NULL),
+(20,120,'2020-10-07 17:29:27',1,624,'2020-10-06 00:00:00',11,0,20,22,1,0.000000,1,0.000000,0.000000,0.000000,0.000000,0.000000,'2020-10-07 16:03:53',1,'Default','Batter','chapati batter',NULL),
+(21,121,'2020-10-07 17:29:28',1,624,'2020-10-06 00:00:00',12,0,20,21,2,190.000000,1,10.000000,0.000000,0.000000,0.000000,200.000000,'2020-10-07 16:03:53',1,'Test Brand','Batter','dosai Batter',NULL);
 
 /*Table structure for table `srampos_stock_count_items` */
 
@@ -15084,7 +15103,7 @@ CREATE TABLE `srampos_transaction_date` (
   `transaction_date` datetime NOT NULL,
   `approved_by` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=208 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=209 DEFAULT CHARSET=latin1;
 
 /*Data for the table `srampos_transaction_date` */
 
@@ -15295,7 +15314,8 @@ insert  into `srampos_transaction_date`(`id`,`currentdate`,`transaction_date`,`a
 (204,'2020-10-02 10:54:16','2020-10-02 00:00:00',0),
 (205,'2020-10-03 11:16:18','2020-10-03 00:00:00',0),
 (206,'2020-10-05 10:58:47','2020-10-05 00:00:00',0),
-(207,'2020-10-06 10:50:08','2020-10-06 00:00:00',0);
+(207,'2020-10-06 10:50:08','2020-10-06 00:00:00',0),
+(208,'2020-10-07 17:28:08','2020-10-07 00:00:00',0);
 
 /*Table structure for table `srampos_transfer_items` */
 
@@ -15416,7 +15436,7 @@ CREATE TABLE `srampos_user_logins` (
   `login_type` enum('A','F') NOT NULL COMMENT 'A-admin panel,F-frontend',
   `group_id` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22252 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=22253 DEFAULT CHARSET=utf8;
 
 /*Data for the table `srampos_user_logins` */
 
@@ -15687,7 +15707,8 @@ insert  into `srampos_user_logins`(`id`,`user_id`,`company_id`,`ip_address`,`log
 (22248,1,NULL,'::1','superadmin','2020-10-06 13:38:09','lbcaajf7rjqt653eb531k86ujhlsa81h','superadmin','superadmin@srampos.com','2020-10-06 15:38:09','2020-10-06 13:38:09','logged_in','A',1),
 (22249,1,NULL,'::1','superadmin','2020-10-06 13:40:26','9rih662avjvepvgb7ggdl5g2ap1ep9ro','superadmin','superadmin@srampos.com','2020-10-06 15:40:26','2020-10-06 13:40:26','logged_in','A',1),
 (22250,1,NULL,'::1','superadmin','2020-10-06 14:29:30','j9b642lv6mldsa5r0j3htseqtohgt2u9','superadmin','superadmin@srampos.com','2020-10-06 16:29:30','2020-10-06 14:29:30','logged_in','A',1),
-(22251,17,NULL,'::1','17','2020-10-06 14:39:25','kpt9lcb3alafp9p1ev6arr2d20d3p2fd','admin','admin@gmail.com','2020-10-06 18:09:25','2020-10-06 16:09:25','logged_in','F',10);
+(22251,17,NULL,'::1','17','2020-10-06 14:39:25','kpt9lcb3alafp9p1ev6arr2d20d3p2fd','admin','admin@gmail.com','2020-10-06 18:09:25','2020-10-06 16:09:25','logged_in','F',10),
+(22252,1,NULL,'::1','superadmin','2020-10-07 17:28:07','sutja7bvr2334n5a6bmn5m6a12mgapdg','superadmin','superadmin@srampos.com','2020-10-07 19:28:07','2020-10-07 17:28:07','logged_in','A',1);
 
 /*Table structure for table `srampos_user_permissions` */
 
@@ -16102,7 +16123,7 @@ CREATE TABLE `srampos_users` (
 /*Data for the table `srampos_users` */
 
 insert  into `srampos_users`(`id`,`user_number`,`last_ip_address`,`ip_address`,`username`,`password`,`salt`,`email`,`activation_code`,`forgotten_password_code`,`forgotten_password_time`,`remember_code`,`created_on`,`last_login`,`active`,`first_name`,`last_name`,`company`,`phone`,`avatar`,`gender`,`group_id`,`warehouse_id`,`biller_id`,`company_id`,`show_cost`,`show_price`,`award_points`,`view_right`,`edit_right`,`allow_discount`,`max_discount_percent`,`area_id`) values 
-(1,'1234','::1','\0\0','superadmin','bdbfa3cf1b08994f77f549bee596dc9da646fb82',NULL,'superadmin@srampos.com',NULL,NULL,NULL,NULL,1351661704,1601969370,1,'superadmin','Super Admin','SRAMPOS','012345678',NULL,'male',1,NULL,NULL,NULL,0,0,0,0,0,0,0,''),
+(1,'1234','::1','\0\0','superadmin','bdbfa3cf1b08994f77f549bee596dc9da646fb82',NULL,'superadmin@srampos.com',NULL,NULL,NULL,NULL,1351661704,1602066486,1,'superadmin','Super Admin','SRAMPOS','012345678',NULL,'male',1,NULL,NULL,NULL,0,0,0,0,0,0,0,''),
 (2,'8085','192.168.1.27','127.0.0.1','default waiter','29c28c091f79bd987f0f8b955cddbf3be42de5d7',NULL,'defaultwaiter@suki.com',NULL,NULL,NULL,NULL,1519730807,1548142376,1,'Default Waiter','','Suki Soup Restaurant','1234567890',NULL,'male',7,1,12,NULL,NULL,NULL,0,1,0,0,0,''),
 (3,'4183','::1','127.0.0.1','leebun','5796c312ae3cb5e8b419cc89fb360a92cf146b00',NULL,'defaultkitchen@gmail.com','ae90b4bbc9f63524ffbe8ef20bb5c4288ac5d14e',NULL,NULL,NULL,1519731541,1521124445,0,'Lee Bun ','Leang','Suki Soup Restaurant','1234567890',NULL,'male',6,1,12,NULL,NULL,NULL,0,1,0,0,0,''),
 (4,'2819','192.168.1.48','127.0.0.1','cashier','1091d89b015c8ca6d819a07017d59ac5913f2934',NULL,'defaultcashier@suki.com',NULL,NULL,NULL,NULL,1519731627,1541086669,1,'Default Cashier','','Suki Soup Restaurant','1234567890',NULL,'male',8,1,12,NULL,NULL,NULL,0,1,0,0,0,'1,2,3'),
