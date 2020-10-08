@@ -222,8 +222,7 @@ $(document).on('click', '.rmfg', function () {
 			pi_items[item_id].row.expiry = $("#expiry_"+row).val(date);
 		}
 	}).datepicker('widget').wrap('<div class="ll-skin-nigran"/>');
-	
-    pi_items[item_id].row.mfg = $(this).val();
+     pi_items[item_id].row.mfg = $(this).val();
 	 pi_items[item_id].row.days = day_val;
     localStorage.setItem('pi_items', JSON.stringify(pi_items));
 });
@@ -827,26 +826,22 @@ $('#pi_discount').focus(function () {
         var row = $(this).closest('tr');        
         spunit = $(this).val();
         item_id = row.attr('data-item-id');
-          var inv_crate=(localStorage.getItem('inv_crate') ==null || localStorage.getItem('inv_crate')==undefined)?formatDecimal(1):formatDecimal(localStorage.getItem('inv_crate'));
 		 if( spunit != pi_items[item_id].row.base_unit) {
                 $.each(pi_items[item_id].units, function() {
                     if (this.id == pi_items[item_id].row.spunit) {
 				var 	sp_base_unit_price=	pi_items[item_id].row.sp_base_unit_price;
                         sp_base_unit_price = formatDecimal((parseFloat(sp_base_unit_price)*(baseToUnitQty(1, this))), 4);
 						pi_items[item_id].row.sp_base_unit_price=sp_base_unit_price;
-						
                     }
                 });
             }else{
-				var selling_price=pi_items[item_id].row.item_selling_price;
-				selling_price=formatDecimal((parseFloat(selling_price)/parseFloat(inv_crate)));
-			//	 pi_items[item_id].row.item_selling_price = selling_price;
-				 pi_items[item_id].row.sp_base_unit_price=selling_price;
-				 
+				 var selling_price=pi_items[item_id].row.item_selling_price;
+				 selling_price=formatDecimal((parseFloat(selling_price)));
+				 pi_items[item_id].row.sp_base_unit_price=selling_price;  
 			}
 			pi_items[item_id].row.spunit=spunit;
-        localStorage.setItem('pi_items', JSON.stringify(pi_items));
-        loadItems();
+            localStorage.setItem('pi_items', JSON.stringify(pi_items));
+            loadItems();
     });
 	
 	
@@ -958,12 +953,10 @@ $('#pi_discount').focus(function () {
 	
 	$('.required').each(function(){
 	    $(this).removeClass('procurment-input-error');
-	   
 	    if($(this).val()==''){
 		$error=true;
 		$(this).addClass('procurment-input-error');
 	    }
-	    
 	});
 	
 	$('.ru_sellingprice').each(function(){
@@ -998,14 +991,11 @@ $('#pi_discount').focus(function () {
    });
    $(document).on("focus", ".datepicker", function(){
         $(this).datepicker({
-	dateFormat: "yy-mm-dd" ,  
-	minDate: 0
-    });
-    });
-   
-    $('#po_number').change(function(){
-	
-    });
+		dateFormat: "yy-mm-dd" ,  
+		minDate: 0
+		});
+		});
+  
    
 });
 /* -----------------------
@@ -1376,8 +1366,17 @@ function loadItems() {
 
             tr_html += '<td class="text-right"><input  type="hidden" class="form-control text-right input-sm item_tax" name="item_tax[]" value="'+ parseFloat(pr_tax_val) +  '"  id="item_tax_' + row_no + '" ><span class="text-right ru_taxamt" id="ru_taxamt_' + row_no + '" style="width:100px!important">' + formatDecimal(parseFloat(pr_tax_val)) + '</span></td>';
 	         $landingCost = formatDecimal(((parseFloat(unit_cost)* parseFloat(item_qty))-parseFloat(item_ds_amt)-parseFloat(item_bill_dis)+parseFloat(tax_val))/parseFloat(item_qty));
+			 if( product_unit != item.row.base_unit) {
+                $.each(item.units, function() {
+                    if (this.id == product_unit) {
+                        basUnit_landing_cost = formatDecimal(baseToUnitQty($landingCost, this), 4);
+                    }
+                });
+            }else{
+				basUnit_landing_cost=$landingCost;
+			}
 			 
-	        var basUnit_landing_cost=formatDecimal($landingCost/base_quantity);
+	        //var basUnit_landing_cost=formatDecimal($landingCost/base_quantity);
             tr_html += '<td class="text-right"><input  type="hidden" class="form-control text-right input-sm landcost" name="landing_cost[]" value="'+ $landingCost+  '"  id="landcost_' + row_no + '" ><span class="text-right ru_landcost" id="ru_landcost_' + row_no + '">' + formatMoney($landingCost) + '</span><input type="hidden" name="basUnit_landing_cost[]"  value="'+basUnit_landing_cost+'"></td>';
 			
 				
@@ -1409,15 +1408,19 @@ function loadItems() {
 			 if( item.row.spunit != product_unit) {
                        $.each(item.units, function() {
                       if (this.id == product_unit) {
-						  console.log(this);
 							// item_selling=formatDecimal(((unitToBasePrice(item_selling, this))), 4);
                        }
                      });
 			 }
-			 console.log(item_selling);
-                      /* else{
-						   baseUnit_selling_price=formatDecimal(item_selling/base_quantity);
-			           } */
+			if( item.row.spunit != product_unit) {
+                $.each(item.units, function() {
+                    if (this.id == product_unit) {
+                        $landingCost = formatDecimal(baseToUnitQty($landingCost, this), 4);
+                    }
+                });
+            }else{
+				$landingCost=$landingCost;
+			}
 				
 	        $margin_dif = item_selling - $landingCost;
             margin = formatDecimal(($margin_dif*100)/$landingCost);

@@ -246,7 +246,6 @@ class Nightaudit_model extends CI_Model{
 	}
 
 	public function generateStockRequest($data,$item,$stockId){
-		
 	if ($this->db->insert('pro_store_request', $data)) {
             $store_request_id = $this->db->insert_id();
         if ($store_request_id) {            
@@ -263,8 +262,7 @@ class Nightaudit_model extends CI_Model{
                     $this->site->updateUniqueTableId($i_request_id,$i_unique_id,'pro_store_request_items');
                 }
 				 $this->db->where("unique_id",$stockId);
-				$this->db->update("pro_stock_master ",array("parent_unique_id"=>0));
-			
+				 $this->db->update("pro_stock_master ",array("parent_unique_id"=>0));
             return true;
         }
         return false;
@@ -301,14 +299,13 @@ class Nightaudit_model extends CI_Model{
 			foreach($q->result() as $row){
 				$categoryMapping=$this->getRecipeMapping($row->id);
 				  foreach($categoryMapping as $recipe){
-						$stock    = $this->getStock($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id); 
+							$stock    = $this->getStock($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id); 
 						if($recipe->type !="production"){
 							$purchase  =$this->getPurchase($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
 						}else{
 							$production=$this->getproduction($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
 							$purchase=$production;
 						}
-						
 						$transfer =$this->getTransfer($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
 						$receiver =$this->getReceiver($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
 						$wastage  =$this->getWastage($recipe->product_id,$recipe->variant_id,$recipe->category_id,$recipe->subcategory_id,$recipe->brand_id,$nightAudit_date);
@@ -345,30 +342,27 @@ class Nightaudit_model extends CI_Model{
 						"subcategory_name"=>$recipe->subcategory_name,
 						"variant_name"=>$recipe->variant);
 						$this->db->insert("stock_audit",$item);
-						
 				        $insertID= $this->db->insert_id();
 						$UniqueID                  = $this->site->generateUniqueTableID($insertID);
 						$this->site->updateUniqueTableId($insertID,$UniqueID,'stock_audit');
 			   }
-			   $this->db->where("id",$nightAuditId);
-			   $this->db->update("nightaudit",array("stock_audit_status"=>"Completed"));
 			   
-			   //api_log clear
+			      $this->db->where("id",$nightAuditId);
+			      $this->db->update("nightaudit",array("stock_audit_status"=>"Completed"));
+				  //api_log clear
 			      $old_date=date('Y-m-d', strtotime('+30 day', strtotime($nightAudit_date)));
 			      $this->db->where("date(".$this->db->dbprefix('api_logs')."created_on) <",$old_date);
 			      $this->db->delete("api_logs");
-			   //orderitem ingredient clear
+				  //orderitem ingredient clear
 			      $this->db->where("date(".$this->db->dbprefix('pos_orderitem_ingredient')."created_on) <",$old_date);
 			      $this->db->delete("pos_orderitem_ingredient");
-			   
-			   
 			}
 			return true;
 		}
 		return false;
 	}
 	function  getRecipeMapping($recipe_id){
-		$this->db->select("category_mapping.*,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,rv.name as variant,r.type");
+	    $this->db->select("category_mapping.*,b.name as brand_name,rc.name as category_name,rsc.name as subcategory_name,rv.name as variant,r.type");
 		$this->db->join('recipe_categories as rc','rc.id=category_mapping.category_id','left');
 		$this->db->join('recipe_categories rsc','rsc.id=category_mapping.subcategory_id','left');	
 		$this->db->join('brands b','b.id=category_mapping.brand_id','left');
@@ -378,7 +372,6 @@ class Nightaudit_model extends CI_Model{
 		$this->db->where("store_id",$this->store_id);
 		$this->db->group_by(array("product_id", "variant_id","category_id", "subcategory_id","brand_id"));
 		$q=$this->db->get("category_mapping ");
-		
 		if($q->num_rows()>0){
 			foreach($q->result() as $row){
 				$data[]=$row;

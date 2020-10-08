@@ -93,9 +93,9 @@ class MY_Controller extends CI_Controller {
            if(empty($this->Settings->excel_footer_color)) {
             $this->Settings->excel_footer_color = 'ffc000';
            }
-           $this->data['Settings'] = $this->Settings;
-           $this->loggedIn = $this->sma->logged_in();
-           if($this->loggedIn) {
+            $this->data['Settings'] = $this->Settings;
+            $this->loggedIn = $this->sma->logged_in();
+            if($this->loggedIn) {
 			if($this->isStore && $this->centerdb_connected){ 
                 $this->site->start_sync();
             }
